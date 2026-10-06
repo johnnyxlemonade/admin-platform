@@ -1,0 +1,104 @@
+.admin-shell .admin-frame {
+    min-width: 0;
+    min-height: 100vh;
+    margin-left: var(--lm-sidebar-width);
+    background: var(--lm-main-surface);
+}
+
+.admin-shell .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(17px, 1.15vw, 24px);
+    height: var(--lm-header-height);
+    padding: 0 clamp(27px, 1.8vw, 42px) 0 clamp(16px, 1.3vw, 28px);
+    overflow: visible;
+    border-bottom: 1px solid var(--lm-line);
+    background: var(--lm-topbar-surface);
+}
+
+.admin-shell .global-search {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.admin-shell .topbar-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: clamp(17px, 1.15vw, 24px);
+}
+
+.admin-shell .icon-button, .admin-shell .action-button {
+    position: relative;
+    padding: 0;
+    border: 0;
+    color: var(--lm-text-secondary);
+    background: transparent;
+    font-weight: 700;
+}
+
+.admin-shell .icon-button {
+    width: 32px;
+    font-size: clamp(20px, 1.25vw, 25px);
+}
+
+.admin-shell .topbar .icon-button .bi {
+    line-height: 1;
+}
+
+.admin-shell .has-notification::after {
+    position: absolute;
+    top: -3px;
+    right: 2px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f12b58;
+    content: "";
+}
+
+.admin-shell .user-menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--lm-text-secondary);
+}
+
+.admin-shell .user-menu .lm-thumbnail {
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 767.98px) {
+    .admin-shell .topbar {
+        flex-wrap: wrap;
+        align-items: center;
+        height: auto;
+        min-height: var(--lm-header-height);
+        padding-top: 10px;
+        padding-bottom: 10px;
+        gap: 10px;
+    }
+    .admin-shell .topbar-actions {
+        order: 1;
+        width: 100%;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    .admin-shell .topbar .global-search {
+        order: 2;
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 0;
+    }
+    .admin-shell .global-search kbd {
+        display: none;
+    }
+}

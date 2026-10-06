@@ -1,0 +1,56 @@
+.lm-modal[data-lemonade-modal-kind="confirm"] .lm-modal-dialog {
+    max-width: 440px;
+}
+
+.lm-modal[data-lemonade-modal-kind="confirm"] .lm-modal-dialog {
+    border-radius: 12px;
+}
+
+.lm-modal[data-lemonade-modal-kind="confirm"] .lm-modal-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 25px;
+}
+
+.lm-modal[data-lemonade-modal-kind="confirm"] .lm-confirm-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 19px;
+}
+
+.lm-modal[data-lemonade-modal-kind="confirm"] .lm-confirm-copy {
+    min-width: 0;
+}
+
+.lm-modal[data-lemonade-modal-kind="confirm"] .lm-confirm-copy h2 {
+    margin: 1px 0 6px;
+    color: var(--lm-text-heading);
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.lm-modal[data-lemonade-modal-kind="confirm"] .lm-confirm-copy p {
+    margin: 0;
+    color: var(--lm-text-muted);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.lm-modal[data-lemonade-modal-kind="confirm"] .lm-modal-footer {
+    padding: 14px 25px;
+    border-top: 1px solid var(--lm-line);
+}
+
+.lm-modal[data-lemonade-modal-kind="confirm"].is-danger .lm-confirm-icon {
+    color: var(--lm-danger);
+    background: var(--lm-danger-soft);
+}

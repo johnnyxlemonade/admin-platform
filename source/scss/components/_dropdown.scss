@@ -1,0 +1,97 @@
+@use "../abstracts/mixins" as mixins;
+
+.lm-dropdown-menu {
+    min-width: 156px;
+    padding: 7px;
+    margin: 0;
+    border: 1px solid var(--lm-line);
+    border-radius: 11px;
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+    box-shadow: var(--lm-shadow);
+    list-style: none;
+}
+
+.lm-dropdown-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 40px;
+    gap: 10px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 7px;
+    color: var(--lm-text-secondary);
+    background: transparent;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.3;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.lm-dropdown-item > .bi {
+    flex: 0 0 16px;
+    width: 16px;
+    color: var(--lm-text-muted);
+    font-size: 16px;
+    text-align: center;
+}
+
+.lm-dropdown-item:hover, .lm-dropdown-item:focus-visible {
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-hover);
+}
+
+.lm-dropdown-item:focus-visible {
+    @include mixins.lm-focus-ring;
+    outline: 0;
+}
+
+.lm-dropdown-item.is-active, .lm-dropdown-item.active {
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-weight: 600;
+}
+
+.lm-dropdown-divider {
+    height: 1px;
+    padding: 0;
+    margin: 7px 0;
+    border: 0;
+    background: var(--lm-line);
+    opacity: 1;
+}
+
+.lm-dropdown {
+    position: relative;
+}
+
+.lm-dropdown [data-lemonade-dropdown-panel] {
+    position: absolute;
+    z-index: 1000;
+}
+
+.lm-dropdown[data-lemonade-dropdown-placement="bottom-end"] [data-lemonade-dropdown-panel] {
+    top: calc(100% + 4px);
+    right: 0;
+}
+
+.lm-dropdown[data-lemonade-dropdown-placement="top-end"] [data-lemonade-dropdown-panel] {
+    right: 0;
+    bottom: calc(100% + 4px);
+}
+
+.lm-dropdown[data-lemonade-dropdown-placement="right-start"] [data-lemonade-dropdown-panel] {
+    top: 0;
+    left: calc(100% + 4px);
+}
+
+.lm-dropdown-menu[hidden] {
+    display: none;
+}
+
+.lm-dropdown .lm-datagrid-toolbar-icon::after {
+    display: none;
+}

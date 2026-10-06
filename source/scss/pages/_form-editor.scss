@@ -1,0 +1,584 @@
+.admin-shell .lm-form-editor-layout,
+.admin-shell .lm-form-editor-settings-layout,
+.admin-shell .lm-form-editor-confirmation-layout,
+.admin-shell .lm-form-editor-responses-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    min-width: 0;
+}
+.admin-shell .lm-form-editor-layout > section {
+    flex: 1 1 360px;
+    min-width: 0;
+}
+.admin-shell .lm-form-editor-layout > .lm-form-editor-fields {
+    flex: 0 1 330px;
+}
+.admin-shell .lm-form-editor-aside {
+    display: flex;
+    flex: 0 1 370px;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 280px;
+}
+.admin-shell .lm-form-editor-aside .lm-card {
+    width: 100%;
+}
+.admin-shell .lm-form-editor-section-heading {
+    margin-bottom: 18px;
+}
+.admin-shell .lm-form-editor-section-heading h2 {
+    margin: 0;
+    color: var(--lm-text-strong);
+    font-size: 17px;
+    font-weight: 700;
+}
+.admin-shell .lm-form-editor-section-heading p {
+    margin: 4px 0 0;
+    color: var(--lm-text-muted);
+    font-size: 13px;
+    line-height: 1.4;
+}
+.admin-shell .lm-form-editor-field-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.admin-shell .lm-form-editor-field {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 9px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+    text-align: left;
+}
+.admin-shell .lm-form-editor-field:hover,
+.admin-shell .lm-form-editor-field:focus-visible,
+.admin-shell .lm-form-editor-field.is-selected {
+    border-color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+.admin-shell .lm-form-editor-field:focus-visible,
+.admin-shell .lm-form-editor-available-button:focus-visible {
+    outline: 0;
+    box-shadow: var(--lm-focus-shadow);
+}
+.admin-shell .lm-form-editor-drag {
+    color: var(--lm-text-muted);
+    font-size: 16px;
+}
+.admin-shell .lm-form-editor-field-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--lm-line);
+    border-radius: 6px;
+    color: var(--lm-primary);
+    background: var(--lm-surface);
+    font-size: 17px;
+}
+.admin-shell .lm-form-editor-field-copy {
+    min-width: 0;
+}
+.admin-shell .lm-form-editor-field-copy strong,
+.admin-shell .lm-form-editor-field-copy small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.admin-shell .lm-form-editor-field-copy strong {
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 600;
+}
+.admin-shell .lm-form-editor-field-copy small {
+    margin-top: 2px;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+.admin-shell .lm-form-editor-field-more {
+    margin-left: auto;
+    color: var(--lm-text-muted);
+}
+.admin-shell .lm-form-editor-add {
+    border-style: dashed;
+    color: var(--lm-primary);
+}
+.admin-shell .lm-form-editor-available {
+    padding-top: 20px;
+    margin-top: 20px;
+    border-top: 1px solid var(--lm-line);
+}
+.admin-shell .lm-form-editor-available h3 {
+    margin: 0;
+    color: var(--lm-text-heading);
+    font-size: 14px;
+    font-weight: 600;
+}
+.admin-shell .lm-form-editor-available p {
+    margin: 4px 0 12px;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+.admin-shell .lm-form-editor-available-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.admin-shell .lm-form-editor-available-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex: 1 1 118px;
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+    font-size: 12px;
+}
+.admin-shell .lm-form-editor-available-button:hover {
+    border-color: var(--lm-primary);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+.admin-shell .lm-form-preview {
+    padding: 15px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface-soft);
+}
+.admin-shell .lm-form-preview h3 {
+    margin: 0 0 14px;
+    color: var(--lm-text-heading);
+    font-size: 16px;
+    font-weight: 700;
+}
+.admin-shell .lm-form-preview .lm-form-group {
+    margin-top: 11px;
+}
+.admin-shell .lm-form-preview .lm-form-label {
+    font-size: 12px;
+}
+.admin-shell .lm-form-preview .form-control {
+    min-height: 34px;
+    font-size: 13px;
+}
+.admin-shell .lm-form-preview textarea.form-control {
+    min-height: 65px;
+}
+.admin-shell .lm-form-preview .btn {
+    width: 100%;
+    margin-top: 15px;
+}
+.admin-shell .lm-form-editor-conditional[hidden] {
+    display: none;
+}
+.admin-shell .lm-form-editor-response-filter {
+    flex: 0 1 150px;
+    width: auto;
+}
+.admin-shell .lm-form-editor-responses-main {
+    flex: 1 1 680px;
+    min-width: 0;
+}
+.admin-shell .lm-form-editor-response-aside {
+    flex: 0 1 350px;
+    min-width: 280px;
+}
+.admin-shell .lm-form-editor-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+.admin-shell .lm-form-editor-metric {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1 1 175px;
+    padding: 16px;
+    border: 1px solid var(--lm-card-border);
+    border-radius: var(--lm-radius-lg);
+    background: var(--lm-surface);
+}
+.admin-shell .lm-form-editor-metric i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 21px;
+}
+.admin-shell .lm-form-editor-metric span,
+.admin-shell .lm-form-editor-metric strong {
+    display: block;
+}
+.admin-shell .lm-form-editor-metric span {
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+.admin-shell .lm-form-editor-metric strong {
+    color: var(--lm-text-strong);
+    font-size: 22px;
+}
+.admin-shell .lm-form-editor-response-table tbody tr {
+    cursor: pointer;
+}
+.admin-shell .lm-form-editor-response-table tbody tr.is-selected td {
+    background: var(--lm-primary-soft);
+}
+.admin-shell .lm-response-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+.admin-shell .lm-response-status::before {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    content: "";
+}
+.admin-shell .lm-response-status--new {
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+.admin-shell .lm-response-status--read {
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+}
+.admin-shell .lm-response-status--resolved {
+    color: var(--lm-success);
+    background: var(--lm-success-bg);
+}
+.admin-shell .lm-response-detail-title {
+    margin: 0 0 4px;
+    color: var(--lm-text-strong);
+    font-size: 17px;
+    font-weight: 700;
+}
+.admin-shell .lm-response-detail-subtitle {
+    margin: 0 0 20px;
+    color: var(--lm-text-muted);
+    font-size: 13px;
+}
+.admin-shell .lm-response-detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+}
+.admin-shell .lm-response-detail-list div {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+}
+.admin-shell .lm-response-detail-list dt {
+    color: var(--lm-text-secondary);
+    font-weight: 500;
+}
+.admin-shell .lm-response-detail-list dd {
+    margin: 0;
+    color: var(--lm-text-heading);
+    font-weight: 600;
+    text-align: right;
+}
+.admin-shell .lm-response-message {
+    padding: 12px;
+    margin-top: 20px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+    font-size: 13px;
+    line-height: 1.45;
+}
+.admin-shell .lm-confirmation-preview {
+    padding: 22px 14px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface-soft);
+    text-align: center;
+}
+.admin-shell .lm-confirmation-preview i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 14px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--lm-success);
+    font-size: 25px;
+}
+.admin-shell .lm-confirmation-preview h3 {
+    margin: 0;
+    color: var(--lm-text-strong);
+    font-size: 20px;
+    font-weight: 700;
+}
+.admin-shell .lm-confirmation-preview p {
+    margin: 10px 0 0;
+    color: var(--lm-text-secondary);
+    font-size: 13px;
+    white-space: pre-line;
+}
+@media (max-width: 1199.98px) {
+    .admin-shell .lm-form-editor-layout {
+        flex-wrap: wrap;
+    }
+    .admin-shell .lm-form-editor-layout > .lm-form-editor-fields {
+        flex: 1 1 300px;
+    }
+    .admin-shell .lm-form-editor-aside {
+        flex: 1 1 100%;
+        flex-direction: row;
+    }
+    .admin-shell .lm-form-editor-aside .lm-card {
+        flex: 1 1 280px;
+    }
+    .admin-shell .lm-form-editor-responses-layout {
+        flex-direction: column;
+    }
+    .admin-shell .lm-form-editor-response-aside {
+        width: 100%;
+        max-width: none;
+    }
+}
+@media (max-width: 991.98px) {
+    .admin-shell .lm-form-editor-settings-layout,
+    .admin-shell .lm-form-editor-confirmation-layout {
+        flex-direction: column;
+    }
+    .admin-shell .lm-form-editor-settings-layout > .lm-settings-main,
+    .admin-shell .lm-form-editor-settings-layout > .lm-settings-aside,
+    .admin-shell .lm-form-editor-confirmation-layout > .lm-settings-main,
+    .admin-shell .lm-form-editor-confirmation-layout > .lm-settings-aside {
+        width: 100%;
+        max-width: none;
+    }
+}
+@media (max-width: 767.98px) {
+    .admin-shell .lm-form-editor-aside {
+        flex-direction: column;
+    }
+    .admin-shell .lm-form-editor-response-filter {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+}
+.admin-shell .lm-form-editor-field:focus-within {
+    border-color: var(--lm-primary);
+}
+.admin-shell .lm-form-editor-drag {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 5px;
+    color: var(--lm-text-muted);
+    background: transparent;
+}
+.admin-shell .lm-form-editor-drag:focus-visible {
+    outline: 0;
+    box-shadow: var(--lm-focus-shadow);
+}
+.admin-shell .lm-form-editor-empty-state {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 142px;
+    padding: 20px;
+    border: 1px dashed var(--lm-line-strong);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    text-align: center;
+}
+.admin-shell .lm-form-editor-empty-state > i {
+    margin-bottom: 9px;
+    color: var(--lm-primary);
+    font-size: 24px;
+}
+.admin-shell .lm-form-editor-empty-state strong {
+    color: var(--lm-text-heading);
+    font-size: 14px;
+}
+.admin-shell .lm-form-editor-empty-state p {
+    max-width: 240px;
+    margin: 5px 0 0;
+    font-size: 12px;
+    line-height: 1.4;
+}
+.admin-shell .lm-form-editor-preview-empty {
+    padding: 12px;
+    margin: 14px 0 0;
+    border: 1px dashed var(--lm-line-strong);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface);
+    font-size: 13px;
+    text-align: center;
+}
+
+.admin-shell .lm-form-editor-layout > .lm-form-editor-fields {
+    flex: 0 1 280px;
+}
+.admin-shell .lm-form-editor-builder-main {
+    display: flex;
+    flex: 1 1 500px;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+.admin-shell .lm-form-editor-builder-main > .lm-card {
+    width: 100%;
+}
+.admin-shell .lm-form-editor-layout > .lm-form-editor-aside {
+    flex: 0 1 320px;
+}
+.admin-shell .lm-form-layout-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.admin-shell .lm-form-layout-row {
+    padding: 12px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface-soft);
+}
+.admin-shell .lm-form-layout-row.is-active {
+    border-color: var(--lm-primary);
+}
+.admin-shell .lm-form-layout-row-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 600;
+}
+.admin-shell .lm-form-layout-row-columns {
+    min-height: 50px;
+}
+.admin-shell .lm-form-layout-column-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 50px;
+    padding: 8px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface);
+    cursor: pointer;
+}
+.admin-shell .lm-form-layout-column-card:hover,
+.admin-shell .lm-form-layout-column-card.is-selected {
+    border-color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+.admin-shell .lm-form-layout-column-card .lm-form-editor-field-icon {
+    flex-basis: 30px;
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+}
+.admin-shell .lm-form-layout-column-card .lm-form-editor-field-copy {
+    flex: 1 1 auto;
+}
+.admin-shell .lm-form-layout-span {
+    flex: 0 0 auto;
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+}
+@media (max-width: 1199.98px) {
+    .admin-shell .lm-form-editor-layout > .lm-form-editor-aside {
+        flex: 1 1 300px;
+    }
+    .admin-shell .lm-form-editor-builder-main {
+        flex: 1 1 calc(100% - 316px);
+    }
+}
+@media (max-width: 991.98px) {
+    .admin-shell .lm-form-editor-layout > .lm-form-editor-fields,
+    .admin-shell .lm-form-editor-builder-main,
+    .admin-shell .lm-form-editor-layout > .lm-form-editor-aside {
+        flex: 1 1 100%;
+        width: 100%;
+        max-width: none;
+    }
+}
+@media (max-width: 767.98px) {
+    .admin-shell .lm-form-layout-row {
+        padding: 10px;
+    }
+    .admin-shell .lm-form-layout-column-card {
+        min-height: 46px;
+    }
+}
+
+.admin-shell .lm-form-editor-available-list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+.admin-shell .lm-form-editor-available-button {
+    justify-content: flex-start;
+    flex: 0 0 auto;
+    width: 100%;
+    text-align: left;
+}
+.admin-shell .lm-form-layout-drop-zone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px;
+    border: 1px dashed transparent;
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    line-height: 1.2;
+    opacity: 0.72;
+    transition: border-color 0.16s ease, background-color 0.16s ease,
+    color 0.16s ease;
+}
+.admin-shell .lm-form-layout-drop-zone::before,
+.admin-shell .lm-form-layout-drop-zone::after {
+    height: 1px;
+    flex: 1 1 auto;
+    margin: 0 8px;
+    background: var(--lm-line);
+    content: "";
+}
+.admin-shell .lm-form-layout-drop-zone.is-drop-target {
+    border-color: var(--lm-primary);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    opacity: 1;
+}
+.admin-shell .lm-form-layout-drop-zone.is-drop-target::before,
+.admin-shell .lm-form-layout-drop-zone.is-drop-target::after {
+    background: var(--lm-primary);
+}

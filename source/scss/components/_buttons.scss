@@ -1,0 +1,66 @@
+.admin-shell .btn {
+    --bs-btn-font-size: clamp(14px, .82vw, 15px);
+    --bs-btn-padding-x: clamp(1.1rem, 1.3vw, 1.45rem);
+    --bs-btn-padding-y: .67rem;
+    --bs-btn-border-radius: 7px;
+    font-weight: 500;
+}
+
+.admin-shell .btn-primary {
+    --bs-btn-bg: var(--lm-primary);
+    --bs-btn-border-color: var(--lm-primary);
+    --bs-btn-hover-bg: var(--lm-primary-dark);
+    --bs-btn-hover-border-color: var(--lm-primary-dark);
+    box-shadow: var(--lm-primary-shadow);
+}
+
+.admin-shell .lm-button-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-hover-color: #fff;
+    color: #fff;
+}
+
+.admin-shell .lm-button-primary > * {
+    color: inherit;
+}
+
+.admin-shell .btn-outline-secondary {
+    --bs-btn-color: var(--lm-text-secondary);
+    --bs-btn-border-color: var(--lm-line-strong);
+    --bs-btn-hover-color: var(--lm-text-secondary);
+    --bs-btn-hover-bg: var(--lm-surface-hover);
+    --bs-btn-hover-border-color: var(--lm-line-strong);
+}
+
+.admin-shell .btn-light {
+    --bs-btn-bg: var(--lm-surface-soft);
+    --bs-btn-border-color: var(--lm-line);
+    --bs-btn-color: var(--lm-text-muted);
+}
+
+.admin-shell .btn-danger {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--lm-danger);
+    --bs-btn-border-color: var(--lm-danger);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--lm-danger-dark);
+    --bs-btn-hover-border-color: var(--lm-danger-dark);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--lm-danger-dark);
+    --bs-btn-active-border-color: var(--lm-danger-dark);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--lm-danger);
+    --bs-btn-disabled-border-color: var(--lm-danger);
+}
+
+.admin-shell .lm-button-with-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+.admin-shell .lm-button-with-icon > .bi {
+    flex: 0 0 auto;
+    line-height: 1;
+}

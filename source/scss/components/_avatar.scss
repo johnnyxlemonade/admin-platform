@@ -1,0 +1,20 @@
+.admin-shell .avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(40px, 2.45vw, 48px);
+    height: clamp(40px, 2.45vw, 48px);
+    border-radius: 50%;
+    background: var(--lm-surface-soft);
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-shell .avatar-sm {
+    width: clamp(30px, 1.7vw, 34px);
+    height: clamp(30px, 1.7vw, 34px);
+    margin-right: 7px;
+    font-size: 10px;
+    vertical-align: middle;
+}

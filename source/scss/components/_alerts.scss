@@ -1,0 +1,11 @@
+.admin-shell .alert {
+    border-radius: var(--lm-radius);
+    border-width: 1px;
+    font-size: 13px;
+}
+
+.admin-shell .alert-info {
+    --bs-alert-color: var(--lm-info);
+    --bs-alert-bg: var(--lm-info-bg);
+    --bs-alert-border-color: var(--lm-info-line);
+}

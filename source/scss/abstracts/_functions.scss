@@ -1,0 +1,3 @@
+@function lm-space($multiplier) {
+    @return calc(#{$multiplier} * var(--lm-space-1));
+}

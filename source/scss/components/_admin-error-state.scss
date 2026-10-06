@@ -1,0 +1,43 @@
+.admin-shell .lm-admin-error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: clamp(36px, 3vw, 56px) 20px;
+    text-align: center;
+}
+
+.admin-shell .lm-admin-error-state-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 28px;
+}
+
+.admin-shell .lm-admin-error-state-code {
+    margin: 0 0 8px;
+    color: var(--lm-text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .08em;
+}
+
+.admin-shell .lm-admin-error-state-title {
+    margin: 0 0 10px;
+    color: var(--lm-text-strong);
+    font-size: clamp(20px, 1.2vw, 24px);
+    font-weight: 700;
+}
+
+.admin-shell .lm-admin-error-state-description {
+    max-width: 560px;
+    margin: 0 0 24px;
+    color: var(--lm-text-muted);
+}

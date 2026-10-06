@@ -1,0 +1,22 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    min-width: 320px;
+}
+
+.admin-shell :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus,
+.lemonade-auth :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus {
+    outline: 0;
+}
+
+.admin-shell :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible,
+.lemonade-auth :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+    outline: 0;
+    box-shadow: var(--lm-focus-shadow);
+}
+
+.admin-shell {
+    min-height: 100vh;
+}

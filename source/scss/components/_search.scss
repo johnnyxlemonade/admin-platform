@@ -1,0 +1,59 @@
+.admin-shell .global-search {
+    width: clamp(360px, 20vw, 420px);
+    height: clamp(42px, 2.4vw, 46px);
+}
+
+.admin-shell .lm-search {
+    position: relative;
+}
+
+.admin-shell .lm-search-icon {
+    position: absolute;
+    inset: 0 auto 0 0;
+    display: flex;
+    width: 42px;
+    align-items: center;
+    justify-content: center;
+    color: var(--lm-text-muted);
+    pointer-events: none;
+}
+
+.admin-shell .lm-search-icon.bi {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.admin-shell .lm-search-icon.bi::before {
+    display: block;
+    line-height: 1;
+    vertical-align: 0;
+}
+
+.admin-shell .lm-search .form-control {
+    height: 100%;
+    padding-left: 42px;
+    border: 1px solid var(--lm-line);
+    background: var(--lm-surface);
+}
+
+.admin-shell .lm-search .form-control:focus {
+    border-color: var(--lm-primary);
+    box-shadow: var(--lm-focus-shadow);
+}
+
+.admin-shell .global-search .form-control {
+    padding-right: 48px;
+}
+
+.admin-shell .global-search kbd {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    z-index: 1;
+    transform: translateY(-50%);
+    border-radius: 5px;
+    background: var(--lm-surface-soft);
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    font-weight: 500;
+}

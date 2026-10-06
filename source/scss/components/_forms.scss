@@ -1,0 +1,295 @@
+.admin-shell .lm-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-shell .lm-form-check {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.admin-shell .lm-form-check-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-shell .lm-form-editor [data-form-panel="settings"] .lm-settings-stack {
+    gap: 8px;
+}
+
+.admin-shell .lm-form-check > .form-check {
+    margin: 0;
+}
+
+.admin-shell .lm-form-check > .lm-form-help {
+    margin: 0;
+}
+
+.admin-shell .lm-form-label {
+    margin: 0;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-form-label.required::after {
+    margin-left: 3px;
+    color: var(--lm-danger);
+    content: "*";
+}
+
+.admin-shell .lm-form-help {
+    color: var(--lm-text-soft);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.admin-shell .lm-form-help.is-error {
+    color: var(--lm-danger);
+}
+
+.admin-shell .lm-select {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.admin-shell .lm-select-native {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.admin-shell .lm-select-trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    width: 100%;
+    min-height: 38px;
+    padding: 6px 42px 6px 10px;
+    background-image: none;
+    text-align: left;
+}
+
+.admin-shell .lm-select-indicator {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    color: var(--lm-text-muted);
+    font-size: 13px;
+    line-height: 1;
+    pointer-events: none;
+    transform: translateY(-50%);
+    transition: transform .16s ease, color .16s ease;
+}
+
+.admin-shell .lm-select.is-open .lm-select-indicator {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.admin-shell .lm-select-token {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 12px;
+}
+
+.admin-shell .lm-select-token-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-select-token-remove {
+    font-size: 15px;
+    line-height: 1;
+}
+
+.lm-select-dropdown {
+    box-sizing: border-box;
+    max-width: calc(100vw - 8px);
+    padding: 8px;
+    border: 1px solid var(--lm-form-border);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface);
+    box-shadow: var(--lm-shadow-lg);
+}
+
+.lm-select-dropdown--floating {
+    position: fixed;
+    z-index: 1056;
+}
+
+.lm-select-dropdown--local {
+    position: absolute;
+}
+
+.lm-select-search {
+    margin-bottom: 8px;
+}
+
+.lm-select-results {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.lm-select-state {
+    display: block;
+    padding: 9px 10px;
+    color: var(--lm-text-muted);
+    font-size: 13px;
+}
+
+.lm-select-option {
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 4px;
+    color: var(--lm-text-control);
+    background: transparent;
+    text-align: left;
+}
+
+.lm-select-option:hover, .lm-select-option:focus-visible, .lm-select-option.is-selected {
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    outline: 0;
+}
+
+.lm-select-more {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.admin-shell .input-group-text, .admin-shell .form-control, .admin-shell .form-select {
+    border-color: var(--lm-form-border);
+    background: var(--lm-surface);
+    color: var(--lm-text-control);
+    transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+
+.admin-shell .input-group-text {
+    color: var(--lm-text-muted);
+    font-size: 22px;
+    line-height: 1;
+}
+
+.admin-shell .form-control, .admin-shell .form-select {
+    min-height: 38px;
+    font-size: 14px;
+    box-shadow: none !important;
+}
+
+.admin-shell .form-control:hover, .admin-shell .form-select:hover {
+    border-color: var(--lm-form-border-hover);
+}
+
+.admin-shell .form-control:focus, .admin-shell .form-select:focus {
+    border-color: var(--lm-form-border-focus);
+    box-shadow: var(--lm-focus-shadow) !important;
+}
+
+.admin-shell .form-control[readonly],
+.admin-shell .form-select[readonly],
+.lm-modal[data-lemonade-modal-kind="form"] .form-control[readonly],
+.lm-modal[data-lemonade-modal-kind="form"] .form-select[readonly] {
+    border-color: var(--lm-form-border-hover);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+    cursor: text;
+}
+
+.admin-shell .form-control:disabled, .admin-shell .form-select:disabled {
+    border-color: var(--lm-form-border);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+.admin-shell .form-control.is-invalid, .admin-shell .was-validated .form-control:invalid, .admin-shell .form-select.is-invalid, .admin-shell .was-validated .form-select:invalid {
+    border-color: var(--lm-danger);
+}
+
+.admin-shell .lm-select.is-disabled .lm-select-indicator {
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-select.is-invalid .lm-select-trigger {
+    border-color: var(--lm-danger);
+}
+
+.admin-shell .lm-select.is-invalid .lm-select-trigger:focus {
+    border-color: var(--lm-danger);
+    box-shadow: var(--lm-focus-shadow) !important;
+}
+
+.admin-shell textarea.form-control {
+    min-height: 90px;
+}
+
+.admin-shell .form-label {
+    margin-bottom: 6px;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.admin-shell .form-text {
+    color: var(--lm-text-soft);
+    font-size: 12px;
+}
+
+.admin-shell .form-switch .form-check-input {
+    width: 38px;
+    height: 22px;
+    margin-top: .05em;
+    border: 0;
+    background-color: var(--lm-line-strong);
+}
+
+.admin-shell .form-check.form-switch .form-check-label {
+    margin-left: 8px;
+}
+
+.admin-shell .form-switch .form-check-input:checked {
+    background-color: var(--lm-primary);
+}
+
+.admin-shell .form-check-label {
+    color: var(--lm-text-secondary);
+}
+
+.admin-shell .form-check-input {
+    width: 17px;
+    height: 17px;
+    border-color: var(--lm-form-border);
+    box-shadow: none;
+}
+
+.admin-shell .form-check-input:focus-visible {
+    border-color: var(--lm-primary);
+    box-shadow: var(--lm-focus-shadow);
+}
+
+.admin-shell .form-check-input:checked {
+    border-color: var(--lm-primary);
+    background-color: var(--lm-primary);
+}

@@ -1,0 +1,16 @@
+.admin-shell .content-area {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding: var(--lm-shell-content-top) clamp(30px, 2vw, 44px) 40px;
+}
+
+@media (max-width: 1199px) {
+    .admin-shell .content-area {
+        padding-right: 20px;
+        padding-left: 20px;
+    }
+    .admin-shell .page-heading p {
+        max-width: 600px;
+    }
+}

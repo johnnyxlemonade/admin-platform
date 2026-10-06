@@ -1,0 +1,304 @@
+@use "../abstracts/mixins" as mixins;
+
+.admin-shell .lm-user-menu-dropdown-menu {
+    width: 235px;
+}
+
+.admin-shell .lm-user-menu-header {
+    padding: 8px 10px 12px;
+    margin-bottom: 7px;
+    border-bottom: 1px solid var(--lm-line);
+}
+
+.admin-shell .lm-user-menu-header strong, .admin-shell .lm-user-menu-header span {
+    display: block;
+}
+
+.admin-shell .lm-user-menu-header strong {
+    color: var(--lm-text-heading);
+    font-size: 14px;
+}
+
+.admin-shell .lm-user-menu-header span {
+    margin-top: 3px;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+
+.admin-shell .lm-user-menu-dropdown-menu .lm-user-menu-logout {
+    color: var(--lm-danger);
+}
+
+.admin-shell .lm-user-menu-dropdown-menu .lm-user-menu-logout .bi {
+    color: var(--lm-danger);
+}
+
+.admin-shell .lm-user-menu-language {
+    padding: 2px 0;
+}
+
+.admin-shell .lm-user-menu-language-label {
+    display: block;
+    padding: 5px 10px 6px;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-user-menu-language-option {
+    font-weight: 400;
+}
+
+.admin-shell .lm-user-menu-language-option + .lm-user-menu-language-option {
+    margin-top: 3px;
+}
+
+.admin-shell .lm-user-menu-language-option.is-active {
+    font-weight: 400;
+}
+
+.admin-shell .lm-user-menu-language-option .lm-locale-flag {
+    display: block;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 14px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.admin-shell .lm-user-menu-language-option .lm-locale-flag--cs {
+    background-image: url("../../images/locale/cs.svg?no-inline");
+}
+
+.admin-shell .lm-user-menu-language-option .lm-locale-flag--en {
+    background-image: url("../../images/locale/en.svg?no-inline");
+}
+
+.admin-shell .lm-user-menu-language-option .lm-locale-label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.admin-shell .lm-user-menu-language-option .lm-locale-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    color: var(--lm-primary);
+    font-size: 15px;
+    line-height: 1;
+}
+
+.admin-shell .lm-user-menu-language-option .lm-locale-check[hidden] {
+    display: flex !important;
+    visibility: hidden;
+}
+
+.admin-shell .lm-notifications {
+    position: relative;
+}
+
+.admin-shell .lm-notifications-menu {
+    width: 420px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.admin-shell .lm-notifications-header, .admin-shell .lm-notifications-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 15px;
+}
+
+.admin-shell .lm-notifications-header {
+    border-bottom: 1px solid var(--lm-line);
+    color: var(--lm-text-heading);
+}
+
+.admin-shell .lm-notifications-header span {
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+
+.admin-shell .lm-notifications-list {
+    max-height: 360px;
+    overflow-y: auto;
+    @include mixins.lemonade-scrollbar;
+}
+
+.admin-shell .lm-notifications-list .lm-activity-item {
+    text-decoration: none;
+}
+
+.admin-shell .lm-notifications-menu .lm-activity-item--compact {
+    min-height: 72px;
+    padding: 13px 16px;
+}
+
+.admin-shell .lm-notifications-menu .lm-activity-message {
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.admin-shell .lm-notifications-menu .lm-activity-trailing {
+    padding-top: 1px;
+}
+
+.admin-shell .lm-notifications-state {
+    padding: 28px 15px;
+    margin: 0;
+    color: var(--lm-text-muted);
+    font-size: 13px;
+    text-align: center;
+}
+
+.admin-shell .lm-notifications-footer {
+    border-top: 1px solid var(--lm-line);
+    background: var(--lm-surface);
+}
+
+.admin-shell .lm-notifications-footer .btn {
+    min-width: 0;
+}
+
+.admin-shell .lm-notifications-page .lm-notifications-list {
+    max-height: none;
+}
+
+.admin-shell .lm-notifications-page .lm-notifications-state {
+    padding: 42px 18px;
+}
+
+.admin-shell .lm-notifications-page .lm-activity-list--full {
+    gap: 12px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.admin-shell .lm-notifications-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    border: 1px solid var(--lm-card-border);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface);
+    text-align: center;
+}
+
+.admin-shell .lm-notifications-empty > i {
+    margin-bottom: 12px;
+    color: var(--lm-text-secondary);
+    font-size: 30px;
+}
+
+.admin-shell .lm-notifications-empty p {
+    margin: 0;
+    font-size: 13px;
+}
+
+.admin-shell .lm-notifications-page .lm-notification-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--lm-space-3);
+    min-width: 0;
+    padding: var(--lm-space-4) var(--lm-space-5);
+}
+
+.admin-shell .lm-notifications-page .lm-notification-toggle .lm-activity-icon {
+    flex: 0 0 34px;
+}
+
+.admin-shell .lm-notifications-page .lm-notification-content {
+    min-width: 0;
+}
+
+.admin-shell .lm-notifications-page .lm-activity-author {
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-notifications-page .lm-notification-title {
+    display: block;
+    margin-top: 4px;
+    color: var(--lm-text-heading);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.admin-shell .lm-notifications-page .lm-notification-trailing {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    align-self: start;
+    gap: 7px;
+    padding-top: 2px;
+    margin-left: auto;
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-notifications-page .lm-notification-body {
+    padding: var(--lm-space-3) var(--lm-space-5) var(--lm-space-5) calc(34px + var(--lm-space-3) + var(--lm-space-5));
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.6;
+    border-top: 1px solid var(--lm-line-subtle);
+}
+
+.admin-shell .lm-notifications-page .lm-notification-body p {
+    max-width: 72ch;
+    margin: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.admin-shell .lm-notifications-load-more-skeleton {
+    margin-top: 18px;
+}
+
+.admin-shell .lm-notifications-load-more {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+}
+
+@media (max-width: 767.98px) {
+    .admin-shell .lm-notifications-menu {
+        max-width: calc(100vw - 24px);
+    }
+    .admin-shell .lm-notifications-page .lm-notification-toggle {
+        padding: var(--lm-space-4);
+    }
+    .admin-shell .lm-notifications-page .lm-notification-body {
+        padding-right: var(--lm-space-4);
+        padding-left: calc(34px + var(--lm-space-3) + var(--lm-space-4));
+    }
+}
+
+@media (max-width: 575.98px) {
+    .admin-shell .lm-notifications-page .lm-notification-toggle {
+        flex-wrap: wrap;
+    }
+    .admin-shell .lm-notifications-page .lm-notification-trailing {
+        flex: 0 0 calc(100% - 34px - var(--lm-space-3));
+        margin-top: var(--lm-space-1);
+        margin-left: calc(34px + var(--lm-space-3));
+    }
+    .admin-shell .lm-notifications-page .lm-notification-body {
+        padding-left: calc(34px + var(--lm-space-2));
+    }
+}

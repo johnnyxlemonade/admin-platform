@@ -1,0 +1,218 @@
+.lm-message-container {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1080;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(520px, calc(100vw - 32px));
+    pointer-events: none;
+}
+
+.admin-shell .lm-message-container {
+    top: calc(var(--lm-header-height) + 16px);
+}
+
+.lm-message {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    width: 100%;
+    padding: 15px 16px;
+    overflow: hidden;
+    border: 1px solid var(--lm-line);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+    box-shadow: var(--lm-shadow);
+    pointer-events: auto;
+    animation: lm-message-enter .16s ease-out both;
+}
+
+.lm-message.is-leaving {
+    animation: lm-message-leave .16s ease-in both;
+}
+
+.lm-message-icon {
+    display: flex;
+    flex: 0 0 20px;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: var(--lm-info);
+    font-size: 18px;
+    line-height: 1;
+}
+
+.lm-message-copy {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-top: 1px;
+    color: var(--lm-text);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.lm-message-close {
+    display: flex;
+    flex: 0 0 26px;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    margin: -3px -2px -3px 0;
+    border: 0;
+    color: var(--lm-text-muted);
+    background: transparent;
+    font-size: 13px;
+}
+
+.lm-message-close:hover, .lm-message-close:focus-visible {
+    color: var(--lm-text);
+    background: var(--lm-surface-hover);
+}
+
+.lm-message-close:focus-visible {
+    outline: 0;
+    box-shadow: var(--lm-focus-shadow);
+}
+
+.lm-message--success .lm-message-icon {
+    color: var(--lm-success);
+}
+
+.lm-message--warning .lm-message-icon {
+    color: var(--lm-warning);
+}
+
+.lm-message--error .lm-message-icon {
+    color: var(--lm-danger);
+}
+
+.lm-message-progress {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    overflow: hidden;
+    background: var(--lm-surface-hover);
+}
+
+.lm-message-progress-bar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform: scaleX(1);
+    transform-origin: left center;
+    background: var(--lm-info);
+    animation: lm-message-progress-countdown var(--lm-message-timeout) linear forwards;
+}
+
+.lm-message--success .lm-message-progress-bar {
+    background: var(--lm-success);
+}
+
+.lm-message--warning .lm-message-progress-bar {
+    background: var(--lm-warning);
+}
+
+.lm-message--error .lm-message-progress-bar {
+    background: var(--lm-danger);
+}
+
+@keyframes lm-message-enter {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes lm-message-leave {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes lm-message-progress-countdown {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .lm-message-container, .admin-shell .lm-message-container {
+        top: 12px;
+        right: 12px;
+        width: calc(100vw - 24px);
+    }
+    .admin-shell .lm-message-container {
+        top: calc(var(--lm-header-height) + 12px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lm-message, .lm-message.is-leaving {
+        animation: none;
+    }
+    .lm-message-progress {
+        display: none;
+    }
+}
+
+body.lemonade-auth .lm-message-container {
+    top: auto;
+    right: auto;
+    bottom: 24px;
+    left: 50%;
+    width: min(800px, calc(100vw - 48px));
+    transform: translateX(-50%);
+}
+
+body.lemonade-auth .lm-message-container > .lm-message {
+    width: 100%;
+    min-height: 64px;
+    padding: 18px 22px;
+}
+
+body.lemonade-auth .lm-message-container > .lm-message .lm-message-copy {
+    font-size: 16px;
+}
+
+body.lemonade-auth .lm-message-container > .lm-message .lm-message-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+}
+
+.lemonade-auth [data-lemonade-auth-error] {
+    box-shadow: none;
+}
+
+.lemonade-auth [data-lemonade-auth-error][hidden] {
+    display: none;
+}
+
+@media (max-width: 575.98px) {
+    body.lemonade-auth .lm-message-container {
+        right: auto;
+        bottom: 16px;
+        left: 50%;
+        width: calc(100vw - 32px);
+    }
+}

@@ -1,0 +1,366 @@
+body.lemonade-auth {
+    margin: 0;
+    color: var(--lm-text);
+    background: var(--lm-auth-canvas);
+    font-family: var(--lm-font-family);
+}
+
+main.lemonade-auth {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: clamp(22px, 4vw, 64px);
+}
+
+.lemonade-auth a {
+    color: var(--lm-primary);
+    text-decoration: none;
+}
+
+.lemonade-auth-layout {
+    display: flex;
+    width: min(100%, 1060px);
+    overflow: hidden;
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface);
+    box-shadow: 0 16px 46px color-mix(in srgb, var(--lm-primary) 8%, transparent), var(--lm-shadow-lg);
+}
+
+.lemonade-auth-layout--installer {
+    display: block;
+    width: min(100%, 600px);
+}
+
+[data-bs-theme="dark"] .lemonade-auth-layout {
+    box-shadow: none;
+}
+
+.lemonade-auth-panel {
+    display: flex;
+    flex: 0 1 58%;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    padding: clamp(30px, 4vw, 48px);
+}
+
+.lemonade-auth-layout--installer .lemonade-auth-panel {
+    flex-basis: auto;
+}
+
+.lemonade-auth-visual {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    flex: 1 1 42%;
+    min-width: 0;
+    padding: clamp(28px, 3vw, 42px);
+    overflow: hidden;
+    color: var(--lm-text-strong);
+    background: color-mix(in srgb, var(--lm-primary) 7%, var(--lm-auth-canvas));
+}
+
+.lemonade-auth-visual::before {
+    position: absolute;
+    inset: 0;
+    content: "";
+    pointer-events: none;
+}
+
+.lemonade-auth-visual-time {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+    text-align: right;
+}
+
+.lemonade-auth-visual-clock {
+    color: var(--lm-text-strong);
+    font-size: clamp(36px, 3vw, 50px);
+    font-weight: 650;
+    letter-spacing: -.08em;
+    line-height: .9;
+}
+
+.lemonade-auth-visual-date {
+    color: var(--lm-text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .04em;
+}
+
+[data-bs-theme="light"] .lemonade-auth-visual {
+    color: var(--lm-primary-soft);
+    background: var(--lm-auth-canvas);
+}
+
+[data-bs-theme="light"] .lemonade-auth-visual::before {
+    display: block;
+    background: url("../../images/auth/auth-landscape-light.webp") center / cover no-repeat;
+    opacity: .78;
+    -webkit-mask: none;
+    mask: none;
+}
+
+[data-bs-theme="light"] .lemonade-auth-visual-clock {
+    color: var(--lm-primary-soft);
+}
+
+[data-bs-theme="light"] .lemonade-auth-visual-date {
+    color: color-mix(in srgb, var(--lm-primary-soft) 78%, var(--lm-primary));
+}
+
+[data-bs-theme="dark"] .lemonade-auth-visual {
+    color: var(--lm-text);
+    background: var(--lm-auth-canvas);
+}
+
+[data-bs-theme="dark"] .lemonade-auth-visual::before {
+    background: url("../../images/auth/auth-landscape-dark.webp") center / cover no-repeat;
+    opacity: .78;
+}
+
+[data-bs-theme="dark"] .lemonade-auth-visual-clock {
+    color: var(--lm-text-strong);
+}
+
+[data-bs-theme="dark"] .lemonade-auth-visual-date {
+    color: var(--lm-text-muted);
+}
+
+.lemonade-auth-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--lm-space-3);
+    width: fit-content;
+    color: var(--lm-text-strong);
+    font-size: 20px;
+    font-weight: 750;
+    letter-spacing: -.55px;
+}
+
+.lemonade-auth-brand-mark {
+    display: block;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+}
+
+.lemonade-auth-brand-copy {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.lemonade-auth-brand-title {
+    font-size: 20px;
+    font-weight: 750;
+}
+
+.lemonade-auth-brand-subtitle {
+    display: block;
+    min-height: 1.1em;
+    margin-top: 2px;
+    color: var(--lm-text-muted);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0;
+}
+
+.lemonade-auth-content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    padding: clamp(36px, 4vw, 72px) 0;
+}
+
+.lemonade-auth-content--logout {
+    justify-content: center;
+}
+
+.lemonade-auth-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+
+.lemonade-auth-footer-copy {
+    display: flex;
+    flex-direction: column;
+    min-height: 50px;
+    gap: 2px;
+}
+
+.lemonade-auth .lemonade-auth-framework {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    width: fit-content;
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    opacity: .72;
+    text-decoration: none;
+    transition: color .16s ease, opacity .16s ease;
+}
+
+.lemonade-auth .lemonade-auth-framework:hover, .lemonade-auth .lemonade-auth-framework:focus-visible {
+    color: var(--lm-text);
+    opacity: 1;
+}
+
+.lemonade-auth .lemonade-auth-framework img {
+    display: block;
+    width: 14px;
+    height: 14px;
+}
+
+.lemonade-auth-language {
+    display: flex;
+    align-items: center;
+    min-width: 196px;
+    gap: 4px;
+}
+
+.lemonade-auth-language button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 96px;
+    width: 96px;
+    min-width: 96px;
+    gap: 5px;
+    padding: 4px;
+    border: 0;
+    color: var(--lm-text-muted);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.lemonade-auth-language button.is-active {
+    color: var(--lm-text);
+}
+
+.lemonade-auth-language .lm-locale-flag {
+    display: block;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 14px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.lemonade-auth-language .lm-locale-flag--cs {
+    background-image: url("../../images/locale/cs.svg?no-inline");
+}
+
+.lemonade-auth-language .lm-locale-flag--en {
+    background-image: url("../../images/locale/en.svg?no-inline");
+}
+
+.lemonade-auth-language .lm-locale-label {
+    flex: 0 0 42px;
+    width: 42px;
+}
+
+.lemonade-auth-language .lm-locale-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--lm-primary);
+    font-size: 13px;
+    line-height: 1;
+}
+
+.lemonade-auth-language .lm-locale-check[hidden] {
+    display: flex !important;
+    visibility: hidden;
+}
+
+@media (max-width: 767.98px) {
+    body.lemonade-auth {
+        background: var(--lm-surface);
+    }
+    main.lemonade-auth {
+        align-items: stretch;
+        justify-content: flex-start;
+        min-height: 100dvh;
+        padding: 0;
+    }
+    .lemonade-auth-layout {
+        display: block;
+        width: 100%;
+        max-width: none;
+        min-height: 0;
+        border: 0;
+        box-shadow: none;
+    }
+    .lemonade-auth-panel {
+        flex-basis: auto;
+    }
+    .lemonade-auth-visual {
+        display: none;
+    }
+    .lemonade-auth-panel {
+        padding: 22px 24px 28px;
+    }
+    .lemonade-auth-content {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: none;
+        padding: 34px 0 30px;
+    }
+    .lemonade-auth-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .lemonade-auth-footer-copy {
+        min-height: 50px;
+        gap: 4px;
+    }
+    .lemonade-auth-language {
+        min-width: 196px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .lemonade-auth-language button {
+        padding: 5px 2px;
+    }
+    .lemonade-auth .lm-auth-partner {
+        margin-top: 0;
+        padding: 0 24px 28px;
+    }
+    .lemonade-auth .lm-auth-partner img {
+        max-width: min(112px, 38vw);
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .lemonade-auth-layout {
+        display: block;
+        width: min(100%, 600px);
+    }
+    .lemonade-auth-panel {
+        flex-basis: auto;
+    }
+    .lemonade-auth-visual {
+        display: none;
+    }
+}

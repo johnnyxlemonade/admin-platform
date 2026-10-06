@@ -1,0 +1,117 @@
+.lm-modal[data-lemonade-modal-kind="form"] .admin-editor-field-group {
+    margin-bottom: var(--lm-space-5);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .admin-editor-field-group > [class*="col-"] > .lm-form-group {
+    margin-bottom: 0 !important;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .admin-editor-field-group:last-child {
+    margin-bottom: 0;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-form-label {
+    margin: 0;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-form-label.required::after {
+    margin-left: 3px;
+    color: var(--lm-danger);
+    content: "*";
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-form-help {
+    color: var(--lm-text-soft);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-form-help.is-error {
+    color: var(--lm-danger);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .form-control, .lm-modal[data-lemonade-modal-kind="form"] .form-select, .lm-modal[data-lemonade-modal-kind="form"] .input-group-text {
+    border-color: var(--lm-form-border);
+    color: var(--lm-text-control);
+    background: var(--lm-surface);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .form-control, .lm-modal[data-lemonade-modal-kind="form"] .form-select {
+    min-height: 38px;
+    font-size: 14px;
+    box-shadow: none !important;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .form-control:hover, .lm-modal[data-lemonade-modal-kind="form"] .form-select:hover {
+    border-color: var(--lm-form-border-hover);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .form-control:focus, .lm-modal[data-lemonade-modal-kind="form"] .form-select:focus {
+    border-color: var(--lm-form-border-focus);
+    box-shadow: var(--lm-focus-shadow) !important;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .form-control:disabled, .lm-modal[data-lemonade-modal-kind="form"] .form-select:disabled {
+    border-color: var(--lm-form-border);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    opacity: 1;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .form-control.is-invalid, .lm-modal[data-lemonade-modal-kind="form"] .form-select.is-invalid {
+    border-color: var(--lm-danger);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .admin-editor-status-display {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-2);
+    min-height: 38px;
+    padding: 6px 10px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .admin-editor-status-display-indicator {
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .admin-editor-status-display--success {
+    border-color: var(--lm-success);
+    color: var(--lm-success);
+    background: var(--lm-success-bg);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .admin-editor-status-display--muted {
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-modal-footer .btn-light {
+    border-color: var(--lm-line);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-modal-footer .btn-light:hover, .lm-modal[data-lemonade-modal-kind="form"] .lm-modal-footer .btn-light:focus-visible {
+    border-color: var(--lm-line-strong);
+    color: var(--lm-text-strong);
+    background: var(--lm-surface-hover);
+}

@@ -1,0 +1,516 @@
+.admin-shell .lm-image-upload-content {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-4);
+}
+
+.admin-shell .lm-image-upload {
+    margin-bottom: 0;
+}
+
+.admin-shell .admin-editor-sidebar .admin-editor-custom-block + .admin-editor-custom-block:has(.lm-image-upload) {
+    margin-top: var(--lm-space-5);
+}
+
+.admin-shell .lm-image-upload-content > .lm-thumbnail--detail {
+    width: 64px;
+    height: 64px;
+    font-size: 16px;
+}
+
+.admin-shell .lm-image-upload-controls {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--lm-space-3);
+}
+
+.admin-shell .lm-image-upload-controls .btn {
+    --bs-btn-padding-x: .75rem;
+}
+
+.admin-shell .lm-image-upload-controls .btn .bi {
+    display: block;
+    line-height: 1;
+}
+
+.admin-shell .lm-image-upload-controls .lm-form-help {
+    flex-basis: 100%;
+    margin-top: var(--lm-space-1);
+}
+
+.admin-shell .lm-file-variants {
+    display: flex;
+    flex-direction: column;
+    gap: var(--lm-space-3);
+    padding-top: var(--lm-space-4);
+    margin-top: var(--lm-space-4);
+    border-top: 1px solid var(--lm-line);
+}
+
+.admin-shell .lm-file-upload-collection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--lm-space-4);
+}
+
+.admin-shell .lm-file-upload-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--lm-line);
+}
+
+.admin-shell .lm-file-upload-tab {
+    flex: 1 1 50%;
+    min-width: 0;
+    min-height: 42px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-file-upload-tab.is-active {
+    border-bottom-color: var(--lm-primary);
+    color: var(--lm-primary);
+    background: var(--lm-surface);
+}
+
+.admin-shell .lm-file-upload-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 132px;
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    border: 1px dashed var(--lm-form-border);
+    border-radius: var(--lm-radius-lg);
+    font-weight: 700;
+}
+
+.admin-shell .lm-file-upload-single {
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface);
+}
+
+.admin-shell .lm-file-upload-single-image {
+    display: block;
+    flex: 0 0 100%;
+    width: 100%;
+    max-height: min(34vw, 290px);
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--lm-surface-soft);
+}
+
+.admin-shell .lm-file-upload-single-details {
+    display: flex;
+    flex: 1 1 160px;
+    flex-direction: column;
+    min-width: 0;
+    gap: var(--lm-space-1);
+    padding: var(--lm-space-3) var(--lm-space-4);
+}
+
+.admin-shell .lm-file-upload-single-details strong {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-file-upload-single-details small {
+    min-width: 0;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    line-height: 1.35;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.admin-shell .lm-file-upload-single--avatar {
+    border: 0;
+    background: transparent;
+}
+
+.admin-shell .lm-file-upload-single--avatar .lm-file-upload-single-details {
+    padding-left: 0;
+}
+
+.admin-shell .lm-file-upload-item-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: var(--lm-space-2);
+    padding: var(--lm-space-3);
+}
+
+.admin-shell .lm-file-upload-collection--avatar {
+    container-type: inline-size;
+    container-name: avatar-upload;
+}
+
+@container avatar-upload (max-width: 360px) {
+    .admin-shell .lm-file-upload-collection--avatar .lm-file-upload-dropzone {
+        align-items: stretch;
+        flex-direction: column;
+        gap: var(--lm-space-3);
+        min-width: 0;
+        padding: var(--lm-space-4);
+    }
+
+    .admin-shell .lm-file-upload-collection--avatar .lm-file-upload-dropzone-copy,
+    .admin-shell .lm-file-upload-collection--avatar .lm-file-upload-rules {
+        min-width: 0;
+    }
+
+    .admin-shell .lm-file-upload-collection--avatar .lm-file-upload-rules {
+        flex-basis: auto;
+        padding-top: var(--lm-space-3);
+        padding-left: 0;
+        border-top: 1px solid var(--lm-line);
+        border-left: 0;
+    }
+
+    .admin-shell .lm-file-upload-collection--avatar .lm-file-upload-dropzone-copy > strong,
+    .admin-shell .lm-file-upload-collection--avatar .lm-file-upload-dropzone .lm-form-help,
+    .admin-shell .lm-file-upload-collection--avatar .lm-file-upload-rules small {
+        overflow-wrap: normal;
+        word-break: normal;
+    }
+}
+
+.admin-shell .lm-file-upload-dropzone {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-4);
+    min-height: 132px;
+    padding: var(--lm-space-5);
+    border: 1px dashed var(--lm-form-border);
+    border-radius: var(--lm-radius-lg);
+    background: var(--lm-surface-soft);
+    transition: border-color .16s ease, background-color .16s ease;
+}
+
+.admin-shell .lm-file-upload-dropzone.is-dragover,
+.admin-shell .lm-file-upload-dropzone:hover {
+    border-color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.admin-shell .lm-file-upload-dropzone-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 22px;
+}
+
+.admin-shell .lm-file-upload-dropzone-copy {
+    display: flex;
+    flex: 1 1 260px;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    gap: var(--lm-space-1);
+}
+
+.admin-shell .lm-file-upload-dropzone-copy > strong {
+    color: var(--lm-text-heading);
+    font-size: 14px;
+}
+
+.admin-shell .lm-file-upload-dropzone .lm-form-help {
+    margin: 0;
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-file-upload-select {
+    margin-top: var(--lm-space-2);
+}
+
+.admin-shell .lm-file-upload-rules {
+    display: flex;
+    flex: 0 1 310px;
+    flex-direction: column;
+    min-width: 220px;
+    gap: var(--lm-space-2);
+    padding-left: var(--lm-space-4);
+    border-left: 1px solid var(--lm-line);
+}
+
+.admin-shell .lm-file-upload-rules-title {
+    color: var(--lm-text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-shell .lm-file-upload-rules small {
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+
+.admin-shell .lm-file-upload-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--lm-space-1);
+}
+
+.admin-shell .lm-file-upload-chip {
+    padding: 3px 8px;
+    border: 1px solid var(--lm-line);
+    border-radius: 999px;
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.admin-shell .lm-file-upload-dropzone .lm-form-help.is-error {
+    flex-basis: 100%;
+    color: var(--lm-danger);
+}
+
+.admin-shell .lm-file-upload-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--lm-space-3);
+}
+
+.admin-shell .lm-file-upload-item {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    min-height: 72px;
+    gap: var(--lm-space-3);
+    padding: var(--lm-space-3);
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface);
+}
+
+.admin-shell .lm-file-upload-item.is-uploading {
+    border-color: var(--lm-info-line);
+    background: var(--lm-info-bg);
+}
+
+.admin-shell .lm-file-upload-item.is-error {
+    border-color: var(--lm-danger);
+    background: var(--lm-danger-soft);
+}
+
+.admin-shell .lm-file-upload-item-preview {
+    display: block;
+    flex: 0 0 56px;
+    width: 56px;
+    height: 56px;
+    border-radius: calc(var(--lm-radius) - 2px);
+    object-fit: cover;
+    background: var(--lm-surface-soft);
+}
+
+.admin-shell .lm-file-upload-item-type {
+    display: inline-flex;
+    flex: 0 0 56px;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    padding: var(--lm-space-2);
+    overflow: hidden;
+    border: 1px solid var(--lm-line);
+    border-radius: calc(var(--lm-radius) - 2px);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.1;
+    text-align: center;
+    text-overflow: ellipsis;
+}
+
+.admin-shell .lm-file-upload-item-copy {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    gap: var(--lm-space-1);
+}
+
+.admin-shell .lm-file-upload-item-copy strong {
+    overflow: hidden;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-file-upload-item-copy small {
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+
+.admin-shell .lm-file-upload-item-copy .lm-file-upload-item-error {
+    color: var(--lm-danger);
+}
+
+.admin-shell .lm-file-upload-item progress {
+    width: min(220px, 32%);
+    height: 7px;
+    accent-color: var(--lm-primary);
+}
+
+.admin-shell .lm-file-upload-item-handle {
+    flex: 0 0 auto;
+    cursor: grab;
+}
+
+.admin-shell .lm-file-upload-item-handle:active {
+    cursor: grabbing;
+}
+
+.admin-shell .lm-file-upload-item-action {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-color: var(--lm-line);
+    color: var(--lm-text-secondary);
+}
+
+.admin-shell .lm-file-upload-item-action:hover,
+.admin-shell .lm-file-upload-item-action:focus-visible {
+    border-color: var(--lm-primary);
+    color: var(--lm-primary);
+}
+
+.admin-shell .lm-file-upload-item-action.is-danger:hover,
+.admin-shell .lm-file-upload-item-action.is-danger:focus-visible {
+    border-color: var(--lm-danger);
+    color: var(--lm-danger);
+}
+
+@media (max-width: 575.98px) {
+    .admin-shell .lm-file-upload-item {
+        flex-wrap: wrap;
+    }
+
+    .admin-shell .lm-file-upload-item progress {
+        flex-basis: 100%;
+        width: 100%;
+    }
+
+    .admin-shell .lm-file-upload-dropzone {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .admin-shell .lm-file-upload-rules {
+        flex-basis: 100%;
+        padding-top: var(--lm-space-3);
+        padding-left: 0;
+        border-top: 1px solid var(--lm-line);
+        border-left: 0;
+    }
+}
+
+.admin-shell .lm-file-variants-title {
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-shell .lm-file-variants > .lm-form-help {
+    margin: 0 0 var(--lm-space-1);
+}
+
+.admin-shell .lm-file-variants-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--lm-space-4);
+}
+
+.admin-shell .lm-file-variant {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding: var(--lm-space-3);
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface-soft);
+    gap: var(--lm-space-3);
+    color: var(--lm-text-secondary);
+    font-size: 12px;
+    flex: 1 1 220px;
+}
+
+.admin-shell .lm-file-variant .lm-thumbnail--detail {
+    width: 56px;
+    height: 56px;
+    font-size: 15px;
+}
+
+.admin-shell .lm-file-variant-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: var(--lm-space-1);
+}
+
+.admin-shell .lm-file-variant-copy strong {
+    color: var(--lm-text-heading);
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+.admin-shell .lm-file-variant-copy small {
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.admin-shell .admin-editor-sidebar .lm-file-variants-list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: var(--lm-space-3);
+}
+
+.admin-shell .admin-editor-sidebar .lm-file-variant {
+    width: 100%;
+    flex: 0 0 auto;
+}
+
+.admin-shell .admin-editor-sidebar .lm-file-variant .lm-thumbnail--detail {
+    width: 48px;
+    height: 48px;
+}
+
+.admin-shell .admin-editor-sidebar .lm-file-variant .lm-thumbnail--compact {
+    margin-inline: 8px;
+}
+
+@media (max-width: 479.98px) {
+    .admin-shell .lm-image-upload-content {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

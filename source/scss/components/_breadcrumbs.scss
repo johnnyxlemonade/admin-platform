@@ -1,0 +1,13 @@
+.admin-shell .breadcrumb {
+    --bs-breadcrumb-divider: "›";
+    margin-bottom: 8px;
+    font-size: clamp(14px, .82vw, 16px);
+}
+
+.admin-shell .breadcrumb-item, .admin-shell .breadcrumb-item a {
+    color: var(--lm-text-soft);
+}
+
+.admin-shell .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--lm-text-muted);
+}

@@ -1,0 +1,67 @@
+.lm-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    color: var(--lm-text-muted);
+    background: transparent;
+}
+
+.lm-theme-toggle [data-lemonade-theme-icon="sun"] {
+    display: none;
+}
+
+[data-bs-theme="dark"] .lm-theme-toggle [data-lemonade-theme-icon="moon"] {
+    display: none;
+}
+
+[data-bs-theme="dark"] .lm-theme-toggle [data-lemonade-theme-icon="sun"] {
+    display: block;
+}
+
+.lm-theme-toggle:hover, .lm-theme-toggle:focus-visible {
+    color: var(--lm-primary);
+}
+
+.admin-shell .lm-theme-toggle {
+    width: 32px;
+    padding: 0;
+    font-size: clamp(20px, 1.25vw, 25px);
+}
+
+.lm-theme-menu .lm-theme-option > :first-child {
+    flex: 0 0 1rem;
+}
+
+.lm-theme-menu .lm-theme-option > span {
+    flex: 1 1 auto;
+}
+
+.lm-theme-menu .lm-theme-option [data-lemonade-theme-check] {
+    flex: 0 0 1rem;
+}
+
+.lemonade-auth-footer-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lemonade-auth .lm-theme-toggle {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    font-size: 14px;
+}
+
+.lemonade-auth .lm-theme-toggle:hover, .lemonade-auth .lm-theme-toggle:focus-visible {
+    background: var(--lm-surface-hover);
+}
+
+@media (max-width: 767.98px) {
+    .lemonade-auth-footer-controls {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+}

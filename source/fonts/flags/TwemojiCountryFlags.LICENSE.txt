@@ -1,0 +1,14 @@
+Twemoji Country Flags
+
+The font is distributed by country-flag-emoji-polyfill 0.1.10.
+The polyfill code is licensed under the MIT License by TalkJS.
+The emoji artwork in the font is based on Twemoji and is used under the
+Creative Commons Attribution 4.0 International license.
+
+Attribution:
+Twemoji artwork by Twitter, Inc. / Twemoji project
+https://twitter.github.io/twemoji
+https://creativecommons.org/licenses/by/4.0/
+
+The source package license text is available at:
+https://github.com/talkjs/country-flag-emoji-polyfill/blob/v0.1.10/LICENSE.md

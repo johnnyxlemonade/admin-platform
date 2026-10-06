@@ -1,0 +1,29 @@
+@mixin lm-focus-ring {
+    border-color: var(--lm-primary);
+    box-shadow: var(--lm-focus-shadow);
+}
+
+// Apply only to intentional, component-owned scroll containers.
+// The page scrollbar remains browser-native.
+@mixin lemonade-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--lm-scrollbar-thumb) transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--lm-scrollbar-thumb);
+        border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--lm-scrollbar-thumb-hover);
+    }
+}

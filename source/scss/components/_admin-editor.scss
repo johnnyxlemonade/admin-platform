@@ -1,0 +1,273 @@
+@use "../abstracts/mixins" as mixins;
+
+.admin-shell .admin-editor {
+    min-width: 0;
+}
+
+.admin-shell .admin-editor-header-main {
+    min-width: 0;
+}
+
+.admin-shell .admin-editor-header-title-context {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--lm-space-2);
+    min-width: 0;
+}
+
+.admin-shell .admin-editor-header-title-context h1 {
+    min-width: 0;
+    margin-bottom: 0;
+    overflow-wrap: anywhere;
+}
+
+.admin-shell .lm-editor-header-context {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.admin-shell .lm-editor-header-context-trigger {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    gap: var(--lm-space-1);
+    color: var(--lm-text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-editor-header-context-trigger > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-editor-header-context-trigger > .bi {
+    flex: 0 0 auto;
+    font-size: 11px;
+}
+
+@media (max-width: 479.98px) {
+    .admin-shell .admin-editor-header-title-context {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+.admin-shell .admin-editor-main {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.admin-shell .admin-editor-layout {
+    display: flex;
+    align-items: start;
+    gap: var(--lm-space-4);
+    margin-top: var(--lm-space-4);
+}
+
+.admin-shell .admin-editor-sidebar {
+    display: flex;
+    flex: 0 1 360px;
+    flex-direction: column;
+    min-width: 260px;
+    gap: var(--lm-space-4);
+}
+
+.admin-shell .admin-editor-sidebar > .admin-editor-section {
+    position: sticky;
+    top: var(--lm-space-4);
+    margin-bottom: 0 !important;
+}
+
+.admin-shell .admin-editor-tabs {
+    max-width: 100%;
+    margin: 0 0 var(--lm-space-5);
+    overflow-x: auto;
+    overflow-y: hidden;
+    @include mixins.lemonade-scrollbar;
+}
+
+.admin-shell .admin-editor-tabs .lm-tabs-list {
+    flex-wrap: nowrap;
+}
+
+.admin-shell .admin-editor-section > .card-body {
+    padding: clamp(18px, 1.25vw, 22px);
+}
+
+.admin-shell .admin-editor-main > .admin-editor-section,
+.admin-shell .lm-tab-panel > .admin-editor-section {
+    margin-bottom: var(--lm-space-4) !important;
+}
+
+.admin-shell .admin-editor-section-title {
+    margin: 0 0 var(--lm-space-4);
+    color: var(--lm-text-heading);
+    font-size: clamp(16px, .95vw, 18px);
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.admin-shell .admin-editor-section-title:has(+ .admin-editor-section-description) {
+    margin-bottom: var(--lm-space-1);
+}
+
+.admin-shell .admin-editor-section-description {
+    margin: 0 0 var(--lm-space-4);
+}
+
+.admin-shell .admin-editor-field-group {
+    margin-bottom: var(--lm-space-5);
+}
+
+.admin-shell .admin-editor-field-group > [class*="col-"] > .lm-form-group {
+    margin-bottom: 0 !important;
+}
+
+.admin-shell .admin-editor-section > .card-body > .lm-form-group:last-child,
+.admin-shell .admin-editor-section > .card-body > .admin-editor-field-group:last-child {
+    margin-bottom: 0 !important;
+}
+
+.admin-shell .admin-editor-status-display {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-2);
+    min-height: 38px;
+    padding: 6px 10px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.admin-shell .admin-editor-status-display-indicator {
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.admin-shell .admin-editor-status-display--success {
+    border-color: var(--lm-success);
+    color: var(--lm-success);
+    background: var(--lm-success-bg);
+}
+
+.admin-shell .admin-editor-status-display--muted {
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+}
+
+.admin-shell .admin-editor-status-display--warning {
+    border-color: var(--lm-warning);
+    color: var(--lm-warning);
+    background: var(--lm-warning-bg);
+}
+
+.admin-shell .admin-editor-status-display--danger {
+    border-color: var(--lm-danger);
+    color: var(--lm-danger);
+    background: var(--lm-danger-soft);
+}
+
+.admin-shell .admin-editor-status-display--info {
+    border-color: var(--lm-info-line);
+    color: var(--lm-info);
+    background: var(--lm-info-bg);
+}
+
+.admin-shell .admin-editor-custom-block + .admin-editor-custom-block {
+    margin-top: var(--lm-space-4);
+}
+
+.admin-shell .admin-editor-custom-block > .lm-form-help:first-child {
+    margin-top: 0;
+}
+
+.admin-shell .lm-save-bar {
+    position: sticky;
+    bottom: var(--lm-space-3);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--lm-space-4);
+    margin-top: var(--lm-space-4);
+    padding: var(--lm-space-3) var(--lm-space-4);
+    border: 1px solid var(--lm-info-line);
+    border-radius: var(--lm-radius);
+    box-shadow: var(--lm-shadow-lg);
+    background: var(--lm-info-bg);
+}
+
+.admin-shell .lm-save-bar[hidden] {
+    display: none;
+}
+
+.admin-shell .lm-save-bar-copy {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 2px;
+    color: var(--lm-text-heading);
+}
+
+.admin-shell .lm-save-bar-copy span {
+    color: var(--lm-text-secondary);
+    font-size: 13px;
+}
+
+.admin-shell .lm-save-bar-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: var(--lm-space-2);
+}
+
+@media (max-width: 767.98px) {
+    .admin-shell .admin-editor-tabs {
+        margin-right: calc(var(--lm-space-4) * -1);
+        padding-right: var(--lm-space-4);
+    }
+
+    .admin-shell .admin-editor-section > .card-body {
+        padding: var(--lm-space-4);
+    }
+
+    .admin-shell .lm-save-bar {
+        bottom: var(--lm-space-2);
+        align-items: stretch;
+        flex-direction: column;
+        padding: var(--lm-space-3);
+    }
+
+    .admin-shell .lm-save-bar-actions {
+        width: 100%;
+    }
+
+    .admin-shell .lm-save-bar-actions .btn {
+        flex: 1 1 0;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .admin-shell .admin-editor-layout {
+        flex-direction: column;
+    }
+
+    .admin-shell .admin-editor-main,
+    .admin-shell .admin-editor-sidebar {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .admin-shell .admin-editor-sidebar > .admin-editor-section {
+        position: static;
+    }
+}

@@ -1,0 +1,56 @@
+.admin-shell .badge {
+    padding: 5px 10px;
+    border-radius: 99px;
+    font-size: clamp(12px, .7vw, 13px);
+    font-weight: 500;
+}
+
+.admin-shell .category-travel {
+    color: var(--lm-category-travel);
+    background: var(--lm-category-travel-bg);
+}
+
+.admin-shell .category-life {
+    color: var(--lm-category-life);
+    background: var(--lm-category-life-bg);
+}
+
+.admin-shell .category-green {
+    color: var(--lm-category-green);
+    background: var(--lm-category-green-bg);
+}
+
+.admin-shell .category-food {
+    color: var(--lm-category-food);
+    background: var(--lm-category-food-bg);
+}
+
+.admin-shell .category-sport {
+    color: var(--lm-category-sport);
+    background: var(--lm-category-sport-bg);
+}
+
+.admin-shell .status-success {
+    color: var(--lm-success);
+    background: var(--lm-success-bg);
+}
+
+.admin-shell .status-info {
+    color: var(--lm-info);
+    background: var(--lm-info-bg);
+}
+
+.admin-shell .status-warning {
+    color: var(--lm-warning);
+    background: var(--lm-warning-bg);
+}
+
+.admin-shell .status-danger {
+    color: var(--lm-danger);
+    background: var(--lm-danger-soft);
+}
+
+.admin-shell .status-muted {
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+}

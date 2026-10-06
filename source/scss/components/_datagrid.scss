@@ -1,0 +1,1036 @@
+@use "../abstracts/mixins" as mixins;
+
+.admin-shell .toolbar-controls {
+    display: flex;
+    gap: 13px;
+}
+
+.admin-shell .search-control {
+    width: clamp(320px, 18vw, 380px);
+}
+
+.admin-shell .datagrid-search, .admin-shell .datagrid-filter {
+    height: 44px;
+}
+
+.admin-shell .datagrid-search .form-control {
+    height: 44px;
+}
+
+.admin-shell .datagrid-filter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 104px;
+}
+
+.admin-shell .lm-datagrid-toolbar-icon {
+    position: relative;
+    width: 44px;
+    min-width: 44px;
+    padding: 0;
+}
+
+.admin-shell .lm-datagrid-toolbar-icon.is-active {
+    border-color: var(--lm-primary);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.admin-shell .lm-datagrid-filter-count {
+    display: inline-flex;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border: 2px solid var(--lm-surface);
+    border-radius: 999px;
+    color: var(--lm-on-primary);
+    background: var(--lm-primary);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.admin-shell .data-card {
+    width: 100%;
+    overflow: hidden;
+    border-color: var(--lm-line);
+    border-radius: 9px;
+    background: var(--lm-surface);
+    box-shadow: none;
+}
+
+.admin-shell .data-grid {
+    position: relative;
+    overflow: hidden;
+    background: var(--lm-surface);
+}
+
+.admin-shell .data-grid > .table-responsive {
+    position: relative;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    @include mixins.lemonade-scrollbar;
+}
+
+.admin-shell .data-grid:has(> table) {
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    @include mixins.lemonade-scrollbar;
+}
+
+.admin-shell .data-grid table, .admin-shell .data-grid tbody, .admin-shell .data-grid tbody tr, .admin-shell .data-grid tbody td {
+    background: var(--lm-surface);
+}
+
+.admin-shell .data-grid tbody tr:hover td {
+    background: var(--lm-surface-hover);
+}
+
+.admin-shell .lm-datagrid-table {
+    width: 100%;
+    table-layout: auto;
+    color: var(--lm-text-secondary);
+    font-size: clamp(13px, .76vw, 14px);
+}
+
+.admin-shell .lm-datagrid-table .check-col {
+    width: 52px;
+}
+
+.admin-shell .lm-datagrid-table .lm-datagrid-actions-column {
+    width: 1%;
+    min-width: 128px;
+    text-align: right;
+}
+
+.admin-shell .lm-datagrid-table thead th {
+    height: 44px;
+    padding: 12px 14px;
+    border-bottom-width: 1px;
+    border-color: var(--lm-line);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    font-size: clamp(12px, .72vw, 13px);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-datagrid-sort {
+    width: 100%;
+    min-height: 20px;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    font: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    text-align: inherit;
+}
+
+.admin-shell .lm-datagrid-sort:hover, .admin-shell .lm-datagrid-sort.is-sorted {
+    color: var(--lm-text-heading);
+}
+
+.admin-shell .lm-datagrid-sort:focus-visible {
+    border-radius: 3px;
+    outline: 2px solid var(--lm-primary);
+    outline-offset: 2px;
+}
+
+.admin-shell .lm-datagrid-sort [data-lemonade-sort-indicator] {
+    width: 1em;
+    color: var(--lm-primary);
+    flex: 0 0 1em;
+    visibility: hidden;
+}
+
+.admin-shell .lm-datagrid-sort [data-lemonade-sort-indicator].is-visible {
+    visibility: visible;
+}
+
+.admin-shell .lm-datagrid-table td {
+    height: clamp(64px, 4vw, 76px);
+    padding: clamp(10px, .625vw, 12px) 14px;
+    border-color: var(--lm-line);
+    background: var(--lm-surface);
+    white-space: nowrap;
+}
+
+.admin-shell .lm-datagrid-table td:nth-child(3) {
+    overflow: hidden;
+}
+
+.admin-shell .lm-datagrid-table small {
+    overflow: hidden;
+    display: block;
+    margin-top: 3px;
+    color: var(--lm-text-soft);
+    font-size: clamp(12px, .7vw, 13px);
+    text-overflow: ellipsis;
+}
+
+.admin-shell .lm-datagrid-title {
+    overflow: hidden;
+    display: block;
+    color: var(--lm-text);
+    font-size: clamp(14px, .82vw, 15px);
+    font-weight: 600;
+    text-overflow: ellipsis;
+}
+
+.admin-shell .lm-datagrid-table .admin-country-flag {
+    display: inline-block;
+    width: 20px;
+    height: 14px;
+    font-family: "Twemoji Country Flags", var(--lm-font-family);
+    line-height: 1;
+    vertical-align: middle;
+}
+
+.admin-shell .lm-datagrid--profile-list td {
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.admin-shell .lm-datagrid-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 190px;
+}
+
+.admin-shell .lm-datagrid-profile-copy {
+    min-width: 0;
+}
+
+.admin-shell .lm-datagrid-profile-copy strong, .admin-shell .lm-datagrid-profile-copy small {
+    display: block;
+}
+
+.admin-shell .lm-datagrid-profile-copy strong {
+    color: var(--lm-text-heading);
+}
+
+.admin-shell .lm-datagrid-profile-copy small {
+    margin-top: 3px;
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-datagrid--hierarchical .lm-datagrid-table td {
+    height: clamp(48px, 3.1vw, 56px);
+}
+
+.admin-shell .lm-datagrid-hierarchy {
+    display: flex;
+    position: relative;
+    align-items: center;
+    min-width: 0;
+}
+
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="1"] {
+    padding-left: 28px;
+}
+
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"] {
+    padding-left: 56px;
+}
+
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="1"]::before, .admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"]::before {
+    position: absolute;
+    top: -24px;
+    bottom: -24px;
+    left: 13px;
+    width: 1px;
+    background: var(--lm-line);
+    content: "";
+}
+
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"]::before {
+    left: 41px;
+}
+
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="1"]::after, .admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"]::after {
+    position: absolute;
+    top: 50%;
+    left: 13px;
+    width: 12px;
+    height: 1px;
+    background: var(--lm-line);
+    content: "";
+}
+
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"]::after {
+    left: 41px;
+}
+
+.admin-shell .lm-datagrid-hierarchy-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 26px;
+    margin-right: 12px;
+    border: 1px solid var(--lm-primary);
+    border-radius: 5px;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 17px;
+}
+
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="1"] .lm-datagrid-hierarchy-icon, .admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"] .lm-datagrid-hierarchy-icon {
+    opacity: .72;
+}
+
+.admin-shell .lm-datagrid-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.admin-shell .lm-datagrid-type--accent {
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.admin-shell .lm-datagrid-type--info {
+    color: var(--lm-info);
+    background: var(--lm-info-bg);
+}
+
+.admin-shell .lm-datagrid-type--muted {
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+}
+
+.admin-shell .lm-datagrid-thumb, .admin-shell .lm-datagrid-thumb-placeholder {
+    width: clamp(78px, 4.5vw, 92px);
+    height: clamp(44px, 2.6vw, 52px);
+    border-radius: 6px;
+}
+
+.admin-shell .lm-datagrid-thumb {
+    display: block;
+    object-fit: cover;
+}
+
+.admin-shell .lm-datagrid-thumb-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--lm-line);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    font-size: 20px;
+}
+
+.admin-shell .lm-datagrid-file-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(78px, 4.5vw, 92px);
+    height: clamp(44px, 2.6vw, 52px);
+    border-radius: 6px;
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    font-size: 24px;
+}
+
+.admin-shell .lm-datagrid-file-preview--document {
+    color: var(--lm-danger);
+    background: var(--lm-danger-soft);
+}
+
+.admin-shell .lm-datagrid-file-preview--archive {
+    color: var(--lm-warning);
+    background: var(--lm-warning-bg);
+}
+
+.admin-shell .lm-datagrid-file-preview--video {
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.admin-shell .check-col {
+    width: 60px;
+}
+
+.admin-shell .data-grid .action-button {
+    font-size: 0;
+    letter-spacing: 1px;
+}
+
+.admin-shell .data-grid .action-button > .bi {
+    color: var(--lm-text-secondary);
+    font-size: 18px;
+}
+
+.admin-shell .lm-row-action-group {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.admin-shell .lm-row-inline-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-shell .lm-datagrid-actions-column .lm-row-inline-actions {
+    justify-content: flex-end;
+}
+
+.admin-shell .data-grid .lm-row-inline-action {
+    --bs-btn-font-size: 13px;
+    --bs-btn-padding-x: 10px;
+    --bs-btn-padding-y: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+}
+
+.admin-shell .data-grid .lm-row-primary-action, .admin-shell .data-grid .lm-row-actions-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0;
+}
+
+.admin-shell .data-grid .lm-row-inline-action:focus-visible, .admin-shell .data-grid .lm-row-primary-action:focus-visible, .admin-shell .data-grid .lm-row-actions-toggle:focus-visible {
+    @include mixins.lm-focus-ring;
+    outline: 0;
+}
+
+.admin-shell .lm-row-actions {
+    display: inline-flex;
+    position: relative;
+}
+
+.admin-shell .lm-row-actions [data-lemonade-dropdown-panel] {
+    position: fixed;
+}
+
+.admin-shell .lm-row-actions-menu {
+    min-width: 168px;
+}
+
+.admin-shell .lm-row-actions-menu .lm-row-actions-delete, .admin-shell .lm-row-actions-menu .lm-row-actions-delete:hover, .admin-shell .lm-row-actions-menu .lm-row-actions-delete:focus {
+    color: var(--lm-danger);
+}
+
+.admin-shell .lm-filter-dropdown {
+    position: relative;
+}
+
+.admin-shell .lm-filter-dropdown .lm-datagrid-toolbar-icon::after {
+    display: none;
+}
+
+.admin-shell .lm-filter-menu {
+    width: 300px;
+    padding: 16px;
+}
+
+.admin-shell .lm-filter-group + .lm-filter-group {
+    margin-top: 14px;
+}
+
+.admin-shell .lm-filter-menu .form-label {
+    margin-bottom: 5px;
+}
+
+.admin-shell .lm-filter-menu .form-select {
+    min-height: 38px;
+}
+
+.admin-shell .lm-filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 16px;
+    margin-top: 16px;
+    border-top: 1px solid var(--lm-line);
+}
+
+.admin-shell .lm-filter-apply {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    padding: 0;
+}
+
+.admin-shell .lm-filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0;
+}
+
+.admin-shell .lm-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border: 1px solid var(--lm-line-strong);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+.admin-shell .lm-filter-chip:hover, .admin-shell .lm-filter-chip:focus-visible {
+    border-color: var(--lm-primary);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.admin-shell .lm-filter-chips-clear {
+    padding: 5px 2px;
+    border: 0;
+    color: var(--lm-text-muted);
+    background: transparent;
+    font-size: 13px;
+}
+
+.admin-shell .lm-filter-chips-clear:hover, .admin-shell .lm-filter-chips-clear:focus-visible {
+    color: var(--lm-text-heading);
+}
+
+.admin-shell .lm-datagrid-selection-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface-selected);
+}
+
+.admin-shell .lm-datagrid-selection-main, .admin-shell .lm-datagrid-selection-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.admin-shell .lm-datagrid-selection-count {
+    display: inline-flex;
+    align-items: center;
+    color: var(--lm-text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-datagrid-selection-divider {
+    flex: 0 0 1px;
+    width: 1px;
+    height: 24px;
+    background: var(--lm-line);
+}
+
+.admin-shell .lm-datagrid-bulk-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 6px 10px;
+    border: 1px solid var(--lm-line-strong);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-datagrid-bulk-action:hover, .admin-shell .lm-datagrid-bulk-action:focus-visible {
+    color: var(--lm-text-heading);
+    background: var(--lm-surface-hover);
+}
+
+.admin-shell .lm-datagrid-bulk-action--danger, .admin-shell .lm-datagrid-bulk-action--danger:hover, .admin-shell .lm-datagrid-bulk-action--danger:focus-visible {
+    color: var(--lm-danger);
+}
+
+.admin-shell .lm-datagrid-selection-clear-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex: 0 0 auto;
+}
+
+.admin-shell .lm-datagrid-selection-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 0;
+    border: 0;
+    color: var(--lm-text-muted);
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.admin-shell .lm-datagrid-selection-clear:hover, .admin-shell .lm-datagrid-selection-clear:focus-visible {
+    color: var(--lm-text-heading);
+}
+
+@media (max-width: 767.98px) {
+    .admin-shell .lm-datagrid-selection-bar {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+    .admin-shell .lm-datagrid-selection-main {
+        display: contents;
+    }
+    .admin-shell .lm-datagrid-selection-count {
+        order: 1;
+    }
+    .admin-shell .lm-datagrid-selection-clear-actions {
+        order: 2;
+        margin-left: auto;
+    }
+    .admin-shell .lm-datagrid-selection-divider {
+        display: none;
+    }
+    .admin-shell .lm-datagrid-selection-actions {
+        order: 3;
+        flex: 1 1 100%;
+    }
+}
+
+.admin-shell .lm-grid-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 220px;
+    padding: 32px 20px;
+    border-top: 1px solid var(--lm-line);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface);
+    font-size: 14px;
+    text-align: center;
+}
+
+.admin-shell .lm-grid-state-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: var(--lm-text-muted);
+    font-size: 26px;
+}
+
+.admin-shell .lm-grid-state-spinner {
+    width: 1.8rem;
+    height: 1.8rem;
+    border-width: .18em;
+    color: var(--lm-primary);
+}
+
+.admin-shell .lm-grid-state--error .lm-grid-state-icon {
+    color: var(--lm-danger);
+}
+
+.admin-shell .lm-grid-state-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    max-width: 360px;
+}
+
+.admin-shell .lm-grid-state-copy strong {
+    color: var(--lm-text-heading);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-grid-state-copy span {
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-grid-state-copy .btn {
+    margin-top: 8px;
+}
+
+.admin-shell .lm-grid-busy-overlay {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: var(--lm-text-secondary);
+    background: color-mix(in srgb, var(--lm-surface) 82%, transparent);
+    cursor: progress;
+}
+
+.admin-shell .lm-grid-busy-overlay .spinner-border {
+    width: 1.15rem;
+    height: 1.15rem;
+    border-width: .16em;
+}
+
+.admin-shell [data-lemonade-grid].is-initial-loading .data-grid > .table-responsive,
+.admin-shell [data-lemonade-grid].is-initial-loading .data-grid > .table-footer,
+.admin-shell [data-lemonade-grid].is-initial-loading > .table-responsive,
+.admin-shell [data-lemonade-grid].is-initial-loading > .table-footer,
+.admin-shell [data-lemonade-grid].is-empty .data-grid > .table-responsive,
+.admin-shell [data-lemonade-grid].is-empty .data-grid > .table-footer,
+.admin-shell [data-lemonade-grid].is-empty > .table-responsive,
+.admin-shell [data-lemonade-grid].is-empty > .table-footer,
+.admin-shell [data-lemonade-grid].is-error .data-grid > .table-responsive,
+.admin-shell [data-lemonade-grid].is-error .data-grid > .table-footer,
+.admin-shell [data-lemonade-grid].is-error > .table-responsive,
+.admin-shell [data-lemonade-grid].is-error > .table-footer {
+    display: none;
+}
+
+.admin-shell .table-footer [data-lemonade-grid-bulk-apply]:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.admin-shell .lm-ajax-select-search {
+    margin-bottom: 8px;
+}
+
+.admin-shell .lm-ajax-select-search.is-loading {
+    background-image: none;
+    cursor: progress;
+    opacity: .7;
+}
+
+.admin-shell .table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: clamp(64px, 3.4vw, 70px);
+    padding: 12px 18px;
+    border-top: 0;
+    background: var(--lm-surface);
+}
+
+.admin-shell .data-grid-footer {
+    background: var(--lm-surface);
+}
+
+.admin-shell .table-footer .form-select {
+    width: 198px;
+    min-height: 40px;
+    font-size: 14px;
+}
+
+.admin-shell .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 52px;
+    margin-bottom: 18px;
+}
+
+.admin-shell .datagrid-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    gap: 24px;
+}
+
+// Responsive DataGrid layout: the toolbar and footer wrap independently from the table scroll area.
+.admin-shell .datagrid-toolbar {
+    flex-wrap: wrap;
+    align-items: flex-end;
+    row-gap: 12px;
+}
+
+.admin-shell .lm-datagrid-views {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 420px;
+    gap: 8px;
+    min-width: 0;
+}
+
+.admin-shell .lm-datagrid-views-scroll {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    @include mixins.lemonade-scrollbar;
+}
+
+.admin-shell .lm-datagrid-views-list {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    width: max-content;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.admin-shell .lm-datagrid-view-item {
+    flex: 0 0 auto;
+}
+
+.admin-shell .lm-datagrid-view {
+    display: block;
+    min-width: 150px;
+    padding: 11px clamp(17px, 1.05vw, 23px) 10px;
+    border-right: 1px solid var(--lm-line-subtle);
+    border-bottom: 2px solid transparent;
+    color: var(--lm-text-control);
+    background: var(--lm-surface-soft);
+    font-size: clamp(14px, .82vw, 16px);
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-datagrid-view-item:first-child .lm-datagrid-view {
+    border-radius: 6px 0 0 0;
+}
+
+.admin-shell .lm-datagrid-view-item:last-child .lm-datagrid-view {
+    border-right: 0;
+    border-radius: 0 6px 0 0;
+}
+
+.admin-shell .lm-datagrid-view:hover, .admin-shell .lm-datagrid-view:focus-visible {
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+}
+
+.admin-shell .lm-datagrid-view:focus-visible {
+    @include mixins.lm-focus-ring;
+    outline: 0;
+}
+
+.admin-shell .lm-datagrid-view.is-active {
+    border-bottom-color: var(--lm-primary);
+    color: var(--lm-primary);
+    background: var(--lm-surface);
+    font-weight: 600;
+}
+
+.admin-shell .lm-datagrid-views-more {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.admin-shell .lm-datagrid-views-more-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 100%;
+    padding: 10px clamp(15px, .95vw, 20px);
+    border: 1px solid var(--lm-line-subtle);
+    border-radius: 6px;
+    color: var(--lm-text-control);
+    background: var(--lm-surface-soft);
+    font-size: clamp(14px, .82vw, 16px);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-datagrid-views-more-toggle:hover, .admin-shell .lm-datagrid-views-more-toggle:focus-visible, .admin-shell .lm-datagrid-views-more.is-active .lm-datagrid-views-more-toggle {
+    border-color: var(--lm-line-strong);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+}
+
+.admin-shell .lm-datagrid-views-more-toggle:focus-visible {
+    @include mixins.lm-focus-ring;
+    outline: 0;
+}
+
+.admin-shell .lm-datagrid-views-more-menu {
+    min-width: 190px;
+}
+
+.admin-shell .lm-datagrid-views-more-menu .lm-datagrid-view-item {
+    list-style: none;
+}
+
+.admin-shell .lm-datagrid-views-more-menu .lm-datagrid-views-more-check {
+    flex: 0 0 16px;
+    width: 16px;
+    color: var(--lm-primary);
+    font-size: 15px;
+    text-align: center;
+    visibility: hidden;
+}
+
+.admin-shell .lm-datagrid-views-more-menu .lm-dropdown-item.is-active .lm-datagrid-views-more-check {
+    visibility: visible;
+}
+
+.admin-shell .datagrid-toolbar .toolbar-controls, .admin-shell .datagrid-toolbar .datagrid-toolbar-actions {
+    display: flex;
+    flex: 1 1 420px;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 13px;
+    min-width: 0;
+    margin-left: auto;
+}
+
+.admin-shell .datagrid-toolbar .search-control {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.admin-shell .datagrid-toolbar .lm-filter-dropdown {
+    flex: 0 0 auto;
+}
+
+.admin-shell .table-footer {
+    flex-wrap: wrap;
+    gap: 12px 18px;
+}
+
+.admin-shell .table-footer > :first-child {
+    display: flex;
+    flex: 1 1 360px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.admin-shell .table-footer .form-select {
+    flex: 1 1 160px;
+    width: auto;
+    min-width: 150px;
+    max-width: 198px;
+}
+
+.admin-shell .table-footer .pagination-wrap {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px 22px;
+    margin-left: auto;
+}
+
+.admin-shell .table-footer [data-lemonade-grid-summary] {
+    flex: 0 0 auto;
+    min-width: 255px;
+    white-space: nowrap;
+}
+
+.admin-shell .table-footer .pagination-wrap nav, .admin-shell .table-footer [data-lemonade-grid-pagination] {
+    flex: 0 0 auto;
+}
+
+.admin-shell .table-footer [data-lemonade-grid-pagination] {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+@media (max-width: 767.98px) {
+    .admin-shell .datagrid-toolbar {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 12px;
+    }
+    .admin-shell .lm-datagrid-views {
+        order: 1;
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    .admin-shell .datagrid-toolbar .toolbar-controls, .admin-shell .datagrid-toolbar .datagrid-toolbar-actions {
+        order: 2;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-end;
+    }
+    .admin-shell .datagrid-toolbar .search-control {
+        order: 1;
+        flex: 0 0 100%;
+        width: 100%;
+    }
+    .admin-shell .datagrid-toolbar .lm-filter-dropdown, .admin-shell .datagrid-toolbar [data-lemonade-grid-reload], .admin-shell .datagrid-toolbar [data-lemonade-grid-reset] {
+        order: 2;
+        flex: 0 0 auto;
+    }
+    .admin-shell .datagrid-toolbar .lm-filter-dropdown {
+        margin-left: auto;
+    }
+
+    .admin-shell .table-footer {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: stretch;
+    }
+    .admin-shell .table-footer > :first-child {
+        order: 1;
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    .admin-shell .table-footer .pagination-wrap {
+        display: contents;
+    }
+    .admin-shell .table-footer [data-lemonade-grid-summary] {
+        order: 2;
+        align-self: stretch;
+        min-width: 0;
+        text-align: left;
+    }
+    .admin-shell .table-footer .pagination-wrap nav {
+        order: 3;
+        align-self: flex-start;
+    }
+    .admin-shell .table-footer .lm-pagination {
+        gap: 4px;
+    }
+    .admin-shell .table-footer .page-link {
+        min-width: 30px;
+    }
+}

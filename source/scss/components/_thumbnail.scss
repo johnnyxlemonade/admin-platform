@@ -1,0 +1,38 @@
+.admin-shell .lm-thumbnail {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid var(--lm-line-subtle);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+    font-weight: 600;
+}
+
+.admin-shell .lm-thumbnail--compact {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+}
+
+.admin-shell .lm-thumbnail--detail {
+    width: 160px;
+    height: 160px;
+    font-size: 24px;
+}
+
+.admin-shell .lm-thumbnail--circle {
+    border-radius: 50%;
+}
+
+.admin-shell .lm-thumbnail--rounded {
+    border-radius: var(--lm-radius);
+}
+
+.admin-shell .lm-thumbnail img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

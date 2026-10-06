@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'module' => ['name' => 'Languages'],
+    'permissions' => ['view' => 'View languages', 'create' => 'Create languages', 'edit' => 'Edit languages', 'enable' => 'Enable languages', 'disable' => 'Disable languages', 'set_default' => 'Set default language'],
+    'list' => ['title' => 'Languages', 'description' => 'Manage languages available for system content.', 'all' => 'All', 'enabled' => 'Enabled', 'disabled' => 'Disabled', 'default' => 'Default', 'not_default' => '—', 'search' => 'Search languages', 'loading' => 'Loading languages…', 'empty' => 'No languages found.'],
+    'fields' => ['preset' => 'Language preset', 'code' => 'Code', 'name' => 'Name', 'flag_code' => 'Flag', 'enabled' => 'Status', 'default' => 'Default', 'sort_order' => 'Order'],
+    'filters' => ['status' => 'Status', 'all_statuses' => 'All statuses'],
+    'actions' => ['create' => 'Add language', 'enable' => 'Enable', 'disable' => 'Disable', 'set_default' => 'Set as default', 'edit_language' => 'Edit language {name}', 'enable_language' => 'Enable language {name}', 'disable_language' => 'Disable language {name}', 'set_default_language' => 'Set {name} as default language', 'enabled' => 'Language enabled', 'disabled' => 'Language disabled', 'default_changed' => 'Default language changed'],
+    'confirm' => ['enable_title' => 'Activate language?', 'enable' => 'Do you really want to activate this language?', 'disable_title' => 'Deactivate language?', 'disable' => 'Do you really want to deactivate this language?', 'set_default' => 'Do you really want to set this language as the default?'],
+    'editor' => ['create_title' => 'Add language', 'create_description' => 'Fill in the basic details of the new language.', 'title' => 'Edit language', 'description' => 'Update the language name, flag, and sort order.', 'saved' => 'Language has been updated.', 'created' => 'Language has been created.', 'preset_help' => 'Selecting a preset fills in its code, native name, and default flag. You can still enter a custom language.', 'code_read_only' => 'The language code cannot be changed after creation.', 'enabled_read_only' => 'Change status with an action in the languages list.', 'tabs' => ['basic' => 'Basic information'], 'sections' => ['details' => 'Details']],
+    'validation' => ['not_found' => 'Language was not found.', 'code_required' => 'Enter a language code.', 'code_max_length' => 'Language code may contain at most 35 characters.', 'code_taken' => 'This language code already exists.', 'name_required' => 'Enter a language name.', 'name_max_length' => 'Language name may contain at most 100 characters.', 'flag_code_required' => 'Enter a flag code.', 'flag_code_invalid' => 'The flag code must be two uppercase ISO 3166-1 letters.', 'sort_order_required' => 'Enter an order.', 'sort_order_invalid' => 'Order must be an integer.', 'default_cannot_be_disabled' => 'The default language cannot be disabled.', 'default_must_be_enabled' => 'The default language must be enabled.', 'default_invariant' => 'The system must have exactly one enabled default language.'],
+    'audit' => ['events' => ['created' => 'Language created', 'updated' => 'Language updated', 'enabled' => 'Language enabled', 'disabled' => 'Language disabled', 'default_changed' => 'Default language changed']],
+];

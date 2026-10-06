@@ -1,0 +1,169 @@
+.admin-shell .lm-activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.admin-shell .lm-activity-item {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    min-width: 0;
+    gap: 11px;
+    border: 0;
+    color: var(--lm-text-secondary);
+    background: transparent;
+    text-align: left;
+}
+
+.admin-shell .lm-activity-icon {
+    display: inline-flex;
+    flex: 0 0 34px;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 16px;
+}
+
+.admin-shell .lm-activity-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.admin-shell .lm-activity-message, .admin-shell .lm-activity-meta {
+    margin: 0;
+    font-size: 12px;
+}
+
+.admin-shell .lm-activity-message {
+    color: var(--lm-text-heading);
+}
+
+.admin-shell .lm-activity-author {
+    display: block;
+    color: var(--lm-text-heading);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.admin-shell .lm-activity-item--stacked .lm-activity-message {
+    margin-top: 3px;
+    color: var(--lm-text-secondary);
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.admin-shell .lm-activity-meta {
+    display: block;
+    overflow: hidden;
+    margin-top: 3px;
+    color: var(--lm-text-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-activity-trailing {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 7px;
+    margin-top: 2px;
+    margin-left: auto;
+}
+
+.admin-shell .lm-activity-time {
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-my-logins-provider, .admin-shell .lm-my-logins-time {
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.admin-shell .lm-my-logins-time {
+    display: block;
+    margin-top: 2px;
+    white-space: normal;
+}
+
+.admin-shell .lm-activity-list--compact {
+    gap: 5px;
+}
+
+.admin-shell .lm-activity-list--compact > .lm-activity-item {
+    min-height: 61px;
+    padding: 9px 0;
+}
+
+.admin-shell .lm-activity-item--compact .lm-activity-author {
+    font-size: 13px;
+}
+
+.admin-shell .lm-activity-list--full {
+    overflow: hidden;
+    border: 1px solid var(--lm-card-border);
+    border-radius: var(--lm-radius-lg);
+    background: var(--lm-surface);
+    box-shadow: 0 4px 14px rgba(31, 52, 105, .04);
+}
+
+.admin-shell .lm-activity-list--full .lm-activity-item {
+    min-height: 84px;
+    padding: 18px 22px;
+}
+
+.admin-shell .lm-activity-list--full .lm-activity-message {
+    font-size: 14px;
+}
+
+.admin-shell .lm-activity-list--full .lm-activity-author {
+    font-size: 14px;
+}
+
+.admin-shell .lm-activity-list--full .lm-activity-time {
+    font-size: 12px;
+}
+
+.admin-shell .lm-notification-item {
+    cursor: pointer;
+}
+
+.admin-shell .lm-notification-item:hover {
+    background: var(--lm-surface-hover);
+}
+
+.admin-shell .lm-activity-item--unread:not(.lm-activity-item--stacked) .lm-activity-message, .admin-shell .lm-activity-item--unread .lm-activity-author {
+    font-weight: 700;
+}
+
+.admin-shell .lm-activity-unread {
+    display: inline-block;
+    flex: 0 0 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--lm-primary);
+}
+
+@media (max-width: 575.98px) {
+    .admin-shell .lm-activity-list--full .lm-activity-item {
+        display: grid;
+        grid-template-columns: 34px minmax(0, 1fr);
+    }
+    .admin-shell .lm-activity-list--full .lm-activity-trailing {
+        grid-column: 2;
+        margin-top: -5px;
+        margin-left: 0;
+    }
+}

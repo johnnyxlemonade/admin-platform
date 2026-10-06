@@ -1,0 +1,16 @@
+.admin-shell .card.lm-card {
+    --bs-card-bg: var(--lm-surface);
+    --bs-card-color: var(--lm-text);
+    --bs-card-border-width: 1px;
+    --bs-card-border-color: var(--lm-card-border);
+    --bs-card-border-radius: var(--lm-radius-lg);
+    --bs-card-cap-bg: transparent;
+    --bs-card-cap-color: var(--lm-text);
+    border: var(--bs-card-border-width) solid var(--lm-card-border);
+}
+
+.admin-shell .card.lm-card > .card-header {
+    padding: 16px 20px;
+    border-bottom: var(--bs-card-border-width) solid var(--lm-line);
+    font-weight: 600;
+}

@@ -1,0 +1,448 @@
+.admin-shell .lm-dashboard {
+    min-width: 0;
+    container: dashboard / inline-size;
+}
+
+.admin-shell .lm-dashboard-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 24px;
+    margin-bottom: 16px;
+}
+
+.admin-shell .lm-dashboard-header-main {
+    min-width: 0;
+}
+
+.admin-shell .lm-dashboard-header h1 {
+    margin: 5px 0 6px;
+    color: var(--lm-text-strong);
+    font-size: clamp(30px, 1.7vw, 36px);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.admin-shell .lm-dashboard-header p {
+    max-width: 760px;
+    margin: 0;
+    color: var(--lm-text-secondary);
+    font-size: clamp(15px, .9vw, 17px);
+}
+
+.admin-shell .lm-dashboard-now {
+    display: flex;
+    flex: 0 0 190px;
+    flex-direction: column;
+    align-items: flex-end;
+    min-height: 66px;
+    padding-top: 13px;
+    color: var(--lm-text-muted);
+    font-size: 13px;
+    text-align: right;
+}
+
+.admin-shell .lm-dashboard-now > time:first-child {
+    min-height: 20px;
+}
+
+.admin-shell .lm-dashboard-time {
+    min-width: 8ch;
+    color: var(--lm-text-strong);
+    font-size: clamp(28px, 1.7vw, 34px);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    line-height: 1.15;
+}
+
+.admin-shell .lm-dashboard-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+    margin-bottom: 18px;
+}
+
+.admin-shell .lm-dashboard-header-actions .btn {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.admin-shell .lm-dashboard-customize-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+}
+
+.admin-shell .lm-dashboard-widget-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.admin-shell .lm-dashboard-widget {
+    display: flex;
+    grid-column: span 2;
+    flex-direction: column;
+    min-width: 0;
+    border: 1px solid var(--lm-card-border);
+    border-radius: var(--lm-radius-lg);
+    background: var(--lm-surface);
+    box-shadow: 0 4px 14px rgba(31, 52, 105, .04);
+}
+
+.admin-shell .lm-dashboard-widget--small {
+    grid-column: span 1;
+}
+
+.admin-shell .lm-dashboard-widget--medium {
+    grid-column: span 2;
+}
+
+.admin-shell .lm-dashboard-widget--large {
+    grid-column: span 3;
+}
+
+.admin-shell .lm-dashboard-widget--full {
+    grid-column: 1 / -1;
+}
+
+.admin-shell .lm-dashboard-widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 70px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--lm-line);
+}
+
+.admin-shell .lm-dashboard-widget-heading {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 12px;
+}
+
+.admin-shell .lm-dashboard-widget-heading h2 {
+    margin: 0;
+    overflow: hidden;
+    color: var(--lm-text-strong);
+    font-size: clamp(16px, .98vw, 19px);
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-dashboard-widget-icon {
+    display: inline-flex;
+    flex: 0 0 34px;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 17px;
+}
+
+.admin-shell .lm-dashboard-widget-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    min-height: 32px;
+}
+
+.admin-shell .lm-dashboard-widget-customize-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.admin-shell .lm-dashboard-widget-drag {
+    cursor: grab;
+}
+
+.admin-shell .lm-dashboard-widget-drag:active {
+    cursor: grabbing;
+}
+
+.admin-shell .lm-dashboard-widget-managed {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+
+.admin-shell .lm-dashboard-widget-remove {
+    color: var(--lm-danger);
+}
+
+.admin-shell .lm-dashboard-widget-refresh {
+    width: 32px;
+    height: 32px;
+}
+
+.admin-shell .lm-dashboard.is-customizing .lm-dashboard-widget-refresh {
+    display: none;
+}
+
+.admin-shell .lm-dashboard-widget[aria-busy="true"] .lm-dashboard-widget-refresh i {
+    animation: lm-dashboard-widget-spin 1s linear infinite;
+}
+
+.admin-shell .lm-dashboard-widget-body {
+    min-height: 124px;
+    padding: 20px;
+}
+
+.admin-shell .lm-dashboard-widget-footer {
+    padding: 13px 20px;
+    border-top: 1px solid var(--lm-line);
+}
+
+.admin-shell .lm-dashboard-widget-footer a {
+    color: var(--lm-primary);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.admin-shell .lm-dashboard-kpi {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 84px;
+    text-align: center;
+}
+
+.admin-shell .lm-dashboard-kpi-value {
+    color: var(--lm-text-strong);
+    font-size: clamp(38px, 3vw, 54px);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.admin-shell .lm-dashboard-kpi-label {
+    margin-top: 10px;
+    color: var(--lm-text-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-dashboard-widget-state, .admin-shell .lm-dashboard-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 124px;
+    color: var(--lm-text-muted);
+    text-align: center;
+}
+
+.admin-shell .lm-dashboard-widget-state {
+    gap: 10px;
+}
+
+.admin-shell .lm-dashboard-widget-state > i, .admin-shell .lm-dashboard-empty > i {
+    color: var(--lm-text-secondary);
+    font-size: 24px;
+}
+
+.admin-shell .lm-dashboard-widget-state p, .admin-shell .lm-dashboard-empty p {
+    margin: 0;
+    font-size: 13px;
+}
+
+.admin-shell .lm-dashboard-widget-state--error {
+    color: var(--lm-text-secondary);
+}
+
+.admin-shell .lm-dashboard-empty {
+    min-height: 220px;
+    border: 1px solid var(--lm-card-border);
+    background: var(--lm-surface);
+}
+
+.admin-shell .lm-dashboard-empty > i {
+    margin-bottom: 12px;
+    font-size: 30px;
+}
+
+.lm-modal[data-lemonade-modal-kind="dashboard-catalog"] .lm-modal-dialog {
+    max-width: 620px;
+}
+
+.lm-modal[data-lemonade-modal-kind="dashboard-catalog"] .lm-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--lm-line);
+}
+
+.lm-modal[data-lemonade-modal-kind="dashboard-catalog"] .lm-modal-title {
+    color: var(--lm-text-strong);
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.admin-shell .lm-dashboard-widget-catalog-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--lm-line-subtle);
+}
+
+.admin-shell .lm-dashboard-widget-catalog-item:last-child {
+    border-bottom: 0;
+}
+
+.admin-shell .lm-dashboard-widget-catalog-icon {
+    display: inline-flex;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 18px;
+}
+
+.admin-shell .lm-dashboard-widget-catalog-item > div {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.admin-shell .lm-dashboard-widget-catalog-item strong {
+    color: var(--lm-text-strong);
+    font-size: 14px;
+}
+
+.admin-shell .lm-dashboard-widget-catalog-item p {
+    margin: 3px 0 0;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+
+.admin-shell .lm-dashboard-widget-catalog-empty {
+    padding: 36px 10px;
+    color: var(--lm-text-muted);
+    text-align: center;
+}
+
+.admin-shell .lm-dashboard-module-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-shell .lm-dashboard-module-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 10px 0;
+    border-top: 1px solid var(--lm-line-subtle);
+}
+
+.admin-shell .lm-dashboard-module-list li:first-child {
+    border-top: 0;
+}
+
+.admin-shell .lm-dashboard-module-icon {
+    display: inline-flex;
+    flex: 0 0 32px;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 16px;
+}
+
+.admin-shell .lm-dashboard-module-content {
+    min-width: 0;
+}
+
+.admin-shell .lm-dashboard-module-content a {
+    display: block;
+    overflow: hidden;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.admin-shell .lm-dashboard-module-content a:hover, .admin-shell .lm-dashboard-module-content a:focus-visible {
+    color: var(--lm-primary);
+}
+
+@keyframes lm-dashboard-widget-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@container dashboard (max-width: 991.98px) {
+    .admin-shell .lm-dashboard-header {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .admin-shell .lm-dashboard-now {
+        align-items: flex-start;
+        min-height: 0;
+        padding-top: 0;
+        text-align: left;
+    }
+
+    .admin-shell .lm-dashboard-widget-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-shell .lm-dashboard-widget--small, .admin-shell .lm-dashboard-widget--medium {
+        grid-column: span 1;
+    }
+
+    .admin-shell .lm-dashboard-widget--large, .admin-shell .lm-dashboard-widget--full {
+        grid-column: 1 / -1;
+    }
+}
+
+@container dashboard (max-width: 767.98px) {
+    .admin-shell .lm-dashboard-widget-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-shell .lm-dashboard-widget--small, .admin-shell .lm-dashboard-widget--medium, .admin-shell .lm-dashboard-widget--large, .admin-shell .lm-dashboard-widget--full {
+        grid-column: 1;
+    }
+
+    .admin-shell .lm-dashboard-header-actions .btn, .admin-shell .lm-dashboard-customize-toolbar .btn {
+        flex: 1 1 220px;
+    }
+}
+
+@container dashboard (max-width: 480px) {
+    .admin-shell .lm-dashboard-header-actions, .admin-shell .lm-dashboard-customize-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-shell .lm-dashboard-header-actions .btn, .admin-shell .lm-dashboard-customize-toolbar .btn {
+        width: 100%;
+        flex-basis: auto;
+    }
+
+    .admin-shell .lm-dashboard-widget-header, .admin-shell .lm-dashboard-widget-body, .admin-shell .lm-dashboard-widget-footer {
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+}

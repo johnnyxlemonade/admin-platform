@@ -1,0 +1,187 @@
+.admin-shell .lm-user-editor-summary {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.admin-shell .lm-user-editor-summary .lm-thumbnail {
+    margin: 0;
+}
+
+.admin-shell .lm-user-editor-summary-avatar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--lm-space-2);
+    margin-bottom: var(--lm-space-3);
+}
+
+.admin-shell .lm-file-upload-avatar {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-2);
+}
+
+.admin-shell .lm-file-upload-avatar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-2);
+}
+
+.admin-shell .lm-file-upload-avatar-feedback {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: var(--lm-space-2);
+}
+
+.admin-shell .lm-file-upload-avatar-feedback-item {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: var(--lm-space-2);
+    padding: var(--lm-space-2);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+}
+
+.admin-shell .lm-file-upload-avatar-feedback-item.is-uploading {
+    display: none;
+    color: var(--lm-info);
+    background: var(--lm-info-bg);
+}
+
+.admin-shell .lm-file-upload-avatar-feedback-item.is-error {
+    color: var(--lm-danger);
+    background: var(--lm-danger-soft);
+}
+
+.admin-shell .lm-avatar-upload-progress {
+    display: none;
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    z-index: 2;
+    width: 172px;
+    height: 172px;
+    overflow: visible;
+    transform: translateX(-50%) rotate(-90deg);
+    transform-origin: center;
+    pointer-events: none;
+}
+
+.admin-shell .lm-avatar-upload-progress.is-active {
+    display: block;
+}
+
+.admin-shell .lm-avatar-upload-progress circle {
+    fill: none;
+    stroke: var(--lm-primary);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+}
+
+.admin-shell .lm-avatar-upload-progress.is-indeterminate {
+    animation: lm-avatar-upload-progress-spin 900ms linear infinite;
+}
+
+.admin-shell .lm-avatar-upload-progress.is-indeterminate circle {
+    stroke-dasharray: 16 84;
+    stroke-dashoffset: 0;
+}
+
+@keyframes lm-avatar-upload-progress-spin {
+    to {
+        transform: translateX(-50%) rotate(270deg);
+    }
+}
+
+.admin-shell .lm-file-upload-avatar-feedback-item progress {
+    display: none;
+}
+
+.admin-shell .lm-file-upload-avatar-feedback-item .lm-file-upload-item-copy {
+    min-width: 0;
+}
+
+.admin-shell .lm-file-upload-avatar-feedback-item .lm-file-upload-item-copy strong,
+.admin-shell .lm-file-upload-avatar-feedback-item .lm-file-upload-item-copy small {
+    overflow-wrap: anywhere;
+}
+
+.admin-shell .lm-user-editor-summary-name {
+    color: var(--lm-text-heading);
+    font-size: 18px;
+}
+
+.admin-shell .lm-user-editor-summary-role {
+    margin-top: var(--lm-space-1);
+    color: var(--lm-text-muted);
+    font-size: 13px;
+}
+
+.admin-shell .lm-user-editor-summary-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 3px 10px;
+    margin-top: var(--lm-space-3);
+    border-radius: 999px;
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-user-editor-summary-status.is-active {
+    color: var(--lm-success);
+    background: var(--lm-success-bg);
+}
+
+.admin-shell .lm-user-editor-summary-status::before {
+    width: 8px;
+    height: 8px;
+    margin-right: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    content: "";
+}
+
+.admin-shell .lm-user-editor-summary-metadata {
+    width: 100%;
+    padding-top: var(--lm-space-4);
+    margin: var(--lm-space-4) 0 0;
+    border-top: 1px solid var(--lm-line);
+    text-align: left;
+}
+
+.admin-shell .lm-user-editor-summary-metadata > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--lm-space-3);
+}
+
+.admin-shell .lm-user-editor-summary-metadata > div + div {
+    margin-top: var(--lm-space-3);
+}
+
+.admin-shell .lm-user-editor-summary-metadata dt,
+.admin-shell .lm-user-editor-summary-metadata dd {
+    margin: 0;
+    font-size: 13px;
+}
+
+.admin-shell .lm-user-editor-summary-metadata dt {
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-user-editor-summary-metadata dd {
+    color: var(--lm-text-secondary);
+    font-weight: 600;
+    text-align: right;
+}

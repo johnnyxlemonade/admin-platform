@@ -1,0 +1,54 @@
+.admin-shell .page-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.admin-shell .page-heading > :first-child {
+    min-width: 0;
+}
+
+.admin-shell .page-heading > .btn,
+.admin-shell .page-heading > .d-flex {
+    flex: 0 0 auto;
+}
+
+.admin-shell .page-heading > .d-flex {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.admin-shell .page-heading h1 {
+    margin: 0 0 5px;
+    color: var(--lm-text-strong);
+    font-size: clamp(30px, 1.7vw, 36px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -1px;
+}
+
+.admin-shell .page-heading p {
+    margin: 0;
+    color: var(--lm-text-muted);
+    font-size: clamp(15px, .9vw, 17px);
+    line-height: 1.45;
+}
+
+@media (max-width: 767.98px) {
+    .admin-shell .page-heading {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-shell .page-heading > .btn,
+    .admin-shell .page-heading > .d-flex {
+        align-self: flex-start;
+    }
+
+    .admin-shell .page-heading > .d-flex {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

@@ -1,0 +1,38 @@
+.admin-shell .lm-accordion {
+    overflow: hidden;
+    border: 1px solid var(--lm-card-border);
+    border-radius: var(--lm-radius-lg);
+    background: var(--lm-surface);
+    box-shadow: 0 4px 14px rgba(31, 52, 105, .04);
+}
+
+.admin-shell .lm-accordion-trigger {
+    display: block;
+    width: 100%;
+    border: 0;
+    color: var(--lm-text-secondary);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.admin-shell .lm-accordion-trigger:hover {
+    background: var(--lm-surface-hover);
+}
+
+.admin-shell .lm-accordion-trigger:focus-visible {
+    outline: 0;
+    box-shadow: var(--lm-focus-shadow);
+}
+
+.admin-shell .lm-accordion-panel {
+    border-top: 1px solid var(--lm-line-subtle);
+}
+
+.admin-shell .lm-accordion-chevron {
+    transition: transform .16s ease;
+}
+
+.admin-shell .lm-accordion-trigger[aria-expanded="true"] .lm-accordion-chevron {
+    transform: rotate(180deg);
+}

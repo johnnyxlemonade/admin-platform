@@ -1,0 +1,313 @@
+@use "../abstracts/mixins" as mixins;
+
+.admin-shell .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    width: var(--lm-sidebar-width);
+    min-height: 100vh;
+    border-right: 1px solid var(--lm-line);
+    background: var(--lm-sidebar-surface);
+}
+
+.admin-shell .brand {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-3);
+    height: var(--lm-header-height);
+    padding: 0 clamp(26px, 1.5vw, 36px);
+    border-bottom: 1px solid var(--lm-line);
+    color: var(--lm-text-strong);
+    font-size: clamp(22px, 1.25vw, 27px);
+    font-weight: 750;
+    letter-spacing: -.8px;
+}
+
+.admin-shell .brand-mark {
+    display: block;
+    flex: 0 0 clamp(27px, 1.7vw, 34px);
+    width: clamp(27px, 1.7vw, 34px);
+    height: clamp(27px, 1.7vw, 34px);
+}
+
+.admin-shell .brand-copy {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    line-height: 1.1;
+    opacity: 1;
+    transition: opacity .12s ease .16s;
+}
+
+.admin-shell .brand-title {
+    overflow: hidden;
+    font-size: clamp(18px, 1.1vw, 22px);
+    font-weight: 750;
+    letter-spacing: -.65px;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+.admin-shell .brand-subtitle {
+    margin-top: 2px;
+    overflow: hidden;
+    color: var(--lm-text-muted);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+.admin-shell .sidebar-nav {
+    margin: 0;
+    padding: var(--lm-shell-content-top) 0 8px;
+    list-style: none;
+}
+
+.admin-shell .sidebar-nav > li:first-child > .nav-link {
+    margin-top: 0;
+}
+
+.admin-shell .sidebar > nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    @include mixins.lemonade-scrollbar;
+}
+
+.admin-shell .sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: clamp(17px, 1.1vw, 22px);
+    padding: clamp(12px, .85vw, 16px) clamp(16px, 1vw, 21px);
+    margin: 3px 18px;
+    border-radius: 7px;
+    color: var(--lm-text-secondary);
+    font-size: clamp(15px, .85vw, 17px);
+}
+
+.admin-shell .sidebar > nav .nav-link.is-active {
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-weight: 600;
+}
+
+.admin-shell .sidebar > nav .nav-link.is-active .sidebar-nav-icon {
+    color: var(--lm-primary);
+}
+
+.admin-shell .sidebar .nav-group-toggle {
+    width: calc(100% - 36px);
+    border: 0;
+    background: transparent;
+    text-align: left;
+}
+
+.admin-shell .sidebar-nav .sidebar-nav-icon-wrap {
+    display: inline-flex;
+    flex: 0 0 19px;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-shell .sidebar-nav .sidebar-nav-icon {
+    width: 19px;
+    color: var(--lm-text-secondary);
+    font-size: clamp(22px, 1.25vw, 27px);
+    line-height: 1;
+    text-align: center;
+}
+
+.admin-shell .sidebar-nav-chevron {
+    margin-left: auto;
+    font-size: 12px;
+    transition: transform .2s ease;
+}
+
+.admin-shell .nav-submenu {
+    margin: 6px 0 0 clamp(54px, 3.2vw, 72px);
+}
+
+.admin-shell .nav-submenu a {
+    display: block;
+    padding: clamp(8px, .55vw, 11px) 14px;
+    border-radius: 6px;
+    color: var(--lm-text-secondary);
+    font-size: clamp(14px, .8vw, 16px);
+}
+
+.admin-shell .nav-submenu .is-active {
+    font-weight: 600;
+}
+
+.admin-shell .sidebar-flyout-title {
+    display: none;
+}
+
+.admin-shell .sidebar:not(.is-collapsed) .nav-submenu:not(.lm-sidebar-flyout) {
+    position: relative;
+}
+
+.admin-shell .sidebar:not(.is-collapsed) .nav-submenu:not(.lm-sidebar-flyout)::before {
+    position: absolute;
+    top: 0;
+    bottom: 10px;
+    left: 0;
+    width: 1px;
+    background: var(--lm-line-strong);
+    content: "";
+}
+
+.admin-shell .sidebar:not(.is-collapsed) .nav-submenu:not(.lm-sidebar-flyout) a {
+    position: relative;
+}
+
+.admin-shell .sidebar:not(.is-collapsed) .nav-submenu:not(.lm-sidebar-flyout) a::before {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 9px;
+    height: 1px;
+    background: var(--lm-line-strong);
+    content: "";
+}
+
+.admin-shell .sidebar:not(.is-collapsed) .nav-submenu:not(.lm-sidebar-flyout) a:last-child::after {
+    position: absolute;
+    top: 50%;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    background: var(--lm-surface);
+    content: "";
+}
+
+.admin-shell .sidebar-footer {
+    flex: 0 0 auto;
+    margin-top: auto;
+}
+
+.admin-shell .collapse-link {
+    display: flex;
+    width: 100%;
+    gap: 16px;
+    align-items: center;
+    margin-top: 0;
+    padding: 30px clamp(32px, 2vw, 42px);
+    border: 0;
+    color: var(--lm-text-secondary);
+    background: transparent;
+    font-size: clamp(14px, .8vw, 16px);
+    text-align: left;
+}
+
+.admin-shell .collapse-link > .bi {
+    font-size: 22px;
+}
+
+.admin-shell .sidebar, .admin-shell .admin-frame {
+    transition: width .2s ease, margin-left .2s ease;
+}
+
+html:not(.is-admin-ready) .admin-shell .sidebar, html:not(.is-admin-ready) .admin-shell .admin-frame {
+    transition: none;
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell, .admin-shell.is-sidebar-collapsed {
+    --lm-sidebar-width: 76px;
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .brand, .admin-shell.is-sidebar-collapsed .brand {
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+    font-size: 0;
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .brand-copy, .admin-shell.is-sidebar-collapsed .brand-copy {
+    flex: 0 1 0;
+    opacity: 0;
+    transition: opacity .1s ease;
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .sidebar .nav-link, .admin-shell.is-sidebar-collapsed .sidebar .nav-link {
+    width: calc(100% - 36px);
+    justify-content: center;
+    gap: 0;
+    min-height: 48px;
+    padding: 4px 0;
+    background: transparent;
+    font-size: 0;
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .sidebar .nav-link > span:not(.sidebar-nav-icon-wrap), .admin-shell.is-sidebar-collapsed .sidebar .nav-link > span:not(.sidebar-nav-icon-wrap) {
+    display: none;
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .sidebar > nav .nav-link.is-active, .admin-shell.is-sidebar-collapsed .sidebar > nav .nav-link.is-active {
+    background: transparent;
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .sidebar .nav-link:hover .sidebar-nav-icon, .admin-shell.is-sidebar-collapsed .sidebar .nav-link:hover .sidebar-nav-icon {
+    color: var(--lm-text);
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .sidebar .nav-link:focus-visible, .admin-shell.is-sidebar-collapsed .sidebar .nav-link:focus-visible {
+    outline: 0;
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .sidebar .nav-link:focus-visible .sidebar-nav-icon, .admin-shell.is-sidebar-collapsed .sidebar .nav-link:focus-visible .sidebar-nav-icon {
+    color: var(--lm-text);
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .sidebar .nav-link:focus-visible .sidebar-nav-icon-wrap, .admin-shell.is-sidebar-collapsed .sidebar .nav-link:focus-visible .sidebar-nav-icon-wrap {
+    box-shadow: var(--lm-focus-shadow);
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .sidebar > nav .nav-link.is-active .sidebar-nav-icon, .admin-shell.is-sidebar-collapsed .sidebar > nav .nav-link.is-active .sidebar-nav-icon {
+    color: var(--lm-primary);
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .sidebar > nav, .admin-shell.is-sidebar-collapsed .sidebar > nav {
+    overflow: visible;
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .sidebar-nav-chevron, html[data-lemonade-sidebar-state="collapsed"] .admin-shell .nav-submenu:not(.lm-sidebar-flyout), html[data-lemonade-sidebar-state="collapsed"] .admin-shell .collapse-link span, .admin-shell.is-sidebar-collapsed .sidebar-nav-chevron, .admin-shell.is-sidebar-collapsed .nav-submenu:not(.lm-sidebar-flyout), .admin-shell.is-sidebar-collapsed .collapse-link span {
+    display: none;
+}
+
+html[data-lemonade-sidebar-state="collapsed"] .admin-shell .collapse-link, .admin-shell.is-sidebar-collapsed .collapse-link {
+    justify-content: center;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.admin-shell .sidebar .nav-submenu.lm-sidebar-flyout {
+    width: 220px;
+    min-width: 220px;
+    margin: 0;
+}
+
+.admin-shell .sidebar .lm-sidebar-flyout .sidebar-flyout-title {
+    display: block;
+    padding: 7px 10px 9px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid var(--lm-line);
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-shell .sidebar .lm-sidebar-flyout .lm-dropdown-item {
+    margin-top: 2px;
+}
+
+.admin-shell .sidebar .lm-sidebar-flyout .lm-dropdown-item.is-active {
+    color: var(--lm-primary);
+}

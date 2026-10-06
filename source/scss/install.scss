@@ -1,0 +1,501 @@
+main.lemonade-auth:has(.lemonade-install) {
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.lemonade-auth:has(.lemonade-install) .lemonade-auth-layout {
+    width: min(100%, 1060px);
+    min-height: 0;
+    overflow: visible;
+}
+
+.lemonade-auth:has(.lemonade-install) .lemonade-auth-panel {
+    flex: 1 1 100%;
+    width: 100%;
+    padding: clamp(28px, 4vw, 48px);
+}
+
+.lemonade-auth:has(.lemonade-install) .lemonade-auth-brand {
+    margin-bottom: clamp(26px, 3vw, 38px);
+}
+
+.lemonade-auth:has(.lemonade-install) .lemonade-auth-content {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+}
+
+.lemonade-auth .lemonade-install {
+    --lemonade-install-gap: clamp(18px, 2.2vw, 28px);
+    display: block;
+    width: min(100%, 1040px);
+    max-width: 1040px;
+    max-height: none;
+    margin: 0 auto;
+    padding: 0 0 clamp(24px, 3vw, 40px);
+    overflow: visible;
+}
+
+.lemonade-auth .lemonade-install-intro {
+    margin-bottom: var(--lemonade-install-gap);
+}
+
+.lemonade-auth .lemonade-install .lm-auth-title {
+    min-height: 0;
+    margin-top: 8px;
+}
+
+.lemonade-auth .lemonade-install .lm-auth-description {
+    min-height: 0;
+    margin-bottom: 0;
+}
+
+.lemonade-auth .lemonade-install-kicker, .lemonade-auth .lemonade-install-section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.lemonade-auth .lemonade-install-kicker .bi {
+    color: var(--lm-primary);
+    font-size: 14px;
+}
+
+.lemonade-auth .lemonade-install-section {
+    padding-top: var(--lemonade-install-gap);
+    border-top: 1px solid var(--lm-line-subtle);
+}
+
+.lemonade-auth .lemonade-install-section + .lemonade-install-section {
+    margin-top: var(--lemonade-install-gap);
+}
+
+.lemonade-auth .lemonade-install-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 13px;
+}
+
+.lemonade-auth .lemonade-install-section-heading h2 {
+    margin: 4px 0 0;
+    color: var(--lm-text-heading);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.lemonade-auth .lemonade-install-section-heading--steps {
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.lemonade-auth .lemonade-install-summary {
+    flex: 0 0 auto;
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: right;
+}
+
+.lemonade-auth .lemonade-install-summary strong {
+    color: var(--lm-text-heading);
+    font-weight: 700;
+}
+
+.lemonade-auth .lemonade-install-feedback, .lemonade-auth .lemonade-install-preflight-blocked {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 10px 12px;
+    margin: 0 0 var(--lemonade-install-gap);
+    border-radius: 0;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.lemonade-auth .lemonade-install-feedback .bi {
+    flex: 0 0 auto;
+    margin-top: 1px;
+}
+
+.lemonade-auth .lemonade-install-preflight-blocked .bi {
+    flex: 0 0 auto;
+    margin-top: 1px;
+}
+
+.lemonade-auth .lemonade-install-checks {
+    --bs-gutter-y: .5rem;
+}
+
+.lemonade-auth .lemonade-install-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    min-height: 52px;
+    padding: 9px 10px;
+    border: 1px solid var(--lm-line);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+}
+
+.lemonade-auth .lemonade-install-check-icon {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    font-size: 15px;
+}
+
+.lemonade-auth .lemonade-install-check--success .lemonade-install-check-icon {
+    color: var(--lm-success);
+}
+
+.lemonade-auth .lemonade-install-check--error {
+    border-color: var(--lm-danger);
+    background: var(--lm-danger-soft);
+}
+
+.lemonade-auth .lemonade-install-check--error .lemonade-install-check-icon, .lemonade-auth .lemonade-install-check--error .lemonade-install-check-status {
+    color: var(--lm-danger);
+}
+
+.lemonade-auth .lemonade-install-check--skipped .lemonade-install-check-icon, .lemonade-auth .lemonade-install-check--skipped .lemonade-install-check-status {
+    color: var(--lm-text-muted);
+}
+
+.lemonade-auth .lemonade-install-check-copy {
+    display: flex;
+    min-width: 0;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 3px 8px;
+}
+
+.lemonade-auth .lemonade-install-check-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--lm-text-heading);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.lemonade-auth .lemonade-install-check-status {
+    flex: 0 0 auto;
+    color: var(--lm-success);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.lemonade-auth .lemonade-install-check-detail {
+    flex: 0 0 100%;
+    color: var(--lm-danger-dark);
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.lemonade-auth .lemonade-install-progress {
+    height: 5px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    border-radius: 0;
+    background: var(--lm-line-subtle);
+}
+
+.lemonade-auth .lemonade-install-progress .progress-bar {
+    width: 0;
+    background: var(--lm-primary);
+    transition: width .2s ease;
+}
+
+.lemonade-auth .lemonade-install-steps {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.lemonade-auth .lemonade-install-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 10px;
+    min-height: 49px;
+}
+
+.lemonade-auth .lemonade-install-step-rail {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 49px;
+}
+
+.lemonade-auth .lemonade-install-step-icon {
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    border: 1px solid var(--lm-line-strong);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface);
+    font-size: 13px;
+}
+
+.lemonade-auth .lemonade-install-step-line {
+    flex: 1 1 auto;
+    width: 1px;
+    margin: 3px 0 -2px;
+    background: var(--lm-line);
+}
+
+.lemonade-auth .lemonade-install-step:last-child .lemonade-install-step-line {
+    display: none;
+}
+
+.lemonade-auth .lemonade-install-step[data-install-status="success"] .lemonade-install-step-icon {
+    border-color: var(--lm-success);
+    color: var(--lm-success);
+}
+
+.lemonade-auth .lemonade-install-step[data-install-status="running"] .lemonade-install-step-icon {
+    border-color: var(--lm-primary);
+    color: var(--lm-primary);
+}
+
+.lemonade-auth .lemonade-install-step[data-install-status="error"] .lemonade-install-step-icon {
+    border-color: var(--lm-danger);
+    color: var(--lm-danger);
+}
+
+.lemonade-auth .lemonade-install-step[data-install-status="skipped"] .lemonade-install-step-icon {
+    border-color: var(--lm-line-strong);
+    color: var(--lm-text-soft);
+}
+
+.lemonade-auth .lemonade-install-step-icon.spinner-border::before {
+    content: none;
+}
+
+.lemonade-auth .lemonade-install-step-copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 2px 0 13px;
+}
+
+.lemonade-auth .lemonade-install-step-label {
+    color: var(--lm-text-heading);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.lemonade-auth .lemonade-install-step[data-install-status="pending"] .lemonade-install-step-label, .lemonade-auth .lemonade-install-step[data-install-status="skipped"] .lemonade-install-step-label {
+    color: var(--lm-text-muted);
+}
+
+.lemonade-auth .lemonade-install-step-message {
+    min-height: 0;
+    margin-top: 3px;
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.lemonade-auth .lemonade-install-step[data-install-status="error"] .lemonade-install-step-message {
+    color: var(--lm-danger-dark);
+}
+
+.lemonade-auth .lemonade-install-badge {
+    align-self: start;
+    min-width: 58px;
+    padding: 4px 6px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.lemonade-auth .lemonade-install-badge--pending {
+    border-color: var(--lm-line);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+}
+
+.lemonade-auth .lemonade-install-badge--running {
+    border-color: var(--lm-primary);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.lemonade-auth .lemonade-install-badge--success {
+    border-color: var(--lm-success);
+    color: var(--lm-success);
+    background: var(--lm-success-bg);
+}
+
+.lemonade-auth .lemonade-install-badge--error {
+    border-color: var(--lm-danger);
+    color: var(--lm-danger);
+    background: var(--lm-danger-soft);
+}
+
+.lemonade-auth .lemonade-install-badge--skipped {
+    border-color: var(--lm-line-strong);
+    color: var(--lm-text-soft);
+    background: transparent;
+}
+
+.lemonade-auth .lemonade-install-results {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 9px 0 0 36px;
+    color: var(--lm-danger-dark);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.lemonade-auth .lemonade-install-results p {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 0;
+}
+
+.lemonade-auth .lemonade-install-form {
+    margin-top: var(--lemonade-install-gap);
+}
+
+.lemonade-auth .lemonade-install-form[data-install-preparation] {
+    gap: 26px;
+}
+
+.lemonade-auth .lemonade-install-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.lemonade-auth .lemonade-install-field .form-label {
+    margin: 0;
+    color: var(--lm-text-heading);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.lemonade-auth .lemonade-install-control {
+    position: relative;
+}
+
+.lemonade-auth .lemonade-install-field .form-text {
+    margin: 0;
+    color: var(--lm-text-soft);
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.lemonade-auth .lemonade-install-field .invalid-feedback {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.lemonade-auth .lemonade-install-form-errors {
+    padding: 8px 10px;
+    border-left: 2px solid var(--lm-danger);
+    color: var(--lm-danger-dark);
+    background: var(--lm-danger-soft);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.lemonade-auth:has(.lemonade-install) .lemonade-auth-footer {
+    margin-top: clamp(22px, 3vw, 36px);
+    padding-top: 18px;
+    border-top: 1px solid var(--lm-line-subtle);
+}
+
+.lemonade-auth .lemonade-install-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 47px;
+    margin-top: 2px;
+    border-radius: 0;
+}
+
+.lemonade-auth .lemonade-install-submit:disabled {
+    cursor: wait;
+    opacity: .75;
+}
+
+.lemonade-auth .lemonade-install-submit [data-install-submit-spinner][hidden] {
+    display: none;
+}
+
+.lemonade-auth .lemonade-install-refresh {
+    margin-top: 10px;
+}
+
+.lemonade-auth .lemonade-install-refresh .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border-radius: 0;
+    font-size: 11px;
+}
+
+@media (max-width: 767.98px) {
+    .lemonade-auth:has(.lemonade-install) .lemonade-auth-panel {
+        padding: 22px 24px 28px;
+    }
+    .lemonade-auth .lemonade-install {
+        width: 100%;
+        max-width: none;
+        max-height: none;
+        padding-right: 0;
+        overflow: visible;
+    }
+    .lemonade-auth .lemonade-install-section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+    .lemonade-auth .lemonade-install-section-heading--steps {
+        align-items: flex-start;
+        flex-direction: row;
+    }
+    .lemonade-auth .lemonade-install-summary {
+        text-align: left;
+    }
+    .lemonade-auth .lemonade-install-step {
+        grid-template-columns: 25px minmax(0, 1fr);
+    }
+    .lemonade-auth .lemonade-install-badge {
+        grid-column: 2;
+        justify-self: start;
+        margin: -8px 0 12px;
+    }
+    .lemonade-auth .lemonade-install-step-copy {
+        padding-bottom: 4px;
+    }
+}

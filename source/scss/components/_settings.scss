@@ -1,0 +1,483 @@
+.admin-shell .lm-settings {
+    min-width: 0;
+}
+
+.admin-shell .lm-settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.admin-shell .lm-settings-layout, .admin-shell .lm-settings-navigation {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    min-width: 0;
+}
+
+.admin-shell .lm-settings-main {
+    flex: 1 1 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.admin-shell .lm-settings-aside {
+    flex: 0 1 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: min(100%, 360px);
+}
+
+.admin-shell .lm-settings-layout--languages .lm-settings-main {
+    flex: 1 1 55%;
+}
+
+.admin-shell .lm-settings-layout--languages .lm-settings-aside {
+    flex: 1 1 40%;
+    min-width: 0;
+    max-width: none;
+}
+
+.admin-shell .lm-settings-layout--seo .lm-settings-main {
+    flex: 1 1 50%;
+}
+
+.admin-shell .lm-settings-layout--seo .lm-settings-aside {
+    flex: 1 1 45%;
+    min-width: 0;
+    max-width: none;
+}
+
+.admin-shell .lm-settings-navigation > .lm-settings-section {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.admin-shell .lm-settings-navigation > .lm-settings-aside {
+    flex-basis: 300px;
+}
+
+.admin-shell .lm-settings-section .card-body {
+    padding: clamp(24px, 1.7vw, 30px);
+}
+
+.admin-shell .lm-settings-section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.admin-shell .lm-settings-section-header h2 {
+    margin: 0;
+    color: var(--lm-text-strong);
+    font-size: clamp(17px, 1.08vw, 20px);
+    font-weight: 700;
+}
+
+.admin-shell .lm-settings-section-header p {
+    margin: 5px 0 0;
+    color: var(--lm-text-muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.admin-shell .lm-settings-section-icon {
+    display: inline-flex;
+    flex: 0 0 46px;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 21px;
+}
+
+.admin-shell .lm-settings-section .row > .lm-form-group {
+    min-width: 0;
+}
+
+.admin-shell .lm-settings-section .row {
+    margin: 0;
+}
+
+.admin-shell .lm-settings-section .row > .lm-form-group {
+    width: 50%;
+    padding-right: calc(var(--bs-gutter-x) * .5);
+    padding-left: calc(var(--bs-gutter-x) * .5);
+}
+
+.admin-shell .lm-settings-section .card-body > .lm-form-group + .lm-form-group {
+    margin-top: 8px;
+}
+
+.admin-shell .lm-settings-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.admin-shell .lm-settings-radio-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.admin-shell .lm-settings-radio-cards > .form-check {
+    flex: 1 1 160px;
+    min-width: 0;
+    padding: 13px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+}
+
+.admin-shell .lm-settings-radio-cards > .form-check {
+    margin: 0;
+}
+
+.admin-shell .lm-settings-radio-cards > .form-check.is-selected {
+    border-color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.admin-shell .lm-settings-radio-cards strong, .admin-shell .lm-settings-radio-cards .lm-form-help {
+    display: block;
+}
+
+.admin-shell .lm-settings-radio-cards .lm-form-help {
+    margin-top: 4px;
+}
+
+.admin-shell .lm-settings-subsection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.admin-shell .lm-settings-subsection h3 {
+    margin: 0;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-settings-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.admin-shell .lm-settings-callout {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    margin-top: 16px;
+    padding: 12px;
+    border: 1px solid var(--lm-info-line);
+    border-radius: var(--lm-radius);
+    color: var(--lm-info);
+    background: var(--lm-info-bg);
+    font-size: 12px;
+}
+
+.admin-shell .lm-settings-search-preview, .admin-shell .lm-settings-email-preview {
+    padding: 15px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface-soft);
+}
+
+.admin-shell .lm-settings-search-preview-tabs {
+    margin-bottom: 16px;
+}
+
+.admin-shell .lm-settings-search-preview-site {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-shell .lm-settings-search-preview-favicon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 12px;
+}
+
+.admin-shell .lm-settings-search-preview small {
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-settings-search-preview strong {
+    display: block;
+    margin: 8px 0;
+    color: var(--lm-primary);
+    font-size: 16px;
+}
+
+.admin-shell .lm-settings-search-preview p, .admin-shell .lm-settings-email-preview p {
+    margin: 0;
+    color: var(--lm-text-secondary);
+    font-size: 13px;
+}
+
+.admin-shell .lm-settings-social-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 15px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface-soft);
+}
+
+.admin-shell .lm-settings-social-preview strong {
+    color: var(--lm-text-heading);
+    font-size: 15px;
+}
+
+.admin-shell .lm-settings-social-preview p {
+    margin: 0;
+    color: var(--lm-text-secondary);
+    font-size: 13px;
+}
+
+.admin-shell .lm-settings-email-preview h3 {
+    margin: 12px 0 5px;
+    color: var(--lm-text-heading);
+    font-size: 14px;
+}
+
+.admin-shell .lm-settings-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.admin-shell .lm-settings-menu-list > div {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 48px;
+    padding: 8px 10px;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+}
+
+.admin-shell .lm-settings-menu-list .is-selected {
+    border-color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.admin-shell .lm-settings-menu-list .is-child {
+    margin-left: 25px;
+}
+
+.admin-shell .lm-settings-menu-list strong {
+    flex: 1 1 auto;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+}
+
+.admin-shell .lm-settings-menu-list small {
+    color: var(--lm-text-muted);
+    font-size: 11px;
+}
+
+.admin-shell .lm-settings-table {
+    margin: 0;
+    font-size: 13px;
+}
+
+.admin-shell .lm-settings-table th {
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+    font-weight: 600;
+}
+
+.admin-shell .lm-settings-table td, .admin-shell .lm-settings-table th {
+    padding: 10px;
+    border-color: var(--lm-line);
+    vertical-align: middle;
+}
+
+.admin-shell .lm-settings-language-drag {
+    width: 34px;
+    color: var(--lm-text-muted);
+    text-align: center;
+}
+
+.admin-shell .lm-settings-language-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-shell .lm-settings-language-name .lm-locale-flag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 14px;
+}
+
+.admin-shell .lm-settings-language-name .lm-locale-flag.admin-country-flag {
+    display: block;
+    width: 20px;
+    height: 14px;
+    font-family: "Twemoji Country Flags", var(--lm-font-family);
+    line-height: 1;
+}
+
+.admin-shell .lm-settings-language-flag-select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-shell .lm-settings-language-flag-select .lm-locale-flag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 24px;
+    width: 24px;
+    height: 18px;
+}
+
+.admin-shell .lm-settings-language-flag-select .lm-locale-flag.admin-country-flag {
+    display: block;
+    width: 24px;
+    height: 18px;
+    font-family: "Twemoji Country Flags", var(--lm-font-family);
+    line-height: 1;
+}
+
+.admin-shell .lm-settings-language-flag-select .lm-locale-flag--fallback {
+    color: var(--lm-text-muted);
+    font-size: 16px;
+}
+
+.admin-shell .lm-settings-language-flag-select .form-select {
+    min-width: 0;
+}
+
+.admin-shell .lm-settings-language-row--selected > * {
+    --bs-table-bg: var(--lm-primary-soft);
+}
+
+.admin-shell .lm-settings-table progress {
+    accent-color: var(--lm-success);
+}
+
+.admin-shell .lm-settings-system-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.admin-shell .lm-settings-system-row {
+    --bs-gutter-x: 20px;
+    --bs-gutter-y: 20px;
+}
+
+.admin-shell .lm-settings-system-row > .d-flex > .lm-settings-section {
+    width: 100%;
+}
+
+.admin-shell .lm-settings-system-backup .card-body {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.admin-shell .lm-settings-system-backup .lm-settings-section-header {
+    flex: 1 1 auto;
+    margin: 0;
+    min-width: 0;
+}
+
+.admin-shell .lm-settings-system-backup .lm-settings-actions {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+.admin-shell .lm-settings-definition-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.admin-shell .lm-settings-definition-list dt, .admin-shell .lm-settings-definition-list dd {
+    margin: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--lm-line-subtle);
+}
+
+.admin-shell .lm-settings-definition-list dt {
+    flex: 1 1 55%;
+    color: var(--lm-text-secondary);
+}
+
+.admin-shell .lm-settings-definition-list dd {
+    flex: 1 1 45%;
+    color: var(--lm-text-heading);
+    font-weight: 600;
+    text-align: right;
+}
+
+@media (max-width: 991.98px) {
+    .admin-shell .lm-settings-layout, .admin-shell .lm-settings-navigation {
+        flex-direction: column;
+    }
+    .admin-shell .lm-settings-main, .admin-shell .lm-settings-aside, .admin-shell .lm-settings-navigation > .lm-settings-section {
+        flex-basis: auto;
+        width: 100%;
+        max-width: none;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .admin-shell .lm-settings-system-backup .card-body {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .admin-shell .lm-settings-system-backup .lm-settings-actions {
+        flex-basis: auto;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .admin-shell .lm-settings-section .row > .lm-form-group {
+        width: 100%;
+    }
+    .admin-shell .lm-settings-actions {
+        justify-content: stretch;
+    }
+    .admin-shell .lm-settings-actions .btn {
+        flex: 1 1 auto;
+    }
+    .admin-shell .lm-settings-table {
+        min-width: 600px;
+    }
+}

@@ -1,0 +1,401 @@
+@use "../abstracts/mixins";
+
+.lemonade-auth .lm-auth-title {
+    margin: 0;
+    color: var(--lm-text);
+    font-size: clamp(24px, 2.1vw, 30px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.55px;
+}
+
+.lemonade-auth .lm-auth-description {
+    max-width: 390px;
+    margin: 8px 0 24px;
+    color: var(--lm-text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.lemonade-auth .lm-auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    container-type: inline-size;
+}
+
+.lemonade-auth .lm-auth-credentials {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+}
+
+@container (min-width: 480px) {
+    .lemonade-auth .lm-auth-form--oidc-fallback .lm-auth-credentials {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.lemonade-auth .lm-auth-field {
+    position: relative;
+}
+
+.lemonade-auth .lm-auth-field .form-control {
+    min-height: 47px;
+    padding: 11px 42px 11px 42px;
+    border: 1px solid var(--lm-line-strong);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-control);
+    background: var(--lm-surface);
+    box-shadow: none;
+    font-size: 14px;
+}
+
+.lemonade-auth .lm-auth-field .form-control:focus {
+    border-color: var(--lm-primary);
+    box-shadow: var(--lm-focus-shadow);
+}
+
+.lemonade-auth .lm-auth-field-icon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    color: var(--lm-text-muted);
+    pointer-events: none;
+    font-size: 16px;
+}
+
+.lemonade-auth .lm-auth-password-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    padding: 0;
+    border: 0;
+    color: var(--lm-text-muted);
+    background: transparent;
+}
+
+.lemonade-auth .lm-auth-password-toggle:hover {
+    color: var(--lm-primary);
+}
+
+.lemonade-auth .lm-auth-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 20px;
+    gap: 16px;
+    margin-top: 1px;
+    font-size: 13px;
+}
+
+.lemonade-auth .lm-auth-options .form-check {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 0;
+    padding-left: 0;
+    margin: 0;
+}
+
+.lemonade-auth .lm-auth-options .form-check-input {
+    flex: 0 0 auto;
+    float: none;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    border-color: var(--lm-line-strong);
+}
+
+.lemonade-auth .lm-auth-options .form-check-input:checked {
+    border-color: var(--lm-primary);
+    background-color: var(--lm-primary);
+}
+
+.lemonade-auth .lm-auth-options .form-check-label {
+    color: var(--lm-text-secondary);
+}
+
+.lemonade-auth .lm-auth-oidc {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.lemonade-auth .lm-auth-submit, .lemonade-auth .lm-auth-keycloak {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--lm-space-2);
+    width: 100%;
+    min-height: 47px;
+    padding: .375rem .75rem;
+    border-radius: var(--lm-radius);
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.lemonade-auth .lm-auth-submit {
+    margin-top: 2px;
+    color: #fff;
+    background: var(--lm-primary);
+    border-color: var(--lm-primary);
+    box-shadow: var(--lm-primary-shadow);
+    font-weight: 600;
+}
+
+.lemonade-auth .lm-auth-submit:not(.lm-auth-submit--secondary):hover, .lemonade-auth .lm-auth-submit:not(.lm-auth-submit--secondary):focus, .lemonade-auth .lm-auth-keycloak--primary:hover, .lemonade-auth .lm-auth-keycloak--primary:focus {
+    color: #fff;
+    background: var(--lm-primary-dark);
+    border-color: var(--lm-primary-dark);
+}
+
+.lemonade-auth .lm-auth-submit--secondary {
+    border: 1px solid var(--lm-line);
+    color: var(--lm-primary);
+    background: var(--lm-surface);
+    box-shadow: none;
+}
+
+.lemonade-auth .lm-auth-submit--secondary:hover, .lemonade-auth .lm-auth-submit--secondary:focus {
+    border-color: var(--lm-primary);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.lemonade-auth .lm-auth-submit-danger {
+    background: var(--lm-danger);
+    border-color: var(--lm-danger);
+    box-shadow: 0 5px 10px rgba(233, 64, 95, .12);
+}
+
+.lemonade-auth .lm-auth-submit-danger:hover, .lemonade-auth .lm-auth-submit-danger:focus {
+    color: #fff;
+    background: #c83f50;
+    border-color: #c83f50;
+}
+
+.lemonade-auth .lm-auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    text-align: center;
+}
+
+.lemonade-auth .lm-auth-divider::before, .lemonade-auth .lm-auth-divider::after {
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--lm-line);
+    content: "";
+}
+
+.lemonade-auth .lm-auth-keycloak {
+    border: 1px solid var(--lm-line);
+    color: var(--lm-primary);
+    background: var(--lm-surface);
+}
+
+.lemonade-auth .lm-auth-keycloak--primary {
+    border-color: var(--lm-primary);
+    color: #fff;
+    background: var(--lm-primary);
+    box-shadow: var(--lm-primary-shadow);
+    font-weight: 600;
+}
+
+.lemonade-auth .lm-auth-keycloak:focus-visible {
+    @include mixins.lm-focus-ring;
+}
+
+.lemonade-auth .lm-auth-keycloak--primary:active, .lemonade-auth .lm-auth-keycloak--primary.active {
+    border-color: var(--lm-primary-dark);
+    color: #fff;
+    background: var(--lm-primary-dark);
+}
+
+.lemonade-auth .lm-auth-keycloak .bi {
+    color: currentColor;
+}
+
+.lemonade-auth .lm-auth-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    margin-top: 24px;
+    color: var(--lm-primary);
+    font-size: 13px;
+}
+
+.lemonade-auth .lm-auth-partner {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 18px;
+}
+
+.lemonade-auth .lm-auth-partner a {
+    display: inline-flex;
+    position: relative;
+    width: fit-content;
+    opacity: .72;
+    transition: opacity .16s ease;
+}
+
+.lemonade-auth .lm-auth-partner a:hover, .lemonade-auth .lm-auth-partner a:focus-visible {
+    opacity: 1;
+}
+
+.lemonade-auth .lm-auth-partner img {
+    display: block;
+    width: auto;
+    max-width: min(132px, 42vw);
+    height: auto;
+}
+
+[data-bs-theme="dark"] .lemonade-auth .lm-auth-partner img {
+    filter: grayscale(1) brightness(0) invert(1);
+}
+
+.lemonade-auth .lm-password-requirements {
+    padding: 15px;
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    font-size: 12px;
+}
+
+.lemonade-auth .lm-password-requirements strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--lm-text-control);
+    font-size: 12px;
+}
+
+.lemonade-auth .lm-password-requirements ul {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.lemonade-auth .lm-password-requirements li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lemonade-auth .lm-password-requirements .bi {
+    color: var(--lm-text-muted);
+    font-size: 13px;
+}
+
+.lemonade-auth .lm-auth-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 10px;
+}
+
+.lemonade-auth .lm-auth-user .avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.lemonade-auth .lm-auth-user strong, .lemonade-auth .lm-auth-user span {
+    display: block;
+}
+
+.lemonade-auth .lm-auth-user strong {
+    color: var(--lm-text-heading);
+    font-size: 14px;
+}
+
+.lemonade-auth .lm-auth-user span {
+    margin-top: 3px;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+
+.lemonade-auth .lm-auth-logout-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 20px;
+    color: var(--lm-danger);
+    background: var(--lm-danger-soft);
+    font-size: 27px;
+}
+
+.lemonade-auth .lm-auth-logout-actions {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.lemonade-auth .lm-auth-logout-actions > .btn {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    min-height: 43px;
+    padding: 9px 18px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.lemonade-auth .lm-auth-logout-actions .btn-light {
+    border-color: var(--lm-line);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+}
+
+@media (max-width: 767.98px) {
+    .lemonade-auth .lm-auth-description {
+        max-width: none;
+    }
+    .lemonade-auth .lm-auth-form {
+        gap: 12px;
+    }
+    .lemonade-auth .lm-auth-form .btn {
+        width: 100%;
+        min-height: 44px;
+    }
+    .lemonade-auth .lm-auth-options {
+        min-height: 50px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        row-gap: 10px;
+    }
+    .lemonade-auth .lm-auth-logout-actions {
+        flex-direction: column-reverse;
+    }
+    .lemonade-auth .lm-auth-logout-actions > .btn {
+        flex: 0 0 auto;
+        width: 100%;
+        min-height: 44px;
+    }
+}
