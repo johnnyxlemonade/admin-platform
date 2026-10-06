@@ -75,7 +75,7 @@ final class DashboardLayoutService
             $existing = $this->preferences->findByOwnerKey($context->ownerKey(), $widgetCode);
             $size = is_array($existing) && is_string($existing['size'] ?? null) && in_array(DashboardWidgetSize::tryFrom($existing['size']), $layout->supportedSizes(), true) ? $existing['size'] : $layout->defaultSize()->value;
             $this->preferences->update($id, ['personal_pinned' => 1, 'size' => $size]);
-            $events->record($this->event($context, 'system.dashboard.preference_pinned', (string) $id, ['widgetCode' => $widgetCode, 'position' => $position, 'size' => $size]));
+            $events->record($this->event('system.dashboard.preference_pinned', (string) $id, ['widgetCode' => $widgetCode, 'position' => $position, 'size' => $size]));
         });
     }
 
@@ -89,9 +89,9 @@ final class DashboardLayoutService
             return;
         }
 
-        $this->events->execute($this->operation($context, 'dashboard.preference.unpin'), function (TransactionalEventCollector $events) use ($context, $preference, $widgetCode): void {
+        $this->events->execute($this->operation($context, 'dashboard.preference.unpin'), function (TransactionalEventCollector $events) use ($preference, $widgetCode): void {
             $this->preferences->delete((int) $preference['id']);
-            $events->record($this->event($context, 'system.dashboard.preference_unpinned', (string) $preference['id'], ['widgetCode' => $widgetCode]));
+            $events->record($this->event('system.dashboard.preference_unpinned', (string) $preference['id'], ['widgetCode' => $widgetCode]));
         });
     }
 
@@ -110,7 +110,7 @@ final class DashboardLayoutService
             }
             $this->events->execute($this->operation($context, 'dashboard.preference.size'), function (TransactionalEventCollector $events) use ($context, $widgetCode, $widget, $size): void {
                 $id = $this->preferences->restoreOrCreateLayoutPreference($context->ownerKey(), $context->localUser()->id(), $widgetCode, $widget->position(), $size);
-                $events->record($this->event($context, 'system.dashboard.preference_size_changed', (string) $id, ['widgetCode' => $widgetCode, 'size' => $size->value]));
+                $events->record($this->event('system.dashboard.preference_size_changed', (string) $id, ['widgetCode' => $widgetCode, 'size' => $size->value]));
             });
 
             return;
@@ -141,7 +141,7 @@ final class DashboardLayoutService
                 $widget = $byCode[$widgetCode];
                 $this->preferences->restoreOrCreateLayoutPreference($context->ownerKey(), $context->localUser()->id(), $widgetCode, $position, $widget->size());
             }
-            $events->record($this->event($context, 'system.dashboard.preferences_reordered', $context->ownerKey(), ['count' => count($widgetCodes)]));
+            $events->record($this->event('system.dashboard.preferences_reordered', $context->ownerKey(), ['count' => count($widgetCodes)]));
         });
     }
 
@@ -172,7 +172,7 @@ final class DashboardLayoutService
      *
      * @param array<string, bool|float|int|string|null> $payload
      */
-    private function event(DashboardWidgetContext $context, string $code, string $entityKey, array $payload): DomainEvent
+    private function event(string $code, string $entityKey, array $payload): DomainEvent
     {
         return new DomainEvent($code, 'system.dashboard', 'dashboard_widget_preference', $entityKey, $payload);
     }

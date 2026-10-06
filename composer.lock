@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "577d1d15b244043df3e25d0e4c11844a",
+    "content-hash": "68eea19f61e8d1a19c848c8eaf9bdf7f",
     "packages": [
         {
             "name": "brick/math",
@@ -398,17 +398,84 @@
             "time": "2026-08-24T09:13:11+00:00"
         },
         {
+            "name": "johnnyxlemonade/admin-image",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/johnnyxlemonade/admin-image.git",
+                "reference": "446df0bc2ca2849dd9f7957cd1adb68805f54eb9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/johnnyxlemonade/admin-image/zipball/446df0bc2ca2849dd9f7957cd1adb68805f54eb9",
+                "reference": "446df0bc2ca2849dd9f7957cd1adb68805f54eb9",
+                "shasum": ""
+            },
+            "require": {
+                "johnnyxlemonade/framework": "dev-master",
+                "php": ">=8.3 <8.6",
+                "psr/http-message": "^2.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.94",
+                "nyholm/psr7": "^1.8",
+                "phpstan/phpstan": "2.3.0",
+                "phpstan/phpstan-strict-rules": "2.1.0",
+                "phpunit/phpunit": "^10.5"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Lemonade\\Image\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Lemonade\\Image\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "cs:check": [
+                    "@php vendor/bin/php-cs-fixer fix --dry-run --diff --allow-risky=yes"
+                ],
+                "cs:fix": [
+                    "@php vendor/bin/php-cs-fixer fix --allow-risky=yes"
+                ],
+                "stan": [
+                    "@php vendor/bin/phpstan analyse --memory-limit=4G"
+                ],
+                "test": [
+                    "@php vendor/bin/phpunit"
+                ],
+                "qa": [
+                    "@cs:check",
+                    "@stan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Reusable Lemonade module image URL delivery over the Framework image pipeline.",
+            "support": {
+                "source": "https://github.com/johnnyxlemonade/admin-image/tree/main",
+                "issues": "https://github.com/johnnyxlemonade/admin-image/issues"
+            },
+            "time": "2026-10-06T17:14:47+00:00"
+        },
+        {
             "name": "johnnyxlemonade/framework",
             "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/johnnyxlemonade/framework.git",
-                "reference": "90f26eccb3892f91a62dd32661fec9fba5be5675"
+                "reference": "7056296ef487d09047f7d725e13629b60e40f5d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/johnnyxlemonade/framework/zipball/90f26eccb3892f91a62dd32661fec9fba5be5675",
-                "reference": "90f26eccb3892f91a62dd32661fec9fba5be5675",
+                "url": "https://api.github.com/repos/johnnyxlemonade/framework/zipball/7056296ef487d09047f7d725e13629b60e40f5d6",
+                "reference": "7056296ef487d09047f7d725e13629b60e40f5d6",
                 "shasum": ""
             },
             "require": {
@@ -435,8 +502,8 @@
                 "giorgiosironi/eris": "^1.1.0",
                 "guzzlehttp/guzzle": "^7.10 || ^8.0",
                 "infection/infection": "0.35.5",
-                "phpstan/phpstan": "^2.1",
-                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpstan/phpstan": "^2.3",
+                "phpstan/phpstan-strict-rules": "^2.1",
                 "phpunit/phpunit": "^10.5 || ^11.0"
             },
             "suggest": {
@@ -571,66 +638,7 @@
                 "source": "https://github.com/johnnyxlemonade/framework",
                 "issues": "https://github.com/johnnyxlemonade/framework/issues"
             },
-            "time": "2026-10-03T14:35:01+00:00"
-        },
-        {
-            "name": "johnnyxlemonade/image",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../admin-image",
-                "reference": "50362219a7e3e200e7e0ec3f68c4c9c9f7c66ec8"
-            },
-            "require": {
-                "johnnyxlemonade/framework": "dev-master",
-                "php": ">=8.3 <8.6",
-                "psr/http-message": "^2.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.94",
-                "nyholm/psr7": "^1.8",
-                "phpstan/phpstan": "^2.1",
-                "phpstan/phpstan-strict-rules": "^2.0",
-                "phpunit/phpunit": "^10.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Lemonade\\Image\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Lemonade\\Image\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "cs:check": [
-                    "@php vendor/bin/php-cs-fixer fix --dry-run --diff --allow-risky=yes"
-                ],
-                "cs:fix": [
-                    "@php vendor/bin/php-cs-fixer fix --allow-risky=yes"
-                ],
-                "stan": [
-                    "@php vendor/bin/phpstan analyse --memory-limit=4G"
-                ],
-                "test": [
-                    "@php vendor/bin/phpunit"
-                ],
-                "qa": [
-                    "@cs:check",
-                    "@stan",
-                    "@test"
-                ]
-            },
-            "license": [
-                "proprietary"
-            ],
-            "description": "Reusable Lemonade module image URL delivery over the Framework image pipeline.",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "time": "2026-10-06T11:40:28+00:00"
         },
         {
             "name": "league/oauth2-client",
@@ -4107,16 +4115,16 @@
         },
         {
             "name": "composer/semver",
-            "version": "3.5.0",
+            "version": "3.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5"
+                "reference": "528948210cc46f967a4b98e83b19e76f2b504993"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5",
-                "reference": "f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5",
+                "url": "https://api.github.com/repos/composer/semver/zipball/528948210cc46f967a4b98e83b19e76f2b504993",
+                "reference": "528948210cc46f967a4b98e83b19e76f2b504993",
                 "shasum": ""
             },
             "require": {
@@ -4168,7 +4176,7 @@
             "support": {
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.5.0"
+                "source": "https://github.com/composer/semver/tree/3.5.1"
             },
             "funding": [
                 {
@@ -4180,7 +4188,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-24T14:38:51+00:00"
+            "time": "2026-10-05T13:12:12+00:00"
         },
         {
             "name": "composer/xdebug-handler",
@@ -4767,11 +4775,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.2.16",
+            "version": "2.3.0",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/46a6d9060e5a7763adfcc21ebcb8b504ebdbcb92",
-                "reference": "46a6d9060e5a7763adfcc21ebcb8b504ebdbcb92",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/b1f9890d9af53a25c58129e78f0aadd31f90d7f4",
+                "reference": "b1f9890d9af53a25c58129e78f0aadd31f90d7f4",
                 "shasum": ""
             },
             "require": {
@@ -4827,25 +4835,25 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-25T09:31:51+00:00"
+            "time": "2026-10-06T06:15:36+00:00"
         },
         {
             "name": "phpstan/phpstan-strict-rules",
-            "version": "2.0.12",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-strict-rules.git",
-                "reference": "2bc5ae19ae965663b62ac907ee6342c3903ec93b"
+                "reference": "24ec51589f896f048d0d36de373d993b5cf71786"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-strict-rules/zipball/2bc5ae19ae965663b62ac907ee6342c3903ec93b",
-                "reference": "2bc5ae19ae965663b62ac907ee6342c3903ec93b",
+                "url": "https://api.github.com/repos/phpstan/phpstan-strict-rules/zipball/24ec51589f896f048d0d36de373d993b5cf71786",
+                "reference": "24ec51589f896f048d0d36de373d993b5cf71786",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4 || ^8.0",
-                "phpstan/phpstan": "^2.1.52"
+                "phpstan/phpstan": "^2.3"
             },
             "require-dev": {
                 "php-parallel-lint/php-parallel-lint": "^1.2",
@@ -4877,9 +4885,9 @@
             ],
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-strict-rules/issues",
-                "source": "https://github.com/phpstan/phpstan-strict-rules/tree/2.0.12"
+                "source": "https://github.com/phpstan/phpstan-strict-rules/tree/2.1.0"
             },
-            "time": "2026-07-19T07:24:06+00:00"
+            "time": "2026-10-01T21:30:37+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -5204,16 +5212,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.65",
+            "version": "10.5.66",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "b4f678d4ebb686d6d3bd6a7c193e8a067d1a7f01"
+                "reference": "747c9889613d0b3ffa08b74272e50ed3b8fa6d72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b4f678d4ebb686d6d3bd6a7c193e8a067d1a7f01",
-                "reference": "b4f678d4ebb686d6d3bd6a7c193e8a067d1a7f01",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/747c9889613d0b3ffa08b74272e50ed3b8fa6d72",
+                "reference": "747c9889613d0b3ffa08b74272e50ed3b8fa6d72",
                 "shasum": ""
             },
             "require": {
@@ -5285,7 +5293,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.65"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.66"
             },
             "funding": [
                 {
@@ -5293,7 +5301,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-09-23T10:01:12+00:00"
+            "time": "2026-10-05T05:46:26+00:00"
         },
         {
             "name": "react/cache",
@@ -7258,8 +7266,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "johnnyxlemonade/framework": 20,
-        "johnnyxlemonade/image": 20
+        "johnnyxlemonade/admin-image": 20,
+        "johnnyxlemonade/framework": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

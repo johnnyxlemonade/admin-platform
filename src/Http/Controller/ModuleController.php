@@ -71,7 +71,7 @@ final class ModuleController
         if (!$this->authorization->hasPermission($provider->indexPermission())) {
             return $this->responses->authorizationDenied($request);
         }
-        return $this->render($request, $provider->index($locale));
+        return $this->render($provider->index($locale));
     }
 
     /**
@@ -220,7 +220,7 @@ final class ModuleController
                     return $this->responses->recordNotFound($request, $this->moduleIndexDestination($module));
                 }
 
-                return $this->render($request, $page);
+                return $this->render($page);
             }
             $message = $acquisition->lockedBy !== null && $pageProvider instanceof EditorLockConflictMessageProviderInterface
                 ? $pageProvider->editorOpenLockConflictMessage($id, $acquisition->lockedBy)
@@ -235,7 +235,7 @@ final class ModuleController
             return $this->responses->recordNotFound($request, $this->moduleIndexDestination($module));
         }
 
-        return $this->render($request, $page, $status);
+        return $this->render($page, $status);
     }
 
     /**
@@ -267,7 +267,7 @@ final class ModuleController
             return $this->responses->notFound($request);
         }
 
-        return $this->render($request, $page, $status);
+        return $this->render($page, $status);
     }
 
     /**
@@ -317,7 +317,7 @@ final class ModuleController
     /**
      * Zpracovava krok render v HTTP toku administrace
      */
-    private function render(ServerRequestInterface $request, ModulePage $page, ?int $status = null): ResponseInterface
+    private function render(ModulePage $page, ?int $status = null): ResponseInterface
     {
         $status ??= HttpStatusCode::OK->value;
         return $this->pages->render($page->view(), ['title' => $page->title(), ...$page->data()], $status);

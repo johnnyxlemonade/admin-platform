@@ -175,6 +175,8 @@ final class TransactionConnection implements ConnectionInterface
     /** @var list<string> */
     public array $steps = [];
 
+    private bool $inTransaction = false;
+
     public function __construct(private readonly bool $failAudit) {}
 
     public function select(string $sql, array $bindings = []): array
@@ -197,25 +199,36 @@ final class TransactionConnection implements ConnectionInterface
         return 1;
     }
 
-    public function beginTransaction(): void {}
+    public function beginTransaction(): void
+    {
+        $this->inTransaction = true;
+    }
 
     public function commit(): void
     {
         $this->steps[] = 'commit';
+        $this->inTransaction = false;
     }
 
     public function rollBack(): void
     {
         $this->steps[] = 'rollback';
+        $this->inTransaction = false;
     }
 
     public function inTransaction(): bool
     {
-        return true;
+        return $this->inTransaction;
     }
 
     public function transaction(callable $callback): mixed
     {
+        if ($this->inTransaction) {
+            return $callback($this);
+        }
+
+        $this->beginTransaction();
+
         try {
             $result = $callback($this);
             $this->commit();

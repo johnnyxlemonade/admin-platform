@@ -395,7 +395,6 @@ final class AdminFileUploadController
         }
         $assetId = $multiple ? bin2hex(random_bytes(16)) : $this->files->imageAssetId($target['module'], $target['entity'], $target['usage']);
         $definition = $this->usages->require($target['module'], $target['usage']);
-        $written = null;
         $source = new PsrUploadedFile(
             $resource,
             $uploaded->sizeBytes(),

@@ -53,7 +53,7 @@ final class OidcIdTokenVerifierTest extends TestCase
     {
         $key = JWKFactory::createRSAKey(2048, ['kid' => 'current', 'use' => 'sig', 'alg' => 'RS256']);
         $token = $this->token($key, $this->claims());
-        [$header, $payload, $signature] = explode('.', $token);
+        [, $payload, $signature] = explode('.', $token);
         $unsupported = rtrim(strtr(base64_encode(json_encode(['alg' => 'HS256', 'kid' => 'current'], JSON_THROW_ON_ERROR)), '+/', '-_'), '=') . '.' . $payload . '.' . $signature;
 
         $this->assertVerificationError(new OidcIdTokenVerifier($this->jwks($key->toPublic())), $unsupported, 'id_token_algorithm_invalid');
