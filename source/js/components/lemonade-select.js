@@ -226,9 +226,7 @@ import { I18n } from "../core/lemonade-i18n.js";
                 return Select.normalizeSearchText(option.value).includes(normalizedQuery)
                     || Select.normalizeSearchText(option.label).includes(normalizedQuery);
             });
-            this.stateKey = this.resultOptions.length === 0
-                ? (query === "" ? "admin.select.no_options" : this.noResultsKey)
-                : "";
+            this.stateKey = this.emptyStateKey(query);
             this.more.hidden = true;
             this.render();
         }
@@ -264,16 +262,24 @@ import { I18n } from "../core/lemonade-i18n.js";
         setOptions(items, emptyStateKey) {
             const selected = this.selectedOptions();
             this.resultOptions = items;
-            this.stateKey = items.length === 0 ? emptyStateKey : "";
             this.element.replaceChildren();
             items.forEach(function (item) {
                 const option = new Option(item.label, item.value, false, selected.some(function (value) { return value.value === item.value; }));
                 this.element.appendChild(option);
             }, this);
             selected.filter(function (value) { return !items.some(function (item) { return item.value === value.value; }); }).forEach(function (option) { this.element.appendChild(option); }, this);
+            this.stateKey = items.length === 0 && !this.canCreateValue() ? emptyStateKey : "";
             this.render();
         }
         selectedOptions() { return Array.from(this.element.options).filter(function (option) { return option.selected; }); }
+
+        emptyStateKey(query) {
+            if (this.resultOptions.length !== 0 || this.canCreateValue()) {
+                return "";
+            }
+
+            return query === "" ? "admin.select.no_options" : this.noResultsKey;
+        }
 
         hasNormalizedOption(value) {
             const normalized = Select.normalizeSearchText(value);
