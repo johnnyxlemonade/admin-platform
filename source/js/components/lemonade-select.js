@@ -64,7 +64,7 @@ import { I18n } from "../core/lemonade-i18n.js";
                 this.searchInput = document.createElement("input");
                 this.searchInput.type = "search";
                 this.searchInput.className = "form-control lm-select-search";
-                const key = this.element.getAttribute("data-lemonade-search-placeholder-key") || "admin.common.search";
+                const key = this.element.getAttribute("data-lemonade-search-placeholder-key") || "admin.select.search";
                 this.searchInput.setAttribute("placeholder", I18n.t(key));
                 this.searchInput.setAttribute("data-lemonade-i18n-placeholder", key);
                 this.dropdown.appendChild(this.searchInput);
@@ -334,7 +334,7 @@ import { I18n } from "../core/lemonade-i18n.js";
             this.root.classList.toggle("is-invalid", this.element.classList.contains("is-invalid"));
             if (selected.length === 0) {
                 const placeholder = document.createElement("span");
-                const key = this.element.getAttribute("data-lemonade-select-placeholder-key") || "admin.common.search";
+                const key = this.element.getAttribute("data-lemonade-select-placeholder-key") || "admin.select.search";
                 placeholder.textContent = I18n.t(key);
                 placeholder.setAttribute("data-lemonade-i18n", key);
                 this.trigger.appendChild(placeholder);
