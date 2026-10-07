@@ -81,7 +81,8 @@ final class AdminEditorFieldRenderer
             return '<p id="' . $inputId . '" class="form-control-plaintext mb-0"' . $this->translationAttribute($field->configuredDisplayValueKey()) . '>' . $content . '</p>';
         }
 
-        $common = ' id="' . $inputId . '" name="' . $this->escape($field->name()) . '" data-lemonade-field="' . $this->escape($field->name()) . '"'
+        $fieldName = $field->isMultiple() ? $field->name() . '[]' : $field->name();
+        $common = ' id="' . $inputId . '" name="' . $this->escape($fieldName) . '" data-lemonade-field="' . $this->escape($field->name()) . '"'
             . ($field->isRequired() && !$field->isReadonly() ? ' required' : '') . ($field->isReadonly() && !$readonlyAsDisabled ? ' readonly' : '') . ($field->isDisabled() || $readonlyAsDisabled ? ' disabled' : '')
             . ($errors !== [] ? ' aria-invalid="true"' : '') . ($describedBy !== [] ? ' aria-describedby="' . implode(' ', $describedBy) . '"' : '') . $this->attributes($inputAttributes);
         $preservedValue = $readonlyAsDisabled && !$field->isDisabled() ? $this->preservedValue($field, $value) : '';
@@ -95,11 +96,15 @@ final class AdminEditorFieldRenderer
             return '<textarea class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . $this->placeholder($field) . '>' . $this->escape($this->stringValue($value)) . '</textarea>';
         }
         if ($field->type() === 'select') {
-            $html = '<select class="form-select' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . '>';
+            $selectedValues = $field->isMultiple() ? $this->multipleValues($value) : [];
+            $html = '<select class="form-select' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . ($field->isMultiple() ? ' multiple' : '') . '>';
             foreach ($field->selectOptions() as $optionValue => $optionLabel) {
                 $optionLabelKey = $field->selectOptionLabelKeys()[$optionValue] ?? null;
                 $label = $this->text($optionLabel, $optionLabelKey) ?? '';
-                $html .= '<option value="' . $this->escape((string) $optionValue) . '"' . ((string) $value === (string) $optionValue ? ' selected' : '') . $this->translationAttribute($optionLabelKey) . '>' . $this->escape($label) . '</option>';
+                $selected = $field->isMultiple()
+                    ? in_array((string) $optionValue, $selectedValues, true)
+                    : (string) $value === (string) $optionValue;
+                $html .= '<option value="' . $this->escape((string) $optionValue) . '"' . ($selected ? ' selected' : '') . $this->translationAttribute($optionLabelKey) . '>' . $this->escape($label) . '</option>';
             }
             return $html . '</select>' . $preservedValue;
         }
@@ -171,6 +176,20 @@ final class AdminEditorFieldRenderer
             return $context->values()[$field->name()];
         }
         return $field->hasDefaultValue() ? $field->configuredDefaultValue() : null;
+    }
+
+    /**
+     * Normalizuje hodnotu multiple selectu na seznam odesilanych stringu
+     *
+     * @return list<string>
+     */
+    private function multipleValues(mixed $value): array
+    {
+        if (!is_array($value)) {
+            return $value === null ? [] : [(string) $value];
+        }
+
+        return array_values(array_map(static fn(mixed $item): string => (string) $item, $value));
     }
 
     /**

@@ -21,6 +21,9 @@ import { I18n } from "../core/lemonade-i18n.js";
             this.searchParam = element.getAttribute("data-lemonade-search-param") || "q";
             this.minLength = Number(element.getAttribute("data-lemonade-min-length") || 0);
             this.searchable = this.sourceType === "async" || element.hasAttribute("data-lemonade-searchable");
+            this.allowCreate = element.multiple && element.hasAttribute("data-lemonade-allow-create");
+            this.createLabelKey = element.getAttribute("data-lemonade-create-label-key") || "admin.select.create";
+            this.noResultsKey = element.getAttribute("data-lemonade-no-results-key") || "admin.select.no_results";
             this.page = 1;
             this.query = "";
             this.requestId = 0;
@@ -66,7 +69,10 @@ import { I18n } from "../core/lemonade-i18n.js";
                 this.searchInput.setAttribute("data-lemonade-i18n-placeholder", key);
                 this.dropdown.appendChild(this.searchInput);
                 this.searchDebounce = EventHelper.debounce(this.handleInput.bind(this), 250);
-                this.listenerRemovers.push(EventHelper.on(this.searchInput, "input", this.searchDebounce));
+                this.listenerRemovers.push(
+                    EventHelper.on(this.searchInput, "input", this.searchDebounce),
+                    EventHelper.on(this.searchInput, "keydown", this.searchKeydown.bind(this)),
+                );
             }
             this.results = document.createElement("div");
             this.results.className = "lm-select-results";
@@ -129,7 +135,37 @@ import { I18n } from "../core/lemonade-i18n.js";
                 this.close();
             }
         }
-        keydown(event) { if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") { event.preventDefault(); this.open(); } if (event.key === "Escape") { this.close(); } }
+        keydown(event) {
+            if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                this.open();
+            }
+            if (event.key === "Escape") {
+                this.close();
+            }
+        }
+
+        searchKeydown(event) {
+            if (event.key === "Escape") {
+                event.preventDefault();
+                this.close();
+                this.trigger.focus();
+                return;
+            }
+            if (event.key !== "Enter") {
+                return;
+            }
+
+            event.preventDefault();
+            const firstResult = this.results.querySelector("[data-lemonade-select-option]");
+            if (firstResult) {
+                firstResult.click();
+                return;
+            }
+            if (this.canCreateValue()) {
+                this.createValue();
+            }
+        }
 
         mountDropdown() {
             if (this.dropdown.parentNode !== this.dropdownContainer) {
@@ -191,7 +227,7 @@ import { I18n } from "../core/lemonade-i18n.js";
                     || Select.normalizeSearchText(option.label).includes(normalizedQuery);
             });
             this.stateKey = this.resultOptions.length === 0
-                ? (query === "" ? "admin.select.no_options" : "admin.select.no_results")
+                ? (query === "" ? "admin.select.no_options" : this.noResultsKey)
                 : "";
             this.more.hidden = true;
             this.render();
@@ -217,7 +253,7 @@ import { I18n } from "../core/lemonade-i18n.js";
                 url.searchParams.set("page", String(this.page));
                 const response = await HttpHelper.get(url.toString(), { signal: this.controller.signal });
                 if (requestId !== this.requestId || query !== this.query) { return; }
-                this.setOptions(response.items || [], query === "" ? "admin.select.no_options" : "admin.select.no_results");
+                this.setOptions(response.items || [], query === "" ? "admin.select.no_options" : this.noResultsKey);
                 this.loaded = true;
                 this.more.hidden = !(response.pagination && response.pagination.hasMore);
             } catch (error) {
@@ -238,6 +274,58 @@ import { I18n } from "../core/lemonade-i18n.js";
             this.render();
         }
         selectedOptions() { return Array.from(this.element.options).filter(function (option) { return option.selected; }); }
+
+        hasNormalizedOption(value) {
+            const normalized = Select.normalizeSearchText(value);
+            return Array.from(this.element.options).some(function (option) {
+                return Select.normalizeSearchText(option.value) === normalized || Select.normalizeSearchText(option.text) === normalized;
+            });
+        }
+
+        hasSelectedNormalizedValue(value, except) {
+            const normalized = Select.normalizeSearchText(value);
+            return this.selectedOptions().some(function (option) {
+                return option !== except && Select.normalizeSearchText(option.value) === normalized;
+            });
+        }
+
+        canCreateValue() {
+            return this.allowCreate && this.query !== "" && !this.hasNormalizedOption(this.query);
+        }
+
+        createValue() {
+            const value = this.query.trim();
+            if (!this.canCreateValue() || this.hasSelectedNormalizedValue(value, null)) {
+                return;
+            }
+
+            const option = new Option(value, value, false, true);
+            this.element.appendChild(option);
+            this.localOptions.push({ value: value, label: value });
+            this.element.dispatchEvent(new Event("change", { bubbles: true }));
+            this.searchInput.value = "";
+            this.startSearch();
+            this.render();
+        }
+
+        selectOption(option) {
+            if (this.element.multiple) {
+                if (!option.selected && this.hasSelectedNormalizedValue(option.value, option)) {
+                    return;
+                }
+                if (!option.selected && this.allowCreate) {
+                    this.element.appendChild(option);
+                }
+                option.selected = !option.selected;
+            } else {
+                Array.from(this.element.options).forEach(function (candidate) {
+                    candidate.selected = candidate === option;
+                });
+                this.close();
+            }
+            this.element.dispatchEvent(new Event("change", { bubbles: true }));
+            this.render();
+        }
         render() {
             const selected = this.selectedOptions();
             this.trigger.replaceChildren();
@@ -272,26 +360,25 @@ import { I18n } from "../core/lemonade-i18n.js";
             this.results.replaceChildren();
             if (this.stateKey) {
                 const state = document.createElement("span"); state.className = "lm-select-state"; state.textContent = I18n.t(this.stateKey); state.setAttribute("data-lemonade-i18n", this.stateKey); this.results.appendChild(state);
-                return;
             }
             this.resultOptions.forEach(function (result) {
                 const option = Array.from(this.element.options).find(function (candidate) { return candidate.value === result.value; });
                 if (!option) { return; }
                 const item = document.createElement("button"); item.type = "button"; item.className = "lm-select-option" + (option.selected ? " is-selected" : ""); item.setAttribute("role", "option"); item.setAttribute("aria-selected", option.selected ? "true" : "false"); item.textContent = result.label;
-                item.addEventListener("click", function () {
-                    if (this.element.multiple) {
-                        option.selected = !option.selected;
-                    } else {
-                        Array.from(this.element.options).forEach(function (candidate) {
-                            candidate.selected = candidate === option;
-                        });
-                        this.close();
-                    }
-                    this.element.dispatchEvent(new Event("change", { bubbles: true }));
-                    this.render();
-                }.bind(this));
+                item.setAttribute("data-lemonade-select-option", "");
+                item.addEventListener("click", function () { this.selectOption(option); }.bind(this));
                 this.results.appendChild(item);
             }, this);
+            if (this.canCreateValue()) {
+                const create = document.createElement("button");
+                create.type = "button";
+                create.className = "lm-select-option lm-select-option-create";
+                create.textContent = I18n.t(this.createLabelKey, { name: this.query });
+                create.setAttribute("data-lemonade-i18n", this.createLabelKey);
+                create.setAttribute("data-lemonade-i18n-param-name", this.query);
+                create.addEventListener("click", this.createValue.bind(this));
+                this.results.appendChild(create);
+            }
             this.positionDropdown();
         }
 

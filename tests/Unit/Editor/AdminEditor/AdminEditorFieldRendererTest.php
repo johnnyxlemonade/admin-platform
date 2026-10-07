@@ -141,6 +141,21 @@ final class AdminEditorFieldRendererTest extends TestCase
         self::assertStringContainsString('<option value="2" selected>Editor</option>', $html);
     }
 
+    public function testMultipleSelectUsesArrayTransportAndSelectedValues(): void
+    {
+        $field = AdminEditorFieldDefinition::select('tags', 'Tags')
+            ->multiple()
+            ->options(['Culture' => 'Culture', 'Sport' => 'Sport'])
+            ->value(['Sport']);
+
+        $html = (new AdminEditorFieldRenderer())->render($field, new AdminEditorRenderContext(), 'article-editor');
+
+        self::assertStringContainsString('name="tags[]"', $html);
+        self::assertStringContainsString(' multiple', $html);
+        self::assertStringContainsString('<option value="Sport" selected>Sport</option>', $html);
+        self::assertStringNotContainsString('<option value="Culture" selected>', $html);
+    }
+
     public function testNumberFieldRendersNumericControl(): void
     {
         $field = AdminEditorFieldDefinition::number('sort_order', 'Order')->value(5)->attributes(['step' => '1']);

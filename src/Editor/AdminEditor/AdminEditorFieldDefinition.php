@@ -49,6 +49,7 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
         private ?string $unlockLabel = null,
         private ?string $unlockLabelKey = null,
         private ?self $markerField = null,
+        private bool $multiple = false,
     ) {
         if (trim($name) === '') {
             throw new InvalidArgumentException('Field name must not be empty.');
@@ -398,6 +399,14 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
     }
 
     /**
+     * Rozhoduje, zda select prijima vice hodnot
+     */
+    public function isMultiple(): bool
+    {
+        return $this->multiple;
+    }
+
+    /**
      * Zpracovava hodnotu value v konfiguraci editoru
      */
     public function value(mixed $value): self
@@ -459,6 +468,18 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
     public function disabled(bool $value = true): self
     {
         return $this->copy(disabled: $value);
+    }
+
+    /**
+     * Nastavuje select pro odeslani vice hodnot
+     */
+    public function multiple(bool $value = true): self
+    {
+        if ($this->type !== 'select') {
+            throw new InvalidArgumentException('Only select fields may be multiple.');
+        }
+
+        return $this->copy(multiple: $value);
     }
 
     /**
@@ -589,6 +610,7 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
             $changes['unlockLabel'] ?? $this->unlockLabel,
             $changes['unlockLabelKey'] ?? $this->unlockLabelKey,
             $changes['markerField'] ?? $this->markerField,
+            $changes['multiple'] ?? $this->multiple,
         );
     }
 }
