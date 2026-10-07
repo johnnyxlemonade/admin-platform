@@ -201,6 +201,10 @@
     transition: border-color .16s ease, background-color .16s ease;
 }
 
+.admin-shell [data-lemonade-file-upload-collection][data-lemonade-file-upload-multiple="true"] .lm-file-upload-dropzone + .lm-file-upload-items {
+    margin-top: var(--lm-space-2);
+}
+
 .admin-shell .lm-file-upload-dropzone.is-dragover,
 .admin-shell .lm-file-upload-dropzone:hover {
     border-color: var(--lm-primary);
