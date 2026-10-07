@@ -11,7 +11,7 @@ use Lemonade\Admin\DataGrid\Action\DataGridRowActionIcon;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionKind;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionPlacement;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionRisk;
-use Lemonade\Admin\Module\AdminModuleRegistry;
+use Lemonade\Admin\Module\AdminModuleRouteResolver;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Routing\UrlGenerator;
 
@@ -25,7 +25,7 @@ class ModuleActionPresentationFactory
      */
     public function __construct(
         private readonly ModuleActionRegistry $actions,
-        private readonly AdminModuleRegistry $modules,
+        private readonly AdminModuleRouteResolver $routes,
         private readonly AuthorizationService $authorization,
         private readonly TranslatorInterface $translator,
         private readonly UrlGenerator $urls,
@@ -46,13 +46,13 @@ class ModuleActionPresentationFactory
             return null;
         }
 
-        $routeSegment = $this->modules->definition($moduleCode)->adminMetadata()->routeSegment();
+        $routeSegment = $this->routes->segmentForModuleCode($moduleCode);
 
         $actionPresentation = new DataGridRowActionDefinition(
             key: $definition->key(),
             label: $this->translator->get($definition->labelKey()),
             url: $this->urls->route(
-                name: str_starts_with($moduleCode, 'system.') ? 'admin.system.module.ajax.entity' : 'admin.module.ajax.entity',
+                name: $this->routes->managementRouteNameForModuleCode($moduleCode, 'ajax.entity'),
                 params: ['module' => $routeSegment, 'id' => $entityId],
             ),
             method: 'POST',

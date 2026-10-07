@@ -131,8 +131,6 @@ final class ModuleActionController
      */
     private function routeName(string $segment, string $action): string
     {
-        return str_starts_with($this->routes->resolve($segment)->code(), 'system.')
-            ? 'admin.system.module.' . $action
-            : 'admin.module.' . $action;
+        return $this->routes->managementRouteName($segment, $action);
     }
 }

@@ -45,6 +45,7 @@ final class AdminModuleRouteRegistrar implements AdminRouteRegistrarInterface
     public function registerRoutes(Router $router): void
     {
         $this->registerSystemRoutes($router);
+        $this->registerCmsRoutes($router);
         $this->registerModuleRoutes($router);
         $router->getNamed(
             name: 'admin.api.datagrid.index',
@@ -121,6 +122,70 @@ final class AdminModuleRouteRegistrar implements AdminRouteRegistrarInterface
     }
 
     /**
+     * Pridava canonical routy management modulu vlastnenych CMS namespace
+     */
+    private function registerCmsRoutes(Router $router): void
+    {
+        $segments = $this->cmsSegments();
+        $router->getNamed(
+            name: 'admin.cms.module.index',
+            path: '/cms/{module}',
+            action: ControllerAction::for(
+                controllerClass: ModuleController::class,
+                method: 'index',
+            ),
+        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
+        $router->getNamed(
+            name: 'admin.cms.module.create',
+            path: '/cms/{module}/create',
+            action: ControllerAction::for(
+                controllerClass: ModuleController::class,
+                method: 'create',
+            ),
+        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
+        $router->postNamed(
+            name: 'admin.cms.module.store',
+            path: '/cms/{module}/create',
+            action: ControllerAction::for(
+                controllerClass: ModuleController::class,
+                method: 'store',
+            ),
+        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
+        $router->getNamed(
+            name: 'admin.cms.module.edit',
+            path: '/cms/{module}/edit/{id}',
+            action: ControllerAction::for(
+                controllerClass: ModuleController::class,
+                method: 'edit',
+            ),
+        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
+        $router->postNamed(
+            name: 'admin.cms.module.update',
+            path: '/cms/{module}/edit/{id}',
+            action: ControllerAction::for(
+                controllerClass: ModuleController::class,
+                method: 'update',
+            ),
+        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
+        $router->postNamed(
+            name: 'admin.cms.module.ajax.create',
+            path: '/cms/{module}/ajax',
+            action: ControllerAction::for(
+                controllerClass: ModuleActionController::class,
+                method: 'create',
+            ),
+        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
+        $router->postNamed(
+            name: 'admin.cms.module.ajax.entity',
+            path: '/cms/{module}/ajax/{id}',
+            action: ControllerAction::for(
+                controllerClass: ModuleActionController::class,
+                method: 'entity',
+            ),
+        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
+    }
+
+    /**
      * Pridava routy pro administracni moduly mimo System namespace
      */
     private function registerModuleRoutes(Router $router): void
@@ -183,7 +248,17 @@ final class AdminModuleRouteRegistrar implements AdminRouteRegistrarInterface
      */
     private function nonSystemSegments(): array
     {
-        return $this->segmentsFor(static fn(string $code): bool => !str_starts_with($code, 'system.'));
+        return $this->segmentsFor(static fn(string $code): bool => !str_starts_with($code, 'system.') && !str_starts_with($code, 'cms.'));
+    }
+
+    /**
+     * Vraci segmenty modulu vlastnenych CMS namespace
+     *
+     * @return list<string>
+     */
+    private function cmsSegments(): array
+    {
+        return $this->segmentsFor(static fn(string $code): bool => str_starts_with($code, 'cms.'));
     }
 
     /**

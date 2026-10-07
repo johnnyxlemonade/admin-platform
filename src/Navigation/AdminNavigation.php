@@ -8,6 +8,7 @@ use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRegistry;
+use Lemonade\Admin\Module\AdminModuleRouteResolver;
 use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Framework\Localization\TranslatorInterface;
 
@@ -23,6 +24,7 @@ final class AdminNavigation
         private readonly ModuleManager $modules,
         private readonly AuthorizationService $authorization,
         private readonly AdminModuleRegistry $adminModules,
+        private readonly AdminModuleRouteResolver $routes,
         private readonly AdminModuleAccessPolicy $access,
         private readonly AdminNavigationGroupRegistry $groups,
         private readonly TranslatorInterface $translator,
@@ -72,14 +74,22 @@ final class AdminNavigation
                 continue;
             }
 
+            $usesCmsManagementRoute = $this->routes->isCmsModuleCode($moduleCode);
+            $route = $usesCmsManagementRoute
+                ? $this->routes->managementRouteNameForModuleCode($moduleCode, 'index')
+                : $metadata->destinationRoute();
+            $routeParameters = $usesCmsManagementRoute
+                ? ['module' => $metadata->routeSegment()]
+                : $metadata->destinationParameters();
+
             $item = new AdminNavigationItem(
                 key: 'module:' . $moduleCode,
                 order: $metadata->navigationOrder(),
                 label: $this->translator->get($metadata->nameKey()),
                 labelKey: $metadata->nameKey(),
-                route: $metadata->destinationRoute(),
-                routeParameters: $metadata->destinationParameters(),
-                routePrefix: $metadata->destinationRoute() === 'admin.module.index',
+                route: $route,
+                routeParameters: $routeParameters,
+                routePrefix: $usesCmsManagementRoute || $metadata->destinationRoute() === 'admin.module.index',
                 icon: $metadata->icon(),
                 moduleCode: $moduleCode,
             );

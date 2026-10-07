@@ -14,12 +14,14 @@ use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleMetadata;
 use Lemonade\Admin\Module\AdminModuleRegistry;
+use Lemonade\Admin\Module\AdminModuleRouteResolver;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Definition\ModuleKind;
 use Lemonade\Admin\Modules\Feature\FeatureProviderRegistry;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestDefinition;
 use Lemonade\Admin\Modules\Persistence\ModuleModel;
+use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Admin\Modules\State\ModuleStateResolver;
 use Lemonade\Admin\Navigation\AdminNavigation;
@@ -213,6 +215,7 @@ final class AdminNavigationTest extends TestCase
             new ModuleManager(new FeatureProviderRegistry(), $this->states($definitions, $database)),
             $authorization,
             $adminModules,
+            new AdminModuleRouteResolver($adminModules, new ModuleRegistry()),
             new AdminModuleAccessPolicy($authorization, $principal),
             $groups,
             new class implements TranslatorInterface {

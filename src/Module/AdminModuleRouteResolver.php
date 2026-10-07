@@ -44,4 +44,48 @@ final class AdminModuleRouteResolver
 
         return $this->adminModules->definition($moduleCode)->adminMetadata();
     }
+
+    /**
+     * Vraci jmeno canonical management route podle ownershipu modulu
+     */
+    public function managementRouteName(string $segment, string $action): string
+    {
+        return $this->managementRouteNameForModuleCode($this->resolve($segment)->code(), $action);
+    }
+
+    /**
+     * Vraci jmeno canonical management route podle stable kodu modulu
+     */
+    public function managementRouteNameForModuleCode(string $moduleCode, string $action): string
+    {
+        return match (true) {
+            str_starts_with($moduleCode, 'system.') => 'admin.system.module.' . $action,
+            $this->isCmsModuleCode($moduleCode) => 'admin.cms.module.' . $action,
+            default => 'admin.module.' . $action,
+        };
+    }
+
+    /**
+     * Rozhoduje, zda module code patri CMS management ownershipu
+     */
+    public function isCmsModuleCode(string $moduleCode): bool
+    {
+        return str_starts_with($moduleCode, 'cms.');
+    }
+
+    /**
+     * Rozhoduje, zda segment patri CMS management ownershipu
+     */
+    public function isCmsSegment(string $segment): bool
+    {
+        return $this->isCmsModuleCode($this->resolve($segment)->code());
+    }
+
+    /**
+     * Vraci globally unique Admin URL segment modulu podle jeho stableho kodu
+     */
+    public function segmentForModuleCode(string $moduleCode): string
+    {
+        return $this->adminModules->definition($moduleCode)->adminMetadata()->routeSegment();
+    }
 }

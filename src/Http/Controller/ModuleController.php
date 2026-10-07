@@ -295,8 +295,14 @@ final class ModuleController
     {
         try {
             $metadata = $this->routes->metadata($segment);
+            if (!$this->routes->isCmsSegment($segment)) {
+                return $this->urls->route($metadata->destinationRoute(), $metadata->destinationParameters());
+            }
 
-            return $this->urls->route($metadata->destinationRoute(), $metadata->destinationParameters());
+            return $this->urls->route(
+                $this->routes->managementRouteName($segment, 'index'),
+                ['module' => $segment],
+            );
         } catch (\RuntimeException) {
             return $this->urls->route('admin.dashboard');
         }
@@ -307,11 +313,7 @@ final class ModuleController
      */
     private function routeName(string $segment, string $action): string
     {
-        $definition = $this->routes->resolve($segment);
-
-        return str_starts_with($definition->code(), 'system.')
-            ? 'admin.system.module.' . $action
-            : 'admin.module.' . $action;
+        return $this->routes->managementRouteName($segment, $action);
     }
 
     /**
