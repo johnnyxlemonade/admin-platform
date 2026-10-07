@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Cms\Routing;
 
+use Lemonade\Framework\Http\Exception\NotFoundHttpException;
 use Lemonade\Framework\View\ViewRendererInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -97,8 +98,8 @@ final class PublicCmsRouteResolver
     /**
      * Vytvori odpoved pro neplatnou nebo nedostupnou CMS routu
      */
-    private function notFound(): ResponseInterface
+    private function notFound(): never
     {
-        return $this->responses->createResponse(404);
+        throw NotFoundHttpException::create();
     }
 }

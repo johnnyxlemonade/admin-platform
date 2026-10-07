@@ -14,6 +14,7 @@ use Lemonade\Admin\Cms\Routing\PublicLocaleRegistryInterface;
 use Lemonade\Admin\Cms\Routing\PublicLocaleResolver;
 use Lemonade\Admin\Cms\Routing\PublicModuleRoutePrefixRepositoryInterface;
 use Lemonade\Admin\Cms\Routing\PublicModuleStateResolverInterface;
+use Lemonade\Framework\Http\Exception\NotFoundHttpException;
 use Lemonade\Framework\View\ViewRendererInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
@@ -59,28 +60,32 @@ final class PublicCmsRouteResolverTest extends TestCase
 
     public function testUnknownPathReturnsNotFound(): void
     {
-        self::assertSame(404, $this->resolver()->resolve('/aktuality/chybi')->getStatusCode());
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->resolver()->resolve('/aktuality/chybi');
     }
 
     public function testDisabledLocaleReturnsNotFound(): void
     {
-        self::assertSame(404, $this->resolver()->resolve('/de/neuigkeiten/x')->getStatusCode());
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->resolver()->resolve('/de/neuigkeiten/x');
     }
 
     public function testRouteWithDisabledModuleReturnsNotFound(): void
     {
         $routes = new FakeRoutes([new CmsRoute(1, 'news', 42, 'cs', 'aktuality/x')]);
-        $response = $this->resolver(routes: $routes, modules: new FakeModules([]))->resolve('/aktuality/x');
+        $this->expectException(NotFoundHttpException::class);
 
-        self::assertSame(404, $response->getStatusCode());
+        $this->resolver(routes: $routes, modules: new FakeModules([]))->resolve('/aktuality/x');
     }
 
     public function testRouteWithoutRegisteredHandlerReturnsNotFound(): void
     {
         $routes = new FakeRoutes([new CmsRoute(1, 'news', 42, 'cs', 'aktuality/x')]);
-        $response = $this->resolver(routes: $routes)->resolve('/aktuality/x');
+        $this->expectException(NotFoundHttpException::class);
 
-        self::assertSame(404, $response->getStatusCode());
+        $this->resolver(routes: $routes)->resolve('/aktuality/x');
     }
 
     public function testRouteWithOutdatedDatabasePrefixReturnsNotFound(): void
@@ -88,9 +93,9 @@ final class PublicCmsRouteResolverTest extends TestCase
         $routes = new FakeRoutes([new CmsRoute(1, 'news', 42, 'cs', 'aktuality/x')]);
         $handlers = new PublicCmsRouteHandlerRegistry();
         $handlers->register('news', new FakeHandler());
-        $response = $this->resolver(routes: $routes, prefixes: new FakePrefixes(['news:cs' => 'novinky']), handlers: $handlers)->resolve('/aktuality/x');
+        $this->expectException(NotFoundHttpException::class);
 
-        self::assertSame(404, $response->getStatusCode());
+        $this->resolver(routes: $routes, prefixes: new FakePrefixes(['news:cs' => 'novinky']), handlers: $handlers)->resolve('/aktuality/x');
     }
 
     public function testValidRouteCallsItsHandlerWithEntityAndLocale(): void
