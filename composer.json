@@ -11,6 +11,10 @@
     {
       "type": "vcs",
       "url": "https://github.com/johnnyxlemonade/admin-image"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/johnnyxlemonade/cms-core"
     }
   ],
   "require": {
@@ -20,6 +24,7 @@
     "ext-pdo": "*",
     "guzzlehttp/guzzle": "^7.10",
     "johnnyxlemonade/framework": "dev-master",
+    "johnnyxlemonade/cms-core": "dev-main",
     "johnnyxlemonade/admin-image": "dev-main",
     "league/oauth2-client": "^2.9",
     "nyholm/psr7": "^1.8",

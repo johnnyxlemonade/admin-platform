@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "68eea19f61e8d1a19c848c8eaf9bdf7f",
+    "content-hash": "7cc314a5e8e33093c376d14e4d036934",
     "packages": [
         {
             "name": "brick/math",
@@ -463,6 +463,72 @@
                 "issues": "https://github.com/johnnyxlemonade/admin-image/issues"
             },
             "time": "2026-10-06T17:14:47+00:00"
+        },
+        {
+            "name": "johnnyxlemonade/cms-core",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/johnnyxlemonade/cms-core.git",
+                "reference": "308587a530f69c22584fc3e7bb44ad7860e11d1c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/johnnyxlemonade/cms-core/zipball/308587a530f69c22584fc3e7bb44ad7860e11d1c",
+                "reference": "308587a530f69c22584fc3e7bb44ad7860e11d1c",
+                "shasum": ""
+            },
+            "require": {
+                "johnnyxlemonade/framework": "dev-master",
+                "php": ">=8.3 <8.6"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.94",
+                "nyholm/psr7": "^1.8",
+                "phpstan/phpstan": "2.3.0",
+                "phpstan/phpstan-strict-rules": "2.1.0",
+                "phpunit/phpunit": "^10.5"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Lemonade\\Cms\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Lemonade\\Cms\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "cs:check": [
+                    "@php vendor/bin/php-cs-fixer fix --dry-run --diff --allow-risky=yes"
+                ],
+                "cs:fix": [
+                    "@php vendor/bin/php-cs-fixer fix --allow-risky=yes"
+                ],
+                "stan": [
+                    "@php vendor/bin/phpstan analyse --memory-limit=4G"
+                ],
+                "test": [
+                    "@php vendor/bin/phpunit"
+                ],
+                "qa": [
+                    "@cs:check",
+                    "@stan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Reusable public CMS route runtime for Lemonade.",
+            "support": {
+                "source": "https://github.com/johnnyxlemonade/cms-core/tree/main",
+                "issues": "https://github.com/johnnyxlemonade/cms-core/issues"
+            },
+            "time": "2026-10-07T16:32:55+00:00"
         },
         {
             "name": "johnnyxlemonade/framework",
@@ -7267,6 +7333,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "johnnyxlemonade/admin-image": 20,
+        "johnnyxlemonade/cms-core": 20,
         "johnnyxlemonade/framework": 20
     },
     "prefer-stable": true,

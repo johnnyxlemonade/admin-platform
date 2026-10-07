@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Routing;
 
-use Lemonade\Admin\Cms\Routing\PublicCmsRouteRegistrar;
 use Lemonade\Admin\Http\Controller\AdminErrorController;
 use Lemonade\Admin\Http\Middleware\AdminAuthenticationMiddleware;
 use Lemonade\Admin\Routing\AdminErrorRouteRegistrar;
+use Lemonade\Cms\Routing\PublicCmsRouteRegistrar;
 use Lemonade\Framework\Routing\ControllerAction;
 use Lemonade\Framework\Routing\Router;
 use Nyholm\Psr7\ServerRequest;
@@ -32,7 +32,7 @@ final class AdminErrorRouteRegistrarTest extends TestCase
         self::assertSame([AdminAuthenticationMiddleware::class], $match->middleware());
         self::assertSame('Example\\Controllers\\ModuleController', $router->match(new ServerRequest('GET', '/admin/languages'))->controller());
         self::assertSame(
-            'Lemonade\\Admin\\Cms\\Http\\Controller\\PublicCmsRouteController',
+            'Lemonade\\Cms\\Http\\Controller\\PublicCmsRouteController',
             $router->match(new ServerRequest('GET', '/aktuality/test'))->controller(),
         );
     }

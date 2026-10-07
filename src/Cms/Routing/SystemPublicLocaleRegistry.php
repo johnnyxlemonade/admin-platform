@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Cms\Routing;
 
 use Lemonade\Admin\Localization\LanguageRegistry;
+use Lemonade\Cms\Routing\PublicLocaleRegistryInterface;
 
 /**
  * Zpristupnuje systemovy katalog jazyku verejnemu CMS routovani

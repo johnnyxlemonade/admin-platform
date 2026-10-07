@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Cms\Routing;
 
 use Lemonade\Admin\Modules\State\ModuleStateResolver;
+use Lemonade\Cms\Routing\PublicModuleStateResolverInterface;
 
 /**
  * Odvozuje dostupnost verejne routy z lifecycle modulu

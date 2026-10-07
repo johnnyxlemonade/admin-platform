@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Migrations;
 
-use Lemonade\Admin\Cms\Migrations\CreateCoreCmsRoutes;
 use Lemonade\Admin\Migrations\CreateDashboardWidgets;
 use Lemonade\Admin\Migrations\CreateNotifications;
 use Lemonade\Admin\Platform\Migrations\CreateCoreAuditLog;
@@ -16,6 +15,7 @@ use Lemonade\Admin\Platform\Migrations\CreateCoreModuleCatalog;
 use Lemonade\Admin\Platform\Migrations\CreateCoreModuleRoutePrefixes;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUserIdentities;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUsers;
+use Lemonade\Cms\Migrations\CreateCoreCmsRoutes;
 use Lemonade\Framework\Database\Connection\DatabaseConfig;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
 use Lemonade\Framework\Database\Driver\Mysql\MysqlIdentifierEscaper;

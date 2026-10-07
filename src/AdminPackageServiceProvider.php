@@ -9,7 +9,6 @@ use Lemonade\Admin\Auth\AdminAuthRuntimeServiceProvider;
 use Lemonade\Admin\Auth\AdminAuthServiceProvider;
 use Lemonade\Admin\Authorization\CoreAuthorizationServiceProvider;
 use Lemonade\Admin\Cms\AdminCmsServiceProvider;
-use Lemonade\Admin\Cms\Migrations\CreateCoreCmsRoutes;
 use Lemonade\Admin\Dashboard\AdminDashboardServiceProvider;
 use Lemonade\Admin\Dashboard\Audit\DashboardAuditServiceProvider;
 use Lemonade\Admin\Editor\AdminEditorServiceProvider;
@@ -70,7 +69,7 @@ final class AdminPackageServiceProvider implements ServiceProviderInterface
     }
 
     /**
-     * Registruje stabilni schema Admin platformy vcetne CMS route contractu
+     * Registruje stabilni schema Admin platformy
      */
     private function registerPlatformMigrations(MigrationRegistry $migrations): void
     {
@@ -85,6 +84,5 @@ final class AdminPackageServiceProvider implements ServiceProviderInterface
         $migrations->register(CreateCoreEditorLocks::class);
         $migrations->register(CreateCoreFiles::class);
         $migrations->register(CreateCoreTranslationOverrides::class);
-        $migrations->register(CreateCoreCmsRoutes::class);
     }
 }
