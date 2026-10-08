@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Auth\Oidc\Contract;
 
-use Jose\Component\Core\JWKSet;
+use Firebase\JWT\Key;
 use Lemonade\Admin\Auth\Oidc\OidcProviderMetadata;
 
 /**
@@ -13,7 +13,9 @@ use Lemonade\Admin\Auth\Oidc\OidcProviderMetadata;
 interface OidcJwksProviderInterface
 {
     /**
-     * Vraci nebo zpracovava hodnotu keyset pro overeni identity
+     * Vraci klice JWKS indexovane podle kid
+     *
+     * @return array<string, Key>
      */
-    public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): JWKSet;
+    public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): array;
 }

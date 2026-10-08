@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Auth\Oidc;
 
-use Jose\Component\Core\JWKSet;
+use Firebase\JWT\JWK;
+use Firebase\JWT\Key;
 use JsonException;
 use Lemonade\Admin\Auth\Oidc\Contract\OidcJwksProviderInterface;
 use Nyholm\Psr7\Request;
@@ -15,7 +16,7 @@ use Psr\Http\Client\ClientInterface;
  */
 final class HttpOidcJwksProvider implements OidcJwksProviderInterface
 {
-    /** @var array<string, JWKSet> */
+    /** @var array<string, array<string, Key>> */
     private array $cache = [];
 
     /**
@@ -24,9 +25,11 @@ final class HttpOidcJwksProvider implements OidcJwksProviderInterface
     public function __construct(private readonly ClientInterface $http) {}
 
     /**
-     * Vraci nebo zpracovava hodnotu keyset pro overeni identity
+     * Nacita a vraci RS256 klice JWKS indexovane podle kid
+     *
+     * @return array<string, Key>
      */
-    public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): JWKSet
+    public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): array
     {
         $uri = $metadata->jwksUri();
         if (!$refresh && isset($this->cache[$uri])) {
@@ -43,7 +46,7 @@ final class HttpOidcJwksProvider implements OidcJwksProviderInterface
             if (!is_array($data)) {
                 throw new OidcProtocolException('jwks_invalid');
             }
-            $keySet = JWKSet::createFromKeyData($data);
+            $keySet = JWK::parseKeySet($data, 'RS256');
         } catch (JsonException) {
             throw new OidcProtocolException('jwks_invalid');
         } catch (OidcProtocolException $exception) {

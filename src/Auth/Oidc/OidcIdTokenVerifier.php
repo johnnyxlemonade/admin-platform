@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Auth\Oidc;
 
-use Jose\Component\Core\AlgorithmManager;
-use Jose\Component\Signature\Algorithm\RS256;
-use Jose\Component\Signature\JWSLoader;
-use Jose\Component\Signature\JWSVerifier;
-use Jose\Component\Signature\Serializer\CompactSerializer;
-use Jose\Component\Signature\Serializer\JWSSerializerManager;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use JsonException;
 use Lemonade\Admin\Auth\Oidc\Contract\OidcJwksProviderInterface;
 
@@ -47,24 +43,12 @@ final class OidcIdTokenVerifier
             throw new OidcProtocolException('id_token_kid_missing');
         }
 
-        $jws = $this->verifiedJws($idToken, $metadata, $kid, false);
-        if ($jws === null) {
-            $jws = $this->verifiedJws($idToken, $metadata, $kid, true);
+        $claims = $this->verifiedClaims($idToken, $metadata, $kid, false);
+        if ($claims === null) {
+            $claims = $this->verifiedClaims($idToken, $metadata, $kid, true);
         }
-        if ($jws === null) {
+        if ($claims === null) {
             throw new OidcProtocolException('id_token_signature_invalid');
-        }
-        $payload = $jws->getPayload();
-        if (!is_string($payload)) {
-            throw new OidcProtocolException('id_token_payload_invalid');
-        }
-        try {
-            $claims = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException) {
-            throw new OidcProtocolException('id_token_payload_invalid');
-        }
-        if (!is_array($claims)) {
-            throw new OidcProtocolException('id_token_payload_invalid');
         }
 
         $this->validateClaims($claims, $configuration, $metadata, $expectedNonce, $now);
@@ -109,26 +93,41 @@ final class OidcIdTokenVerifier
     }
 
     /**
-     * Vraci nebo zpracovava hodnotu verifiedjws pro overeni identity
+     * Overi RS256 podpis a vrati payload bez knihovni validace claims
+     *
+     * @return array<string, mixed>|null
      */
-    private function verifiedJws(string $idToken, OidcProviderMetadata $metadata, string $kid, bool $refresh): ?\Jose\Component\Signature\JWS
+    private function verifiedClaims(string $idToken, OidcProviderMetadata $metadata, string $kid, bool $refresh): ?array
     {
         try {
-            $signature = null;
-            $loader = new JWSLoader(
-                new JWSSerializerManager([new CompactSerializer()]),
-                new JWSVerifier(new AlgorithmManager([new RS256()])),
-                null,
-            );
-
             $keySet = $this->jwks->keySet($metadata, $refresh);
-            if (!$keySet->has($kid)) {
+            if (!isset($keySet[$kid])) {
                 return null;
             }
 
-            return $loader->loadAndVerifyWithKey($idToken, $keySet->get($kid), $signature);
+            return $this->decodeSignature($idToken, $keySet[$kid]);
         } catch (\Throwable) {
             return null;
+        }
+    }
+
+    /**
+     * Overi podpis bez zmeny explicitnich Admin validaci casovych claims
+     *
+     * @return array<string, mixed>
+     */
+    private function decodeSignature(string $idToken, Key $key): array
+    {
+        $previousTimestamp = JWT::$timestamp;
+        $previousLeeway = JWT::$leeway;
+        try {
+            JWT::$timestamp = 0;
+            JWT::$leeway = PHP_INT_MAX;
+
+            return (array) JWT::decode($idToken, $key);
+        } finally {
+            JWT::$timestamp = $previousTimestamp;
+            JWT::$leeway = $previousLeeway;
         }
     }
 

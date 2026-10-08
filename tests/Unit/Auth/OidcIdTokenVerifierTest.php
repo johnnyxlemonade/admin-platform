@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Auth;
 
-use Jose\Component\Core\AlgorithmManager;
-use Jose\Component\Core\JWK;
-use Jose\Component\Core\JWKSet;
-use Jose\Component\KeyManagement\JWKFactory;
-use Jose\Component\Signature\Algorithm\RS256;
-use Jose\Component\Signature\JWSBuilder;
-use Jose\Component\Signature\Serializer\CompactSerializer;
+use Firebase\JWT\JWK;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Lemonade\Admin\Auth\Oidc\Contract\OidcJwksProviderInterface;
 use Lemonade\Admin\Auth\Oidc\OidcIdTokenVerifier;
 use Lemonade\Admin\Auth\Oidc\OidcProtocolException;
@@ -22,8 +18,8 @@ final class OidcIdTokenVerifierTest extends TestCase
 {
     public function testItReturnsOnlyVerifiedIdentityClaims(): void
     {
-        $key = JWKFactory::createRSAKey(2048, ['kid' => 'current', 'use' => 'sig', 'alg' => 'RS256']);
-        $verifier = new OidcIdTokenVerifier($this->jwks($key->toPublic()));
+        $key = $this->key('current');
+        $verifier = new OidcIdTokenVerifier($this->jwks($key['jwk']));
         $identity = $verifier->verify($this->token($key, $this->claims()), $this->configuration(), $this->metadata(), 'expected-nonce', 1000);
 
         self::assertSame('subject-1', $identity->subject());
@@ -33,15 +29,17 @@ final class OidcIdTokenVerifierTest extends TestCase
 
     public function testItRejectsInvalidClaims(): void
     {
-        $key = JWKFactory::createRSAKey(2048, ['kid' => 'current', 'use' => 'sig', 'alg' => 'RS256']);
-        $verifier = new OidcIdTokenVerifier($this->jwks($key->toPublic()));
+        $key = $this->key('current');
+        $verifier = new OidcIdTokenVerifier($this->jwks($key['jwk']));
 
         foreach ([
             ['iss' => 'https://unexpected.example.test', 'expected' => 'id_token_issuer_invalid'],
             ['aud' => 'other-client', 'expected' => 'id_token_audience_invalid'],
+            ['aud' => ['client-id', 'other-client'], 'azp' => 'other-client', 'expected' => 'id_token_authorized_party_invalid'],
             ['exp' => 900, 'expected' => 'id_token_expired'],
             ['nbf' => 1061, 'expected' => 'id_token_not_active'],
             ['iat' => 1061, 'expected' => 'id_token_issued_at_invalid'],
+            ['iat' => -85401, 'expected' => 'id_token_issued_at_invalid'],
             ['nonce' => 'other-nonce', 'expected' => 'id_token_nonce_invalid'],
         ] as $case) {
             $claims = array_replace($this->claims(), $case);
@@ -51,29 +49,43 @@ final class OidcIdTokenVerifierTest extends TestCase
 
     public function testItRejectsUnsupportedAlgorithmBeforeSignatureVerification(): void
     {
-        $key = JWKFactory::createRSAKey(2048, ['kid' => 'current', 'use' => 'sig', 'alg' => 'RS256']);
+        $key = $this->key('current');
         $token = $this->token($key, $this->claims());
         [, $payload, $signature] = explode('.', $token);
         $unsupported = rtrim(strtr(base64_encode(json_encode(['alg' => 'HS256', 'kid' => 'current'], JSON_THROW_ON_ERROR)), '+/', '-_'), '=') . '.' . $payload . '.' . $signature;
 
-        $this->assertVerificationError(new OidcIdTokenVerifier($this->jwks($key->toPublic())), $unsupported, 'id_token_algorithm_invalid');
+        $this->assertVerificationError(new OidcIdTokenVerifier($this->jwks($key['jwk'])), $unsupported, 'id_token_algorithm_invalid');
+    }
+
+    public function testItRejectsMalformedToken(): void
+    {
+        $this->assertVerificationError(
+            new OidcIdTokenVerifier($this->jwks($this->key('current')['jwk'])),
+            'not-a-jwt',
+            'id_token_malformed',
+        );
     }
 
     public function testItRefreshesJwksForAnUnknownKidAndAcceptsTheRotatedKey(): void
     {
-        $oldKey = JWKFactory::createRSAKey(2048, ['kid' => 'old', 'use' => 'sig', 'alg' => 'RS256']);
-        $currentKey = JWKFactory::createRSAKey(2048, ['kid' => 'current', 'use' => 'sig', 'alg' => 'RS256']);
-        $jwks = new class ($oldKey->toPublic(), $currentKey->toPublic()) implements OidcJwksProviderInterface {
+        $oldKey = $this->key('old');
+        $currentKey = $this->key('current');
+        $jwks = new class ($oldKey['jwk'], $currentKey['jwk']) implements OidcJwksProviderInterface {
             /** @var list<bool> */
             public array $refreshes = [];
 
-            public function __construct(private readonly JWK $oldKey, private readonly JWK $currentKey) {}
+            /**
+             * @param array<string, string> $oldKey
+             * @param array<string, string> $currentKey
+             */
+            public function __construct(private readonly array $oldKey, private readonly array $currentKey) {}
 
-            public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): JWKSet
+            /** @return array<string, Key> */
+            public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): array
             {
                 $this->refreshes[] = $refresh;
 
-                return new JWKSet([$refresh ? $this->currentKey : $this->oldKey]);
+                return JWK::parseKeySet(['keys' => [$refresh ? $this->currentKey : $this->oldKey]], 'RS256');
             }
         };
 
@@ -85,19 +97,21 @@ final class OidcIdTokenVerifierTest extends TestCase
 
     public function testItRejectsUnknownKidAfterOneJwksRefresh(): void
     {
-        $signingKey = JWKFactory::createRSAKey(2048, ['kid' => 'unknown', 'use' => 'sig', 'alg' => 'RS256']);
-        $knownKey = JWKFactory::createRSAKey(2048, ['kid' => 'known', 'use' => 'sig', 'alg' => 'RS256']);
-        $jwks = new class ($knownKey->toPublic()) implements OidcJwksProviderInterface {
+        $signingKey = $this->key('unknown');
+        $knownKey = $this->key('known');
+        $jwks = new class ($knownKey['jwk']) implements OidcJwksProviderInterface {
             /** @var list<bool> */
             public array $refreshes = [];
 
-            public function __construct(private readonly JWK $key) {}
+            /** @param array<string, string> $key */
+            public function __construct(private readonly array $key) {}
 
-            public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): JWKSet
+            /** @return array<string, Key> */
+            public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): array
             {
                 $this->refreshes[] = $refresh;
 
-                return new JWKSet([$this->key]);
+                return JWK::parseKeySet(['keys' => [$this->key]], 'RS256');
             }
         };
 
@@ -107,19 +121,21 @@ final class OidcIdTokenVerifierTest extends TestCase
 
     public function testItRejectsAnInvalidSignatureAfterOneJwksRefresh(): void
     {
-        $signingKey = JWKFactory::createRSAKey(2048, ['kid' => 'current', 'use' => 'sig', 'alg' => 'RS256']);
-        $otherKey = JWKFactory::createRSAKey(2048, ['kid' => 'current', 'use' => 'sig', 'alg' => 'RS256']);
-        $jwks = new class ($otherKey->toPublic()) implements OidcJwksProviderInterface {
+        $signingKey = $this->key('current');
+        $otherKey = $this->key('current');
+        $jwks = new class ($otherKey['jwk']) implements OidcJwksProviderInterface {
             /** @var list<bool> */
             public array $refreshes = [];
 
-            public function __construct(private readonly JWK $key) {}
+            /** @param array<string, string> $key */
+            public function __construct(private readonly array $key) {}
 
-            public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): JWKSet
+            /** @return array<string, Key> */
+            public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): array
             {
                 $this->refreshes[] = $refresh;
 
-                return new JWKSet([$this->key]);
+                return JWK::parseKeySet(['keys' => [$this->key]], 'RS256');
             }
         };
 
@@ -127,14 +143,13 @@ final class OidcIdTokenVerifierTest extends TestCase
         self::assertSame([false, true], $jwks->refreshes);
     }
 
-    /** @param array<string, mixed> $claims */
-    private function token(JWK $key, array $claims): string
+    /**
+     * @param array{privateKey: string, jwk: array<string, string>} $key
+     * @param array<string, mixed> $claims
+     */
+    private function token(array $key, array $claims): string
     {
-        return (new CompactSerializer())->serialize((new JWSBuilder(new AlgorithmManager([new RS256()])))
-            ->create()
-            ->withPayload(json_encode($claims, JSON_THROW_ON_ERROR))
-            ->addSignature($key, ['alg' => 'RS256', 'kid' => 'current'])
-            ->build());
+        return JWT::encode($claims, $key['privateKey'], 'RS256', $key['jwk']['kid']);
     }
 
     /** @return array<string, mixed> */
@@ -153,16 +168,56 @@ final class OidcIdTokenVerifierTest extends TestCase
         return new OidcProviderMetadata('https://issuer.example.test', 'https://issuer.example.test/auth', 'https://issuer.example.test/token', 'https://issuer.example.test/certs', ['S256']);
     }
 
-    private function jwks(JWK $key): OidcJwksProviderInterface
+    /**
+     * @param array<string, string> $key
+     */
+    private function jwks(array $key): OidcJwksProviderInterface
     {
         return new class ($key) implements OidcJwksProviderInterface {
-            public function __construct(private readonly JWK $key) {}
+            /** @param array<string, string> $key */
+            public function __construct(private readonly array $key) {}
 
-            public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): JWKSet
+            /** @return array<string, Key> */
+            public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): array
             {
-                return new JWKSet([$this->key]);
+                return JWK::parseKeySet(['keys' => [$this->key]], 'RS256');
             }
         };
+    }
+
+    /**
+     * Vytvori RSA klic a jeho verejnou JWKS reprezentaci
+     *
+     * @return array{privateKey: string, jwk: array<string, string>}
+     */
+    private function key(string $kid): array
+    {
+        $keyPair = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
+        self::assertInstanceOf(\OpenSSLAsymmetricKey::class, $keyPair);
+        self::assertTrue(openssl_pkey_export($keyPair, $privateKey));
+        $details = openssl_pkey_get_details($keyPair);
+        self::assertIsArray($details);
+        self::assertIsArray($details['rsa'] ?? null);
+
+        return [
+            'privateKey' => $privateKey,
+            'jwk' => [
+                'kty' => 'RSA',
+                'kid' => $kid,
+                'use' => 'sig',
+                'alg' => 'RS256',
+                'n' => $this->base64UrlEncode($details['rsa']['n']),
+                'e' => $this->base64UrlEncode($details['rsa']['e']),
+            ],
+        ];
+    }
+
+    /**
+     * Zakoduje binarni hodnotu pro testovaci JWK fixture
+     */
+    private function base64UrlEncode(string $value): string
+    {
+        return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
     }
 
     private function assertVerificationError(OidcIdTokenVerifier $verifier, string $token, string $expectedCode): void

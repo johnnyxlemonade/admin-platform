@@ -7,6 +7,7 @@
     "php": ">=8.3 <8.6",
     "ext-fileinfo": "*",
     "ext-mbstring": "*",
+    "ext-openssl": "*",
     "ext-pdo": "*",
     "guzzlehttp/guzzle": "^7.10",
     "johnnyxlemonade/framework": "dev-master",
@@ -19,7 +20,7 @@
     "psr/http-server-handler": "^1.0",
     "psr/http-server-middleware": "^1.0",
     "psr/log": "^3.0",
-    "web-token/jwt-framework": "^3.4"
+    "firebase/php-jwt": "^7.2"
   },
   "autoload": {
     "psr-4": {
