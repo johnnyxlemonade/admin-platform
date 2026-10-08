@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Http\Middleware;
 
-use Lemonade\Admin\Install\InstallationService;
+use Lemonade\Admin\Install\InstallationStateInterface;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
+use Lemonade\Cms\Routing\Locale\PublicLocaleRoutingMiddleware;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Routing\Router;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -23,7 +24,7 @@ final class AdminInstallationGuard implements MiddlewareInterface
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly InstallationService $installation,
+        private readonly InstallationStateInterface $installation,
         private readonly Router $router,
         private readonly Psr17Factory $responses,
         private readonly AdminRoutingConfiguration $routing,
@@ -35,7 +36,10 @@ final class AdminInstallationGuard implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $path = $request->getUri()->getPath();
-        if (!$this->isAdminPath($path) || $this->isInstallerPath($path) || $this->installation->state()['rootAccount']) {
+        if ($this->isInstallerPath($path)) {
+            return $handler->handle($request->withAttribute(PublicLocaleRoutingMiddleware::BYPASS_ATTRIBUTE, true));
+        }
+        if ($this->installation->state()['rootAccount']) {
             return $handler->handle($request);
         }
 
@@ -63,14 +67,6 @@ final class AdminInstallationGuard implements MiddlewareInterface
                 ],
                 'installerUrl' => $installerUrl,
             ], JSON_THROW_ON_ERROR)));
-    }
-
-    /**
-     * Rozhoduje, zda plati podminka isadminpath
-     */
-    private function isAdminPath(string $path): bool
-    {
-        return $this->routing->contains($path);
     }
 
     /**

@@ -28,7 +28,7 @@ use Throwable;
 /**
  * Provadi jednotlive kroky instalace aplikace
  */
-final class InstallationService
+final class InstallationService implements InstallationStateInterface
 {
     private const SESSION_AUTHORIZED_AT = 'install.install.authorized_at';
     private const SESSION_COMPLETED_STEPS = 'install.install.completed_steps';

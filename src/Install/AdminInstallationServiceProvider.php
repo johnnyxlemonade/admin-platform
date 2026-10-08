@@ -10,6 +10,7 @@ use Lemonade\Admin\Install\Routing\InstallRouteRegistrar;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
+use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
@@ -36,6 +37,10 @@ final class AdminInstallationServiceProvider implements ServiceProviderInterface
     public function register(ContainerBuilderInterface $container): void
     {
         $container->singleton(InstallationService::class, InstallationService::class);
+        $container->singleton(
+            InstallationStateInterface::class,
+            static fn(ContainerInterface $container): InstallationService => $container->get(InstallationService::class),
+        );
         $container->scoped(InstallController::class, InstallController::class);
         $container->singleton(InstallRouteRegistrar::class, InstallRouteRegistrar::class);
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(InstallRouteRegistrar::class));
