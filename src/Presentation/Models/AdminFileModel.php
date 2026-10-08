@@ -323,6 +323,45 @@ final class AdminFileModel extends Model
     }
 
     /**
+     * Nacte presentation metadata souboru pro vice usage jednoho vlastnika jednim dotazem
+     *
+     * @param list<string> $usages
+     * @return list<array{id:int,usage:string,kind:string,original_filename:string,display_name:string|null,caption:string|null,extension:string,mime_type:string,file_size:int,width:int|null,height:int|null,sort_order:int}>
+     */
+    public function listForEntityUsages(string $module, int $entityId, array $usages): array
+    {
+        if ($usages === []) {
+            return [];
+        }
+
+        /** @var list<array{id:int,usage:string,kind:string,original_filename:string,display_name:string|null,caption:string|null,extension:string,mime_type:string,file_size:int,width:int|null,height:int|null,sort_order:int}> $files */
+        $files = $this->query()
+            ->select([
+                'id',
+                'usage',
+                'kind',
+                'original_filename',
+                'display_name',
+                'caption',
+                'extension',
+                'mime_type',
+                'file_size',
+                'width',
+                'height',
+                'sort_order',
+            ])
+            ->where('module_code', $module)
+            ->where('entity_id', $entityId)
+            ->whereIn('usage', $usages)
+            ->orderBy('usage', 'ASC')
+            ->orderBy('sort_order', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->getArray();
+
+        return $files;
+    }
+
+    /**
      * Overi zda file patri do jednoho explicitniho targetu
      *
      * @return array<string,mixed>|null
