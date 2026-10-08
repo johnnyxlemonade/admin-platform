@@ -7,7 +7,7 @@ namespace Lemonade\Admin\Tests\Unit\Routing;
 use Lemonade\Admin\Http\Controller\AdminErrorController;
 use Lemonade\Admin\Http\Middleware\AdminAuthenticationMiddleware;
 use Lemonade\Admin\Routing\AdminErrorRouteRegistrar;
-use Lemonade\Cms\Routing\PublicCmsRouteRegistrar;
+use Lemonade\Cms\Routing\Cms\PublicCmsRouteRegistrar;
 use Lemonade\Framework\Routing\ControllerAction;
 use Lemonade\Framework\Routing\Router;
 use Nyholm\Psr7\ServerRequest;

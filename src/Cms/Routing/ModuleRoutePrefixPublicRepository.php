@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Cms\Routing;
 
 use Lemonade\Admin\Modules\Persistence\ModuleRoutePrefixModel;
-use Lemonade\Cms\Routing\PublicModuleRoutePrefixRepositoryInterface;
+use Lemonade\Cms\Routing\Module\PublicModuleRoutePrefixRepositoryInterface;
 
 /**
  * Zpristupnuje synchronizovane verejne prefixy rout modulu

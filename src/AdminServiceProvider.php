@@ -18,6 +18,7 @@ use Lemonade\Admin\Localization\ClientTranslationCatalog;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Admin\Localization\DatabaseTranslationOverrideProvider;
+use Lemonade\Admin\Localization\PublicLocaleSnapshotCacheInvalidator;
 use Lemonade\Admin\Localization\TranslationOverrideCache;
 use Lemonade\Admin\Localization\TranslationOverrideCacheInvalidator;
 use Lemonade\Admin\Localization\TranslationOverrideModel;
@@ -73,6 +74,8 @@ final class AdminServiceProvider implements ServiceProviderInterface
         $container->singleton(ClientTranslationVersion::class, ClientTranslationVersion::class);
         $container->singleton(TranslationOverrideCacheInvalidator::class, TranslationOverrideCacheInvalidator::class);
         $container->get(DomainEventDispatcher::class)->listen($container->get(TranslationOverrideCacheInvalidator::class));
+        $container->singleton(PublicLocaleSnapshotCacheInvalidator::class, PublicLocaleSnapshotCacheInvalidator::class);
+        $container->get(DomainEventDispatcher::class)->listen($container->get(PublicLocaleSnapshotCacheInvalidator::class));
         $container->singleton(AdminUiLocale::class, AdminUiLocale::class);
         $container->singleton(AdminNavigationGroupRegistry::class, AdminNavigationGroupRegistry::class);
         $container->singleton(AdminModuleRegistry::class, AdminModuleRegistry::class);

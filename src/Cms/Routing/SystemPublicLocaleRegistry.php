@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Cms\Routing;
 
 use Lemonade\Admin\Localization\LanguageRegistry;
-use Lemonade\Cms\Routing\PublicLocaleRegistryInterface;
+use Lemonade\Cms\Routing\Locale\PublicLocaleRegistryInterface;
+use Lemonade\Cms\Routing\Locale\PublicLocaleSnapshot;
 
 /**
  * Zpristupnuje systemovy katalog jazyku verejnemu CMS routovani
@@ -18,26 +19,10 @@ final class SystemPublicLocaleRegistry implements PublicLocaleRegistryInterface
     public function __construct(private readonly LanguageRegistry $languages) {}
 
     /**
-     * Vrati vychozi lokalizaci pro verejne URL
+     * Vrati jeden cached snapshot systemovych jazyku pro public routing
      */
-    public function defaultLocale(): string
+    public function snapshot(): PublicLocaleSnapshot
     {
-        return $this->languages->defaultLocale();
-    }
-
-    /**
-     * Overi aktivni nevychozi lokalizaci pro locale prefix
-     */
-    public function isEnabledNonDefault(string $locale): bool
-    {
-        return $this->languages->isEnabledNonDefault($locale);
-    }
-
-    /**
-     * Overi, zda kod odpovida znamemu systemovemu jazyku
-     */
-    public function isKnownLocale(string $locale): bool
-    {
-        return $this->languages->isKnownLocale($locale);
+        return $this->languages->publicLocaleSnapshot();
     }
 }

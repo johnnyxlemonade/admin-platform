@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Localization;
 
+use Lemonade\Cms\Routing\Locale\PublicLocaleSnapshot;
+use Lemonade\Framework\Cache\CacheManager;
 use Lemonade\Framework\Database\Database;
 
 /**
@@ -11,7 +13,39 @@ use Lemonade\Framework\Database\Database;
  */
 final class LanguageRegistry
 {
-    public function __construct(private readonly Database $database) {}
+    private const PUBLIC_LOCALE_SNAPSHOT_CACHE_KEY = 'admin.public-locale-snapshot.v1';
+
+    /**
+     * Nastavuje persistence jazyku a sdilenou persistentni cache public snapshotu
+     */
+    public function __construct(
+        private readonly Database $database,
+        private readonly CacheManager $cache,
+    ) {}
+
+    /**
+     * Vrati atomicky cached stav jazyku pro public CMS runtime
+     */
+    public function publicLocaleSnapshot(): PublicLocaleSnapshot
+    {
+        /** @var list<array{code:mixed,enabled:mixed,is_default:mixed}> $rows */
+        $rows = $this->cache->rememberForever(
+            self::PUBLIC_LOCALE_SNAPSHOT_CACHE_KEY,
+            fn(): array => $this->database->select(
+                'SELECT code, enabled, is_default FROM system_language',
+            ),
+        );
+
+        return PublicLocaleSnapshot::fromRows($rows);
+    }
+
+    /**
+     * Odstrani persistentni public snapshot po uspesne mutaci jazyku
+     */
+    public function forgetPublicLocaleSnapshot(): void
+    {
+        $this->cache->forget(self::PUBLIC_LOCALE_SNAPSHOT_CACHE_KEY);
+    }
 
     public function defaultLocale(): string
     {

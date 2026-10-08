@@ -8,9 +8,9 @@ use Lemonade\Admin\Cms\Routing\ModuleLifecyclePublicModuleStateResolver;
 use Lemonade\Admin\Cms\Routing\ModuleRoutePrefixPublicRepository;
 use Lemonade\Admin\Cms\Routing\SystemPublicLocaleRegistry;
 use Lemonade\Admin\Localization\LanguageRegistry;
-use Lemonade\Cms\Routing\PublicLocaleRegistryInterface;
-use Lemonade\Cms\Routing\PublicModuleRoutePrefixRepositoryInterface;
-use Lemonade\Cms\Routing\PublicModuleStateResolverInterface;
+use Lemonade\Cms\Routing\Locale\PublicLocaleRegistryInterface;
+use Lemonade\Cms\Routing\Module\PublicModuleRoutePrefixRepositoryInterface;
+use Lemonade\Cms\Routing\Module\PublicModuleStateResolverInterface;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 

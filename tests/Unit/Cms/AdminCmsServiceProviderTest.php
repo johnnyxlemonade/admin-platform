@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\Cms;
 
 use Lemonade\Admin\Cms\AdminCmsServiceProvider;
-use Lemonade\Cms\Routing\PublicLocaleRegistryInterface;
-use Lemonade\Cms\Routing\PublicModuleRoutePrefixRepositoryInterface;
-use Lemonade\Cms\Routing\PublicModuleStateResolverInterface;
+use Lemonade\Cms\Routing\Locale\PublicLocaleRegistryInterface;
+use Lemonade\Cms\Routing\Module\PublicModuleRoutePrefixRepositoryInterface;
+use Lemonade\Cms\Routing\Module\PublicModuleStateResolverInterface;
 use Lemonade\Framework\Container\Container;
 use PHPUnit\Framework\TestCase;
 
