@@ -84,6 +84,10 @@ final class ModuleLifecycleService
     public function migrateInstalled(?AuditActor $actor = null): array
     {
         $actor ??= AuditActor::migration('modules-migrate');
+        // The installer can enter this lifecycle after the database schema was recreated.
+        // Do not let a persistent runtime snapshot mark an optional module as installed
+        // when its row is absent from the current database.
+        $this->states->forgetCachedDatabaseStates();
         $results = [];
         foreach ($this->states->all() as $state) {
             if (!$state->installed() || $state->system() || $state->missingCode()) {

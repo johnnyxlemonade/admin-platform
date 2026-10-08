@@ -77,6 +77,45 @@ final class ModuleStateResolverTest extends TestCase
         }
     }
 
+    public function testModuleMigrationIgnoresStalePersistentStateWithoutSuppressingRealAuditedMutations(): void
+    {
+        [$catalog, $cleanup] = $this->catalog();
+        $connection = new ModuleStateConnection(['test.optional' => true]);
+        $audits = new class implements AuditLogWriterInterface {
+            /** @var list<string> */ public array $events = [];
+
+            public function record(DomainEvent $event, AuditOperation $operation): void
+            {
+                $this->events[] = $event->code() . ':' . $operation->code();
+            }
+        };
+        try {
+            $cache = new CacheManager(new ArrayCacheItemPool());
+            $database = $this->database($connection);
+            $modules = new ModuleModel($database);
+            $resolver = new ModuleStateResolver($catalog, $modules, $cache);
+            $service = new ModuleLifecycleService(
+                $resolver,
+                $modules,
+                new TransactionalEventProcessor($database, $audits, new DomainEventDispatcher(new NullLogger())),
+            );
+
+            self::assertTrue($resolver->state('test.optional')->installed());
+            $connection->states = [];
+
+            self::assertSame([], $service->migrateInstalled(AuditActor::migration('test')));
+            self::assertSame([], $audits->events);
+
+            $connection->states = ['test.optional' => false];
+            $resolver->forgetCachedDatabaseStates();
+
+            $service->enable('test.optional', AuditActor::system('test'));
+            self::assertSame(['system.module_enabled:modules.enable'], $audits->events);
+        } finally {
+            $cleanup();
+        }
+    }
+
     public function testPublicModuleRuntimeInvalidatorClearsEveryModuleStateMutationEvent(): void
     {
         foreach (['system.module_installed', 'system.module_enabled', 'system.module_disabled'] as $eventCode) {
