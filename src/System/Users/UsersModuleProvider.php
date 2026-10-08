@@ -102,7 +102,7 @@ final class UsersModuleProvider implements ServiceProviderInterface
         $container->get(RuleRegistry::class)->addRule('system_users_role', RoleAssignmentsRule::class);
         $container->get(RuleRegistry::class)->addRule('system_users_permission_overrides', PermissionOverridesRule::class);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
-        $container->get(AdminFileUsageRegistry::class)->register(new AdminFileUsageDefinition('system.users', 'avatar', 'image', 'admin-image', false, false, AdminFileUploadPresentation::Avatar));
+        $container->get(AdminFileUsageRegistry::class)->register(new AdminFileUsageDefinition('system.users', 'thumbnail', 'image', 'admin-image', false, false, AdminFileUploadPresentation::Avatar));
         $container->get(MigrationRegistry::class)->register(RegisterUsersModule::class);
     }
 }

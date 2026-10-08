@@ -9,7 +9,7 @@ use Lemonade\Framework\Database\Schema\Blueprint\TableBlueprint;
 use Lemonade\Framework\Database\Schema\Schema;
 
 /**
- * Vytvari canonical metadata originalu obrazu prirazenych zaznamum Admin modulu
+ * Vytvari canonical metadata souboru prirazenych zaznamum Admin modulu
  */
 final class CreateCoreFiles implements MigrationInterface
 {
@@ -22,7 +22,7 @@ final class CreateCoreFiles implements MigrationInterface
     }
 
     /**
-     * Vytvari tabulku image identity, usage a metadata bez binarniho obsahu
+     * Vytvari tabulku file identity, usage a metadata bez binarniho obsahu
      */
     public function up(Schema $schema): void
     {
@@ -30,8 +30,9 @@ final class CreateCoreFiles implements MigrationInterface
             $table->id()->comment('Stabilni identifikator souboru pouzity pro storage a URL');
             $table->string('module_code', 100)->comment('Modul vlastnici file usage');
             $table->unsignedBigInteger('entity_id')->comment('Identifikator vlastneneho zaznamu');
-            $table->string('usage', 64)->comment('Semanticky slot image v zaznamu');
-            $table->string('kind', 20)->comment('Zakladni druh souboru image, document nebo other');
+            $table->string('usage', 64)->comment('Semanticky slot souboru v zaznamu');
+            $table->string('kind', 20)->comment('Technicky upload a storage druh souboru image nebo file');
+            $table->string('media_category', 20)->default('other')->comment('Katalogova media kategorie image, document, video nebo other');
             $table->string('asset_id', 128)->nullable()->comment('Framework image asset identity pro image soubor');
             $table->string('source_version', 128)->nullable()->comment('Framework immutable source version pro image soubor');
             $table->string('storage_path', 500)->nullable()->comment('Interni storage key generic souboru relativni k upload rootu');
@@ -48,6 +49,7 @@ final class CreateCoreFiles implements MigrationInterface
             $table->index(['module_code', 'entity_id', 'usage'], 'idx_system_file_owner_usage');
             $table->index(['module_code', 'entity_id', 'usage', 'sort_order'], 'idx_system_file_owner_usage_sort');
             $table->index(['module_code', 'created_at'], 'idx_system_file_module_created');
+            $table->index(['media_category', 'created_at'], 'idx_system_file_media_category_created');
             $table->engine('InnoDB');
             $table->charset('utf8mb4');
             $table->comment('Lemonade / metadata souboru Admin modulu');

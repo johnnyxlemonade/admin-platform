@@ -12,6 +12,7 @@ import { DomHelper } from "../core/lemonade-dom-helper.js";
 import { EventHelper } from "../core/lemonade-event-helper.js";
 import { HttpError } from "../core/lemonade-http-helper.js";
 import { HttpHelper } from "../core/lemonade-http-helper.js";
+import { I18n } from "../core/lemonade-i18n.js";
 import { Message } from "./lemonade-message.js";
 import { Modal } from "./lemonade-modal.js";
 import { destroyComponents, mountComponents } from "../lemonade-admin-components.js";
@@ -96,6 +97,7 @@ import { destroyComponents, mountComponents } from "../lemonade-admin-components
         }
 
         static async initializeContent() {
+            await I18n.apply(this.content);
             await mountComponents(this.content);
             DomHelper.queryAll("[data-lemonade-action]", this.content).forEach(function (action) {
                 action.setAttribute("data-lemonade-defer-success-feedback", "");

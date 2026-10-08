@@ -15,6 +15,7 @@ use Lemonade\Framework\Upload\Config\UploadConfig;
 use Lemonade\Framework\Upload\FileUploadValidator;
 use Lemonade\Framework\Upload\ImageUploadOptions;
 use Lemonade\Framework\Upload\ImageUploadValidator;
+use Lemonade\Framework\Upload\ValueObject\UploadedFile;
 use Lemonade\Image\ImageOriginalMetadata;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -76,5 +77,29 @@ final readonly class AdminFileImageOriginalWriter
                 height: $decoded->dimensions()->height,
             ),
         ];
+    }
+
+    /**
+     * Overi zda generic finalizace muze prejit do aktualne podporovane image pipeline
+     */
+    public function supports(UploadedFile $uploaded, string $originalFilename, string $profile): bool
+    {
+        $configuration = $this->uploadConfig->images[$profile] ?? null;
+        if ($configuration === null) {
+            return false;
+        }
+
+        $extension = strtolower(pathinfo($originalFilename, PATHINFO_EXTENSION));
+        if (!in_array($extension, $configuration->allowedExtensions, true) || $uploaded->sizeBytes() > $configuration->maxBytes) {
+            return false;
+        }
+
+        try {
+            \Lemonade\Framework\Image\Value\ImageFormat::fromMimeType($uploaded->mimeType());
+        } catch (\InvalidArgumentException) {
+            return false;
+        }
+
+        return true;
     }
 }

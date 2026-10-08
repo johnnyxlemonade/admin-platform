@@ -15,6 +15,7 @@ enum AdminIcon: string
     case ArrowDown = 'arrow-down';
     case ArrowLeft = 'arrow-left';
     case ArrowUp = 'arrow-up';
+    case ArrowsMove = 'arrows-move';
     case Bell = 'bell';
     case BoxArrowRight = 'box-arrow-right';
     case BoxArrowUpRight = 'box-arrow-up-right';

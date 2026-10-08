@@ -71,7 +71,7 @@ final class AdminPageRenderer
      */
     private function avatar(int $userId, string $fallback): AdminThumbnail
     {
-        $file = $this->files->findActiveImageForEntity('system.users', $userId, 'avatar');
+        $file = $this->files->findActiveImageForEntity('system.users', $userId, 'thumbnail');
         if ($file === null) {
             return $this->thumbnails->fallback($fallback, 'compact', 'circle');
         }

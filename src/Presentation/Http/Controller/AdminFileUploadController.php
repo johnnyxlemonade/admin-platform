@@ -128,9 +128,13 @@ final class AdminFileUploadController
             $uploaded = $this->chunks->complete($uploadId);
             $context = $this->targetContext($session->context);
             $definition = $this->usages->require($context['module'], $context['usage']);
-            $fileId = $definition->kind() === 'image'
-                ? $this->finalizeImage($context, $definition->multiple(), $uploaded, $session->originalFilename)
-                : $this->files->saveGenericUpload(
+            $imageProfile = $definition->imageProfile();
+            if ($definition->kind() === 'image') {
+                $fileId = $this->finalizeImage($context, $definition->multiple(), $uploaded, $session->originalFilename, $definition->profile());
+            } elseif ($imageProfile !== null && $this->originals->supports($uploaded, $session->originalFilename, $imageProfile)) {
+                $fileId = $this->finalizeImage($context, $definition->multiple(), $uploaded, $session->originalFilename, $imageProfile);
+            } else {
+                $fileId = $this->files->saveGenericUpload(
                     module: $context['module'],
                     entityId: $context['entity'],
                     usage: $context['usage'],
@@ -138,6 +142,7 @@ final class AdminFileUploadController
                     uploaded: $uploaded,
                     multiple: $definition->multiple(),
                 );
+            }
         } catch (\Throwable $exception) {
             return $this->uploadError($exception);
         }
@@ -227,7 +232,7 @@ final class AdminFileUploadController
     }
 
     /**
-     * Renderuje canonical modal pro prejmenovani file identity overene proti targetu
+     * Renderuje canonical modal pro upravu presentation metadat file identity overene proti targetu
      */
     public function renameModal(string $module, string $usage, int $entity, int $file): ResponseInterface
     {
@@ -247,7 +252,10 @@ final class AdminFileUploadController
             'modalHtml' => $this->views->content('admin::components.file-rename-modal', [
                 'adminEditor' => $this->renameModal->modal($module, $usage, $entity, $file),
                 'adminEditorContext' => new AdminEditorRenderContext(
-                    values: ['display_name' => $targetFile['display_name'] ?? $targetFile['original_filename']],
+                    values: [
+                        'display_name' => $targetFile['display_name'] ?? $targetFile['original_filename'],
+                        'caption' => $targetFile['caption'] ?? '',
+                    ],
                     mode: 'edit',
                 ),
             ]),
@@ -255,7 +263,7 @@ final class AdminFileUploadController
     }
 
     /**
-     * Ulozi display name jednoho souboru po stejne authorization a target kontrole jako remove
+     * Ulozi presentation metadata jednoho souboru po stejne authorization a target kontrole jako remove
      */
     public function rename(string $module, string $usage, int $entity, int $file, ServerRequestInterface $request): ResponseInterface
     {
@@ -265,26 +273,37 @@ final class AdminFileUploadController
 
         try {
             $this->usages->require($module, $usage);
-            $this->requireTargetFile($module, $entity, $usage, $file);
+            $targetFile = $this->requireTargetFile($module, $entity, $usage, $file);
             $payload = (new RequestData($request))->jsonPayload()['payload'] ?? null;
             $displayName = is_array($payload) && is_string($payload['display_name'] ?? null)
                 ? trim($payload['display_name'])
                 : '';
             if ($displayName === '') {
-                return $this->renameValidationError('admin.file_upload.display_name_required');
+                return $this->presentationValidationError('display_name', 'admin.file_upload.display_name_required');
             }
             if (mb_strlen($displayName, 'UTF-8') > 255) {
-                return $this->renameValidationError('admin.file_upload.display_name_max_length');
+                return $this->presentationValidationError('display_name', 'admin.file_upload.display_name_max_length');
             }
-            $renamed = $this->files->renameTargetFile($module, $entity, $usage, $file, $displayName);
+            $captionInput = is_array($payload) && array_key_exists('caption', $payload)
+                ? $payload['caption']
+                : $targetFile['caption'] ?? null;
+            if (!is_string($captionInput) && $captionInput !== null) {
+                return $this->presentationValidationError('caption', 'admin.file_upload.caption_max_length');
+            }
+            $caption = is_string($captionInput) ? trim($captionInput) : null;
+            $caption = $caption === '' ? null : $caption;
+            if ($caption !== null && mb_strlen($caption, 'UTF-8') > 500) {
+                return $this->presentationValidationError('caption', 'admin.file_upload.caption_max_length');
+            }
+            $updatedFile = $this->files->updateTargetFilePresentation($module, $entity, $usage, $file, $displayName, $caption);
         } catch (\Throwable $exception) {
             return $this->notFound();
         }
 
         return $this->responses->json([
             'success' => true,
-            'messageKey' => 'admin.file_upload.renamed',
-            'file' => $renamed,
+            'messageKey' => 'admin.file_upload.presentation_updated',
+            'file' => $updatedFile,
         ]);
     }
 
@@ -327,11 +346,11 @@ final class AdminFileUploadController
     /**
      * Vraci field validation ve standardnim action JSON tvaru
      */
-    private function renameValidationError(string $translationKey): ResponseInterface
+    private function presentationValidationError(string $field, string $translationKey): ResponseInterface
     {
         return $this->responses->json([
             'success' => false,
-            'errors' => ['display_name' => $this->translator->get($translationKey)],
+            'errors' => [$field => $this->translator->get($translationKey)],
         ], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
     }
 
@@ -387,14 +406,13 @@ final class AdminFileUploadController
      *
      * @param array{module:string,entity:int,usage:string} $target
      */
-    private function finalizeImage(array $target, bool $multiple, UploadedFile $uploaded, string $originalFilename): int
+    private function finalizeImage(array $target, bool $multiple, UploadedFile $uploaded, string $originalFilename, string $imageProfile): int
     {
         $resource = fopen($uploaded->storedPath(), 'rb');
         if ($resource === false) {
             throw new \RuntimeException('Finalized image cannot be opened.');
         }
         $assetId = $multiple ? bin2hex(random_bytes(16)) : $this->files->imageAssetId($target['module'], $target['entity'], $target['usage']);
-        $definition = $this->usages->require($target['module'], $target['usage']);
         $source = new PsrUploadedFile(
             $resource,
             $uploaded->sizeBytes(),
@@ -403,7 +421,7 @@ final class AdminFileUploadController
             $uploaded->mimeType(),
         );
         try {
-            $written = $this->originals->write($assetId, $source, $definition->profile());
+            $written = $this->originals->write($assetId, $source, $imageProfile);
         } finally {
             // Nyholm UploadedFile owns the resource through its PSR stream. Closing
             // that stream is idempotent; fclose($resource) would close it twice.

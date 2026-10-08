@@ -253,41 +253,42 @@ final class AdminFileMutationService
     }
 
     /**
-     * Prejmenuje jen presentation nazev souboru, ktery patri autorizovanemu targetu
+     * Ulozi presentation metadata souboru, ktery patri autorizovanemu targetu
      *
      * @return array<string,mixed>
      */
-    public function renameTargetFile(string $module, int $entityId, string $usage, int $fileId, string $displayName): array
+    public function updateTargetFilePresentation(string $module, int $entityId, string $usage, int $fileId, string $displayName, ?string $caption): array
     {
         $file = $this->files->findForTarget($module, $entityId, $usage, $fileId);
         if ($file === null) {
             throw new \RuntimeException('File not found.');
         }
-        if (($file['display_name'] ?? null) === $displayName) {
+        if (($file['display_name'] ?? null) === $displayName && ($file['caption'] ?? null) === $caption) {
             return $file;
         }
 
         $actor = $this->actors->requireLocalUser();
         $this->events->execute(
             new AuditOperation($module, 'files.rename', AuditActor::user($actor->id())),
-            function (TransactionalEventCollector $events) use ($module, $entityId, $usage, $fileId, $displayName): void {
-                $this->files->rename($fileId, $displayName);
+            function (TransactionalEventCollector $events) use ($module, $entityId, $usage, $fileId, $displayName, $caption): void {
+                $this->files->updatePresentation($fileId, $displayName, $caption);
                 $events->record(new DomainEvent('system.files.renamed', $module, 'system_file', (string) $fileId, [
                     'file_id' => $fileId,
                     'module_code' => $module,
                     'entity_id' => $entityId,
                     'usage' => $usage,
                     'display_name' => $displayName,
+                    'caption' => $caption,
                 ]));
             },
         );
 
-        $renamed = $this->files->findForTarget($module, $entityId, $usage, $fileId);
-        if ($renamed === null) {
-            throw new \RuntimeException('Renamed file was not found.');
+        $updatedFile = $this->files->findForTarget($module, $entityId, $usage, $fileId);
+        if ($updatedFile === null) {
+            throw new \RuntimeException('Updated file was not found.');
         }
 
-        return $renamed;
+        return $updatedFile;
     }
 
     /**

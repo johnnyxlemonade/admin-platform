@@ -82,7 +82,7 @@
     "src": "source/images/locale/en.svg"
   },
   "source/js/components/lemonade-action.js": {
-    "file": "assets/lemonade-action-6cc49a3ec813de5520b3.js",
+    "file": "assets/lemonade-action-54cf766c07432e798d64.js",
     "name": "lemonade-action",
     "src": "source/js/components/lemonade-action.js",
     "isDynamicEntry": true,
@@ -104,7 +104,7 @@
     ]
   },
   "source/js/components/lemonade-dashboard-customize.js": {
-    "file": "assets/lemonade-dashboard-customize-9765515fe703c8dfbcd5.js",
+    "file": "assets/lemonade-dashboard-customize-4957652859e09065f63b.js",
     "name": "lemonade-dashboard-customize",
     "src": "source/js/components/lemonade-dashboard-customize.js",
     "isDynamicEntry": true,
@@ -155,7 +155,7 @@
     ]
   },
   "source/js/components/lemonade-file-upload.js": {
-    "file": "assets/lemonade-file-upload-ddbfd0fe60ac1ae57801.js",
+    "file": "assets/lemonade-file-upload-cf574b8c9891c9ae1727.js",
     "name": "lemonade-file-upload",
     "src": "source/js/components/lemonade-file-upload.js",
     "isDynamicEntry": true,
@@ -166,7 +166,7 @@
     ]
   },
   "source/js/components/lemonade-form-dirty-state.js": {
-    "file": "assets/lemonade-form-dirty-state-11830401f741e888c403.js",
+    "file": "assets/lemonade-form-dirty-state-c90913f94ad4329a360b.js",
     "name": "lemonade-form-dirty-state",
     "src": "source/js/components/lemonade-form-dirty-state.js",
     "isDynamicEntry": true,
@@ -177,7 +177,7 @@
     ]
   },
   "source/js/components/lemonade-form-editor.js": {
-    "file": "assets/lemonade-form-editor-fb4a81d3cae8e77f0bf8.js",
+    "file": "assets/lemonade-form-editor-4a64ce34e3278e8ed324.js",
     "name": "lemonade-form-editor",
     "src": "source/js/components/lemonade-form-editor.js",
     "isDynamicEntry": true,
@@ -202,7 +202,7 @@
     ]
   },
   "source/js/components/lemonade-notifications.js": {
-    "file": "assets/lemonade-notifications-9f01611850e8a110521e.js",
+    "file": "assets/lemonade-notifications-83f5418e3609ee0a1225.js",
     "name": "lemonade-notifications",
     "src": "source/js/components/lemonade-notifications.js",
     "isDynamicEntry": true,
@@ -251,7 +251,7 @@
     "isDynamicEntry": true
   },
   "source/js/entries/admin.js": {
-    "file": "assets/admin-adc1b0327e339fe62c8a.js",
+    "file": "assets/admin-425f2443bbb505b5acff.js",
     "name": "admin",
     "src": "source/js/entries/admin.js",
     "isEntry": true,

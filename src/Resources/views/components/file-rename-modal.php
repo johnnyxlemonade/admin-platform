@@ -19,7 +19,7 @@ $form = $adminEditor->form();
 ?>
 <header class="lm-modal-header">
     <div>
-        <h2 class="lm-modal-title" id="admin-file-rename-title" data-lemonade-modal-title data-lemonade-i18n="admin.file_upload.rename_title"><?= e($helpers->lang('admin.file_upload.rename_title')) ?></h2>
+        <h2 class="lm-modal-title" id="admin-file-presentation-title" data-lemonade-modal-title data-lemonade-i18n="admin.file_upload.edit_title"><?= e($helpers->lang('admin.file_upload.edit_title')) ?></h2>
     </div>
     <button class="lm-modal-close" type="button" data-lemonade-modal-close="close" aria-label="<?= e($helpers->lang('admin.common.close')) ?>" data-lemonade-i18n-aria-label="admin.common.close"></button>
 </header>

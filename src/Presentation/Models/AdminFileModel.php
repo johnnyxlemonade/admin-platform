@@ -6,6 +6,7 @@ namespace Lemonade\Admin\Presentation\Models;
 
 use Lemonade\Admin\DataGrid\Query\DataGridQuery;
 use Lemonade\Admin\DataGrid\Query\QueryPage;
+use Lemonade\Admin\Presentation\MediaCategory;
 use Lemonade\Framework\Database\Model;
 use Lemonade\Image\ImageOriginalMetadata;
 use RuntimeException;
@@ -27,6 +28,7 @@ final class AdminFileModel extends Model
         'entity_id',
         'usage',
         'kind',
+        'media_category',
         'asset_id',
         'source_version',
         'storage_path',
@@ -59,7 +61,7 @@ final class AdminFileModel extends Model
         ];
         $direction = $query->sortDirection() === 'desc' ? 'DESC' : 'ASC';
         $itemsQuery = $this->managementQuery($query->search(), $type, $module)
-            ->select(['f.id', 'f.module_code', 'f.entity_id', 'f.usage', 'f.kind', 'f.original_filename', 'f.display_name', 'f.caption', 'f.extension', 'f.mime_type', 'f.file_size', 'f.width', 'f.height', 'f.created_at'])
+            ->select(['f.id', 'f.module_code', 'f.entity_id', 'f.usage', 'f.kind', 'f.media_category', 'f.original_filename', 'f.display_name', 'f.caption', 'f.extension', 'f.mime_type', 'f.file_size', 'f.width', 'f.height', 'f.created_at'])
             ->when(
                 $query->sortKey() === 'name',
                 static fn($builder) => $builder
@@ -69,8 +71,7 @@ final class AdminFileModel extends Model
             ->when(
                 $query->sortKey() === 'kind',
                 static fn($builder) => $builder
-                    ->selectRaw("CASE WHEN f.kind = 'image' THEN 'image' WHEN f.kind = 'document' THEN 'document' WHEN f.mime_type LIKE 'video/%' THEN 'video' ELSE 'other' END AS management_sort_kind")
-                    ->orderBy('management_sort_kind', $direction),
+                    ->orderBy('f.media_category', $direction),
             )
             ->when(
                 array_key_exists($query->sortKey(), $sorts),
@@ -204,6 +205,7 @@ final class AdminFileModel extends Model
             'original_filename' => $metadata->originalFilename(),
             'extension' => $metadata->format()->extension(),
             'mime_type' => $metadata->format()->mimeType(),
+            'media_category' => MediaCategory::classify($metadata->format()->mimeType())->value,
             'file_size' => $metadata->size(),
             'width' => $metadata->width(),
             'height' => $metadata->height(),
@@ -253,6 +255,7 @@ final class AdminFileModel extends Model
             'entity_id' => $entityId,
             'usage' => $usage,
             'kind' => $kind,
+            'media_category' => MediaCategory::Other->value,
             'storage_path' => null,
             'original_filename' => '',
             'display_name' => null,
@@ -287,6 +290,7 @@ final class AdminFileModel extends Model
             'caption' => null,
             'extension' => $extension,
             'mime_type' => $mimeType,
+            'media_category' => MediaCategory::classify($mimeType)->value,
             'file_size' => $fileSize,
             'width' => null,
             'height' => null,
@@ -306,6 +310,7 @@ final class AdminFileModel extends Model
             'caption' => null,
             'extension' => $extension,
             'mime_type' => $mimeType,
+            'media_category' => MediaCategory::classify($mimeType)->value,
             'file_size' => $fileSize,
             'width' => null,
             'height' => null,
@@ -410,6 +415,7 @@ final class AdminFileModel extends Model
             'original_filename' => $metadata->originalFilename(),
             'extension' => $metadata->format()->extension(),
             'mime_type' => $metadata->format()->mimeType(),
+            'media_category' => MediaCategory::classify($metadata->format()->mimeType())->value,
             'file_size' => $metadata->size(),
             'width' => $metadata->width(),
             'height' => $metadata->height(),
@@ -466,14 +472,9 @@ final class AdminFileModel extends Model
     private function managementQuery(string $search, ?string $type, ?string $module): \Lemonade\Framework\Database\QueryBuilder
     {
         $query = $this->query()->from('system_file f');
-        if ($type === 'image') {
-            $query = $query->where('f.kind', 'image');
-        } elseif ($type === 'document') {
-            $query = $query->where('f.kind', 'document');
-        } elseif ($type === 'video') {
-            $query = $query->whereRaw("f.mime_type LIKE 'video/%'");
-        } elseif ($type === 'other') {
-            $query = $query->whereRaw("f.kind NOT IN ('image', 'document') AND f.mime_type NOT LIKE 'video/%'");
+        $category = MediaCategory::tryFrom((string) $type);
+        if ($category !== null) {
+            $query = $query->where('f.media_category', $category->value);
         }
         if ($module !== null && $module !== '') {
             $query = $query->where('f.module_code', $module);

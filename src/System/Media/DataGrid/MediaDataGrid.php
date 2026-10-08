@@ -18,6 +18,7 @@ use Lemonade\Admin\DataGrid\DataGridRowDefinition;
 use Lemonade\Admin\DataGrid\Query\DataGridQuery;
 use Lemonade\Admin\Modules\State\ModuleStateResolver;
 use Lemonade\Admin\Presentation\AdminThumbnailComponent;
+use Lemonade\Admin\Presentation\MediaCategory;
 use Lemonade\Admin\Select\SelectOptionDefinition;
 use Lemonade\Admin\Select\StaticSelectOptionSource;
 use Lemonade\Admin\System\Media\Services\MediaService;
@@ -145,7 +146,7 @@ final class MediaDataGrid implements DataGridProviderInterface
     {
         $id = (int) $file['id'];
         $kind = (string) $file['kind'];
-        $type = $this->type($file);
+        $type = MediaCategory::tryFrom((string) $file['media_category']) ?? MediaCategory::Other;
         $displayName = trim((string) ($file['display_name'] ?? ''));
         $originalFilename = (string) $file['original_filename'];
         $name = $displayName === '' ? $originalFilename : $displayName;
@@ -173,7 +174,7 @@ final class MediaDataGrid implements DataGridProviderInterface
                 download: $kind === 'image',
             ),
             'type' => new StatusCell(
-                value: $this->translator->get('media.list.' . $type),
+                value: $this->translator->get('media.list.' . $type->value),
                 variant: StatusVariant::Muted,
             ),
             'sizeDimensions' => new StackedCell(
@@ -186,25 +187,5 @@ final class MediaDataGrid implements DataGridProviderInterface
             ),
             'createdAt' => new DateTimeCell(value: (string) $file['created_at']),
         ]);
-    }
-
-    /**
-     * Klasifikuje video z MIME, jinak pouziva stable shared file kind
-     *
-     * @param array<string,mixed> $file
-     */
-    private function type(array $file): string
-    {
-        if ($file['kind'] === 'image') {
-            return 'image';
-        }
-        if ($file['kind'] === 'dnegfuocument') {
-            return 'document';
-        }
-        if (str_starts_with((string) $file['mime_type'], 'video/')) {
-            return 'video';
-        }
-
-        return 'other';
     }
 }

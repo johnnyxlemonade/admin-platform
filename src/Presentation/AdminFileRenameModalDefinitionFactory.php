@@ -12,7 +12,7 @@ use Lemonade\Admin\Editor\AdminEditor\SectionBlock;
 use Lemonade\Framework\Routing\UrlGenerator;
 
 /**
- * Sklada shared modal pro zmenu presentation nazvu jedne file identity
+ * Sklada shared modal pro upravu presentation metadat jedne file identity
  */
 final class AdminFileRenameModalDefinitionFactory
 {
@@ -22,7 +22,7 @@ final class AdminFileRenameModalDefinitionFactory
     public function __construct(private readonly UrlGenerator $urls) {}
 
     /**
-     * Vytvori jednopoleovy editor nad explicitnim file targetem
+     * Vytvori editor presentation metadat nad explicitnim file targetem
      */
     public function modal(string $module, string $usage, int $entityId, int $fileId): AdminEditorDefinition
     {
@@ -33,20 +33,23 @@ final class AdminFileRenameModalDefinitionFactory
             'file' => $fileId,
         ];
 
-        return AdminEditorBuilder::create('admin.file.rename')
+        return AdminEditorBuilder::create('admin.file.presentation')
             ->form(new AdminEditorFormDefinition(
-                id: 'admin-file-rename-form',
+                id: 'admin-file-presentation-form',
                 action: $this->urls->route('admin.file.collection.rename', $parameters),
                 actionUrl: $this->urls->route('admin.file.collection.rename', $parameters),
-                actionKey: 'rename',
+                actionKey: 'edit',
                 novalidate: true,
             ))
             ->block(new SectionBlock(
-                id: 'rename',
+                id: 'presentation',
                 blocks: [
                     AdminEditorFieldDefinition::text('display_name', labelKey: 'admin.file_upload.display_name')
                         ->required()
                         ->attributes(['maxlength' => '255']),
+                    AdminEditorFieldDefinition::textarea('caption', labelKey: 'admin.file_upload.caption')
+                        ->help('', 'admin.file_upload.caption_optional')
+                        ->attributes(['maxlength' => '500', 'rows' => '3']),
                 ],
             ))
             ->build();

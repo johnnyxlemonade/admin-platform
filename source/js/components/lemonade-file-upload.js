@@ -505,17 +505,17 @@ class AdminFileUploadCollection {
         copy.append(name, metadata);
         item.append(copy);
         if (this.items?.hasAttribute("data-lemonade-sortable")) {
-            const handle = this.iconButton("grip-vertical", this.translate("admin.file_upload.reorder", null, this.element.dataset.lemonadeFileUploadReorderLabel || "Reorder"));
+            const handle = this.iconButton("arrows-move", this.translate("admin.file_upload.reorder", null, this.element.dataset.lemonadeFileUploadReorderLabel || "Reorder"));
             handle.classList.add("lm-file-upload-item-handle");
             handle.dataset.lemonadeSortableHandle = "";
             item.append(handle);
         }
         const renameUrl = this.url("lemonadeFileUploadRenameModalUrl", file.id);
         if (renameUrl) {
-            const rename = this.iconButton("pencil-square", this.translate("admin.file_upload.rename", null, this.element.dataset.lemonadeFileUploadRenameLabel || "Rename"));
-            rename.dataset.lemonadeModalFormUrl = renameUrl;
-            rename.dataset.lemonadeModalSize = "small";
-            item.append(rename);
+            const edit = this.iconButton("pencil-square", this.translate("admin.file_upload.edit", null, this.element.dataset.lemonadeFileUploadEditLabel));
+            edit.dataset.lemonadeModalFormUrl = renameUrl;
+            edit.dataset.lemonadeModalSize = "medium";
+            item.append(edit);
         }
         const remove = this.iconButton("trash3", this.translate(this.element.dataset.lemonadeFileUploadRemoveKey || "admin.file_upload.remove", null, this.element.dataset.lemonadeFileUploadRemoveLabel || "Remove"));
         remove.classList.add("is-danger");
@@ -553,10 +553,10 @@ class AdminFileUploadCollection {
         actions.className = "lm-file-upload-item-actions";
         const renameUrl = this.url("lemonadeFileUploadRenameModalUrl", file.id);
         if (renameUrl) {
-            const rename = this.iconButton("pencil-square", this.translate("admin.file_upload.rename", null, this.element.dataset.lemonadeFileUploadRenameLabel || "Rename"));
-            rename.dataset.lemonadeModalFormUrl = renameUrl;
-            rename.dataset.lemonadeModalSize = "small";
-            actions.append(rename);
+            const edit = this.iconButton("pencil-square", this.translate("admin.file_upload.edit", null, this.element.dataset.lemonadeFileUploadEditLabel));
+            edit.dataset.lemonadeModalFormUrl = renameUrl;
+            edit.dataset.lemonadeModalSize = "medium";
+            actions.append(edit);
         }
         const remove = this.iconButton("trash3", this.translate(this.element.dataset.lemonadeFileUploadRemoveKey || "admin.file_upload.remove", null, this.element.dataset.lemonadeFileUploadRemoveLabel || "Remove"));
         remove.classList.add("is-danger");

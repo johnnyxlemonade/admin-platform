@@ -160,7 +160,7 @@ final class UsersModulePageProvider implements ModuleIndexPageProviderInterface,
                         ? $this->files->collection(
                             module: 'system.users',
                             entityId: (int) $user['id'],
-                            usage: 'avatar',
+                            usage: 'thumbnail',
                             labelKey: 'users.fields.avatar',
                             helpKey: 'users.editor.avatar_help',
                             fallback: AdminAvatarInitials::fromValues(

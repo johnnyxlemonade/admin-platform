@@ -73,4 +73,51 @@ final class AdminFileModelTest extends TestCase
 
         self::assertSame([], (new AdminFileModel($driver))->listForEntityUsages('cms.news', 3, []));
     }
+
+    public function testUpdatesBothPresentationValuesAndUsesNullForClearedCaption(): void
+    {
+        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
+        $driver->expects(self::once())
+            ->method('query')
+            ->willReturnCallback(function (string $sql, array|false $bindings): bool {
+                self::assertStringContainsString('UPDATE system_file SET display_name = ?, caption = ?, updated_at = ? WHERE id = ?', $sql);
+                self::assertIsArray($bindings);
+                self::assertSame(['Program slavnosti', null], array_slice($bindings, 0, 2));
+                self::assertSame(14, $bindings[3]);
+
+                return true;
+            });
+        $driver->expects(self::once())->method('affected_rows')->willReturn(1);
+
+        (new AdminFileModel($driver))->updatePresentation(14, 'Program slavnosti', null);
+    }
+
+    /**
+     * Overi ze finalizovany generic soubor ulozi kategorii odvozenou z MIME
+     */
+    public function testUpdatesGenericFileMediaCategoryFromVerifiedMimeType(): void
+    {
+        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
+        $driver->expects(self::once())
+            ->method('query')
+            ->willReturnCallback(function (string $sql, array|false $bindings): bool {
+                self::assertStringContainsString('UPDATE system_file SET storage_path = ?, original_filename = ?, display_name = ?, caption = ?, extension = ?, mime_type = ?, media_category = ?', $sql);
+                self::assertIsArray($bindings);
+                self::assertContains('document', $bindings);
+
+                return true;
+            });
+        $driver->expects(self::once())->method('affected_rows')->willReturn(1);
+
+        (new AdminFileModel($driver))->updateFile(
+            id: 14,
+            originalFilename: 'program.pdf',
+            extension: 'pdf',
+            mimeType: 'application/pdf',
+            fileSize: 1234,
+            storagePath: 'admin/files/program.pdf',
+        );
+    }
 }

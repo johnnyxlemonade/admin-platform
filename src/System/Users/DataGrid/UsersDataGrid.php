@@ -133,7 +133,7 @@ final class UsersDataGrid implements DataGridProviderInterface
         $avatars = $this->files->findForEntities('system.users', array_map(
             static fn(array $user): int => (int) $user['id'],
             $list->items(),
-        ), 'avatar');
+        ), 'thumbnail');
 
         return new DataGridResult(
             items: $this->rows($list->items(), $avatars),

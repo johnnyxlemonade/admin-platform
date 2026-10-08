@@ -20,7 +20,12 @@ final readonly class AdminFileUsageDefinition
         private bool $multiple,
         private bool $sortable,
         private AdminFileUploadPresentation $presentation = AdminFileUploadPresentation::Standard,
-    ) {}
+        private ?string $imageProfile = null,
+    ) {
+        if ($this->imageProfile !== null && $this->kind !== 'file') {
+            throw new \InvalidArgumentException('Only file usages may define an image profile.');
+        }
+    }
 
     /**
      * Vraci kod modulu vlastniciho usage
@@ -52,6 +57,14 @@ final readonly class AdminFileUsageDefinition
     public function profile(): string
     {
         return $this->profile;
+    }
+
+    /**
+     * Vraci volitelny image profil pro polymorfni generic file usage
+     */
+    public function imageProfile(): ?string
+    {
+        return $this->imageProfile;
     }
 
     /**
