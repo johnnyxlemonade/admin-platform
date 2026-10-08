@@ -56,6 +56,7 @@ final class AdminPresentationServiceProvider implements ServiceProviderInterface
         $container->singleton(AdminFileRenameModalDefinitionFactory::class, AdminFileRenameModalDefinitionFactory::class);
         $container->singleton(AdminFileAuditPresentationRegistrar::class, AdminFileAuditPresentationRegistrar::class);
         $container->singleton(AdminFileImageAssetResolver::class, AdminFileImageAssetResolver::class);
+        $container->singleton(AdminFileOriginalPathResolver::class, AdminFileOriginalPathResolver::class);
         $container->singleton(AdminFileImageOriginalWriter::class, AdminFileImageOriginalWriter::class);
         $container->singleton(ImageAssetResolverInterface::class, AdminFileImageAssetResolver::class);
         $container->singleton(AdminFileUploadComponent::class, AdminFileUploadComponent::class);

@@ -6,12 +6,9 @@ namespace Lemonade\Admin\System\Media\Http\Controller;
 
 use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Http\AdminResponseFactory;
-use Lemonade\Admin\Presentation\AdminFileImageAssetResolver;
+use Lemonade\Admin\Presentation\AdminFileOriginalPathResolver;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
-use Lemonade\Framework\Core\Context\ApplicationContext;
 use Lemonade\Framework\Http\Response\Responses;
-use Lemonade\Framework\Image\ImageVariantPathResolver;
-use Lemonade\Image\ImageIdentifier;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -27,9 +24,7 @@ final class MediaDownloadController
         private readonly AuthorizationService $authorization,
         private readonly AdminResponseFactory $adminResponses,
         private readonly AdminFileModel $files,
-        private readonly AdminFileImageAssetResolver $assets,
-        private readonly ImageVariantPathResolver $paths,
-        private readonly ApplicationContext $context,
+        private readonly AdminFileOriginalPathResolver $originals,
         private readonly Responses $responses,
     ) {}
 
@@ -47,7 +42,7 @@ final class MediaDownloadController
             return $this->adminResponses->notFound($request);
         }
 
-        $path = $this->downloadPath($metadata, $file);
+        $path = $this->originals->pathFor($metadata);
         if ($path === null || !is_file($path)) {
             return $this->adminResponses->notFound($request);
         }
@@ -57,35 +52,6 @@ final class MediaDownloadController
             downloadName: $this->filename($metadata),
             contentType: (string) $metadata['mime_type'],
         );
-    }
-
-    /**
-     * Vrati canonical original path pro image nebo generic file metadata
-     *
-     * @param array<string,mixed> $metadata
-     */
-    private function downloadPath(array $metadata, int $file): ?string
-    {
-        if ($metadata['kind'] === 'file') {
-            $storagePath = $metadata['storage_path'] ?? null;
-
-            return is_string($storagePath) && $storagePath !== '' && !str_starts_with($storagePath, '/')
-                ? $this->context->uploadPath($storagePath)
-                : null;
-        }
-        if ($metadata['kind'] !== 'image') {
-            return null;
-        }
-
-        $asset = $this->assets->resolve(
-            module: (string) $metadata['module_code'],
-            identifier: ImageIdentifier::fromString((string) $file),
-        );
-        if ($asset === null) {
-            return null;
-        }
-
-        return $this->paths->originalPath($asset);
     }
 
     /**
