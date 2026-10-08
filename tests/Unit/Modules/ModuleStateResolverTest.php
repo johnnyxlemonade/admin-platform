@@ -7,6 +7,8 @@ namespace Lemonade\Admin\Tests\Unit\Modules;
 use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
 use Lemonade\Admin\Audit\AuditOperation;
+use Lemonade\Admin\Cms\Routing\ModuleRoutePrefixPublicRepository;
+use Lemonade\Admin\Cms\Routing\PublicModuleRuntimeCacheInvalidator;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\DomainEventDispatcher;
 use Lemonade\Admin\Event\TransactionalEventProcessor;
@@ -16,7 +18,10 @@ use Lemonade\Admin\Modules\Lifecycle\ModuleLifecycleException;
 use Lemonade\Admin\Modules\Lifecycle\ModuleLifecycleService;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestDefinition;
 use Lemonade\Admin\Modules\Persistence\ModuleModel;
+use Lemonade\Admin\Modules\Persistence\ModuleRoutePrefixModel;
 use Lemonade\Admin\Modules\State\ModuleStateResolver;
+use Lemonade\Framework\Cache\CacheManager;
+use Lemonade\Framework\Cache\Store\ArrayCacheItemPool;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Core\Context\ApplicationContextFactory;
 use Lemonade\Framework\Core\ServiceProviderInterface;
@@ -46,6 +51,74 @@ final class ModuleStateResolverTest extends TestCase
             self::assertTrue($resolver->state('legacy.orphan')->missingCode());
             self::assertFalse($resolver->state('missing')->available());
             self::assertSame(1, $connection->selects);
+        } finally {
+            $cleanup();
+        }
+    }
+
+    public function testItReusesAndInvalidatesThePersistentModuleStateSnapshot(): void
+    {
+        [$catalog, $cleanup] = $this->catalog();
+        $connection = new ModuleStateConnection(['test.optional' => true]);
+        try {
+            $cache = new CacheManager(new ArrayCacheItemPool());
+            $resolver = new ModuleStateResolver($catalog, new ModuleModel($this->database($connection)), $cache);
+
+            self::assertTrue($resolver->state('test.optional')->enabled());
+            $resolver->refresh();
+            self::assertTrue($resolver->state('test.optional')->enabled());
+            self::assertSame(1, $connection->selects);
+
+            $resolver->forgetCachedDatabaseStates();
+            self::assertTrue($resolver->state('test.optional')->enabled());
+            self::assertSame(2, $connection->selects);
+        } finally {
+            $cleanup();
+        }
+    }
+
+    public function testPublicModuleRuntimeInvalidatorClearsEveryModuleStateMutationEvent(): void
+    {
+        foreach (['system.module_installed', 'system.module_enabled', 'system.module_disabled'] as $eventCode) {
+            [$catalog, $cleanup] = $this->catalog();
+            $connection = new ModuleStateConnection(['test.optional' => true]);
+            try {
+                $cache = new CacheManager(new ArrayCacheItemPool());
+                $database = $this->database($connection);
+                $resolver = new ModuleStateResolver($catalog, new ModuleModel($database), $cache);
+                $prefixes = new ModuleRoutePrefixPublicRepository(new ModuleRoutePrefixModel($database), $cache);
+                $invalidator = new PublicModuleRuntimeCacheInvalidator($resolver, $prefixes);
+
+                $resolver->state('test.optional');
+                $invalidator->handle(new DomainEvent($eventCode, 'test.optional', 'system_module', 'test.optional'));
+                $resolver->state('test.optional');
+
+                self::assertSame(2, $connection->selects, $eventCode);
+            } finally {
+                $cleanup();
+            }
+        }
+    }
+
+    public function testPublicModuleRuntimeInvalidatorClearsTheRoutePrefixSnapshot(): void
+    {
+        [$catalog, $cleanup] = $this->catalog();
+        $connection = new ModuleStateConnection(['test.optional' => true]);
+        try {
+            $cache = new CacheManager(new ArrayCacheItemPool());
+            $database = $this->database($connection);
+            $resolver = new ModuleStateResolver($catalog, new ModuleModel($database), $cache);
+            $prefixes = new ModuleRoutePrefixPublicRepository(new ModuleRoutePrefixModel($database), $cache);
+            $invalidator = new PublicModuleRuntimeCacheInvalidator($resolver, $prefixes);
+
+            $prefixes->prefixFor('test.optional', 'cs');
+            $prefixes->prefixFor('test.optional', 'cs');
+            self::assertSame(1, $connection->selects);
+
+            $invalidator->handle(new DomainEvent('system.module_route_prefix_synchronized', 'test.optional', 'system_module_route_prefix', 'test.optional:cs'));
+            $prefixes->prefixFor('test.optional', 'cs');
+
+            self::assertSame(2, $connection->selects);
         } finally {
             $cleanup();
         }

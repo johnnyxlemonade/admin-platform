@@ -9,6 +9,7 @@ use Lemonade\Admin\Assets\AdminAssetPublisher;
 use Lemonade\Admin\Assets\AdminAssetsPublishCommand;
 use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Authorization\EffectivePermissionGroupViewModelFactory;
+use Lemonade\Admin\Cms\Routing\PublicModuleRuntimeCacheInvalidator;
 use Lemonade\Admin\Event\DomainEventDispatcher;
 use Lemonade\Admin\Export\CsvExport;
 use Lemonade\Admin\Http\Middleware\AdminAuthorizationRequestCacheMiddleware;
@@ -76,6 +77,8 @@ final class AdminServiceProvider implements ServiceProviderInterface
         $container->get(DomainEventDispatcher::class)->listen($container->get(TranslationOverrideCacheInvalidator::class));
         $container->singleton(PublicLocaleSnapshotCacheInvalidator::class, PublicLocaleSnapshotCacheInvalidator::class);
         $container->get(DomainEventDispatcher::class)->listen($container->get(PublicLocaleSnapshotCacheInvalidator::class));
+        $container->singleton(PublicModuleRuntimeCacheInvalidator::class, PublicModuleRuntimeCacheInvalidator::class);
+        $container->get(DomainEventDispatcher::class)->listen($container->get(PublicModuleRuntimeCacheInvalidator::class));
         $container->singleton(AdminUiLocale::class, AdminUiLocale::class);
         $container->singleton(AdminNavigationGroupRegistry::class, AdminNavigationGroupRegistry::class);
         $container->singleton(AdminModuleRegistry::class, AdminModuleRegistry::class);

@@ -8,12 +8,14 @@ use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Definition\ModuleKind;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestInterface;
 use Lemonade\Admin\Modules\Persistence\ModuleModel;
+use Lemonade\Framework\Cache\CacheManager;
 
 /**
  * Zjistuje stav modulu pro dalsi sluzby
  */
 final class ModuleStateResolver
 {
+    private const CACHE_KEY = 'admin.module-enabled-map.v1';
     /** @var array<string, ModuleManifestInterface> */
     private array $manifests = [];
     /** @var array<string, bool> */
@@ -21,7 +23,11 @@ final class ModuleStateResolver
     private bool $manifestsLoaded = false;
     private bool $databaseStatesLoaded = false;
 
-    public function __construct(private readonly ModuleCatalog $catalog, private readonly ModuleModel $modules) {}
+    public function __construct(
+        private readonly ModuleCatalog $catalog,
+        private readonly ModuleModel $modules,
+        private readonly ?CacheManager $cache = null,
+    ) {}
 
     /** @return list<ModuleManifestInterface> */
     public function manifests(): array
@@ -72,6 +78,15 @@ final class ModuleStateResolver
         $this->databaseStatesLoaded = false;
     }
 
+    /**
+     * Zrusi persistentni snapshot po uspesne zmene lifecycle modulu
+     */
+    public function forgetCachedDatabaseStates(): void
+    {
+        $this->refresh();
+        $this->cache?->forget(self::CACHE_KEY);
+    }
+
     private function loadManifests(): void
     {
         if ($this->manifestsLoaded) {
@@ -89,7 +104,15 @@ final class ModuleStateResolver
         if ($this->databaseStatesLoaded) {
             return;
         }
-        $this->databaseStates = $this->modules->enabledMap();
+        if ($this->cache === null) {
+            $this->databaseStates = $this->modules->enabledMap();
+            $this->databaseStatesLoaded = true;
+
+            return;
+        }
+        /** @var array<string, bool> $states */
+        $states = $this->cache->rememberForever(self::CACHE_KEY, fn(): array => $this->modules->enabledMap());
+        $this->databaseStates = $states;
         $this->databaseStatesLoaded = true;
     }
 }
