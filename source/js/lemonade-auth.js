@@ -6,7 +6,7 @@
  * @link      https://lemonadeframework.cz/
  * @author    Honza Mudrak <honzamudrak@gmail.com>
  * @copyright Copyright (c) 2026 Honza Mudrak. All rights reserved.
- * @license   Proprietary - see LICENSE.md
+ * @license   Apache-2.0 - see LICENSE
  */
 import { Clock } from "./components/lemonade-clock.js";
 import { Dropdown } from "./components/lemonade-dropdown.js";

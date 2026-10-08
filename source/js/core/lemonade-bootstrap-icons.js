@@ -6,7 +6,7 @@
  * @link      https://lemonadeframework.cz/
  * @author    Honza Mudrak <honzamudrak@gmail.com>
  * @copyright Copyright (c) 2026 Honza Mudrak. All rights reserved.
- * @license   Proprietary - see LICENSE.md
+ * @license   Apache-2.0 - see LICENSE
  */
 const identifierPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const fallbackIdentifier = "circle";
