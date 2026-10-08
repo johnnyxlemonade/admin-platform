@@ -59,6 +59,7 @@ final class AdminAuthConfigDefinition extends AbstractConfigDefinition
             requiredGroup: $this->nullableString($oidc, 'required_group'),
             allowedIdTokenAlgorithms: $this->stringList($oidc, 'allowed_id_token_algorithms'),
             postLogoutRedirectUri: $postLogoutRedirectUri === '' ? $baseUrl . $routing->path('/login') : $postLogoutRedirectUri,
+            defaultRole: $this->nullableString($oidc, 'default_role'),
         );
     }
 

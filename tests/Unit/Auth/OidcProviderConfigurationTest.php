@@ -40,6 +40,7 @@ final class OidcProviderConfigurationTest extends TestCase
             'administrators',
             ['RS256'],
             'https://host.example.test/backoffice/login',
+            'editor',
         );
 
         self::assertTrue($configuration->isEnabled());
@@ -48,6 +49,7 @@ final class OidcProviderConfigurationTest extends TestCase
         self::assertSame('administrators', $configuration->requiredGroup());
         self::assertSame(['RS256'], $configuration->allowedIdTokenAlgorithms());
         self::assertSame('https://host.example.test/backoffice/login', $configuration->postLogoutRedirectUri());
+        self::assertSame('editor', $configuration->defaultRole());
     }
 
     /**

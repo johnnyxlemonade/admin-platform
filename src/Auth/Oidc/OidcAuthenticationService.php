@@ -53,7 +53,7 @@ final class OidcAuthenticationService
             throw new OidcProtocolException('group_admission_denied');
         }
         try {
-            $userId = $this->provisioner->localUserId($identity);
+            $userId = $this->provisioner->localUserId($identity, $this->configuration->defaultRole());
         } catch (OidcProvisioningException $exception) {
             throw new OidcProtocolException($exception->getMessage());
         }

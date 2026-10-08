@@ -142,6 +142,32 @@ final class ExternalIdentityRepository
     }
 
     /**
+     * Overuje existenci role assignmentu lokalniho uzivatele
+     */
+    public function hasRoleAssignment(int $userId): bool
+    {
+        return $this->database->select('SELECT 1 FROM system_user_role WHERE user_id = ? LIMIT 1', [$userId]) !== [];
+    }
+
+    /**
+     * Hleda aktivni roli podle stabilniho business kodu
+     */
+    public function activeRoleIdByCode(string $roleCode): ?int
+    {
+        $rows = $this->database->select('SELECT id FROM system_role WHERE code = ? AND deleted_at IS NULL LIMIT 1', [$roleCode]);
+
+        return $rows === [] ? null : (int) $rows[0]['id'];
+    }
+
+    /**
+     * Prirazuje roli lokalnimu uzivateli v provisioning transakci
+     */
+    public function assignRole(int $userId, int $roleId): void
+    {
+        $this->database->statement('INSERT INTO system_user_role (user_id, role_id) VALUES (?, ?)', [$userId, $roleId]);
+    }
+
+    /**
      * Vytvari typed vazbu z databazoveho radku
      *
      * @param array<string,mixed> $row

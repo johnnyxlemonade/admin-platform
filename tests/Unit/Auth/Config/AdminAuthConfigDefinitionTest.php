@@ -58,17 +58,19 @@ final class AdminAuthConfigDefinitionTest extends TestCase
     /**
      * Overuje zachovani group a listovych OIDC hodnot z host konfigurace
      */
-    public function testConfigurationKeepsGroupAndListValues(): void
+    public function testConfigurationKeepsGroupListAndDefaultRoleValues(): void
     {
         $configuration = $this->definition([
             ...$this->enabledValues(),
             'base_url' => 'https://portal.example.test',
             'required_group' => 'administrators',
+            'default_role' => 'editor',
             'scopes' => 'openid profile email profile',
             'allowed_id_token_algorithms' => 'RS256, ES256, RS256',
         ])->oidcConfiguration($this->routing());
 
         self::assertSame('administrators', $configuration->requiredGroup());
+        self::assertSame('editor', $configuration->defaultRole());
         self::assertSame(['openid', 'profile', 'email'], $configuration->scopes());
         self::assertSame(['RS256', 'ES256'], $configuration->allowedIdTokenAlgorithms());
     }

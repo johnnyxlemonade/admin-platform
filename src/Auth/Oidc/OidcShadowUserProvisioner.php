@@ -20,21 +20,26 @@ final class OidcShadowUserProvisioner
     /**
      * Vraci existujici nebo nove provisionovany lokalni ucet
      */
-    public function localUserId(VerifiedExternalIdentity $identity): int
+    public function localUserId(VerifiedExternalIdentity $identity, ?string $defaultRole = null): int
     {
         $existing = $this->identities->find($identity->issuer(), $identity->subject());
         if ($existing !== null) {
-            $this->assertAvailable($existing->userId());
-            $this->syncExistingProfile($existing->userId(), $identity);
+            $this->identities->transaction(function () use ($existing, $identity, $defaultRole): void {
+                $this->assertAvailable($existing->userId());
+                $this->syncExistingProfile($existing->userId(), $identity);
+                $this->assignDefaultRole($existing->userId(), $defaultRole);
+            });
 
             return $existing->userId();
         }
 
         try {
-            return $this->identities->transaction(function () use ($identity): int {
+            return $this->identities->transaction(function () use ($identity, $defaultRole): int {
                 $linked = $this->identities->find($identity->issuer(), $identity->subject());
                 if ($linked !== null) {
                     $this->assertAvailable($linked->userId());
+                    $this->syncExistingProfile($linked->userId(), $identity);
+                    $this->assignDefaultRole($linked->userId(), $defaultRole);
 
                     return $linked->userId();
                 }
@@ -49,6 +54,7 @@ final class OidcShadowUserProvisioner
                     $email,
                 );
                 $this->identities->create($userId, $identity->provider(), $identity->issuer(), $identity->subject());
+                $this->assignDefaultRole($userId, $defaultRole);
 
                 return $userId;
             });
@@ -89,6 +95,22 @@ final class OidcShadowUserProvisioner
             }
         }
         $this->identities->syncProfile($userId, $identity->firstName(), $identity->lastName(), $email);
+    }
+
+    /**
+     * Prirazuje nakonfigurovanou roli pouze uzivateli bez assignmentu
+     */
+    private function assignDefaultRole(int $userId, ?string $defaultRole): void
+    {
+        if ($defaultRole === null || $this->identities->hasRoleAssignment($userId)) {
+            return;
+        }
+        $roleId = $this->identities->activeRoleIdByCode($defaultRole);
+        if ($roleId === null) {
+            throw new OidcProvisioningException('default_role_not_found');
+        }
+
+        $this->identities->assignRole($userId, $roleId);
     }
 
     /**

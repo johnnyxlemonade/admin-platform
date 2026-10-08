@@ -28,6 +28,7 @@ final readonly class OidcProviderConfiguration
         private ?string $requiredGroup,
         private array $allowedIdTokenAlgorithms,
         private string $postLogoutRedirectUri,
+        private ?string $defaultRole = null,
     ) {
         if (trim($provider) === '') {
             throw new InvalidArgumentException('OIDC provider identifier must not be empty.');
@@ -125,6 +126,14 @@ final readonly class OidcProviderConfiguration
     public function postLogoutRedirectUri(): string
     {
         return $this->postLogoutRedirectUri;
+    }
+
+    /**
+     * Vrati nepovinnou roli pro OIDC ucet bez assignmentu
+     */
+    public function defaultRole(): ?string
+    {
+        return $this->defaultRole;
     }
 
     /**
