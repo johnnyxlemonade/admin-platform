@@ -10,14 +10,15 @@ use PHPUnit\Framework\TestCase;
 
 final class ClientTranslationGroupRegistryTest extends TestCase
 {
-    public function testItOnlyExposesExplicitlyRegisteredGroups(): void
+    public function testItAlwaysExposesTheCanonicalSharedAdminGroup(): void
     {
         $registry = new ClientTranslationGroupRegistry();
         $registry->register('auth');
 
+        self::assertTrue($registry->has('admin'));
         self::assertTrue($registry->has('auth'));
         self::assertFalse($registry->has('messages'));
-        self::assertSame(['auth'], $registry->groups());
+        self::assertSame(['admin', 'auth'], $registry->groups());
     }
 
     public function testItRejectsUnsafeGroupNames(): void

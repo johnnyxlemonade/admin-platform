@@ -12,7 +12,7 @@ use InvalidArgumentException;
 final class ClientTranslationGroupRegistry
 {
     /** @var array<string, true> */
-    private array $groups = [];
+    private array $groups = ['admin' => true];
 
     /**
      * Registruje validni skupinu prekladu pro klientsky export

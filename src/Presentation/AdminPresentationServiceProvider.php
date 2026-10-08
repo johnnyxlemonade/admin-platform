@@ -9,7 +9,6 @@ use Lemonade\Admin\Http\AdminAuthorizationResponseHandler;
 use Lemonade\Admin\Http\AdminResponseFactory;
 use Lemonade\Admin\Http\Controller\AdminErrorController;
 use Lemonade\Admin\Http\Controller\TranslationResourceController;
-use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Navigation\Http\Controller\NavigationTranslationController;
 use Lemonade\Admin\Presentation\Http\Controller\AdminFileUploadController;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
@@ -79,6 +78,5 @@ final class AdminPresentationServiceProvider implements ServiceProviderInterface
 
         $container->get(TranslationResourceRegistry::class)->register(dirname(__DIR__) . '/Resources/lang', 'admin');
         $container->get(ViewResourceRegistry::class)->register('admin', dirname(__DIR__) . '/Resources/views');
-        $container->get(ClientTranslationGroupRegistry::class)->register('admin');
     }
 }
