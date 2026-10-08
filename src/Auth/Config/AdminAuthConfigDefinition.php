@@ -10,6 +10,10 @@ use Lemonade\Framework\Core\Config\Definition\AbstractConfigDefinition;
 
 /**
  * Prevadi deklarovanou host konfiguraci na OIDC runtime administrace
+ *
+ * Host ji mapuje ve svem ConfigMap na YAML modul admin_auth. Nactenou definici
+ * vyuzije AdminAuthRuntimeServiceProvider; callback a logout URL odvozuje z
+ * AdminRoutingConfiguration, pokud je host explicitne nenastavi.
  */
 final class AdminAuthConfigDefinition extends AbstractConfigDefinition
 {

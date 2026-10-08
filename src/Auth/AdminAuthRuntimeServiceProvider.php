@@ -23,6 +23,10 @@ use Psr\Http\Client\ClientInterface as PsrHttpClientInterface;
 
 /**
  * Registruje package-neutralni runtime pro lokalni a OIDC admin autentizaci
+ *
+ * AdminPackage jej zapojuje do bootstrapu po host providerech. Host prida jen
+ * typed admin_auth konfiguraci; tento provider z ni nejdrive svaze jednu OIDC
+ * konfiguraci a az pote registruje jeji runtime konzumenty.
  */
 final class AdminAuthRuntimeServiceProvider implements ServiceProviderInterface
 {
