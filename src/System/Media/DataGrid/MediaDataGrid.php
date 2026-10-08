@@ -168,10 +168,8 @@ final class MediaDataGrid implements DataGridProviderInterface
                     )
                     : $this->thumbnails->fallback(fallback: $fallback),
                 secondary: $displayName !== '' && $displayName !== $originalFilename ? $originalFilename : '',
-                url: $kind === 'image'
-                    ? $this->urls->route(name: 'admin.media.download', params: ['file' => $id])
-                    : null,
-                download: $kind === 'image',
+                url: $this->urls->route(name: 'admin.media.download', params: ['file' => $id]),
+                download: true,
             ),
             'type' => new StatusCell(
                 value: $this->translator->get('media.list.' . $type->value),

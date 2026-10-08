@@ -8,6 +8,7 @@ use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Http\AdminResponseFactory;
 use Lemonade\Admin\Presentation\AdminFileImageAssetResolver;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
+use Lemonade\Framework\Core\Context\ApplicationContext;
 use Lemonade\Framework\Http\Response\Responses;
 use Lemonade\Framework\Image\ImageVariantPathResolver;
 use Lemonade\Image\ImageIdentifier;
@@ -15,12 +16,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Odesila autorizovanemu administratorovi puvodni obrazek z katalogu medii
+ * Odesila autorizovanemu administratorovi puvodni soubor z katalogu medii
  */
 final class MediaDownloadController
 {
     /**
-     * Nastavuje authorization, shared file metadata, original resolver a download odpovedi
+     * Nastavuje authorization, shared file metadata, storage resolvery a download odpovedi
      */
     public function __construct(
         private readonly AuthorizationService $authorization,
@@ -28,11 +29,12 @@ final class MediaDownloadController
         private readonly AdminFileModel $files,
         private readonly AdminFileImageAssetResolver $assets,
         private readonly ImageVariantPathResolver $paths,
+        private readonly ApplicationContext $context,
         private readonly Responses $responses,
     ) {}
 
     /**
-     * Overi pristup a odesle existujici canonical original jako attachment
+     * Overi pristup a odesle existujici image nebo generic original jako attachment
      */
     public function download(int $file, ServerRequestInterface $request): ResponseInterface
     {
@@ -41,20 +43,12 @@ final class MediaDownloadController
         }
 
         $metadata = $this->files->findForManagement($file);
-        if ($metadata === null || $metadata['kind'] !== 'image') {
+        if ($metadata === null) {
             return $this->adminResponses->notFound($request);
         }
 
-        $asset = $this->assets->resolve(
-            module: (string) $metadata['module_code'],
-            identifier: ImageIdentifier::fromString((string) $file),
-        );
-        if ($asset === null) {
-            return $this->adminResponses->notFound($request);
-        }
-
-        $path = $this->paths->originalPath($asset);
-        if (!is_file($path)) {
+        $path = $this->downloadPath($metadata, $file);
+        if ($path === null || !is_file($path)) {
             return $this->adminResponses->notFound($request);
         }
 
@@ -63,6 +57,35 @@ final class MediaDownloadController
             downloadName: $this->filename($metadata),
             contentType: (string) $metadata['mime_type'],
         );
+    }
+
+    /**
+     * Vrati canonical original path pro image nebo generic file metadata
+     *
+     * @param array<string,mixed> $metadata
+     */
+    private function downloadPath(array $metadata, int $file): ?string
+    {
+        if ($metadata['kind'] === 'file') {
+            $storagePath = $metadata['storage_path'] ?? null;
+
+            return is_string($storagePath) && $storagePath !== '' && !str_starts_with($storagePath, '/')
+                ? $this->context->uploadPath($storagePath)
+                : null;
+        }
+        if ($metadata['kind'] !== 'image') {
+            return null;
+        }
+
+        $asset = $this->assets->resolve(
+            module: (string) $metadata['module_code'],
+            identifier: ImageIdentifier::fromString((string) $file),
+        );
+        if ($asset === null) {
+            return null;
+        }
+
+        return $this->paths->originalPath($asset);
     }
 
     /**
