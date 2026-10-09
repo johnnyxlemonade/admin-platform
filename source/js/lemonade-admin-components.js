@@ -29,6 +29,7 @@ const registry = [
     { name: "Notifications", selector: "[data-lemonade-notifications]", load: () => import("./components/lemonade-notifications.js") },
     { name: "Notification audience", selector: "[data-lemonade-notification-audience]", load: () => import("./components/lemonade-notification-audience.js") },
     { name: "Password toggle", selector: "[data-lemonade-password-toggle]", load: () => import("./components/lemonade-password-toggle.js") },
+    { name: "MFA QR", selector: "[data-lemonade-mfa-qr]", load: () => import("./components/lemonade-mfa-qr.js") },
     { name: "Sortable", selector: "[data-lemonade-sortable]", load: () => import("./components/lemonade-sortable.js") },
     { name: "Dashboard widgets", selector: "[data-lemonade-dashboard-widgets]", load: () => import("./components/lemonade-dashboard-widgets.js") },
     { name: "Dashboard customize", selector: "[data-lemonade-dashboard-customize]", load: () => import("./components/lemonade-dashboard-customize.js") },

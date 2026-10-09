@@ -171,6 +171,8 @@ final class UsersModulePageProvider implements ModuleIndexPageProviderInterface,
                             ),
                         )
                         : null,
+                    isSelf: ($editorData['isSelf'] ?? false) === true,
+                    canResetMfa: ($editorData['canResetMfa'] ?? false) === true,
                 ),
                 'adminEditorContext' => new AdminEditorRenderContext(
                     values: $user + ['role' => $editorData['roleId']],

@@ -1,0 +1,172 @@
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-form {
+    display: contents;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-body {
+    padding-top: 18px;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-modal-title-icon, .lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-completed-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-modal-title h2 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-info, .lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-inline-error {
+    display: flex;
+    gap: 10px;
+    margin: 16px 0 0;
+    padding: 12px;
+    border-radius: var(--lm-radius);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-info { color: var(--lm-info); background: var(--lm-info-bg); }
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-inline-error { color: #b52b41; background: var(--lm-danger-soft); }
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-active-status {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: var(--lm-radius);
+    color: #08734f;
+    background: var(--lm-success-bg);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-active-status > .bi { font-size: 26px; }
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-active-status strong, .lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-active-status span { display: block; }
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-active-status span { margin-top: 3px; font-size: 13px; }
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-completed { display: grid; justify-items: center; padding: 36px 28px 30px; text-align: center; }
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-completed-icon { width: 60px; height: 60px; margin-bottom: 16px; color: var(--lm-success); background: var(--lm-success-bg); font-size: 29px; }
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-completed h3 { margin: 0; color: var(--lm-text-heading); font-size: 17px; }
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-completed p { max-width: 390px; margin: 12px 0 0; color: var(--lm-text-secondary); font-size: 13px; line-height: 1.5; }
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-intro {
+    margin: 0 0 18px;
+    color: var(--lm-text-secondary);
+    font-size: 14px;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-provisioning {
+    display: grid;
+    grid-template-columns: 226px minmax(0, 1fr);
+    gap: 14px;
+    align-items: stretch;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-qr-frame {
+    display: grid;
+    place-items: center;
+    min-height: 226px;
+    padding: 12px;
+    border: 1px solid var(--lm-line-strong);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-auth-mfa-qr {
+    display: block;
+    width: 200px;
+    max-width: 100%;
+    height: auto;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-help {
+    padding: 17px;
+    border-radius: var(--lm-radius);
+    color: var(--lm-info);
+    background: var(--lm-info-bg);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-help-heading {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--lm-text-heading);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-help-heading .bi {
+    color: var(--lm-primary);
+    font-size: 19px;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-help p {
+    margin: 8px 0 0 28px;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-help hr {
+    margin: 16px 0 14px;
+    border: 0;
+    border-top: 1px solid var(--lm-info-line);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-help hr + strong {
+    color: var(--lm-text-heading);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-manual-key, .lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-code-field {
+    margin-top: 17px;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-manual-key > label, .lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-code-field > label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-manual-key-control {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    padding: 3px;
+    border: 1px solid var(--lm-line-strong);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface-soft);
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-manual-key-control .form-control {
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    font-size: 13px;
+    letter-spacing: .02em;
+}
+
+.lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-manual-key-control .btn {
+    flex: 0 0 auto;
+    min-height: 31px;
+    padding: 5px 11px;
+    font-size: 13px;
+}
+
+@media (max-width: 575.98px) {
+    .lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-enrollment-provisioning {
+        grid-template-columns: 1fr;
+    }
+
+    .lm-modal[data-lemonade-modal-kind="form"] .lm-mfa-qr-frame {
+        min-height: 0;
+    }
+}

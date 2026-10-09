@@ -33,6 +33,32 @@ import { destroyComponents, mountComponents } from "../lemonade-admin-components
             await this.open(trigger);
         }
 
+        static async handleForm(event, form) {
+            event.preventDefault();
+            if (form.hasAttribute("data-lemonade-modal-form-submitting")) {
+                return;
+            }
+
+            form.setAttribute("data-lemonade-modal-form-submitting", "");
+            try {
+                const response = await HttpHelper.request(form.action, {
+                    method: form.method || "POST",
+                    data: new window.FormData(form)
+                });
+                if (!response || typeof response.modalHtml !== "string") {
+                    throw new HttpError("Modal content is missing.", 500, null);
+                }
+
+                await destroyComponents(this.content);
+                this.modal.setContent(response.modalHtml);
+                await this.initializeContent();
+            } catch (error) {
+                this.showError(error && error.response);
+            } finally {
+                form.removeAttribute("data-lemonade-modal-form-submitting");
+            }
+        }
+
         static async open(trigger) {
             const source = trigger.getAttribute("data-lemonade-modal-form-url");
             if (!source || trigger.hasAttribute("data-lemonade-modal-form-loading")) {
@@ -97,12 +123,20 @@ import { destroyComponents, mountComponents } from "../lemonade-admin-components
         }
 
         static async initializeContent() {
+            this.bindContentForms();
             await I18n.apply(this.content);
             await mountComponents(this.content);
             DomHelper.queryAll("[data-lemonade-action]", this.content).forEach(function (action) {
                 action.setAttribute("data-lemonade-defer-success-feedback", "");
             });
             this.initializeCountryFlagPreviews();
+        }
+
+        static bindContentForms() {
+            this.formSubmitCleanup?.();
+            this.formSubmitCleanup = EventHelper.delegate(this.content, "submit", "form[data-lemonade-modal-form]", (event, form) => {
+                void this.handleForm(event, form);
+            });
         }
 
         static async handleSuccess(event) {
@@ -131,6 +165,8 @@ import { destroyComponents, mountComponents } from "../lemonade-admin-components
             const success = this.success;
             const trigger = this.trigger;
             Message?.clear(this.modal.floatingRoot);
+            this.formSubmitCleanup?.();
+            this.formSubmitCleanup = null;
             await destroyComponents(this.content);
             this.content.replaceChildren();
             this.trigger = null;

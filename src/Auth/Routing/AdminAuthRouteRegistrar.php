@@ -82,15 +82,15 @@ final class AdminAuthRouteRegistrar implements AdminRouteRegistrarInterface
         $router->postNamed(name: 'admin.login.mfa.enroll.confirm', path: '/login/mfa/enroll/confirm', action: ControllerAction::for(controllerClass: MfaController::class, method: 'confirmLoginEnrollment'))
             ->middleware(AdminAnonymousMiddleware::class, CsrfMiddleware::class);
 
-        $router->getNamed(name: 'admin.profile.mfa', path: '/profile/mfa', action: ControllerAction::for(controllerClass: MfaController::class, method: 'profile'))
+        $router->getNamed(name: 'admin.mfa.modal', path: '/mfa/modal', action: ControllerAction::for(controllerClass: MfaController::class, method: 'modal'))
             ->middleware(AdminAuthenticationMiddleware::class);
-        $router->postNamed(name: 'admin.profile.mfa.reauth', path: '/profile/mfa/reauth', action: ControllerAction::for(controllerClass: MfaController::class, method: 'reauthenticate'))
+        $router->postNamed(name: 'admin.mfa.modal.reauth', path: '/mfa/modal/reauth', action: ControllerAction::for(controllerClass: MfaController::class, method: 'reauthenticateModal'))
             ->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-        $router->postNamed(name: 'admin.profile.mfa.enroll.start', path: '/profile/mfa/enroll/start', action: ControllerAction::for(controllerClass: MfaController::class, method: 'startProfileEnrollment'))
+        $router->postNamed(name: 'admin.mfa.modal.enroll.start', path: '/mfa/modal/enroll/start', action: ControllerAction::for(controllerClass: MfaController::class, method: 'startModalEnrollment'))
             ->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-        $router->postNamed(name: 'admin.profile.mfa.enroll.confirm', path: '/profile/mfa/enroll/confirm', action: ControllerAction::for(controllerClass: MfaController::class, method: 'confirmProfileEnrollment'))
+        $router->postNamed(name: 'admin.mfa.modal.enroll.confirm', path: '/mfa/modal/enroll/confirm', action: ControllerAction::for(controllerClass: MfaController::class, method: 'confirmModalEnrollment'))
             ->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-        $router->postNamed(name: 'admin.profile.mfa.disable', path: '/profile/mfa/disable', action: ControllerAction::for(controllerClass: MfaController::class, method: 'disableProfile'))
+        $router->postNamed(name: 'admin.mfa.modal.disable', path: '/mfa/modal/disable', action: ControllerAction::for(controllerClass: MfaController::class, method: 'disableModal'))
             ->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
 
         $router->getNamed(

@@ -25,9 +25,10 @@ use Lemonade\Framework\Http\Response\Responses;
 use Lemonade\Framework\Security\Totp\TotpSecretGenerator;
 use Lemonade\Framework\Security\Totp\TotpVerifier;
 use Lemonade\Framework\Session\Contract\SessionInterface;
+use Lemonade\Framework\View\ViewRendererInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
 use ReflectionClass;
 use ReflectionObject;
 
@@ -36,43 +37,38 @@ final class MfaControllerContractTest extends TestCase
     public function testSelfDisableIsAllowedOnlyForFreshOptionalMfa(): void
     {
         $optional = $this->fixture('optional', true);
-        $response = $optional['controller']->disableProfile();
+        $optional['controller']->disableModal(new ServerRequest('POST', '/admin/mfa/modal/disable'));
 
-        self::assertSame('/admin/profile/mfa', $response->getHeaderLine('Location'));
         self::assertCount(1, $optional['connection']->statementCalls);
         self::assertStringContainsString('last_revoked_at=?', $optional['connection']->statementCalls[0]);
 
         $all = $this->fixture('all', true);
-        $response = $all['controller']->disableProfile();
+        $all['controller']->disableModal(new ServerRequest('POST', '/admin/mfa/modal/disable'));
 
-        self::assertSame('/admin/profile/mfa', $response->getHeaderLine('Location'));
         self::assertSame([], $all['connection']->statementCalls);
     }
 
     public function testEnrollmentAndReEnrollmentAreRejectedWithoutFreshPrimaryAuthentication(): void
     {
         $fixture = $this->fixture('optional', false);
-        $request = $this->createMock(ServerRequestInterface::class);
 
-        $start = $fixture['controller']->startProfileEnrollment($request);
-        $confirmation = $fixture['controller']->confirmProfileEnrollment($request);
+        $fixture['controller']->startModalEnrollment(new ServerRequest('POST', '/admin/mfa/modal/enroll/start'));
+        $fixture['controller']->confirmModalEnrollment((new ServerRequest('POST', '/admin/mfa/modal/enroll/confirm'))->withParsedBody(['code' => '000000']));
 
-        self::assertSame('/admin/profile/mfa', $start->getHeaderLine('Location'));
-        self::assertSame('/admin/profile/mfa', $confirmation->getHeaderLine('Location'));
         self::assertSame([], $fixture['connection']->statementCalls);
     }
 
     /**
-     * @return array{controller:MfaController,connection:MfaControllerConnectionDouble}
+     * @return array{controller:MfaController,connection:MfaModalConnectionDouble}
      */
     private function fixture(string $requirement, bool $freshPrimary): array
     {
-        $session = new MfaControllerMemorySession();
+        $session = new MfaModalMemorySession();
         $recentPrimary = new MfaRecentPrimaryAuthenticationStore($session);
         if ($freshPrimary) {
             $recentPrimary->remember(42);
         }
-        $connection = new MfaControllerConnectionDouble();
+        $connection = new MfaModalConnectionDouble();
         $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
         $configuration = new AdminMfaConfiguration($requirement, 'Admin', base64_encode(str_repeat('a', 32)));
         $credentials = new TotpCredentialService(
@@ -81,16 +77,18 @@ final class MfaControllerContractTest extends TestCase
             new TotpSecretGenerator(),
             new TotpVerifier($this->clock()),
         );
-        $mfa = new MfaAuthenticationService($configuration, $credentials, $database, $this->createMock(AuditLogWriterInterface::class));
         $controller = (new ReflectionClass(MfaController::class))->newInstanceWithoutConstructor();
         $this->set($controller, 'configuration', $configuration);
         $this->set($controller, 'currentUser', $this->currentUser($session));
         $this->set($controller, 'recentPrimary', $recentPrimary);
         $this->set($controller, 'credentials', $credentials);
-        $this->set($controller, 'mfa', $mfa);
+        $this->set($controller, 'mfa', new MfaAuthenticationService($configuration, $credentials, $database, $this->createMock(AuditLogWriterInterface::class)));
         $this->set($controller, 'routing', new AdminRoutingConfiguration('/admin'));
         $factory = new Psr17Factory();
         $this->set($controller, 'responses', new Responses(new ResponseBuilder($factory, $factory)));
+        $views = $this->createMock(ViewRendererInterface::class);
+        $views->method('content')->willReturn('<div></div>');
+        $this->set($controller, 'views', $views);
 
         return ['controller' => $controller, 'connection' => $connection];
     }
@@ -123,7 +121,7 @@ final class MfaControllerContractTest extends TestCase
     }
 }
 
-final class MfaControllerConnectionDouble implements ConnectionInterface
+final class MfaModalConnectionDouble implements ConnectionInterface
 {
     /** @var list<string> */
     public array $statementCalls = [];
@@ -186,7 +184,7 @@ final class MfaControllerConnectionDouble implements ConnectionInterface
     }
 }
 
-final class MfaControllerMemorySession implements SessionInterface
+final class MfaModalMemorySession implements SessionInterface
 {
     /** @var array<string,mixed> */
     private array $values = [];

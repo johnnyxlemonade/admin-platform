@@ -201,6 +201,69 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame('username', $fields['email']->autocompleteValue());
     }
 
+    public function testSelfUserReceivesOnlyTheOwnMfaModalAction(): void
+    {
+        $editor = $this->factory()->create(
+            user: $this->user(),
+            roleOptions: [],
+            permissionGroups: [],
+            roleEditable: false,
+            activeEditable: false,
+            activeInput: null,
+            hasActiveInput: false,
+            permissionEditable: false,
+            hasProtectedAuthority: false,
+            mode: 'edit',
+            isSelf: true,
+            canResetMfa: false,
+        );
+
+        self::assertSame([
+            'hasProtectedAuthority' => false,
+            'isSelf' => true,
+            'mfaActive' => false,
+            'canResetMfa' => false,
+            'mfaModalUrl' => '/admin/mfa/modal',
+            'mfaResetUrl' => '/admin/system/users/ajax/7',
+        ], $this->customBlock($editor, 'access', 0)->context());
+    }
+
+    public function testOtherUserExposesResetOnlyForAnAuthorizedActiveCredential(): void
+    {
+        $activeUser = $this->user() + ['mfa_active' => 1];
+        $authorized = $this->factory()->create(
+            user: $activeUser,
+            roleOptions: [],
+            permissionGroups: [],
+            roleEditable: false,
+            activeEditable: false,
+            activeInput: null,
+            hasActiveInput: false,
+            permissionEditable: false,
+            hasProtectedAuthority: false,
+            mode: 'edit',
+            canResetMfa: true,
+        );
+        $withoutCredential = $this->factory()->create(
+            user: $this->user(),
+            roleOptions: [],
+            permissionGroups: [],
+            roleEditable: false,
+            activeEditable: false,
+            activeInput: null,
+            hasActiveInput: false,
+            permissionEditable: false,
+            hasProtectedAuthority: false,
+            mode: 'edit',
+            canResetMfa: false,
+        );
+
+        self::assertTrue($this->customBlock($authorized, 'access', 0)->context()['canResetMfa']);
+        self::assertTrue($this->customBlock($authorized, 'access', 0)->context()['mfaActive']);
+        self::assertFalse($this->customBlock($withoutCredential, 'access', 0)->context()['canResetMfa']);
+        self::assertFalse($this->customBlock($withoutCredential, 'access', 0)->context()['mfaActive']);
+    }
+
     /** @return array<string, \Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition> */
     private function profileFields(AdminEditorDefinition $editor): array
     {
@@ -279,6 +342,7 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         $router->getNamed('admin.module.edit', '/admin/{module}/edit/{id}', ControllerAction::for('TestController', 'edit'));
         $router->postNamed('admin.module.ajax.create', '/admin/{module}/ajax', ControllerAction::for('TestController', 'create'));
         $router->postNamed('admin.module.ajax.entity', '/admin/{module}/ajax/{id}', ControllerAction::for('TestController', 'entity'));
+        $router->getNamed('admin.mfa.modal', '/admin/mfa/modal', ControllerAction::for('TestController', 'modal'));
         $router->postNamed('admin.users.avatar.upload', '/admin/users/edit/{id}/avatar', ControllerAction::for('TestController', 'upload'));
         $router->postNamed('admin.users.avatar.delete', '/admin/users/edit/{id}/avatar/delete', ControllerAction::for('TestController', 'delete'));
 

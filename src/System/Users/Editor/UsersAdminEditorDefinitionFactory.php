@@ -50,6 +50,8 @@ final class UsersAdminEditorDefinitionFactory
         string $mode,
         bool $hasExternalIdentity = false,
         ?AdminFileUploadCollection $avatarUpload = null,
+        bool $isSelf = false,
+        bool $canResetMfa = false,
     ): AdminEditorDefinition {
         $isCreate = $mode === 'create';
         $activeValue = $activeEditable && $hasActiveInput && (string) $activeInput === '1'
@@ -82,7 +84,14 @@ final class UsersAdminEditorDefinitionFactory
         }
         $roleFields[] = new CustomViewBlock(
             view: 'users::editor.access-info',
-            context: ['hasProtectedAuthority' => $hasProtectedAuthority],
+            context: [
+                'hasProtectedAuthority' => $hasProtectedAuthority,
+                'isSelf' => $isSelf,
+                'mfaActive' => (int) ($user['mfa_active'] ?? 0) === 1,
+                'canResetMfa' => $canResetMfa,
+                'mfaModalUrl' => $this->urls->route(name: 'admin.mfa.modal'),
+                'mfaResetUrl' => $actionUrl,
+            ],
         );
 
         $profileBlocks = [

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Users\Editor;
 
+use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Authorization\AuthorizationService;
+use Lemonade\Admin\Authorization\AuthorizationTargetPolicy;
 use Lemonade\Admin\Authorization\EffectivePermissionGroupViewModelFactory;
 use Lemonade\Admin\Editor\Contract\EditorAccessPolicyInterface;
 use Lemonade\Admin\Editor\Contract\EditorLockBypassPolicyInterface;
@@ -17,6 +19,7 @@ use Lemonade\Admin\Editor\Exception\EditorEntityNotFoundException;
 use Lemonade\Admin\Editor\Exception\EditorRecordConflictException;
 use Lemonade\Admin\Editor\Exception\EditorValidationException;
 use Lemonade\Admin\Http\AdminErrorCode;
+use Lemonade\Admin\Identity\LocalActorGuard;
 use Lemonade\Admin\Identity\LocalActorRequiredException;
 use Lemonade\Admin\Select\SelectOptionDefinition;
 use Lemonade\Admin\Select\StaticSelectOptionSource;
@@ -42,6 +45,8 @@ final class UsersEditor implements EditorProviderInterface, EditorAccessPolicyIn
         private readonly AuthorizationService $authorization,
         private readonly EffectivePermissionGroupViewModelFactory $permissionGroups,
         private readonly UsersEditorAccessPolicy $access,
+        private readonly AuthorizationTargetPolicy $targets,
+        private readonly LocalActorGuard $actors,
     ) {}
 
     /**
@@ -117,6 +122,16 @@ final class UsersEditor implements EditorProviderInterface, EditorAccessPolicyIn
         $isSelf = $this->authorization->currentUserId() === (int) $user['id'];
         $isSuperAdmin = $roleId !== null && $this->authorization->isSuperAdminRole($roleId);
         $isActive = (int) $user['active'] === 1;
+        $canResetMfa = false;
+        if (!$isSelf && (int) $user['mfa_active'] === 1 && $this->authorization->hasPermission('system.users.mfa_reset')) {
+            try {
+                $canResetMfa = $this->targets->canTargetUser(
+                    $this->actors->requireLocalUser(),
+                    new AuthenticatedUser((int) $user['id'], (string) $user['email']),
+                );
+            } catch (LocalActorRequiredException) {
+            }
+        }
 
         return [
             'user' => $user,
@@ -127,6 +142,7 @@ final class UsersEditor implements EditorProviderInterface, EditorAccessPolicyIn
             'permissionEditable' => !$isSelf && !$isSuperAdmin && $this->authorization->hasPermission('system.users.manage_permissions'),
             'hasProtectedAuthority' => !$isSelf && !$isSuperAdmin && $this->users->targetHasProtectedAuthority((int) $user['id']),
             'isSelf' => $isSelf,
+            'canResetMfa' => $canResetMfa,
             'isSuperAdmin' => $isSuperAdmin,
             'permissionGroups' => $this->users->delegablePermissionGroups($this->permissionGroups->createOverrideMatrix(
                 $this->authorization->permissionDetails(),
@@ -152,6 +168,7 @@ final class UsersEditor implements EditorProviderInterface, EditorAccessPolicyIn
             'permissionEditable' => false,
             'hasProtectedAuthority' => false,
             'isSelf' => false,
+            'canResetMfa' => false,
             'isSuperAdmin' => false,
             'permissionGroups' => [],
         ];

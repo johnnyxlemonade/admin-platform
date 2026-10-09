@@ -16,13 +16,13 @@ use Lemonade\Admin\Auth\Mfa\TotpCredentialService;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Admin\Presentation\AdminBranding;
-use Lemonade\Admin\Presentation\AdminPageRenderer;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 use Lemonade\Framework\Core\Http\RequestData;
 use Lemonade\Framework\Http\Response\Responses;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Security\Totp\TotpConfiguration;
 use Lemonade\Framework\Security\Totp\TotpProvisioningUriFactory;
+use Lemonade\Framework\View\ViewRendererInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -46,11 +46,11 @@ final class MfaController
         private readonly AdminUiLocale $uiLocale,
         private readonly ClientTranslationVersion $translationVersion,
         private readonly AdminBranding $branding,
-        private readonly AdminPageRenderer $adminPages,
         private readonly AdminRoutingConfiguration $routing,
         private readonly AuthPageRenderer $pages,
         private readonly TranslatorInterface $translator,
         private readonly Responses $responses,
+        private readonly ViewRendererInterface $views,
     ) {}
 
     /**
@@ -152,84 +152,78 @@ final class MfaController
     }
 
     /**
-     * Zobrazi MFA self-service aktualne prihlaseneho lokalniho uzivatele
+     * Vraci obsah self-service MFA modalu pouze pro aktualniho prihlaseneho uzivatele
      */
-    public function profile(ServerRequestInterface $request): ResponseInterface
+    public function modal(ServerRequestInterface $request): ResponseInterface
     {
-        $user = $this->currentUser->currentUser();
-        if (!$this->configuration->enabled() || $user === null) {
-            return $this->responses->redirect($this->routing->basePath);
-        }
+        unset($request);
 
-        return $this->renderProfile($request, [
-            'active' => $this->credentials->hasActiveCredential($user->id()),
-            'recent' => $this->recentPrimary->isRecentFor($user->id()),
-            'canDisable' => $this->configuration->localRequirement === 'optional',
-            'errorKey' => null,
-        ]);
+        return $this->modalResponse();
     }
 
     /**
-     * Overi aktualni local password a otevre petiminutove self-service okno
+     * Overi aktualni local password pred citlivou MFA zmenou v modalu
      */
-    public function reauthenticate(ServerRequestInterface $request): ResponseInterface
+    public function reauthenticateModal(ServerRequestInterface $request): ResponseInterface
     {
         $user = $this->currentUser->currentUser();
         $password = (string) (new RequestData($request))->post('password', '');
-        if (!$this->configuration->enabled() || $user === null || $this->authentication->authenticateLocal($user->email(), $password)->user()?->id() !== $user->id()) {
-            return $this->responses->redirect($this->routing->path('/profile/mfa'));
+        if ($user === null || $this->authentication->authenticateLocal($user->email(), $password)->user()?->id() !== $user->id()) {
+            return $this->modalResponse(errorKey: 'auth.errors.invalid');
         }
 
         $this->recentPrimary->remember($user->id());
 
-        return $this->responses->redirect($this->routing->path('/profile/mfa'));
+        return $this->modalResponse();
     }
 
     /**
-     * Zalozi self-service enrollment jen po cerstvem lokalnim hesle
+     * Vytvori novy TOTP secret jen po cerstvem potvrzeni primarni autentizace
      */
-    public function startProfileEnrollment(ServerRequestInterface $request): ResponseInterface
+    public function startModalEnrollment(ServerRequestInterface $request): ResponseInterface
     {
         $user = $this->currentUser->currentUser();
-        if (!$this->configuration->enabled() || $user === null || !$this->recentPrimary->isRecentFor($user->id())) {
-            return $this->responses->redirect($this->routing->path('/profile/mfa'));
+        if ($user === null || !$this->recentPrimary->isRecentFor($user->id())) {
+            return $this->modalResponse(errorKey: 'auth.mfa.errors.reauthenticate_required');
         }
 
-        return $this->renderEnrollment($request, $user->id(), true, true);
+        $secret = $this->credentials->beginEnrollment($user->id());
+
+        return $this->modalResponse(secret: $secret->toBase32(), provisioningUri: $this->provisioningUris->create($this->configuration->issuer ?? '', $user->email(), $secret, new TotpConfiguration()));
     }
 
     /**
-     * Potvrdi self-service enrollment jen po cerstvem lokalnim hesle
+     * Potvrdi nove MFA nastaveni pouze pro aktualniho uzivatele po cerstvem hesle
      */
-    public function confirmProfileEnrollment(ServerRequestInterface $request): ResponseInterface
+    public function confirmModalEnrollment(ServerRequestInterface $request): ResponseInterface
     {
         $user = $this->currentUser->currentUser();
-        if (!$this->configuration->enabled() || $user === null || !$this->recentPrimary->isRecentFor($user->id())) {
-            return $this->responses->redirect($this->routing->path('/profile/mfa'));
+        if ($user === null || !$this->recentPrimary->isRecentFor($user->id())) {
+            return $this->modalResponse(errorKey: 'auth.mfa.errors.reauthenticate_required');
         }
         if (!$this->credentials->confirmEnrollment($user->id(), (string) (new RequestData($request))->post('code', ''))) {
-            return $this->renderEnrollment($request, $user->id(), true, false, 'auth.mfa.errors.invalid', 422);
+            return $this->modalResponse(errorKey: 'auth.mfa.errors.invalid');
         }
 
         $this->mfa->enrolled($user->id());
 
-        return $this->responses->redirect($this->routing->path('/profile/mfa'));
+        return $this->modalResponse(noticeKey: 'auth.mfa.enrolled');
     }
 
     /**
      * Zrusi vlastni credential pouze v optional policy a po cerstvem hesle
      */
-    public function disableProfile(): ResponseInterface
+    public function disableModal(ServerRequestInterface $request): ResponseInterface
     {
         $user = $this->currentUser->currentUser();
-        if (!$this->configuration->enabled() || $user === null || $this->configuration->localRequirement !== 'optional' || !$this->recentPrimary->isRecentFor($user->id())) {
-            return $this->responses->redirect($this->routing->path('/profile/mfa'));
+        if ($user === null || $this->configuration->localRequirement !== 'optional' || !$this->recentPrimary->isRecentFor($user->id())) {
+            return $this->modalResponse(errorKey: 'auth.mfa.errors.disable_not_allowed');
         }
 
         $this->credentials->revoke($user->id());
         $this->mfa->disabled($user->id());
 
-        return $this->responses->redirect($this->routing->path('/profile/mfa'));
+        return $this->modalResponse(noticeKey: 'auth.mfa.disabled');
     }
 
     /**
@@ -267,17 +261,27 @@ final class MfaController
     }
 
     /**
-     * Vykresli prihlasenou self-service stranku v canonical admin layoutu
-     *
-     * @param array<string,mixed> $data
+     * Sestavi JSON odpoved s obsahem sdileneho Admin modalu
      */
-    private function renderProfile(ServerRequestInterface $request, array $data, int $status = 200): ResponseInterface
+    private function modalResponse(?string $errorKey = null, ?string $noticeKey = null, ?string $secret = null, ?string $provisioningUri = null): ResponseInterface
     {
-        return $this->adminPages->render('admin-auth::profile-mfa', [
-            ...$data,
-            'title' => $this->translator->get('auth.mfa.profile_title'),
-            'locale' => $this->uiLocale->activate(null, (string) (new RequestData($request))->cookie('lemonade_locale', '')),
-        ], $status);
+        $user = $this->currentUser->currentUser();
+        if (!$this->configuration->enabled() || $user === null) {
+            return $this->responses->json(['success' => false], 403);
+        }
+
+        return $this->responses->json([
+            'success' => true,
+            'modalHtml' => $this->views->content('admin-auth::mfa-modal', [
+                'active' => $this->credentials->hasActiveCredential($user->id()),
+                'recent' => $this->recentPrimary->isRecentFor($user->id()),
+                'canDisable' => $this->configuration->localRequirement === 'optional',
+                'errorKey' => $errorKey,
+                'noticeKey' => $noticeKey,
+                'secret' => $secret,
+                'provisioningUri' => $provisioningUri,
+            ]),
+        ]);
     }
 
     /**
