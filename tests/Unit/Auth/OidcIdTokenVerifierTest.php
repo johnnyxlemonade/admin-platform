@@ -71,14 +71,30 @@ final class OidcIdTokenVerifierTest extends TestCase
         $oldKey = $this->key('old');
         $currentKey = $this->key('current');
         $jwks = new class ($oldKey['jwk'], $currentKey['jwk']) implements OidcJwksProviderInterface {
-            /** @var list<bool> */
+            /**
+             * @var list<bool>
+             */
             public array $refreshes = [];
+
+            /**
+             * @var array<string, string>
+             */
+            private readonly array $oldKey;
+
+            /**
+             * @var array<string, string>
+             */
+            private readonly array $currentKey;
 
             /**
              * @param array<string, string> $oldKey
              * @param array<string, string> $currentKey
              */
-            public function __construct(private readonly array $oldKey, private readonly array $currentKey) {}
+            public function __construct(array $oldKey, array $currentKey)
+            {
+                $this->oldKey = $oldKey;
+                $this->currentKey = $currentKey;
+            }
 
             /** @return array<string, Key> */
             public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): array
@@ -100,11 +116,23 @@ final class OidcIdTokenVerifierTest extends TestCase
         $signingKey = $this->key('unknown');
         $knownKey = $this->key('known');
         $jwks = new class ($knownKey['jwk']) implements OidcJwksProviderInterface {
-            /** @var list<bool> */
+            /**
+             * @var list<bool>
+             */
             public array $refreshes = [];
 
-            /** @param array<string, string> $key */
-            public function __construct(private readonly array $key) {}
+            /**
+             * @var array<string, string>
+             */
+            private readonly array $key;
+
+            /**
+             * @param array<string, string> $key
+             */
+            public function __construct(array $key)
+            {
+                $this->key = $key;
+            }
 
             /** @return array<string, Key> */
             public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): array
@@ -124,11 +152,23 @@ final class OidcIdTokenVerifierTest extends TestCase
         $signingKey = $this->key('current');
         $otherKey = $this->key('current');
         $jwks = new class ($otherKey['jwk']) implements OidcJwksProviderInterface {
-            /** @var list<bool> */
+            /**
+             * @var list<bool>
+             */
             public array $refreshes = [];
 
-            /** @param array<string, string> $key */
-            public function __construct(private readonly array $key) {}
+            /**
+             * @var array<string, string>
+             */
+            private readonly array $key;
+
+            /**
+             * @param array<string, string> $key
+             */
+            public function __construct(array $key)
+            {
+                $this->key = $key;
+            }
 
             /** @return array<string, Key> */
             public function keySet(OidcProviderMetadata $metadata, bool $refresh = false): array
