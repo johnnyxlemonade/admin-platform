@@ -25,6 +25,7 @@ final class UsersActionRegistrar
         private readonly UsersDeactivateAction $deactivate,
         private readonly UsersDeleteAction $delete,
         private readonly UsersRestoreAction $restore,
+        private readonly UsersMfaResetAction $mfaReset,
     ) {}
 
     /**
@@ -40,5 +41,6 @@ final class UsersActionRegistrar
         $this->actions->register($moduleCode, new ModuleActionDefinition('deactivate', 'system.users.disable', 'users.actions.deactivate', new ConfirmationDefinition('users.confirm.deactivate'), true), $this->deactivate);
         $this->actions->register($moduleCode, new ModuleActionDefinition('delete', 'system.users.delete', 'users.actions.delete', new ConfirmationDefinition('users.confirm.delete'), true), $this->delete);
         $this->actions->register($moduleCode, new ModuleActionDefinition('restore', 'system.users.restore', 'users.actions.restore', new ConfirmationDefinition('users.confirm.restore'), true), $this->restore);
+        $this->actions->register($moduleCode, new ModuleActionDefinition('mfa-reset', 'system.users.mfa_reset', 'users.actions.mfa_reset', new ConfirmationDefinition('users.confirm.mfa_reset'), true), $this->mfaReset);
     }
 }

@@ -7,6 +7,8 @@ namespace Lemonade\Admin\Auth;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface as GuzzleClientInterface;
 use Lemonade\Admin\Auth\Config\AdminAuthConfigDefinition;
+use Lemonade\Admin\Auth\Mfa\AdminMfaConfiguration;
+use Lemonade\Admin\Auth\Mfa\MfaSecretCipher;
 use Lemonade\Admin\Auth\Oidc\Contract\OidcJwksProviderInterface;
 use Lemonade\Admin\Auth\Oidc\Contract\OpenIdConnectClientInterface;
 use Lemonade\Admin\Auth\Oidc\HttpOidcJwksProvider;
@@ -39,6 +41,18 @@ final class AdminAuthRuntimeServiceProvider implements ServiceProviderInterface
             OidcProviderConfiguration::class,
             $this->oidcConfiguration($container),
         );
+        $container->singleton(
+            AdminMfaConfiguration::class,
+            $this->mfaConfiguration($container),
+        );
+        $container->singleton(
+            MfaSecretCipher::class,
+            static fn(ContainerInterface $container): MfaSecretCipher => new MfaSecretCipher(
+                $container->get(AdminMfaConfiguration::class)->enabled()
+                    ? $container->get(AdminMfaConfiguration::class)->binaryEncryptionKey()
+                    : hash('sha256', 'disabled-admin-mfa-cipher', true),
+            ),
+        );
         $container->singleton(LocalAuthenticationProvider::class, LocalAuthenticationProvider::class);
         $container->singleton(Client::class, Client::class);
         $container->singleton(GuzzleClientInterface::class, static fn(ContainerInterface $container): Client => $container->get(Client::class));
@@ -67,5 +81,21 @@ final class AdminAuthRuntimeServiceProvider implements ServiceProviderInterface
         $definition = $definitions[0] ?? AdminAuthConfigDefinition::create();
 
         return $definition->oidcConfiguration($container->get(AdminRoutingConfiguration::class));
+    }
+
+    /**
+     * Vrati jedinou hostem deklarovanou local MFA konfiguraci
+     */
+    private function mfaConfiguration(ContainerBuilderInterface $container): AdminMfaConfiguration
+    {
+        $definitions = $container->get(ConfigDefinitionRegistry::class)->typedEntriesFor(
+            AdminAuthConfigDefinition::moduleKey(),
+            AdminAuthConfigDefinition::class,
+        );
+        if (count($definitions) > 1) {
+            throw new \LogicException('Admin auth accepts only one MFA configuration definition.');
+        }
+
+        return ($definitions[0] ?? AdminAuthConfigDefinition::create())->mfaConfiguration();
     }
 }

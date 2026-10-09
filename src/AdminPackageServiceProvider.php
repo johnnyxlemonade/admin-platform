@@ -30,6 +30,7 @@ use Lemonade\Admin\Platform\Migrations\CreateCoreModuleRoutePrefixes;
 use Lemonade\Admin\Platform\Migrations\CreateCoreTranslationOverrides;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUserIdentities;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUsers;
+use Lemonade\Admin\Platform\Migrations\CreateCoreUserTotp;
 use Lemonade\Admin\Presentation\AdminPresentationServiceProvider;
 use Lemonade\Admin\System\SystemModuleServiceProvider;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
@@ -77,6 +78,7 @@ final class AdminPackageServiceProvider implements ServiceProviderInterface
         $migrations->register(CreateCoreModuleCatalog::class);
         $migrations->register(CreateCoreModuleRoutePrefixes::class);
         $migrations->register(CreateCoreUsers::class);
+        $migrations->register(CreateCoreUserTotp::class);
         $migrations->register(CreateCoreUserIdentities::class);
         $migrations->register(CreateCoreAuthorizationCatalog::class);
         $migrations->register(CreateCoreAuthorizationAssignments::class);

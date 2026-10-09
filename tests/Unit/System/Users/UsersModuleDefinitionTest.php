@@ -39,6 +39,7 @@ final class UsersModuleDefinitionTest extends TestCase
             'users.permissions.restore',
             'users.permissions.manage_roles',
             'users.permissions.manage_permissions',
+            'users.permissions.mfa_reset',
         ], array_map(static fn(\Lemonade\Admin\Authorization\PermissionDefinition $permission): string => $permission->nameKey(), $definition->permissionDefinitions()));
         $dataGridInterfaces = class_implements(UsersDataGrid::class);
         $editorInterfaces = class_implements(UsersEditor::class);

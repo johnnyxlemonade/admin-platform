@@ -43,9 +43,19 @@ final class AuthenticationService
     }
 
     /**
+     * Obnovi anonymni relaci po prvnim faktoru pred ulozenim MFA challenge
+     */
+    public function beginMfaChallenge(): void
+    {
+        $this->session->start();
+        $this->session->regenerate(true);
+        $this->csrf->regenerate();
+    }
+
+    /**
      * Zalozi lokalni relaci uzivatele a zapise audit prihlaseni
      */
-    public function login(AuthenticatedUser $user): void
+    public function login(AuthenticatedUser $user, bool $mfa = false): void
     {
         $this->session->start();
         $this->session->regenerate(true);
@@ -58,7 +68,7 @@ final class AuthenticationService
             [date('Y-m-d H:i:s'), date('Y-m-d H:i:s'), $user->id()],
         );
         $this->audit->record(
-            new DomainEvent('system.authentication.login', 'system.authentication', 'user', (string) $user->id(), ['method' => 'local']),
+            new DomainEvent('system.authentication.login', 'system.authentication', 'user', (string) $user->id(), $mfa ? ['method' => 'local', 'mfa' => 'totp'] : ['method' => 'local']),
             new AuditOperation('system.authentication', 'auth.login', AuditActor::user($user->id())),
         );
     }

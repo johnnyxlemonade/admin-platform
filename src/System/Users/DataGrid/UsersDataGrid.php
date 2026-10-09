@@ -262,6 +262,13 @@ final class UsersDataGrid implements DataGridProviderInterface
                 method: 'GET',
             ))->withIcon(AdminIcon::PencilSquare);
         }
+        if (($action = $this->actionPresentation->rowAction(
+            moduleCode: 'system.users',
+            action: 'mfa-reset',
+            entityId: $id,
+        )) !== null) {
+            $items[] = $action;
+        }
         if (!$active && ($action = $this->actionPresentation->rowAction(
             moduleCode: 'system.users',
             action: 'activate',

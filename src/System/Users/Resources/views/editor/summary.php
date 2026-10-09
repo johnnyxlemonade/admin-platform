@@ -10,7 +10,7 @@ use Lemonade\Framework\View\ViewHelpers;
 /**
  * @var ViewHelpers $helpers
  * @var View $this
- * @var array{id:int,first_name:string,last_name:string,active:int,created_at:string,last_login_at:string|null,roles:list<array{id:int,code:string,name:string,is_super_admin:int}>} $user
+ * @var array{id:int,first_name:string,last_name:string,active:int,mfa_active:int,created_at:string,last_login_at:string|null,roles:list<array{id:int,code:string,name:string,is_super_admin:int}>} $user
  * @var AdminThumbnail $thumbnail
  * @var AdminFileUploadCollection|null $avatarUpload
  */
@@ -37,6 +37,10 @@ $roleName = $user['roles'][0]['name'] ?? null;
         <div>
             <dt data-lemonade-i18n="users.editor.summary.last_login"><?= e($helpers->lang('users.editor.summary.last_login')) ?></dt>
             <dd><?php if ($lastLoginAt === null): ?><span data-lemonade-i18n="users.list.never_logged_in"><?= e($helpers->lang('users.list.never_logged_in')) ?></span><?php else: ?><time datetime="<?= e($lastLoginAt) ?>" data-lemonade-i18n-date><?= e($user['last_login_at']) ?></time><?php endif; ?></dd>
+        </div>
+        <div>
+            <dt data-lemonade-i18n="users.editor.summary.mfa"><?= e($helpers->lang('users.editor.summary.mfa')) ?></dt>
+            <dd data-lemonade-i18n="<?= e((int) $user['mfa_active'] === 1 ? 'users.editor.mfa_active' : 'users.editor.mfa_inactive') ?>"><?= e($helpers->lang((int) $user['mfa_active'] === 1 ? 'users.editor.mfa_active' : 'users.editor.mfa_inactive')) ?></dd>
         </div>
     </dl>
 </div>

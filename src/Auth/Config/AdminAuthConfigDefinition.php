@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Auth\Config;
 
+use Lemonade\Admin\Auth\Mfa\AdminMfaConfiguration;
 use Lemonade\Admin\Auth\Oidc\OidcProviderConfiguration;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 use Lemonade\Framework\Core\Config\Definition\AbstractConfigDefinition;
@@ -60,6 +61,23 @@ final class AdminAuthConfigDefinition extends AbstractConfigDefinition
             allowedIdTokenAlgorithms: $this->stringList($oidc, 'allowed_id_token_algorithms'),
             postLogoutRedirectUri: $postLogoutRedirectUri === '' ? $baseUrl . $routing->path('/login') : $postLogoutRedirectUri,
             defaultRole: $this->nullableString($oidc, 'default_role'),
+        );
+    }
+
+    /**
+     * Sestavi hostem deklarovanou local TOTP policy administrace
+     */
+    public function mfaConfiguration(): AdminMfaConfiguration
+    {
+        $mfa = $this->toArray()['mfa'] ?? [];
+        if (!is_array($mfa)) {
+            throw new \InvalidArgumentException('Admin auth MFA configuration must be a mapping.');
+        }
+
+        return new AdminMfaConfiguration(
+            localRequirement: $this->string($mfa, 'local_requirement', 'disabled'),
+            issuer: $this->nullableString($mfa, 'issuer'),
+            encryptionKey: $this->nullableString($mfa, 'encryption_key'),
         );
     }
 

@@ -10,8 +10,11 @@ use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Auth\CurrentUserProvider;
 use Lemonade\Admin\Auth\LocalAuthenticationProvider;
+use Lemonade\Admin\Auth\Mfa\MfaAuthenticationService;
+use Lemonade\Admin\Auth\Mfa\TotpCredentialService;
 use Lemonade\Admin\Authorization\AuthorizationDelegationPolicy;
 use Lemonade\Admin\Authorization\AuthorizationService;
+use Lemonade\Admin\Authorization\AuthorizationTargetPolicy;
 use Lemonade\Admin\Authorization\EffectivePermissionGroupViewModelFactory;
 use Lemonade\Admin\Authorization\PermissionDependencyResolver;
 use Lemonade\Admin\Authorization\PermissionOverrideNormalizer;
@@ -51,7 +54,30 @@ final class UserService
         private readonly EditorLockManager $locks,
         private readonly LocalActorGuard $actors,
         private readonly ExternalIdentityRepository $identities,
+        private readonly ?AuthorizationTargetPolicy $targets = null,
+        private readonly ?TotpCredentialService $mfaCredentials = null,
+        private readonly ?MfaAuthenticationService $mfa = null,
     ) {}
+
+    /**
+     * Zrusi TOTP credential ciloveho uzivatele po overeni cilove authorization policy
+     */
+    public function resetMfa(int $id, AuthenticatedUser $actor): bool
+    {
+        $target = $this->user($id);
+        $targetUser = new AuthenticatedUser((int) $target['id'], (string) $target['email']);
+        if ($this->targets === null || $this->mfaCredentials === null || $this->mfa === null || !$this->targets->canTargetUser($actor, $targetUser)) {
+            throw new UserSafetyException('users.validation.mfa_target_not_allowed');
+        }
+        if (!$this->mfaCredentials->hasActiveCredential($id)) {
+            return false;
+        }
+
+        $this->mfaCredentials->revoke($id);
+        $this->mfa->reset($actor->id(), $id);
+
+        return true;
+    }
 
     /**
      * Nacita uzivatele s jeho aktivnimi rolemi a informaci o externi identite
@@ -63,6 +89,7 @@ final class UserService
         $user = $this->user($id);
         $user['roles'] = $this->roles->rolesForUser($id);
         $user['has_external_identity'] = $this->identities->hasForUser($id) ? 1 : 0;
+        $user['mfa_active'] = $this->mfaCredentials?->hasActiveCredential($id) === true ? 1 : 0;
 
         return $user;
     }

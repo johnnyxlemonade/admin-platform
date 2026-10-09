@@ -21,6 +21,7 @@ use Lemonade\Admin\System\Users\Actions\UsersDeactivateAction;
 use Lemonade\Admin\System\Users\Actions\UsersDeleteAction;
 use Lemonade\Admin\System\Users\Actions\UsersEditorCreateAction;
 use Lemonade\Admin\System\Users\Actions\UsersEditorSaveAction;
+use Lemonade\Admin\System\Users\Actions\UsersMfaResetAction;
 use Lemonade\Admin\System\Users\Actions\UsersPermissionPreviewAction;
 use Lemonade\Admin\System\Users\Actions\UsersRestoreAction;
 use Lemonade\Admin\System\Users\Audit\UsersAuditPresentationRegistrar;
@@ -79,6 +80,7 @@ final class UsersModuleProvider implements ServiceProviderInterface
         $container->singleton(UsersDeactivateAction::class, UsersDeactivateAction::class);
         $container->singleton(UsersDeleteAction::class, UsersDeleteAction::class);
         $container->singleton(UsersRestoreAction::class, UsersRestoreAction::class);
+        $container->singleton(UsersMfaResetAction::class, UsersMfaResetAction::class);
         $container->singleton(UsersActionRegistrar::class, UsersActionRegistrar::class);
         $container->singleton(UsersAuditPresentationRegistrar::class, UsersAuditPresentationRegistrar::class);
         $container->transient(UniqueUserEmailRule::class, UniqueUserEmailRule::class);

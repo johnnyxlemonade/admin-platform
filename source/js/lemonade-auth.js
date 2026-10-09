@@ -12,6 +12,7 @@ import { Clock } from "./components/lemonade-clock.js";
 import { Dropdown } from "./components/lemonade-dropdown.js";
 import { I18n } from "./core/lemonade-i18n.js";
 import { Message } from "./components/lemonade-message.js";
+import { MfaQr } from "./components/lemonade-mfa-qr.js";
 import { PasswordToggle } from "./components/lemonade-password-toggle.js";
 import { Theme } from "./core/lemonade-theme.js";
     export class AuthLogin {
@@ -174,6 +175,7 @@ async function initializeAuth() {
         Message.init();
         Clock.initAll();
         PasswordToggle.initAll();
+        MfaQr.initAll();
         AuthLogin.initAll();
 }
 

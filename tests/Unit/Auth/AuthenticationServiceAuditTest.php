@@ -39,6 +39,29 @@ final class AuthenticationServiceAuditTest extends TestCase
         $this->authentication($session, $audit)->login(new AuthenticatedUser(42, 'admin@example.test'));
     }
 
+    public function testMfaFlowRegeneratesBeforePendingStateAndAgainBeforeAuthenticatedIdentity(): void
+    {
+        $session = new AuthenticationAuditMemorySession();
+        $audit = $this->createMock(AuditLogWriterInterface::class);
+        $audit->expects(self::once())->method('record')->willReturnCallback(
+            static function (DomainEvent $event) use ($session): void {
+                self::assertSame(['method' => 'local', 'mfa' => 'totp'], $event->payload());
+                self::assertSame(42, $session->get('admin.auth.user_id'));
+            },
+        );
+        $authentication = $this->authentication($session, $audit);
+
+        $authentication->beginMfaChallenge();
+        $session->set('admin.auth.mfa.challenge', ['userId' => 42]);
+        self::assertSame(1, $session->regenerationCount());
+        self::assertNull($session->get('admin.auth.user_id'));
+
+        $authentication->login(new AuthenticatedUser(42, 'admin@example.test'), true);
+
+        self::assertSame(2, $session->regenerationCount());
+        self::assertSame(42, $session->get('admin.auth.user_id'));
+    }
+
     public function testLogoutRecordsLocalActorBeforeClearingTheSession(): void
     {
         $session = new AuthenticationAuditMemorySession();
@@ -130,6 +153,8 @@ final class AuthenticationAuditMemorySession implements SessionInterface
     /** @var array<string, mixed> */
     private array $values = [];
 
+    private int $regenerations = 0;
+
     public function start(): void {}
 
     public function started(): bool
@@ -162,5 +187,14 @@ final class AuthenticationAuditMemorySession implements SessionInterface
         $this->values = [];
     }
 
-    public function regenerate(bool $deleteOldSession = true): void {}
+    public function regenerate(bool $deleteOldSession = true): void
+    {
+        unset($deleteOldSession);
+        $this->regenerations++;
+    }
+
+    public function regenerationCount(): int
+    {
+        return $this->regenerations;
+    }
 }

@@ -34,5 +34,9 @@ final class AuthenticationAuditPresentationRegistrar
             'auth.audit.events.logout',
             AdminIcon::BoxArrowRight,
         ));
+        $this->presentations->register(new AuditEventPresentation('system.authentication.mfa_enrolled', 'auth.audit.events.mfa_enrolled', AdminIcon::ShieldCheck));
+        $this->presentations->register(new AuditEventPresentation('system.authentication.mfa_disabled', 'auth.audit.events.mfa_disabled', AdminIcon::ShieldCheck));
+        $this->presentations->register(new AuditEventPresentation('system.authentication.mfa_reset', 'auth.audit.events.mfa_reset', AdminIcon::ShieldCheck));
+        $this->presentations->register(new AuditEventPresentation('system.authentication.mfa_challenge_failed', 'auth.audit.events.mfa_challenge_failed', AdminIcon::XCircle));
     }
 }

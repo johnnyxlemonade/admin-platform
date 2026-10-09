@@ -17,6 +17,14 @@
     line-height: 1.5;
 }
 
+.lemonade-auth .lm-auth-mfa-qr {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 0 16px;
+    border-radius: var(--lm-radius);
+}
+
 .lemonade-auth .lm-auth-form {
     display: flex;
     flex-direction: column;

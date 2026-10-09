@@ -6,6 +6,8 @@ namespace Lemonade\Admin\Auth\Http\Controller;
 
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\AuthPageRenderer;
+use Lemonade\Admin\Auth\Mfa\MfaAuthenticationService;
+use Lemonade\Admin\Auth\Mfa\MfaLoginChallengeStore;
 use Lemonade\Admin\Auth\Oidc\OidcAuthenticationService;
 use Lemonade\Admin\Auth\Oidc\OidcAuthorizationCallback;
 use Lemonade\Admin\Auth\Oidc\OidcLogoutService;
@@ -36,6 +38,8 @@ final class LoginController
      */
     public function __construct(
         private readonly AuthenticationService $authentication,
+        private readonly MfaAuthenticationService $mfa,
+        private readonly MfaLoginChallengeStore $mfaChallenges,
         private readonly AdminUiLocale $uiLocale,
         private readonly SessionInterface $session,
         private readonly CsrfViewHelper $csrf,
@@ -95,9 +99,24 @@ final class LoginController
             );
         }
 
-        $this->authentication->login($user);
-
         $redirect = AdminAuthenticationMiddleware::pullIntendedPath($this->session, $this->routing);
+        $requirement = $this->mfa->loginRequirement($user);
+        if ($requirement !== 'login') {
+            $this->authentication->beginMfaChallenge();
+            $this->mfaChallenges->begin($user->id(), $requirement === 'enroll' ? 'enroll' : 'verify', $redirect);
+
+            $mfaPath = $this->routing->path($requirement === 'enroll' ? '/login/mfa/enroll' : '/login/mfa');
+            if ($this->requests->wantsJson($request)) {
+                return $this->responses->json([
+                    'success' => true,
+                    'redirect' => $mfaPath,
+                ]);
+            }
+
+            return $this->responses->redirect($mfaPath);
+        }
+
+        $this->authentication->login($user);
 
         if ($this->requests->wantsJson($request)) {
             return $this->responses->json([

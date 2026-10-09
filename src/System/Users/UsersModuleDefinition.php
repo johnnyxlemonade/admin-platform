@@ -104,6 +104,13 @@ final readonly class UsersModuleDefinition implements AdminModuleDefinitionInter
                 delegation: PermissionDelegation::Normally,
                 requires: ['system.users.view'],
             ),
+            new PermissionDefinition(
+                code: 'system.users.mfa_reset',
+                moduleCode: $this->code(),
+                nameKey: 'users.permissions.mfa_reset',
+                delegation: PermissionDelegation::Normally,
+                requires: ['system.users.view'],
+            ),
         ];
     }
 }
