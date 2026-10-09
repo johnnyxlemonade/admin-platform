@@ -50,6 +50,7 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
         private ?string $unlockLabelKey = null,
         private ?self $markerField = null,
         private bool $multiple = false,
+        private bool $richText = false,
     ) {
         if (trim($name) === '') {
             throw new InvalidArgumentException('Field name must not be empty.');
@@ -407,6 +408,14 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
     }
 
     /**
+     * Rozhoduje, zda textarea pouziva sdileny rich text editor
+     */
+    public function isRichText(): bool
+    {
+        return $this->richText;
+    }
+
+    /**
      * Zpracovava hodnotu value v konfiguraci editoru
      */
     public function value(mixed $value): self
@@ -480,6 +489,18 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
         }
 
         return $this->copy(multiple: $value);
+    }
+
+    /**
+     * Oznaci textarea pro sdilenou rich text prezentaci
+     */
+    public function richText(bool $value = true): self
+    {
+        if ($this->type !== 'textarea') {
+            throw new InvalidArgumentException('Only textarea fields may be rich text.');
+        }
+
+        return $this->copy(richText: $value);
     }
 
     /**
@@ -611,6 +632,7 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
             $changes['unlockLabelKey'] ?? $this->unlockLabelKey,
             $changes['markerField'] ?? $this->markerField,
             $changes['multiple'] ?? $this->multiple,
+            $changes['richText'] ?? $this->richText,
         );
     }
 }

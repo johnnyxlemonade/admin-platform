@@ -93,7 +93,9 @@ final class AdminEditorFieldRenderer
             return '<div class="form-check' . ($field->type() === 'toggle' ? ' form-switch' : '') . '"><input class="' . $class . '" type="checkbox" value="1"' . $common . $checked . '></div>' . $preservedValue;
         }
         if ($field->type() === 'textarea') {
-            return '<textarea class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . $this->placeholder($field) . '>' . $this->escape($this->stringValue($value)) . '</textarea>';
+            $richText = $field->isRichText() ? ' data-lemonade-admin-rich-text' : '';
+
+            return '<textarea class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . $richText . $this->placeholder($field) . '>' . $this->escape($this->stringValue($value)) . '</textarea>';
         }
         if ($field->type() === 'select') {
             $selectedValues = $field->isMultiple() ? $this->multipleValues($value) : [];
