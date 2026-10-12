@@ -15,6 +15,8 @@ use Lemonade\Admin\Modules\Manifest\ModuleManifestInterface;
 use Lemonade\Admin\Notification\AdminNotificationServiceProvider;
 use Lemonade\Admin\System\SystemModuleServiceProvider;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
+use Lemonade\Framework\Container\ContainerInterface;
+use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DefinitionServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
@@ -22,8 +24,16 @@ use Lemonade\Framework\Core\ServiceProviderInterface;
 /**
  * Bootuje objevene moduly podle jejich manifestu a lifecycle stavu
  */
-final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderInterface, DependentServiceProviderInterface
+final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
+    /** @var list<BootableServiceProviderInterface> */
+    private array $bootableProviders = [];
+
+    /**
+     * Nastavuje katalog manifestu pro jeden application bootstrap
+     */
+    public function __construct(private readonly ModuleCatalog $catalog) {}
+
     /**
      * Uvadi Admin providery, ktere pripravuji registry pred bootstrapem modulu
      *
@@ -49,8 +59,18 @@ final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderI
      */
     public function register(ContainerBuilderInterface $builder): void
     {
-        foreach ($builder->get(ModuleCatalog::class)->load() as $manifest) {
+        foreach ($this->catalog->load() as $manifest) {
             $this->registerProvider($builder, $manifest);
+        }
+    }
+
+    /**
+     * Spousti runtime contributions bootable manifestovych provideru po container freeze
+     */
+    public function boot(ContainerInterface $container): void
+    {
+        foreach ($this->bootableProviders as $provider) {
+            $provider->boot($container);
         }
     }
 
@@ -72,5 +92,9 @@ final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderI
         }
 
         $provider->register($builder);
+
+        if ($provider instanceof BootableServiceProviderInterface) {
+            $this->bootableProviders[] = $provider;
+        }
     }
 }

@@ -16,6 +16,7 @@ use Lemonade\Admin\Identity\CoreIdentityServiceProvider;
 use Lemonade\Admin\Install\AdminInstallationServiceProvider;
 use Lemonade\Admin\Install\DatabaseConfigurationValidator;
 use Lemonade\Admin\Module\AdminModuleTransportServiceProvider;
+use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\CoreModuleServiceProvider;
 use Lemonade\Admin\Modules\ModuleBootstrapServiceProvider;
 use Lemonade\Admin\Notification\AdminNotificationServiceProvider;
@@ -34,14 +35,19 @@ use Lemonade\Admin\Platform\Migrations\CreateCoreUserTotp;
 use Lemonade\Admin\Presentation\AdminPresentationServiceProvider;
 use Lemonade\Admin\System\SystemModuleServiceProvider;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
+use Lemonade\Framework\Container\ContainerInterface;
+use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Database\Migration\MigrationRegistry;
+use LogicException;
 
 /**
  * Sklada internu infrastrukturu budouciho Admin package
  */
-final class AdminPackageServiceProvider implements ServiceProviderInterface
+final class AdminPackageServiceProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
+    private ?ModuleBootstrapServiceProvider $moduleBootstrap = null;
+
     /**
      * Registruje Admin capability, jejich Core podpory a manifestove moduly ve stabilnim poradi
      */
@@ -65,8 +71,21 @@ final class AdminPackageServiceProvider implements ServiceProviderInterface
         (new AdminInstallationServiceProvider())->register($container);
         (new AdminAuthServiceProvider())->register($container);
         (new SystemModuleServiceProvider())->register($container);
-        (new ModuleBootstrapServiceProvider())->register($container);
+        $this->moduleBootstrap = new ModuleBootstrapServiceProvider($container->get(ModuleCatalog::class));
+        $this->moduleBootstrap->register($container);
         (new DashboardAuditServiceProvider())->register($container);
+    }
+
+    /**
+     * Dokonci runtime contributions manifestovych modulu po framework container freeze
+     */
+    public function boot(ContainerInterface $container): void
+    {
+        if ($this->moduleBootstrap === null) {
+            throw new LogicException('Admin package module bootstrap must register before booting.');
+        }
+
+        $this->moduleBootstrap->boot($container);
     }
 
     /**
