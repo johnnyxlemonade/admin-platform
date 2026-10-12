@@ -15,7 +15,6 @@ final class LanguageEditorDraftTest extends TestCase
             'id' => null,
             'code' => '',
             'name' => '',
-            'flag_code' => '',
             'enabled' => 0,
             'is_default' => 0,
             'sort_order' => 0,

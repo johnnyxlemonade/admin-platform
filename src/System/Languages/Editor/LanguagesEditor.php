@@ -43,7 +43,6 @@ final class LanguagesEditor implements EditorProviderInterface
             fields: [
                 new EditorFieldDefinition(name: 'code', type: 'text', readOnly: false, permission: null),
                 new EditorFieldDefinition(name: 'name', type: 'text', readOnly: false, permission: null),
-                new EditorFieldDefinition(name: 'flag_code', type: 'text', readOnly: false, permission: null),
                 new EditorFieldDefinition(name: 'enabled', type: 'boolean', readOnly: true, permission: null),
                 new EditorFieldDefinition(name: 'sort_order', type: 'number', readOnly: false, permission: null),
             ],
@@ -101,7 +100,6 @@ final class LanguagesEditor implements EditorProviderInterface
             $this->languages->update(
                 $id,
                 trim((string) $data['name']),
-                (string) $data['flag_code'],
                 (int) $data['sort_order'],
             );
         } catch (LocalActorRequiredException $exception) {
@@ -128,7 +126,6 @@ final class LanguagesEditor implements EditorProviderInterface
             $languageId = $this->languages->create(
                 trim((string) $data['code']),
                 trim((string) $data['name']),
-                (string) $data['flag_code'],
                 false,
                 (int) $data['sort_order'],
             );

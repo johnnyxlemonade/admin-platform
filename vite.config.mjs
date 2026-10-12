@@ -8,14 +8,10 @@ const distributionPath = packagePath("src/Resources/public");
 const copyStaticAssets = () => {
     rmSync(packagePath("src/Resources/public/images"), { recursive: true, force: true });
     rmSync(packagePath("src/Resources/public/js/core"), { recursive: true, force: true });
-    rmSync(packagePath("src/Resources/public/fonts"), { recursive: true, force: true });
     cpSync(packagePath("source/images"), packagePath("src/Resources/public/images"), { recursive: true });
     mkdirSync(packagePath("src/Resources/public/js/core"), { recursive: true });
     copyFileSync(packagePath("source/js/core/lemonade-theme-init.js"), packagePath("src/Resources/public/js/core/lemonade-theme-init.js"));
     copyFileSync(packagePath("source/js/core/lemonade-sidebar-init.js"), packagePath("src/Resources/public/js/core/lemonade-sidebar-init.js"));
-    mkdirSync(packagePath("src/Resources/public/fonts/flags"), { recursive: true });
-    copyFileSync(packagePath("node_modules/country-flag-emoji-polyfill/dist/TwemojiCountryFlags.woff2"), packagePath("src/Resources/public/fonts/flags/TwemojiCountryFlags.woff2"));
-    copyFileSync(packagePath("source/fonts/flags/TwemojiCountryFlags.LICENSE.txt"), packagePath("src/Resources/public/fonts/flags/TwemojiCountryFlags.LICENSE.txt"));
 };
 
 export default defineConfig(({ mode }) => ({

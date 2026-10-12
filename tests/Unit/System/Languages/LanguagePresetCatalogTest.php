@@ -24,9 +24,6 @@ final class LanguagePresetCatalogTest extends TestCase
             self::assertMatchesRegularExpression('/\\A[a-z]{2}\\z/D', $preset->code());
             self::assertNotSame('', trim($preset->displayName()));
             self::assertNotSame('', trim($preset->nativeName()));
-            self::assertTrue(
-                $preset->flagCode() === null || preg_match('/\\A[A-Z]{2}\\z/D', $preset->flagCode()) === 1,
-            );
         }
     }
 
@@ -39,8 +36,6 @@ final class LanguagePresetCatalogTest extends TestCase
 
         self::assertCount(184, $values);
         self::assertSame('čeština', $values['cs']['name']);
-        self::assertSame('CZ', $values['cs']['flagCode']);
-        self::assertNull($values['zh']['flagCode']);
     }
 
     /**

@@ -1028,13 +1028,6 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                         }
                     }
                 }
-                if (part.flag) {
-                    const flag = document.createElement("span");
-                    flag.className = "admin-country-flag me-2";
-                    flag.setAttribute("aria-hidden", "true");
-                    flag.textContent = part.flag;
-                    cell.appendChild(flag);
-                }
                 if (part.type === "status") { element.className = `badge ${part.class || ""}`; element.textContent = `● ${part.value || ""}`; }
                 else { element.textContent = part.value || ""; }
                 if (part.translationKey) { element.setAttribute("data-lemonade-i18n", part.translationKey); }

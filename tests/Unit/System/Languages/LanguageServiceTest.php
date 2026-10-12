@@ -37,7 +37,6 @@ final class LanguageServiceTest extends TestCase
                 'id' => 4,
                 'code' => 'cs',
                 'name' => 'Čeština',
-                'flag_code' => 'CZ',
                 'enabled' => 1,
                 'is_default' => 1,
                 'sort_order' => 10,
@@ -49,7 +48,7 @@ final class LanguageServiceTest extends TestCase
             $this->localActorGuard(),
         );
 
-        $service->update(4, 'Čeština', 'cz', 10);
+        $service->update(4, 'Čeština', 10);
 
         self::assertCount(1, $queries);
         self::assertStringContainsString('SELECT', $queries[0]['sql']);
@@ -79,7 +78,7 @@ final class LanguageServiceTest extends TestCase
         );
 
         try {
-            $service->create('CS', 'Czech', 'CZ', false, 0);
+            $service->create('CS', 'Czech', false, 0);
             self::fail('An existing code must be rejected before persistence.');
         } catch (RuntimeException $exception) {
             self::assertSame('languages.validation.code_taken', $exception->getMessage());

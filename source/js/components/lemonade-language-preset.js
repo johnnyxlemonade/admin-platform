@@ -32,7 +32,6 @@ class LanguagePreset {
         const form = this.element.form;
         this.setFieldValue(form, "code", this.element.value);
         this.setFieldValue(form, "name", preset.name);
-        this.setFieldValue(form, "flag_code", preset.flagCode || "");
     }
 
     setFieldValue(form, fieldName, value) {

@@ -31,11 +31,10 @@ final class LanguagesAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame('text', $fields['code']->type());
         self::assertTrue($fields['code']->isRequired());
         self::assertSame('number', $fields['sort_order']->type());
-        self::assertSame('text', $fields['flag_code']->type());
         self::assertSame([
             ['preset' => 12],
             ['name' => 12],
-            ['code' => 4, 'flag_code' => 4, 'sort_order' => 4],
+            ['code' => 6, 'sort_order' => 6],
         ], $this->modalLayoutRows($editor));
     }
 
@@ -59,7 +58,7 @@ final class LanguagesAdminEditorDefinitionFactoryTest extends TestCase
         self::assertArrayNotHasKey('native_name', $fields);
         self::assertSame([
             ['name' => 12],
-            ['code' => 4, 'flag_code' => 4, 'enabled' => 4],
+            ['code' => 6, 'enabled' => 6],
             ['sort_order' => 4],
         ], $this->modalLayoutRows($editor));
         self::assertTrue($fields['code']->isReadonly());
@@ -117,7 +116,6 @@ final class LanguagesAdminEditorDefinitionFactoryTest extends TestCase
             id: 7,
             code: 'cs',
             name: 'Čeština',
-            flagCode: 'CZ',
             enabled: $enabled,
             default: true,
             sortOrder: 0,

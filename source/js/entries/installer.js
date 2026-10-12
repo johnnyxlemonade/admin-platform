@@ -9,6 +9,5 @@
  * @license   Apache-2.0 - see LICENSE
  */
 import "../../scss/install.scss";
-import "../core/lemonade-country-flags.js";
 import "../pages/lemonade-install.js";
 import "../lemonade-auth.js";

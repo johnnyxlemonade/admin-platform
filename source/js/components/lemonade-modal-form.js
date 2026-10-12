@@ -129,7 +129,6 @@ import { destroyComponents, mountComponents } from "../lemonade-admin-components
             DomHelper.queryAll("[data-lemonade-action]", this.content).forEach(function (action) {
                 action.setAttribute("data-lemonade-defer-success-feedback", "");
             });
-            this.initializeCountryFlagPreviews();
         }
 
         static bindContentForms() {
@@ -187,23 +186,6 @@ import { destroyComponents, mountComponents } from "../lemonade-admin-components
 
             this.modal.close({ reason: "navigation" });
             await this.closing;
-        }
-
-        static initializeCountryFlagPreviews() {
-            DomHelper.queryAll("[data-lemonade-country-flag-input]", this.content).forEach(function (input) {
-                const preview = document.createElement("span");
-                preview.className = "admin-country-flag ms-2";
-                preview.setAttribute("aria-hidden", "true");
-                input.insertAdjacentElement("afterend", preview);
-                const render = function () {
-                    const value = String(input.value || "").trim().toUpperCase();
-                    preview.textContent = /^[A-Z]{2}$/.test(value)
-                        ? String.fromCodePoint(0x1F1E6 + value.charCodeAt(0) - 65, 0x1F1E6 + value.charCodeAt(1) - 65)
-                        : "";
-                };
-                EventHelper.on(input, "input", render);
-                render();
-            });
         }
 
         static showError(response) {

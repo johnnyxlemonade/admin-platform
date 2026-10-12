@@ -38,7 +38,6 @@ final class CreateCoreLanguages implements MigrationInterface
             $table->id()->comment('Interni identifikator jazyka');
             $table->string('code', 35)->unique()->comment('Stabilni kod jazyka');
             $table->string('name', 100)->comment('Nazev jazyka v administraci');
-            $table->string('flag_code', 2)->comment('ISO 3166-1 alpha-2 kod vlajky jazyka');
             $table->boolean('enabled')->comment('Urcuje dostupnost jazyka');
             $table->boolean('is_default')->comment('Urcuje vychozi jazyk systemu');
             $table->integer('sort_order')->comment('Poradi jazyka v seznamech');
@@ -51,8 +50,8 @@ final class CreateCoreLanguages implements MigrationInterface
 
         $now = date('Y-m-d H:i:s');
         $this->database->query(
-            'INSERT IGNORE INTO system_language (code,name,flag_code,enabled,is_default,sort_order,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)',
-            ['cs', 'Čeština', 'CZ', 1, 1, 0, $now, $now],
+            'INSERT IGNORE INTO system_language (code,name,enabled,is_default,sort_order,created_at,updated_at) VALUES (?,?,?,?,?,?,?)',
+            ['cs', 'Čeština', 1, 1, 0, $now, $now],
         );
     }
 }

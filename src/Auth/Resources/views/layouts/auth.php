@@ -96,14 +96,12 @@ $currentDateTime = date(DATE_ATOM);
                         </div>
                         <div class="lemonade-auth-language" aria-label="<?= e($helpers->lang($localeLabelKey)) ?>" data-lemonade-i18n-aria-label="<?= e($localeLabelKey) ?>">
                             <button type="button" data-lemonade-locale-option="cs" data-lemonade-intl-locale="cs-CZ">
-                                <span class="lm-locale-flag lm-locale-flag--cs" aria-hidden="true"></span>
                                 <span class="lm-locale-label" data-lemonade-i18n="<?= e($localeCzechKey) ?>"><?= e($helpers->lang($localeCzechKey)) ?></span>
                                 <span class="lm-locale-check" data-lemonade-locale-active hidden>
                                     <i class="<?= e(AdminIcon::CheckLg->cssClass()) ?>" aria-hidden="true"></i>
                                 </span>
                             </button>
                             <button type="button" data-lemonade-locale-option="en" data-lemonade-intl-locale="en-GB">
-                                <span class="lm-locale-flag lm-locale-flag--en" aria-hidden="true"></span>
                                 <span class="lm-locale-label" data-lemonade-i18n="<?= e($localeEnglishKey) ?>"><?= e($helpers->lang($localeEnglishKey)) ?></span>
                                 <span class="lm-locale-check" data-lemonade-locale-active hidden>
                                     <i class="<?= e(AdminIcon::CheckLg->cssClass()) ?>" aria-hidden="true"></i>

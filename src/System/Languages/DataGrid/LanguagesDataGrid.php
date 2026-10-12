@@ -9,8 +9,7 @@ use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionDefinition;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionKind;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionPlacement;
-use Lemonade\Admin\DataGrid\Cell\FlagCell;
-use Lemonade\Admin\DataGrid\Cell\FlagLinkCell;
+use Lemonade\Admin\DataGrid\Cell\LinkCell;
 use Lemonade\Admin\DataGrid\Cell\ScalarCell;
 use Lemonade\Admin\DataGrid\Cell\StatusCell;
 use Lemonade\Admin\DataGrid\Cell\StatusVariant;
@@ -136,7 +135,7 @@ final class LanguagesDataGrid implements DataGridProviderInterface
     /**
      * Sestavuje radek a neautoritativni viditelnost akci podle stavu a opravneni
      *
-     * @param array{id:int,code:string,name:string,flag_code:string,enabled:int,is_default:int,sort_order:int} $language
+     * @param array{id:int,code:string,name:string,enabled:int,is_default:int,sort_order:int} $language
      */
     private function row(array $language): DataGridRowDefinition
     {
@@ -200,17 +199,13 @@ final class LanguagesDataGrid implements DataGridProviderInterface
             id: $language['id'],
             cells: [
                 'name' => $canEdit
-                    ? new FlagLinkCell(
+                    ? new LinkCell(
                         value: $language['name'],
                         url: '#',
-                        flagCode: $language['flag_code'],
                         modalUrl: $modalUrl,
                         modalSize: 'medium',
                     )
-                    : new FlagCell(
-                        value: $language['name'],
-                        flagCode: $language['flag_code'],
-                    ),
+                    : new ScalarCell(value: $language['name']),
                 'code' => new ScalarCell(value: $language['code']),
                 'default' => $isDefault
                         ? new StatusCell(

@@ -109,12 +109,11 @@ final class LanguagesDataGridActionsContractTest extends TestCase
         );
 
         self::assertSame([], $withoutEditPermission['actions']);
-        self::assertSame('flag', $withoutEditPermission['cells']['name'][0]['type']);
-        self::assertArrayNotHasKey('modalUrl', $withoutEditPermission['cells']['name'][0]);
+        self::assertSame('English', $withoutEditPermission['cells']['name']);
     }
 
     /**
-     * @param array{id:int,code:string,name:string,flag_code:string,enabled:int,is_default:int,sort_order:int} $language
+     * @param array{id:int,code:string,name:string,enabled:int,is_default:int,sort_order:int} $language
      * @param list<string> $availableActions
      * @return list<array<string, mixed>>
      */
@@ -124,7 +123,7 @@ final class LanguagesDataGridActionsContractTest extends TestCase
     }
 
     /**
-     * @param array{id:int,code:string,name:string,flag_code:string,enabled:int,is_default:int,sort_order:int} $language
+     * @param array{id:int,code:string,name:string,enabled:int,is_default:int,sort_order:int} $language
      * @param list<string> $availableActions
      * @return array<string, mixed>
      */
@@ -145,14 +144,13 @@ final class LanguagesDataGridActionsContractTest extends TestCase
         return $serialized;
     }
 
-    /** @return array{id:int,code:string,name:string,flag_code:string,enabled:int,is_default:int,sort_order:int} */
+    /** @return array{id:int,code:string,name:string,enabled:int,is_default:int,sort_order:int} */
     private function language(bool $enabled, bool $isDefault): array
     {
         return [
             'id' => 15,
             'code' => 'en',
             'name' => 'English',
-            'flag_code' => 'GB',
             'enabled' => $enabled ? 1 : 0,
             'is_default' => $isDefault ? 1 : 0,
             'sort_order' => 1,

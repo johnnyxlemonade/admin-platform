@@ -21,12 +21,12 @@ final class LanguageModel extends Model
     /**
      * @var list<string>
      */
-    protected array $allowedFields = ['code', 'name', 'flag_code', 'enabled', 'is_default', 'sort_order'];
+    protected array $allowedFields = ['code', 'name', 'enabled', 'is_default', 'sort_order'];
 
     /**
      * Mapuje DataGrid dotaz na vyhledavani, filtr stavu a stabilni razeni jazyku
      *
-     * @return QueryPage<array{id:int,code:string,name:string,flag_code:string,enabled:int,is_default:int,sort_order:int}>
+     * @return QueryPage<array{id:int,code:string,name:string,enabled:int,is_default:int,sort_order:int}>
      */
     public function listForDataGrid(DataGridQuery $query): QueryPage
     {
@@ -34,10 +34,10 @@ final class LanguageModel extends Model
         $sorts = ['name' => 'name', 'code' => 'code', 'default' => 'is_default', 'status' => 'enabled', 'sortOrder' => 'sort_order'];
         $direction = $query->sortDirection() === 'desc' ? 'DESC' : 'ASC';
         /**
-         * @var list<array{id:int,code:string,name:string,flag_code:string,enabled:int,is_default:int,sort_order:int}> $data
+         * @var list<array{id:int,code:string,name:string,enabled:int,is_default:int,sort_order:int}> $data
          */
         $data = $filtered
-            ->select(['id', 'code', 'name', 'flag_code', 'enabled', 'is_default', 'sort_order'])
+            ->select(['id', 'code', 'name', 'enabled', 'is_default', 'sort_order'])
             ->orderBy($sorts[$query->sortKey()], $direction)
             ->orderBy('code', 'ASC')
             ->limit($query->pageSize(), ($query->page() - 1) * $query->pageSize())
@@ -55,7 +55,7 @@ final class LanguageModel extends Model
          * @var array<string, mixed>|null $language
          */
         $language = $this->query()
-            ->select(['id', 'code', 'name', 'flag_code', 'enabled', 'is_default', 'sort_order'])
+            ->select(['id', 'code', 'name', 'enabled', 'is_default', 'sort_order'])
             ->where('id', $id)
             ->first();
 
@@ -83,14 +83,14 @@ final class LanguageModel extends Model
     /**
      * Vytvari jazyk bez vychoziho priznaknu, ktery urcuje samostatna service operace
      */
-    public function createLanguage(string $code, string $name, string $flagCode, bool $enabled, int $sortOrder): int
+    public function createLanguage(string $code, string $name, bool $enabled, int $sortOrder): int
     {
-        return (int) $this->insert(['code' => $code, 'name' => $name, 'flag_code' => $flagCode, 'enabled' => $enabled ? 1 : 0, 'is_default' => 0, 'sort_order' => $sortOrder]);
+        return (int) $this->insert(['code' => $code, 'name' => $name, 'enabled' => $enabled ? 1 : 0, 'is_default' => 0, 'sort_order' => $sortOrder]);
     }
 
-    public function updateLanguage(int $id, string $name, string $flagCode, int $sortOrder): void
+    public function updateLanguage(int $id, string $name, int $sortOrder): void
     {
-        $this->update($id, ['name' => $name, 'flag_code' => $flagCode, 'sort_order' => $sortOrder]);
+        $this->update($id, ['name' => $name, 'sort_order' => $sortOrder]);
     }
 
     public function updateEnabled(int $id, bool $enabled): void

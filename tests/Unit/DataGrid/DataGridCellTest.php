@@ -9,8 +9,6 @@ use Lemonade\Admin\DataGrid\Cell\CodeCell;
 use Lemonade\Admin\DataGrid\Cell\DataGridCell;
 use Lemonade\Admin\DataGrid\Cell\DataGridCellSerializer;
 use Lemonade\Admin\DataGrid\Cell\DateTimeCell;
-use Lemonade\Admin\DataGrid\Cell\FlagCell;
-use Lemonade\Admin\DataGrid\Cell\FlagLinkCell;
 use Lemonade\Admin\DataGrid\Cell\LinkCell;
 use Lemonade\Admin\DataGrid\Cell\ScalarCell;
 use Lemonade\Admin\DataGrid\Cell\StackedCell;
@@ -32,9 +30,7 @@ final class DataGridCellTest extends TestCase
         yield 'scalar text' => [new ScalarCell('Plain text'), 'Plain text'];
         yield 'scalar number' => [new ScalarCell(12), 12];
         yield 'link' => [new LinkCell('Edit', '/admin/items/edit/1'), [['type' => 'link', 'value' => 'Edit', 'url' => '/admin/items/edit/1']]];
-        yield 'modal link with flag' => [new FlagLinkCell('Czech', '#', 'CZ', '/admin/languages/edit/1/modal'), [['type' => 'link', 'value' => 'Czech', 'url' => '#', 'flag' => '🇨🇿', 'modalUrl' => '/admin/languages/edit/1/modal']]];
         yield 'modal link with explicit size' => [new LinkCell('Edit', '#', '/admin/languages/edit/1/modal', 'large'), [['type' => 'link', 'value' => 'Edit', 'url' => '#', 'modalUrl' => '/admin/languages/edit/1/modal', 'modalSize' => 'large']]];
-        yield 'flag' => [new FlagCell('Czech', 'CZ'), [['type' => 'flag', 'value' => 'Czech', 'flag' => '🇨🇿']]];
         yield 'code' => [new CodeCell('system.news'), [['type' => 'code', 'value' => 'system.news']]];
         yield 'plain status' => [new StatusCell('Enabled', StatusVariant::Success), [['type' => 'status', 'value' => 'Enabled', 'class' => 'status-success']]];
         yield 'translated status' => [new StatusCell('Inactive', StatusVariant::Muted, 'users.status.inactive'), [['type' => 'status', 'value' => 'Inactive', 'class' => 'status-muted', 'translationKey' => 'users.status.inactive']]];

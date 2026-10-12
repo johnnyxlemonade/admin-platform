@@ -14,7 +14,7 @@ final class DataGridCellSerializer
     /**
      * Prevede typed bunku na hodnotu pro DataGrid JSON transport
      *
-     * @return string|int|list<array{type:string,value:string,url?:string|null,download?:bool,modalUrl?:string|null,modalSize?:string|null,flag?:string,class?:string,translationKey?:string,secondary?:string,thumbnail?:array{url:string|null,alt:string,fallback:string|null,size:string,shape:string}}>
+     * @return string|int|list<array{type:string,value:string,url?:string|null,download?:bool,modalUrl?:string|null,modalSize?:string|null,class?:string,translationKey?:string,secondary?:string,thumbnail?:array{url:string|null,alt:string,fallback:string|null,size:string,shape:string}}>
      */
     public static function serialize(DataGridCell $cell): string|int|array
     {
@@ -29,20 +29,6 @@ final class DataGridCellSerializer
                     $presentation['modalSize'] = $cell->modalSize();
                 }
             }
-            return [$presentation];
-        }
-        if ($cell instanceof FlagCell) {
-            return [['type' => 'flag', 'value' => $cell->value(), 'flag' => $cell->flag()]];
-        }
-        if ($cell instanceof FlagLinkCell) {
-            $presentation = ['type' => 'link', 'value' => $cell->value(), 'url' => $cell->url(), 'flag' => $cell->flag()];
-            if ($cell->modalUrl() !== null) {
-                $presentation['modalUrl'] = $cell->modalUrl();
-                if ($cell->modalSize() !== null) {
-                    $presentation['modalSize'] = $cell->modalSize();
-                }
-            }
-
             return [$presentation];
         }
         if ($cell instanceof CodeCell) {

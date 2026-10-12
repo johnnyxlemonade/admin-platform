@@ -19,7 +19,6 @@ $titleKey = $completed ? 'auth.mfa.success_title' : ($enrolling && $active ? 'au
 ?>
 <header class="lm-modal-header lm-mfa-modal-header">
     <div class="lm-mfa-modal-title"><span class="lm-mfa-modal-title-icon"><i class="<?= e(($completed ? AdminIcon::CheckCircle : AdminIcon::ShieldLock)->cssClass()) ?>" aria-hidden="true"></i></span><h2 data-lemonade-modal-title data-lemonade-i18n="<?= e($titleKey) ?>"><?= e($helpers->lang($titleKey)) ?></h2></div>
-    <button class="lm-modal-close" type="button" data-lemonade-modal-close="cancel" aria-label="<?= e($helpers->lang('auth.common.close')) ?>" data-lemonade-i18n-aria-label="auth.common.close"><i class="<?= e(AdminIcon::XLg->cssClass()) ?>" aria-hidden="true"></i></button>
 </header>
 
 <?php if ($completed): ?>

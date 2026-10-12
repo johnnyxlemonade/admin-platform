@@ -18,7 +18,6 @@ final readonly class LanguagePreset
         private string $code,
         private string $displayName,
         private string $nativeName,
-        private ?string $flagCode,
     ) {
         if (preg_match('/\\A[a-z]{2}\\z/D', $code) !== 1) {
             throw new InvalidArgumentException('Language preset code must be an ISO 639-1 code.');
@@ -28,9 +27,6 @@ final readonly class LanguagePreset
             throw new InvalidArgumentException('Language preset names must not be empty.');
         }
 
-        if ($flagCode !== null && preg_match('/\\A[A-Z]{2}\\z/D', $flagCode) !== 1) {
-            throw new InvalidArgumentException('Language preset flag code must be an ISO 3166-1 alpha-2 code.');
-        }
     }
 
     /**
@@ -55,13 +51,5 @@ final readonly class LanguagePreset
     public function nativeName(): string
     {
         return $this->nativeName;
-    }
-
-    /**
-     * Vraci nepovinny ISO 3166-1 kod vychozi prezentacni vlajky
-     */
-    public function flagCode(): ?string
-    {
-        return $this->flagCode;
     }
 }

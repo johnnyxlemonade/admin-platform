@@ -13,7 +13,6 @@ final class LanguageRecord
         private readonly int $id,
         private readonly string $code,
         private readonly string $name,
-        private readonly string $flagCode,
         private readonly bool $enabled,
         private readonly bool $default,
         private readonly int $sortOrder,
@@ -30,7 +29,6 @@ final class LanguageRecord
             id: (int) $row['id'],
             code: (string) $row['code'],
             name: (string) $row['name'],
-            flagCode: (string) $row['flag_code'],
             enabled: (int) $row['enabled'] === 1,
             default: (int) $row['is_default'] === 1,
             sortOrder: (int) $row['sort_order'],
@@ -50,11 +48,6 @@ final class LanguageRecord
     public function name(): string
     {
         return $this->name;
-    }
-
-    public function flagCode(): string
-    {
-        return $this->flagCode;
     }
 
     public function enabled(): bool

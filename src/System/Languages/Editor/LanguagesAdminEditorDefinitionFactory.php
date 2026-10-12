@@ -67,14 +67,13 @@ final class LanguagesAdminEditorDefinitionFactory
                     AdminEditorFieldDefinition::text('code', labelKey: 'languages.fields.code')
                         ->required()
                         ->attributes(['maxlength' => '35']),
-                    md: 4,
+                    md: 6,
                 ),
-                new FieldColumn($this->flagCodeField(), md: 4),
                 new FieldColumn(
                     AdminEditorFieldDefinition::number('sort_order', labelKey: 'languages.fields.sort_order')
                         ->required()
                         ->attributes(['step' => '1']),
-                    md: 4,
+                    md: 6,
                 ),
             ]))
             ->build();
@@ -116,9 +115,8 @@ final class LanguagesAdminEditorDefinitionFactory
                     AdminEditorFieldDefinition::text('code', labelKey: 'languages.fields.code')
                         ->readonly()
                         ->help('', 'languages.editor.code_read_only'),
-                    md: 4,
+                    md: 6,
                 ),
-                new FieldColumn($this->flagCodeField(), md: 4),
                 new FieldColumn(
                     AdminEditorFieldDefinition::statusDisplay(
                         name: 'enabled',
@@ -127,7 +125,7 @@ final class LanguagesAdminEditorDefinitionFactory
                     )
                         ->displayValueKey($isEnabled ? 'languages.list.enabled' : 'languages.list.disabled')
                         ->help('', 'languages.editor.enabled_read_only'),
-                    md: 4,
+                    md: 6,
                 ),
             ]))
             ->block(new FieldGroupBlock([
@@ -139,20 +137,5 @@ final class LanguagesAdminEditorDefinitionFactory
                 ),
             ]))
             ->build();
-    }
-
-    /**
-     * Definuje vstup kodu vlajky pouzivany v create i edit formulari
-     */
-    private function flagCodeField(): AdminEditorFieldDefinition
-    {
-        return AdminEditorFieldDefinition::text('flag_code', labelKey: 'languages.fields.flag_code')
-            ->required()
-            ->attributes([
-                'maxlength' => '2',
-                'autocomplete' => 'off',
-                'autocapitalize' => 'characters',
-                'data-lemonade-country-flag-input' => true,
-            ]);
     }
 }

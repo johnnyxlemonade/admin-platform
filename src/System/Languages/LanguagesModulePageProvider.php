@@ -143,7 +143,7 @@ final class LanguagesModulePageProvider implements ModuleIndexPageProviderInterf
     /**
      * Prevadi read model na hodnoty ocekavane modalnim editorem
      *
-     * @return array{id:int,code:string,name:string,flag_code:string,enabled:int,is_default:int,sort_order:int}
+     * @return array{id:int,code:string,name:string,enabled:int,is_default:int,sort_order:int}
      */
     private function values(LanguageRecord $language): array
     {
@@ -151,7 +151,6 @@ final class LanguagesModulePageProvider implements ModuleIndexPageProviderInterf
             'id' => $language->id(),
             'code' => $language->code(),
             'name' => $language->name(),
-            'flag_code' => $language->flagCode(),
             'enabled' => $language->enabled() ? 1 : 0,
             'is_default' => $language->isDefault() ? 1 : 0,
             'sort_order' => $language->sortOrder(),

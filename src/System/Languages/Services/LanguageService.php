@@ -10,7 +10,6 @@ use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\TransactionalEventCollector;
 use Lemonade\Admin\Event\TransactionalEventProcessor;
-use Lemonade\Admin\Flag\AdminCountryFlag;
 use Lemonade\Admin\Identity\LocalActorGuard;
 use Lemonade\Admin\System\Languages\Models\LanguageModel;
 use Lemonade\Admin\System\Languages\Models\LanguageRecord;
@@ -47,18 +46,17 @@ final class LanguageService
     /**
      * Vytvari jazyk s jedinecnym business klicem code a overuje default invariant
      */
-    public function create(string $code, string $name, string $flagCode, bool $enabled, int $sortOrder): int
+    public function create(string $code, string $name, bool $enabled, int $sortOrder): int
     {
         $actor = $this->actor();
         $code = LanguageModel::normalizeCode($code);
-        $flagCode = AdminCountryFlag::from(strtoupper(trim($flagCode)))->countryCode();
         if ($code === '' || $this->languages->codeExists($code)) {
             throw new RuntimeException('languages.validation.code_taken');
         }
 
         try {
-            return $this->events->execute(new AuditOperation('system.languages', 'languages.editor.create', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($code, $name, $flagCode, $enabled, $sortOrder): int {
-                $id = $this->languages->createLanguage($code, $name, $flagCode, $enabled, $sortOrder);
+            return $this->events->execute(new AuditOperation('system.languages', 'languages.editor.create', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($code, $name, $enabled, $sortOrder): int {
+                $id = $this->languages->createLanguage($code, $name, $enabled, $sortOrder);
                 $this->assertEnabledDefaultExists();
                 $events->record(new DomainEvent('system.languages.created', 'system.languages', 'language', (string) $id, ['code' => $code, 'name' => $name]));
 
@@ -74,19 +72,15 @@ final class LanguageService
     }
 
     /**
-     * Uklada pouze jmeno, vlajku a poradi bez zmeny code nebo stavu
+     * Uklada pouze jmeno a poradi bez zmeny code nebo stavu
      */
-    public function update(int $id, string $name, string $flagCode, int $sortOrder): void
+    public function update(int $id, string $name, int $sortOrder): void
     {
         $actor = $this->actor();
         $language = $this->detail($id);
-        $flagCode = AdminCountryFlag::from(strtoupper(trim($flagCode)))->countryCode();
         $changes = [];
         if ($language->name() !== $name) {
             $changes['name'] = $name;
-        }
-        if ($language->flagCode() !== $flagCode) {
-            $changes['flag_code'] = $flagCode;
         }
         if ($language->sortOrder() !== $sortOrder) {
             $changes['sort_order'] = $sortOrder;
@@ -95,8 +89,8 @@ final class LanguageService
             return;
         }
 
-        $this->events->execute(new AuditOperation('system.languages', 'languages.editor.save', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $name, $flagCode, $sortOrder, $changes, $language): void {
-            $this->languages->updateLanguage($id, $name, $flagCode, $sortOrder);
+        $this->events->execute(new AuditOperation('system.languages', 'languages.editor.save', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $name, $sortOrder, $changes, $language): void {
+            $this->languages->updateLanguage($id, $name, $sortOrder);
             $this->assertEnabledDefaultExists();
             $events->record(new DomainEvent(
                 'system.languages.updated',

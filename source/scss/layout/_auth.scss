@@ -253,24 +253,6 @@ main.lemonade-auth {
     color: var(--lm-text);
 }
 
-.lemonade-auth-language .lm-locale-flag {
-    display: block;
-    flex: 0 0 20px;
-    width: 20px;
-    height: 14px;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-}
-
-.lemonade-auth-language .lm-locale-flag--cs {
-    background-image: url("../../images/locale/cs.svg?no-inline");
-}
-
-.lemonade-auth-language .lm-locale-flag--en {
-    background-image: url("../../images/locale/en.svg?no-inline");
-}
-
 .lemonade-auth-language .lm-locale-label {
     flex: 0 0 42px;
     width: 42px;
