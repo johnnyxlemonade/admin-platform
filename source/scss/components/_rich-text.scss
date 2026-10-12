@@ -25,6 +25,83 @@
     outline-offset: -2px;
 }
 
+[data-bs-theme="dark"] .admin-shell .trumbowyg-box {
+    border-color: var(--lm-form-border);
+    background: var(--lm-surface);
+    color: var(--lm-text-control);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane {
+    border-bottom-color: var(--lm-form-border);
+    background: var(--lm-surface-soft);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane::before,
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane::after,
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane .trumbowyg-button-group::after {
+    background: var(--lm-form-border);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane button {
+    color: var(--lm-text-muted);
+    background: transparent;
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane button svg,
+[data-bs-theme="dark"] .admin-shell .trumbowyg-dropdown button svg {
+    color: inherit;
+    fill: currentColor;
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane button:not(.trumbowyg-disable):focus,
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane button:not(.trumbowyg-disable):hover {
+    color: var(--lm-text-control);
+    background: var(--lm-surface-hover);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane button:focus-visible {
+    box-shadow: var(--lm-focus-shadow);
+    outline: 0;
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane button.trumbowyg-active,
+[data-bs-theme="dark"] .admin-shell .trumbowyg-dropdown button.trumbowyg-active {
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-button-pane .trumbowyg-open-dropdown::after {
+    border-top-color: var(--lm-text-muted);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-editor-box {
+    border: 0;
+    background: var(--lm-surface);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-dropdown {
+    border-color: var(--lm-form-border);
+    background: var(--lm-surface);
+    color: var(--lm-text-control);
+    box-shadow: var(--lm-shadow-lg);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-dropdown button {
+    color: var(--lm-text-control);
+    background: var(--lm-surface);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-dropdown button:not(.trumbowyg-active):focus,
+[data-bs-theme="dark"] .admin-shell .trumbowyg-dropdown button:not(.trumbowyg-active):hover {
+    color: var(--lm-text-control);
+    background: var(--lm-surface-hover);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-dropdown button:focus-visible {
+    box-shadow: var(--lm-focus-shadow);
+    outline: 0;
+}
+
 .admin-shell .trumbowyg-editor {
     min-height: 16rem;
     padding: var(--lm-space-5);
@@ -219,4 +296,14 @@
 .admin-shell .trumbowyg-box:focus-within {
     border-color: var(--lm-primary);
     box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--lm-primary) 20%, transparent);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-editor {
+    color: var(--lm-text-control);
+    background: var(--lm-surface);
+}
+
+[data-bs-theme="dark"] .admin-shell .trumbowyg-box:focus-within {
+    border-color: var(--lm-form-border-focus);
+    box-shadow: var(--lm-focus-shadow);
 }
