@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Audit;
 
 use Lemonade\Admin\Event\DomainEventDispatcher;
-use Lemonade\Admin\Event\TransactionalEventProcessor;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 
@@ -20,8 +19,6 @@ final class CoreAuditEventServiceProvider implements ServiceProviderInterface
     public function register(ContainerBuilderInterface $container): void
     {
         $container->singleton(DomainEventDispatcher::class, DomainEventDispatcher::class);
-        $container->singleton(AuditLogService::class, AuditLogService::class);
-        $container->singleton(AuditLogWriterInterface::class, AuditLogService::class);
-        $container->singleton(TransactionalEventProcessor::class, TransactionalEventProcessor::class);
+        $container->transient(AuditLogWriterInterface::class, AuditLogService::class);
     }
 }

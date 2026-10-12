@@ -10,8 +10,6 @@ use Lemonade\Admin\Auth\Config\AdminAuthConfigDefinition;
 use Lemonade\Admin\Auth\LocalAuthenticationProvider;
 use Lemonade\Admin\Auth\Oidc\Contract\OidcJwksProviderInterface;
 use Lemonade\Admin\Auth\Oidc\Contract\OpenIdConnectClientInterface;
-use Lemonade\Admin\Auth\Oidc\OidcIdTokenVerifier;
-use Lemonade\Admin\Auth\Oidc\OidcMetadataDiscovery;
 use Lemonade\Admin\Auth\Oidc\OidcProviderConfiguration;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 use Lemonade\Framework\Container\Container;
@@ -36,12 +34,10 @@ final class AdminAuthRuntimeServiceProviderTest extends TestCase
 
         (new AdminAuthRuntimeServiceProvider())->register($container);
 
-        self::assertTrue($container->isBound(LocalAuthenticationProvider::class));
+        self::assertFalse($container->isBound(LocalAuthenticationProvider::class));
         self::assertTrue($container->isBound(GuzzleClientInterface::class));
         self::assertTrue($container->isBound(PsrHttpClientInterface::class));
-        self::assertTrue($container->isBound(OidcMetadataDiscovery::class));
         self::assertTrue($container->isBound(OidcJwksProviderInterface::class));
-        self::assertTrue($container->isBound(OidcIdTokenVerifier::class));
         self::assertTrue($container->isBound(OpenIdConnectClientInterface::class));
         self::assertTrue($container->isBound(OidcProviderConfiguration::class));
         self::assertSame('host-provider', $container->get(OidcProviderConfiguration::class)->provider());

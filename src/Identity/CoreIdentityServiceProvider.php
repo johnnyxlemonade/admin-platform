@@ -15,9 +15,5 @@ final class CoreIdentityServiceProvider implements ServiceProviderInterface
     /**
      * Zapisuje sluzby pro localni a externi application identity
      */
-    public function register(ContainerBuilderInterface $container): void
-    {
-        $container->singleton(LocalActorGuard::class, LocalActorGuard::class);
-        $container->singleton(ExternalIdentityRepository::class, ExternalIdentityRepository::class);
-    }
+    public function register(ContainerBuilderInterface $container): void {}
 }

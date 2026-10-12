@@ -11,6 +11,7 @@ use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
+use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
@@ -19,7 +20,7 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje lifecycle instalace administrace, jeji UI a HTTP endpointy
  */
-final class AdminInstallationServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface
+final class AdminInstallationServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Urcuje sdilenou infrastrukturu potrebnou pro instalacni lifecycle
@@ -36,13 +37,18 @@ final class AdminInstallationServiceProvider implements ServiceProviderInterface
      */
     public function register(ContainerBuilderInterface $container): void
     {
-        $container->singleton(InstallationService::class, InstallationService::class);
-        $container->singleton(
+        $container->transient(
             InstallationStateInterface::class,
             static fn(ContainerInterface $container): InstallationService => $container->get(InstallationService::class),
         );
         $container->scoped(InstallController::class, InstallController::class);
-        $container->singleton(InstallRouteRegistrar::class, InstallRouteRegistrar::class);
+    }
+
+    /**
+     * Registruje instalacni runtime contributions po container freeze
+     */
+    public function boot(ContainerInterface $container): void
+    {
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(InstallRouteRegistrar::class));
 
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'admin.install');

@@ -18,14 +18,12 @@ use Lemonade\Admin\System\Languages\Actions\LanguagesSetDefaultAction;
 use Lemonade\Admin\System\Languages\Actions\LanguagesSetEnabledAction;
 use Lemonade\Admin\System\Languages\Audit\LanguagesAuditPresentationRegistrar;
 use Lemonade\Admin\System\Languages\DataGrid\LanguagesDataGrid;
-use Lemonade\Admin\System\Languages\Editor\LanguagesAdminEditorDefinitionFactory;
 use Lemonade\Admin\System\Languages\Editor\LanguagesEditor;
-use Lemonade\Admin\System\Languages\Editor\LanguagesEditorValidationSchema;
 use Lemonade\Admin\System\Languages\Migrations\RegisterLanguagesModule;
-use Lemonade\Admin\System\Languages\Models\LanguageModel;
 use Lemonade\Admin\System\Languages\Services\LanguageService;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
+use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
@@ -34,25 +32,13 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje Languages capability vcetne editoru, akci a DataGridu
  */
-final class LanguagesModuleProvider implements ServiceProviderInterface
+final class LanguagesModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Zapojuje runtime sluzby a registruje modulove prispevky pred container freeze boundary
      */
     public function register(ContainerBuilderInterface $container): void
     {
-        $definition = new LanguagesModuleDefinition();
-        $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.languages');
-        $container->get(ViewResourceRegistry::class)->register('languages', __DIR__ . '/Resources/views');
-        $container->get(ClientTranslationGroupRegistry::class)->register('languages');
-        $container->singleton(LanguageModel::class, LanguageModel::class);
-        $container->singleton(LanguageService::class, LanguageService::class);
-        $container->singleton(LanguagesDataGrid::class, LanguagesDataGrid::class);
-        $container->singleton(LanguagesEditorValidationSchema::class, LanguagesEditorValidationSchema::class);
-        $container->singleton(LanguagesEditor::class, LanguagesEditor::class);
-        $container->singleton(LanguagesAdminEditorDefinitionFactory::class, LanguagesAdminEditorDefinitionFactory::class);
-        $container->singleton(LanguagesModulePageProvider::class, LanguagesModulePageProvider::class);
-        $container->singleton(LanguagesSetDefaultAction::class, LanguagesSetDefaultAction::class);
         $container->singleton('languages.enable.action', static fn(ContainerInterface $container): LanguagesSetEnabledAction => new LanguagesSetEnabledAction($container->get(LanguageService::class), true));
         $container->singleton('languages.disable.action', static fn(ContainerInterface $container): LanguagesSetEnabledAction => new LanguagesSetEnabledAction($container->get(LanguageService::class), false));
         $container->singleton(LanguagesActionRegistrar::class, static fn(ContainerInterface $container): LanguagesActionRegistrar => new LanguagesActionRegistrar(
@@ -62,7 +48,17 @@ final class LanguagesModuleProvider implements ServiceProviderInterface
             $container->get('languages.disable.action'),
             $container->get(LanguagesSetDefaultAction::class),
         ));
-        $container->singleton(LanguagesAuditPresentationRegistrar::class, LanguagesAuditPresentationRegistrar::class);
+    }
+
+    /**
+     * Pripoji Languages resources a registry contributions po container freeze
+     */
+    public function boot(ContainerInterface $container): void
+    {
+        $definition = new LanguagesModuleDefinition();
+        $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.languages');
+        $container->get(ViewResourceRegistry::class)->register('languages', __DIR__ . '/Resources/views');
+        $container->get(ClientTranslationGroupRegistry::class)->register('languages');
         $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(DataGridRegistry::class)->register($definition->code(), $container->get(LanguagesDataGrid::class));

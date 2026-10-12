@@ -17,16 +17,14 @@ use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Modules\Actions\ModulesActionRegistrar;
-use Lemonade\Admin\System\Modules\Actions\ModulesDisableAction;
-use Lemonade\Admin\System\Modules\Actions\ModulesEnableAction;
-use Lemonade\Admin\System\Modules\Actions\ModulesFeatureToggleAction;
-use Lemonade\Admin\System\Modules\Actions\ModulesInstallAction;
 use Lemonade\Admin\System\Modules\Dashboard\ModulesDashboardWidgetProvider;
 use Lemonade\Admin\System\Modules\DataGrid\ModulesDataGrid;
 use Lemonade\Admin\System\Modules\Http\Controller\ModulesFeaturesController;
 use Lemonade\Admin\System\Modules\Migrations\RegisterModulesModule;
 use Lemonade\Admin\System\Modules\Routing\ModulesRouteRegistrar;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
+use Lemonade\Framework\Container\ContainerInterface;
+use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
@@ -35,28 +33,27 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje Admin management contribution nad sdilenym module runtime
  */
-final class ModulesModuleProvider implements ServiceProviderInterface
+final class ModulesModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Zapojuje DataGrid, action transport, presentation a route contributions pred container freeze boundary
      */
     public function register(ContainerBuilderInterface $container): void
     {
+        $container->scoped(ModulesFeaturesController::class, ModulesFeaturesController::class);
+        $container->transient(ModulesDashboardWidgetProvider::class, ModulesDashboardWidgetProvider::class);
+        $container->tag(ModulesDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
+    }
+
+    /**
+     * Pripoji Modules resources a registry contributions po container freeze
+     */
+    public function boot(ContainerInterface $container): void
+    {
         $definition = new ModulesModuleDefinition();
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.modules');
         $container->get(ViewResourceRegistry::class)->register('modules', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('modules');
-        $container->singleton(ModulesDataGrid::class, ModulesDataGrid::class);
-        $container->singleton(ModulesModulePageProvider::class, ModulesModulePageProvider::class);
-        $container->singletonTagged(ModulesDashboardWidgetProvider::class, ModulesDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
-        $container->singleton(ModulesInstallAction::class, ModulesInstallAction::class);
-        $container->singleton(ModulesEnableAction::class, ModulesEnableAction::class);
-        $container->singleton(ModulesDisableAction::class, ModulesDisableAction::class);
-        $container->singleton(ModulesFeatureToggleAction::class, ModulesFeatureToggleAction::class);
-        $container->singleton(ModulesActionRegistrar::class, ModulesActionRegistrar::class);
-        $container->singleton(ModulesFeaturesPageProvider::class, ModulesFeaturesPageProvider::class);
-        $container->scoped(ModulesFeaturesController::class, ModulesFeaturesController::class);
-        $container->singleton(ModulesRouteRegistrar::class, ModulesRouteRegistrar::class);
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(ModulesRouteRegistrar::class));
         $container->get(ModuleRegistry::class)->register($definition);
         $audit = $container->get(AuditEventPresentationRegistry::class);

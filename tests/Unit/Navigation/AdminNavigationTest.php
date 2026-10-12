@@ -158,7 +158,9 @@ final class AdminNavigationTest extends TestCase
         $container = new Container();
         $container->singleton(AdminNavigationGroupRegistry::class, AdminNavigationGroupRegistry::class);
 
-        (new SystemModuleServiceProvider())->register($container);
+        $provider = new SystemModuleServiceProvider();
+        $provider->register($container);
+        $provider->boot($container);
         $groups = $container->get(AdminNavigationGroupRegistry::class);
         self::assertInstanceOf(AdminNavigationGroupRegistry::class, $groups);
         $definition = $groups->definition('system');

@@ -9,13 +9,15 @@ use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Navigation\AdminNavigationGroupDefinition;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
+use Lemonade\Framework\Container\ContainerInterface;
+use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 
 /**
  * Registruje sdilene navigation skupiny builtin a content modulu
  */
-final class SystemModuleServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface
+final class SystemModuleServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Urcuje registry potrebne pro skupiny systemove navigace
@@ -28,9 +30,14 @@ final class SystemModuleServiceProvider implements ServiceProviderInterface, Dep
     }
 
     /**
-     * Zapisuje skupiny navigace pouzivane systemovymi a obsahovymi moduly
+     * Zapisuje definice sdilenych navigation skupin
      */
-    public function register(ContainerBuilderInterface $container): void
+    public function register(ContainerBuilderInterface $container): void {}
+
+    /**
+     * Registruje navigation skupiny pouzivane systemovymi a obsahovymi moduly po container freeze
+     */
+    public function boot(ContainerInterface $container): void
     {
         $container->get(AdminNavigationGroupRegistry::class)->register(
             new AdminNavigationGroupDefinition('system', 'admin.navigation.system', 50, AdminIcon::Gear),

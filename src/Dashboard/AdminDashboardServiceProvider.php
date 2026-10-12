@@ -8,12 +8,12 @@ use Lemonade\Admin\AdminServiceProvider;
 use Lemonade\Admin\Dashboard\Contract\DashboardWidgetProviderInterface;
 use Lemonade\Admin\Dashboard\Http\Controller\DashboardApiController;
 use Lemonade\Admin\Dashboard\Http\Controller\DashboardController;
-use Lemonade\Admin\Dashboard\Models\DashboardWidgetPreferenceModel;
 use Lemonade\Admin\Dashboard\Routing\DashboardRouteRegistrar;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Container\TaggedServicesInterface;
+use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use RuntimeException;
@@ -21,7 +21,7 @@ use RuntimeException;
 /**
  * Registruje dashboardovou capability a jeji tagged widget composition
  */
-final class AdminDashboardServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface
+final class AdminDashboardServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Urcuje sdilenou infrastrukturu potrebnou pro dashboard
@@ -66,13 +66,15 @@ final class AdminDashboardServiceProvider implements ServiceProviderInterface, D
                 return new DashboardWidgetRegistry($providers());
             },
         );
-        $container->singleton(DashboardWidgetAccessPolicy::class, DashboardWidgetAccessPolicy::class);
-        $container->singleton(DashboardWidgetPreferenceModel::class, DashboardWidgetPreferenceModel::class);
-        $container->singleton(DashboardLayoutService::class, DashboardLayoutService::class);
-        $container->singleton(DashboardWidgetApiService::class, DashboardWidgetApiService::class);
         $container->scoped(DashboardController::class, DashboardController::class);
         $container->scoped(DashboardApiController::class, DashboardApiController::class);
-        $container->singleton(DashboardRouteRegistrar::class, DashboardRouteRegistrar::class);
+    }
+
+    /**
+     * Registruje dashboardovou routu po container freeze
+     */
+    public function boot(ContainerInterface $container): void
+    {
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(DashboardRouteRegistrar::class));
     }
 }

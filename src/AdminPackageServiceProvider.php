@@ -14,7 +14,6 @@ use Lemonade\Admin\Dashboard\Audit\DashboardAuditServiceProvider;
 use Lemonade\Admin\Editor\AdminEditorServiceProvider;
 use Lemonade\Admin\Identity\CoreIdentityServiceProvider;
 use Lemonade\Admin\Install\AdminInstallationServiceProvider;
-use Lemonade\Admin\Install\DatabaseConfigurationValidator;
 use Lemonade\Admin\Module\AdminModuleTransportServiceProvider;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\CoreModuleServiceProvider;
@@ -46,6 +45,9 @@ use LogicException;
  */
 final class AdminPackageServiceProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
+    /** @var list<BootableServiceProviderInterface> */
+    private array $bootableProviders = [];
+
     private ?ModuleBootstrapServiceProvider $moduleBootstrap = null;
 
     /**
@@ -53,27 +55,26 @@ final class AdminPackageServiceProvider implements ServiceProviderInterface, Boo
      */
     public function register(ContainerBuilderInterface $container): void
     {
-        (new CoreIdentityServiceProvider())->register($container);
-        (new CoreAuditEventServiceProvider())->register($container);
-        (new CoreModuleServiceProvider())->register($container);
-        (new CoreAuthorizationServiceProvider())->register($container);
-        $container->singleton(DatabaseConfigurationValidator::class, DatabaseConfigurationValidator::class);
-        $this->registerPlatformMigrations($container->get(MigrationRegistry::class));
-        (new AdminCmsServiceProvider())->register($container);
-        (new AdminAuthRuntimeServiceProvider())->register($container);
+        $this->registerProvider(new CoreIdentityServiceProvider(), $container);
+        $this->registerProvider(new CoreAuditEventServiceProvider(), $container);
+        $this->registerProvider(new CoreModuleServiceProvider(), $container);
+        $this->registerProvider(new CoreAuthorizationServiceProvider(), $container);
+        $this->registerProvider(new AdminCmsServiceProvider(), $container);
+        $this->registerProvider(new AdminAuthRuntimeServiceProvider(), $container);
 
-        (new AdminServiceProvider())->register($container);
-        (new AdminPresentationServiceProvider())->register($container);
-        (new AdminModuleTransportServiceProvider())->register($container);
-        (new AdminEditorServiceProvider())->register($container);
-        (new AdminDashboardServiceProvider())->register($container);
-        (new AdminNotificationServiceProvider())->register($container);
-        (new AdminInstallationServiceProvider())->register($container);
-        (new AdminAuthServiceProvider())->register($container);
-        (new SystemModuleServiceProvider())->register($container);
+        $this->registerProvider(new AdminServiceProvider(), $container);
+        $this->registerProvider(new AdminPresentationServiceProvider(), $container);
+        $this->registerProvider(new AdminModuleTransportServiceProvider(), $container);
+        $this->registerProvider(new AdminEditorServiceProvider(), $container);
+        $this->registerProvider(new AdminDashboardServiceProvider(), $container);
+        $this->registerProvider(new AdminNotificationServiceProvider(), $container);
+        $this->registerProvider(new AdminInstallationServiceProvider(), $container);
+        $this->registerProvider(new AdminAuthServiceProvider(), $container);
+        $this->registerProvider(new SystemModuleServiceProvider(), $container);
         $this->moduleBootstrap = new ModuleBootstrapServiceProvider($container->get(ModuleCatalog::class));
         $this->moduleBootstrap->register($container);
-        (new DashboardAuditServiceProvider())->register($container);
+        $this->bootableProviders[] = $this->moduleBootstrap;
+        $this->registerProvider(new DashboardAuditServiceProvider(), $container);
     }
 
     /**
@@ -85,7 +86,11 @@ final class AdminPackageServiceProvider implements ServiceProviderInterface, Boo
             throw new LogicException('Admin package module bootstrap must register before booting.');
         }
 
-        $this->moduleBootstrap->boot($container);
+        foreach ($this->bootableProviders as $provider) {
+            $provider->boot($container);
+        }
+
+        $this->registerPlatformMigrations($container->get(MigrationRegistry::class));
     }
 
     /**
@@ -105,5 +110,17 @@ final class AdminPackageServiceProvider implements ServiceProviderInterface, Boo
         $migrations->register(CreateCoreEditorLocks::class);
         $migrations->register(CreateCoreFiles::class);
         $migrations->register(CreateCoreTranslationOverrides::class);
+    }
+
+    /**
+     * Registruje interne skladany provider a uchova jeho boot lifecycle ve stabilnim poradi.
+     */
+    private function registerProvider(ServiceProviderInterface $provider, ContainerBuilderInterface $container): void
+    {
+        $provider->register($container);
+
+        if ($provider instanceof BootableServiceProviderInterface) {
+            $this->bootableProviders[] = $provider;
+        }
     }
 }

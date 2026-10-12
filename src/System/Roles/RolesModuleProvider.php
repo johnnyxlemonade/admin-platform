@@ -12,18 +12,14 @@ use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Roles\Actions\RolesActionRegistrar;
-use Lemonade\Admin\System\Roles\Actions\RolesDeleteAction;
-use Lemonade\Admin\System\Roles\Actions\RolesRestoreAction;
 use Lemonade\Admin\System\Roles\Audit\RolesAuditPresentationRegistrar;
 use Lemonade\Admin\System\Roles\DataGrid\RolesDataGrid;
-use Lemonade\Admin\System\Roles\Editor\RolesAdminEditorDefinitionFactory;
 use Lemonade\Admin\System\Roles\Editor\RolesEditor;
-use Lemonade\Admin\System\Roles\Editor\RolesEditorValidationSchema;
 use Lemonade\Admin\System\Roles\Migrations\RegisterRolesModule;
-use Lemonade\Admin\System\Roles\Models\RoleModel;
-use Lemonade\Admin\System\Roles\Services\RoleService;
 use Lemonade\Admin\System\Roles\Validation\RolePermissionsRule;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
+use Lemonade\Framework\Container\ContainerInterface;
+use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
@@ -33,29 +29,22 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje runtime contributions modulu roli do shared Admin registry
  */
-final class RolesModuleProvider implements ServiceProviderInterface
+final class RolesModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Pripoji sluzby, presentation registry, zdroje a migraci modulu roli
      */
-    public function register(ContainerBuilderInterface $container): void
+    public function register(ContainerBuilderInterface $container): void {}
+
+    /**
+     * Pripoji Roles resources a registry contributions po container freeze
+     */
+    public function boot(ContainerInterface $container): void
     {
         $definition = new RolesModuleDefinition();
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.roles');
         $container->get(ViewResourceRegistry::class)->register('roles', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('roles');
-        $container->singleton(RoleModel::class, RoleModel::class);
-        $container->singleton(RoleService::class, RoleService::class);
-        $container->singleton(RolesDataGrid::class, RolesDataGrid::class);
-        $container->singleton(RolesEditorValidationSchema::class, RolesEditorValidationSchema::class);
-        $container->singleton(RolesEditor::class, RolesEditor::class);
-        $container->singleton(RolesAdminEditorDefinitionFactory::class, RolesAdminEditorDefinitionFactory::class);
-        $container->singleton(RolesModulePageProvider::class, RolesModulePageProvider::class);
-        $container->singleton(RolesDeleteAction::class, RolesDeleteAction::class);
-        $container->singleton(RolesRestoreAction::class, RolesRestoreAction::class);
-        $container->singleton(RolesActionRegistrar::class, RolesActionRegistrar::class);
-        $container->singleton(RolesAuditPresentationRegistrar::class, RolesAuditPresentationRegistrar::class);
-        $container->transient(RolePermissionsRule::class, RolePermissionsRule::class);
         $container->get(ModuleRegistry::class)->register($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(AdminModuleRegistry::class)->register($definition);

@@ -15,8 +15,9 @@ use Lemonade\Admin\System\Media\DataGrid\MediaDataGrid;
 use Lemonade\Admin\System\Media\Http\Controller\MediaDownloadController;
 use Lemonade\Admin\System\Media\Migrations\RegisterMediaModule;
 use Lemonade\Admin\System\Media\Routing\MediaRouteRegistrar;
-use Lemonade\Admin\System\Media\Services\MediaService;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
+use Lemonade\Framework\Container\ContainerInterface;
+use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
@@ -24,21 +25,24 @@ use Lemonade\Framework\Localization\TranslationResourceRegistry;
 /**
  * Registruje tenkou Admin presentation vrstvu nad shared system_file contractem
  */
-final class MediaModuleProvider implements ServiceProviderInterface
+final class MediaModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Pripojuje read-only definici, grid, preklady a registracni migraci
      */
     public function register(ContainerBuilderInterface $container): void
     {
+        $container->scoped(MediaDownloadController::class, MediaDownloadController::class);
+    }
+
+    /**
+     * Pripoji Media resources a registry contributions po container freeze
+     */
+    public function boot(ContainerInterface $container): void
+    {
         $definition = new MediaModuleDefinition();
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.media');
         $container->get(ClientTranslationGroupRegistry::class)->register('media');
-        $container->singleton(MediaService::class, MediaService::class);
-        $container->singleton(MediaDataGrid::class, MediaDataGrid::class);
-        $container->scoped(MediaDownloadController::class, MediaDownloadController::class);
-        $container->singleton(MediaRouteRegistrar::class, MediaRouteRegistrar::class);
-        $container->singleton(MediaModulePageProvider::class, MediaModulePageProvider::class);
         $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());

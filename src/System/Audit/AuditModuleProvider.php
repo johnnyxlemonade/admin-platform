@@ -18,6 +18,7 @@ use Lemonade\Admin\System\Audit\Migrations\RegisterAuditModule;
 use Lemonade\Admin\System\Audit\Models\AuditLogModel;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
+use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
@@ -26,24 +27,29 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje read-only auditni modul, jeho DataGrid a dashboardove widgety
  */
-final class AuditModuleProvider implements ServiceProviderInterface
+final class AuditModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Registruje sluzby, grid a widgety modulu auditu
      */
     public function register(ContainerBuilderInterface $container): void
     {
+        $container->singleton(PersonalLoginAuditReaderInterface::class, static fn(ContainerInterface $container): AuditLogModel => $container->get(AuditLogModel::class));
+        $container->transient(AuditDashboardWidgetProvider::class, AuditDashboardWidgetProvider::class);
+        $container->tag(AuditDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
+        $container->transient(MyLoginsDashboardWidgetProvider::class, MyLoginsDashboardWidgetProvider::class);
+        $container->tag(MyLoginsDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
+    }
+
+    /**
+     * Pripoji auditni resources a registry contributions po container freeze
+     */
+    public function boot(ContainerInterface $container): void
+    {
         $definition = new AuditModuleDefinition();
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.audit');
         $container->get(ViewResourceRegistry::class)->register('audit', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('audit');
-        $container->singleton(AuditLogModel::class, AuditLogModel::class);
-        $container->singleton(PersonalLoginAuditReaderInterface::class, static fn(ContainerInterface $container): AuditLogModel => $container->get(AuditLogModel::class));
-        $container->singleton(AuditEventPresenter::class, AuditEventPresenter::class);
-        $container->singleton(AuditDataGrid::class, AuditDataGrid::class);
-        $container->singletonTagged(AuditDashboardWidgetProvider::class, AuditDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
-        $container->singletonTagged(MyLoginsDashboardWidgetProvider::class, MyLoginsDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
-        $container->singleton(AuditModulePageProvider::class, AuditModulePageProvider::class);
         $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(DataGridRegistry::class)->register($definition->code(), $container->get(AuditDataGrid::class));

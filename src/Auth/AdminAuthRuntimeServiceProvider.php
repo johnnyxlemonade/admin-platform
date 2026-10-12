@@ -13,8 +13,6 @@ use Lemonade\Admin\Auth\Oidc\Contract\OidcJwksProviderInterface;
 use Lemonade\Admin\Auth\Oidc\Contract\OpenIdConnectClientInterface;
 use Lemonade\Admin\Auth\Oidc\HttpOidcJwksProvider;
 use Lemonade\Admin\Auth\Oidc\LeagueOpenIdConnectClient;
-use Lemonade\Admin\Auth\Oidc\OidcIdTokenVerifier;
-use Lemonade\Admin\Auth\Oidc\OidcMetadataDiscovery;
 use Lemonade\Admin\Auth\Oidc\OidcProviderConfiguration;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
@@ -37,15 +35,9 @@ final class AdminAuthRuntimeServiceProvider implements ServiceProviderInterface
      */
     public function register(ContainerBuilderInterface $container): void
     {
-        $container->singleton(
-            OidcProviderConfiguration::class,
-            $this->oidcConfiguration($container),
-        );
-        $container->singleton(
-            AdminMfaConfiguration::class,
-            $this->mfaConfiguration($container),
-        );
-        $container->singleton(
+        $container->singleton(OidcProviderConfiguration::class, fn(ContainerInterface $container): OidcProviderConfiguration => $this->oidcConfiguration($container));
+        $container->transient(AdminMfaConfiguration::class, fn(ContainerInterface $container): AdminMfaConfiguration => $this->mfaConfiguration($container));
+        $container->transient(
             MfaSecretCipher::class,
             static fn(ContainerInterface $container): MfaSecretCipher => new MfaSecretCipher(
                 $container->get(AdminMfaConfiguration::class)->enabled()
@@ -53,22 +45,16 @@ final class AdminAuthRuntimeServiceProvider implements ServiceProviderInterface
                     : hash('sha256', 'disabled-admin-mfa-cipher', true),
             ),
         );
-        $container->singleton(LocalAuthenticationProvider::class, LocalAuthenticationProvider::class);
-        $container->singleton(Client::class, Client::class);
-        $container->singleton(GuzzleClientInterface::class, static fn(ContainerInterface $container): Client => $container->get(Client::class));
-        $container->singleton(PsrHttpClientInterface::class, static fn(ContainerInterface $container): Client => $container->get(Client::class));
-        $container->singleton(OidcMetadataDiscovery::class, OidcMetadataDiscovery::class);
-        $container->singleton(HttpOidcJwksProvider::class, HttpOidcJwksProvider::class);
+        $container->transient(GuzzleClientInterface::class, Client::class);
+        $container->transient(PsrHttpClientInterface::class, Client::class);
         $container->singleton(OidcJwksProviderInterface::class, HttpOidcJwksProvider::class);
-        $container->singleton(OidcIdTokenVerifier::class, OidcIdTokenVerifier::class);
-        $container->singleton(LeagueOpenIdConnectClient::class, LeagueOpenIdConnectClient::class);
-        $container->singleton(OpenIdConnectClientInterface::class, LeagueOpenIdConnectClient::class);
+        $container->transient(OpenIdConnectClientInterface::class, LeagueOpenIdConnectClient::class);
     }
 
     /**
      * Vrati jedinou hostem deklarovanou nebo vypnutou vychozi OIDC konfiguraci
      */
-    private function oidcConfiguration(ContainerBuilderInterface $container): OidcProviderConfiguration
+    private function oidcConfiguration(ContainerInterface $container): OidcProviderConfiguration
     {
         $definitions = $container->get(ConfigDefinitionRegistry::class)->typedEntriesFor(
             AdminAuthConfigDefinition::moduleKey(),
@@ -86,7 +72,7 @@ final class AdminAuthRuntimeServiceProvider implements ServiceProviderInterface
     /**
      * Vrati jedinou hostem deklarovanou local MFA konfiguraci
      */
-    private function mfaConfiguration(ContainerBuilderInterface $container): AdminMfaConfiguration
+    private function mfaConfiguration(ContainerInterface $container): AdminMfaConfiguration
     {
         $definitions = $container->get(ConfigDefinitionRegistry::class)->typedEntriesFor(
             AdminAuthConfigDefinition::moduleKey(),
