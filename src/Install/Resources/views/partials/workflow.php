@@ -42,7 +42,7 @@ $environmentStatus = $preflight['ready'] ? 'success' : 'error';
         <?php foreach ($preflight['checks'] as $check): ?>
             <?php $checkStatus = $check['status']; ?>
             <?php $checkIcon = match ($checkStatus) {
-                'success' => AdminIcon::CheckCircle->cssClass(), 'error' => AdminIcon::XCircle->cssClass(), default => AdminIcon::Circle->cssClass()
+                'success' => AdminIcon::CheckCircle->cssClass(), 'error' => AdminIcon::XCircle->cssClass(), default => AdminIcon::Circle->cssClass(),
             }; ?>
             <div class="col-12 col-md-6"><div class="lemonade-install-check lemonade-install-check--<?= e($checkStatus) ?>"><i class="lemonade-install-check-icon <?= e($checkIcon) ?>" aria-hidden="true"></i><div class="lemonade-install-check-copy"><span class="lemonade-install-check-label" data-lemonade-i18n="install.install.checks.<?= e($check['key']) ?>"><?= e($helpers->lang('install.install.checks.' . $check['key'])) ?></span><span class="lemonade-install-check-status" data-lemonade-i18n="install.install.status.<?= e($checkStatus) ?>"><?= e($helpers->lang('install.install.status.' . $checkStatus)) ?></span><?php if ($checkStatus !== 'success' && $check['detail'] !== ''): ?><span class="lemonade-install-check-detail" role="note"><?= e($check['detail']) ?></span><?php endif; ?></div></div></div>
         <?php endforeach; ?>
