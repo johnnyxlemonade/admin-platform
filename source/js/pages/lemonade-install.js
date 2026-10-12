@@ -102,7 +102,7 @@ import { Message } from "../components/lemonade-message.js";
             const messageNode = item.querySelector("[data-install-step-message]");
             const icon = item.querySelector("[data-install-step-icon]");
             const statusLabel = translated("install.installSteps." + status);
-            if (statusNode) {
+            if (statusNode && statusLabel !== "") {
                 statusNode.setAttribute("data-lemonade-i18n", "install.installSteps." + status);
                 statusNode.textContent = statusLabel;
             }
@@ -224,15 +224,17 @@ import { Message } from "../components/lemonade-message.js";
             event.preventDefault();
             setBusy(true);
             const submitLabel = form.querySelector("[data-install-submit-label]");
-            if (submitLabel) {
-                submitLabel.textContent = translated("install.install.actions." + (initial ? "install" : "update"));
+            const actionLabel = translated("install.install.actions." + (initial ? "install" : "update"));
+            if (submitLabel && actionLabel !== "") {
+                submitLabel.textContent = actionLabel;
             }
             void (async function () {
                 for (let index = 0; index < steps.length; index += 1) {
                     if (!(await runStep(steps[index]))) {
                         setBusy(false);
-                        if (submitLabel) {
-                            submitLabel.textContent = translated("install.install.actions.retry");
+                        const retryLabel = translated("install.install.actions.retry");
+                        if (submitLabel && retryLabel !== "") {
+                            submitLabel.textContent = retryLabel;
                         }
                         return;
                     }
@@ -243,8 +245,9 @@ import { Message } from "../components/lemonade-message.js";
                 }
             })().catch(function () {
                 setBusy(false);
-                if (submitLabel) {
-                    submitLabel.textContent = translated("install.install.actions.retry");
+                const retryLabel = translated("install.install.actions.retry");
+                if (submitLabel && retryLabel !== "") {
+                    submitLabel.textContent = retryLabel;
                 }
                 if (Message && typeof Message.error === "function") {
                     Message.error(requestError() || root.getAttribute("data-install-generic-error") || "");

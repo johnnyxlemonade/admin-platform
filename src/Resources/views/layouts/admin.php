@@ -26,11 +26,13 @@ use Lemonade\Framework\View\ViewHelpers;
 /** @var AdminBranding $branding */
 /** @var AdminAssetManifest $adminAssets */
 /** @var AuthenticatedUser|null $currentUser */
+/** @var bool $isRootUser */
 /** @var AdminThumbnail $avatar */
 /** @var string $content */
 
 $locale = $locale ?? 'cs';
 $activeAdminModule = $activeAdminModule ?? null;
+$isRootUser = $isRootUser ?? false;
 $sidebarStorageKey = 'lemonade-admin-sidebar';
 $principalRoleLabelKey = 'admin.account.administrator';
 $vendorStyles = $adminAssets->styles('vendor');
@@ -113,6 +115,7 @@ $adminMarkUrl = $adminAssets->staticUrl('images/branding/admin-mark.svg');
                             <div class="lm-user-menu-header"><strong><?= e($currentUser?->email() ?? '') ?></strong><?php if ($currentUser !== null): ?><span><?= e($currentUser->email()) ?></span><?php endif; ?><span data-lemonade-i18n="<?= e($principalRoleLabelKey) ?>"><?= e($helpers->lang($principalRoleLabelKey)) ?></span></div>
                             <?php if ($currentUser !== null): ?>
                                 <a class="lm-dropdown-item" href="<?= e($helpers->url('admin.system.users.profile')) ?>"><i class="<?= e(AdminIcon::Person->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="admin.account.profile"><?= e($helpers->lang('admin.account.profile')) ?></span></a>
+                                <?php if ($isRootUser): ?><a class="lm-dropdown-item" href="<?= e($helpers->url('admin.upgrade')) ?>"><i class="<?= e(AdminIcon::ArrowClockwise->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="admin.account.system_upgrade"><?= e($helpers->lang('admin.account.system_upgrade')) ?></span></a><?php endif; ?>
                                 <div class="lm-dropdown-divider"></div>
                             <?php endif; ?>
                             <form method="post" action="<?= e($helpers->url('admin.logout')) ?>"><?= $helpers->csrfField() ?><button class="lm-dropdown-item lm-user-menu-logout" type="submit"><i class="<?= e(AdminIcon::BoxArrowRight->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="admin.account.logout"><?= e($helpers->lang('admin.account.logout')) ?></span></button></form>

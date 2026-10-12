@@ -13,6 +13,7 @@ use Lemonade\Admin\Install\InstallStep;
 use Lemonade\Admin\Install\InstallStepStatus;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
+use Lemonade\Admin\Presentation\AdminPageRenderer;
 use Lemonade\Framework\Core\Http\RequestData;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Http\Request\HttpRequestInspector;
@@ -41,6 +42,7 @@ final class InstallController
         private readonly AuthorizationService $authorization,
         private readonly CsrfTokenManager $csrf,
         private readonly AuthPageRenderer $pages,
+        private readonly AdminPageRenderer $adminPages,
         private readonly Responses $responses,
         private readonly HttpRequestInspector $requests,
         private readonly TranslatorInterface $translator,
@@ -54,7 +56,23 @@ final class InstallController
      */
     public function index(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->show($request);
+        if ($this->installed()) {
+            return $this->notFound();
+        }
+
+        return $this->show($request, true);
+    }
+
+    /**
+     * Zobrazuje rootovi upgrade workflow nainstalovane aplikace
+     */
+    public function upgrade(ServerRequestInterface $request): ResponseInterface
+    {
+        if (!$this->installed() || !$this->isRootUser()) {
+            return $this->notFound();
+        }
+
+        return $this->show($request, false);
     }
 
     /**
@@ -62,27 +80,45 @@ final class InstallController
      */
     public function run(ServerRequestInterface $request): ResponseInterface
     {
-        $state = $this->installation->state();
-        $initial = !$state['rootAccount'];
-        if (!$initial && !$this->isRootUser()) {
+        if ($this->installed()) {
             return $this->notFound();
         }
 
+        return $this->runWorkflow($request, true);
+    }
+
+    /**
+     * Spousti rootem schvaleny upgrade workflow nainstalovane aplikace
+     */
+    public function runUpgrade(ServerRequestInterface $request): ResponseInterface
+    {
+        if (!$this->installed() || !$this->isRootUser()) {
+            return $this->notFound();
+        }
+
+        return $this->runWorkflow($request, false);
+    }
+
+    /**
+     * Provadi initial instalaci nebo upgrade podle autorizovaneho HTTP vstupu
+     */
+    private function runWorkflow(ServerRequestInterface $request, bool $initial): ResponseInterface
+    {
         $preflight = $this->installation->preflight();
         if (!$preflight['ready']) {
-            return $this->preflightFailureResponse($request);
+            return $this->preflightFailureResponse($request, $initial);
         }
 
         if (!$this->installation->catalogExists()) {
-            return $this->prepareCatalog($initial, $request);
+            return $this->prepareCatalog($initial, $request, $initial ? 'admin.install' : 'admin.upgrade');
         }
         if ((string) (new RequestData($request))->input('prepare', '') === '1') {
-            return $this->prepareCatalog($initial, $request);
+            return $this->prepareCatalog($initial, $request, $initial ? 'admin.install' : 'admin.upgrade');
         }
         if ($initial && !$this->authorizeInitialRequest($request)) {
             return $this->requests->wantsJson($request)
                 ? $this->jsonError(null, 'install.install.errors.invalid_key', HttpStatusCode::FORBIDDEN->value)
-                : $this->show($request, ['generalError' => $this->translator->get('install.install.errors.invalid_key')], HttpStatusCode::FORBIDDEN->value);
+                : $this->show($request, true, ['generalError' => $this->translator->get('install.install.errors.invalid_key')], HttpStatusCode::FORBIDDEN->value);
         }
 
         return $this->requests->wantsJson($request) ? $this->runJson($initial, $request) : $this->runHtml($initial, $request);
@@ -92,30 +128,24 @@ final class InstallController
      * Zpracovava krok show v instalaci aplikace
      * @param array<string,mixed> $extra
      */
-    private function show(ServerRequestInterface $request, array $extra = [], ?int $status = null): ResponseInterface
+    private function show(ServerRequestInterface $request, bool $initial, array $extra = [], ?int $status = null): ResponseInterface
     {
         $status ??= HttpStatusCode::OK->value;
         $state = $this->installation->state();
-        $completedInitialInstall = is_array($extra['result'] ?? null)
-            && (($extra['result']['rootCreated'] ?? false) === true);
-        if ($state['rootAccount'] && !$this->isRootUser() && !$completedInitialInstall) {
-            return $this->notFound();
-        }
-
         $requestData = new RequestData($request);
         $locale = $this->uiLocale->activate(
             (string) $requestData->query('locale', ''),
             (string) $requestData->cookie('lemonade_locale', ''),
         );
-        $initial = !$state['rootAccount'];
 
-        return $this->pages->render('admin-install::install', [
+        $data = [
             'title' => $this->translator->get($initial ? 'install.install.title' : 'install.install.update_title'),
             'locale' => $locale,
             'installer' => true,
             'clientTranslationVersion' => $this->translationVersion,
             'installerTranslations' => $this->installerTranslations(),
             'initial' => $initial,
+            'workflowEndpoint' => $this->router->url($initial ? 'admin.install.run' : 'admin.upgrade.run'),
             'state' => $state,
             'catalogExists' => $this->installation->catalogExists(),
             'preflight' => $this->localizePreflight($this->installation->preflight()),
@@ -124,13 +154,22 @@ final class InstallController
             'generalError' => $extra['generalError'] ?? null,
             'result' => $extra['result'] ?? null,
             'email' => $extra['email'] ?? '',
-        ], $status);
+        ];
+        if (!$initial) {
+            return $this->adminPages->render('admin-install::upgrade', [
+                ...$data,
+                'title' => $this->translator->get('admin.account.system_upgrade'),
+                'workflowCompletedUrl' => $this->router->url('admin.dashboard'),
+            ], $status);
+        }
+
+        return $this->pages->render('admin-install::install', $data, $status);
     }
 
     /**
      * Zpracovava krok preparecatalog v instalaci aplikace
      */
-    private function prepareCatalog(bool $initial, ServerRequestInterface $request): ResponseInterface
+    private function prepareCatalog(bool $initial, ServerRequestInterface $request, string $redirectRoute): ResponseInterface
     {
         if ($initial && !$this->authorizeInitialRequest($request)) {
             return $this->invalidKeyResponse($request);
@@ -142,9 +181,9 @@ final class InstallController
                 $this->installation->authorizeInstall();
             }
 
-            return $this->responses->redirect($this->router->url('admin.install'), 303);
+            return $this->responses->redirect($this->router->url($redirectRoute), 303);
         } catch (\Throwable $exception) {
-            return $this->show($request, [
+            return $this->show($request, $initial, [
                 'generalError' => $this->localizeInstallerMessage($this->safeError($exception)),
             ], HttpStatusCode::INTERNAL_SERVER_ERROR->value);
         }
@@ -153,13 +192,13 @@ final class InstallController
     /**
      * Zpracovava krok preflightfailureresponse v instalaci aplikace
      */
-    private function preflightFailureResponse(ServerRequestInterface $request): ResponseInterface
+    private function preflightFailureResponse(ServerRequestInterface $request, bool $initial): ResponseInterface
     {
         $message = $this->translator->get('install.installErrors.preflight');
 
         return $this->requests->wantsJson($request)
             ? $this->jsonError(null, 'install.installErrors.preflight', HttpStatusCode::UNPROCESSABLE_ENTITY->value)
-            : $this->show($request, ['generalError' => $message], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
+            : $this->show($request, $initial, ['generalError' => $message], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
     }
 
     /**
@@ -169,7 +208,7 @@ final class InstallController
     {
         return $this->requests->wantsJson($request)
             ? $this->jsonError(null, 'install.install.errors.invalid_key', HttpStatusCode::FORBIDDEN->value)
-            : $this->show($request, ['generalError' => $this->translator->get('install.install.errors.invalid_key')], HttpStatusCode::FORBIDDEN->value);
+            : $this->show($request, true, ['generalError' => $this->translator->get('install.install.errors.invalid_key')], HttpStatusCode::FORBIDDEN->value);
     }
 
     /**
@@ -184,7 +223,7 @@ final class InstallController
         if ($initial) {
             $validation = $this->validateRootCredentials($input);
             if (!$validation->isValid()) {
-                return $this->show($request, [
+                return $this->show($request, true, [
                     'errors' => $validation->errors(),
                     'email' => $input['email'],
                 ], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
@@ -197,6 +236,7 @@ final class InstallController
 
         return $this->show(
             $request,
+            $initial,
             ['result' => $result, 'email' => $initial ? $input['email'] : ''],
             $result['success'] ? HttpStatusCode::OK->value : HttpStatusCode::INTERNAL_SERVER_ERROR->value,
         );
@@ -490,6 +530,14 @@ final class InstallController
 
         return $principal instanceof LocalAdminPrincipal
             && $this->authorization->isRoot($principal->user());
+    }
+
+    /**
+     * Rozhoduje, zda existuje canonical root ucet a aplikace je nainstalovana
+     */
+    private function installed(): bool
+    {
+        return $this->installation->state()['rootAccount'];
     }
 
     /**

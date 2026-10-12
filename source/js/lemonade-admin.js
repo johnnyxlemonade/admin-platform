@@ -15,6 +15,7 @@ import { ModalForm } from "./components/lemonade-modal-form.js";
 import { I18n } from "./core/lemonade-i18n.js";
 import { Theme } from "./core/lemonade-theme.js";
 import { mountComponents } from "./lemonade-admin-components.js";
+import "./pages/lemonade-install.js";
 
 function recoverFromStaleAssets() {
     const reloadKey = `lemonade-admin:preload-error:${import.meta.url}`;

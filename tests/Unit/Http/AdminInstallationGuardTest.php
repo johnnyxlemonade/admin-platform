@@ -55,6 +55,21 @@ final class AdminInstallationGuardTest extends TestCase
     }
 
     /**
+     * Overuje, ze upgrade neni bootstrap bypass a pred instalaci vede do installeru
+     */
+    public function testUpgradeRequestRequiresInitialInstallationToBeCompleted(): void
+    {
+        $state = new FakeInstallationState(rootAccount: false);
+        $handler = new CapturingInstallationRequestHandler();
+
+        $response = $this->guard($state)->process(new ServerRequest('GET', '/admin/upgrade'), $handler);
+
+        self::assertSame(302, $response->getStatusCode());
+        self::assertSame('/admin/install', $response->getHeaderLine('Location'));
+        self::assertNull($handler->request);
+    }
+
+    /**
      * Overuje propusteni public runtime po dokoncene instalaci
      */
     public function testInstalledPublicRequestContinuesToThePublicRuntime(): void

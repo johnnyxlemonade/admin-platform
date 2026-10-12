@@ -57,5 +57,26 @@ final class InstallRouteRegistrar implements AdminRouteRegistrarInterface
             AdminLoginAjaxCsrfMiddleware::class,
             CsrfMiddleware::class,
         );
+
+        $router->getNamed(
+            name: 'admin.upgrade',
+            path: '/upgrade',
+            action: ControllerAction::for(
+                controllerClass: InstallController::class,
+                method: 'upgrade',
+            ),
+        );
+
+        $router->postNamed(
+            name: 'admin.upgrade.run',
+            path: '/upgrade',
+            action: ControllerAction::for(
+                controllerClass: InstallController::class,
+                method: 'runUpgrade',
+            ),
+        )->middleware(
+            AdminLoginAjaxCsrfMiddleware::class,
+            CsrfMiddleware::class,
+        );
     }
 }

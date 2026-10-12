@@ -37,6 +37,12 @@ main.lemonade-auth:has(.lemonade-install) {
     overflow: visible;
 }
 
+.lemonade-auth--embedded .lemonade-install {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+}
+
 .lemonade-auth .lemonade-install-intro {
     margin-bottom: var(--lemonade-install-gap);
 }

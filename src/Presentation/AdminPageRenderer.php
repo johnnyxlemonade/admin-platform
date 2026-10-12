@@ -6,6 +6,7 @@ namespace Lemonade\Admin\Presentation;
 
 use Lemonade\Admin\Assets\AdminAssetManifest;
 use Lemonade\Admin\Auth\CurrentUserProvider;
+use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Admin\Navigation\AdminNavigation;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
@@ -24,6 +25,7 @@ final class AdminPageRenderer
         private readonly ViewRendererInterface $views,
         private readonly AdminNavigation $navigation,
         private readonly CurrentUserProvider $currentUser,
+        private readonly AuthorizationService $authorization,
         private readonly ClientTranslationVersion $translationVersion,
         private readonly AdminBranding $branding,
         private readonly AdminAssetManifest $assets,
@@ -49,6 +51,7 @@ final class AdminPageRenderer
             ...$data,
             'navigation' => $this->navigation->items(),
             'currentUser' => $currentUser,
+            'isRootUser' => $currentUser !== null && $this->authorization->isRoot($currentUser),
             'avatar' => $avatar,
             'clientTranslationVersion' => $this->translationVersion,
             'branding' => $this->branding,
