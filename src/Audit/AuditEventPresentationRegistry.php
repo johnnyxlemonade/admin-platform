@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Audit;
 
 use InvalidArgumentException;
+use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 
 /**
  * Uchovava zobrazeni auditnich udalosti a modulu
@@ -28,6 +29,28 @@ final class AuditEventPresentationRegistry
         }
 
         $this->presentations[$eventCode] = $presentation;
+    }
+
+    /**
+     * Zaregistruje auditni prezentaci identity a udalosti administracniho modulu
+     */
+    public function registerModuleDefinition(AdminModuleDefinitionInterface $definition): void
+    {
+        $moduleCode = $definition->code();
+        $metadata = $definition->adminMetadata();
+        $this->registerModule(new AuditModulePresentation(
+            moduleCode: $moduleCode,
+            nameKey: $metadata->nameKey(),
+            icon: $metadata->icon(),
+        ));
+
+        foreach ($definition->auditEventDefinitions() as $eventDefinition) {
+            $this->register(new AuditEventPresentation(
+                eventCode: $moduleCode . '.' . $eventDefinition->suffix,
+                translationKey: $eventDefinition->translationKey,
+                icon: $eventDefinition->icon,
+            ));
+        }
     }
 
     /**

@@ -28,7 +28,6 @@ final class DashboardAuditPresentationRegistrar
     {
         $this->presentations->registerModule(new AuditModulePresentation(
             'system.dashboard',
-            'admin',
             'admin.dashboard.module.name',
             AdminIcon::Grid1x2,
         ));

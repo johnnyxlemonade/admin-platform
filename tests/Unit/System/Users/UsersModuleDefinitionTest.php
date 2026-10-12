@@ -47,4 +47,21 @@ final class UsersModuleDefinitionTest extends TestCase
         self::assertContains(\Lemonade\Admin\DataGrid\Contract\DataGridProviderInterface::class, $dataGridInterfaces);
         self::assertContains(EditorProviderInterface::class, $editorInterfaces);
     }
+
+    public function testItDeclaresPresentationsForAllEmittedUserEvents(): void
+    {
+        $definitions = (new UsersModuleDefinition())->auditEventDefinitions();
+
+        self::assertSame([
+            'created',
+            'updated',
+            'password_changed',
+            'role_changed',
+            'permissions_changed',
+            'activated',
+            'deactivated',
+            'deleted',
+            'restored',
+        ], array_map(static fn(\Lemonade\Admin\Audit\AuditEventDefinition $definition): string => $definition->suffix, $definitions));
+    }
 }

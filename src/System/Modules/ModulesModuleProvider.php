@@ -57,7 +57,7 @@ final class ModulesModuleProvider implements ServiceProviderInterface, BootableS
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(ModulesRouteRegistrar::class));
         $container->get(ModuleRegistry::class)->register($definition);
         $audit = $container->get(AuditEventPresentationRegistry::class);
-        $audit->registerModule(new AuditModulePresentation('system.modules', 'modules', 'modules.module.name', AdminIcon::Boxes));
+        $audit->registerModule(new AuditModulePresentation('system.modules', 'modules.module.name', AdminIcon::Boxes));
         foreach (['installed', 'enabled', 'disabled', 'route_prefix_synchronized', 'feature_enabled', 'feature_disabled', 'feature_synchronized'] as $event) {
             $audit->register(new AuditEventPresentation('system.module_' . $event, 'modules.audit.' . $event, AdminIcon::Boxes));
         }

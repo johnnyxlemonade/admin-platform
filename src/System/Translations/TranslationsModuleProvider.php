@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Translations;
 
+use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Editor\EditorRegistry;
@@ -12,7 +13,6 @@ use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Translations\Actions\TranslationsActionRegistrar;
-use Lemonade\Admin\System\Translations\Audit\TranslationsAuditPresentationRegistrar;
 use Lemonade\Admin\System\Translations\DataGrid\TranslationsDataGrid;
 use Lemonade\Admin\System\Translations\Editor\TranslationsEditor;
 use Lemonade\Admin\System\Translations\Migrations\RegisterTranslationsModule;
@@ -51,7 +51,7 @@ final class TranslationsModuleProvider implements ServiceProviderInterface, Boot
         $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), $container->get(TranslationsModulePageProvider::class));
         $container->get(ModulePageRegistry::class)->registerModalEditor($definition->code(), $container->get(TranslationsModulePageProvider::class));
         $container->get(TranslationsActionRegistrar::class)->register();
-        $container->get(TranslationsAuditPresentationRegistrar::class)->register();
+        $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(MigrationRegistry::class)->register(RegisterTranslationsModule::class);
     }
 }

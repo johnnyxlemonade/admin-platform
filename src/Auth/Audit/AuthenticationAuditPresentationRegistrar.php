@@ -20,7 +20,6 @@ final class AuthenticationAuditPresentationRegistrar
     {
         $this->presentations->registerModule(new AuditModulePresentation(
             'system.authentication',
-            'auth',
             'auth.audit.module.name',
             AdminIcon::ShieldCheck,
         ));

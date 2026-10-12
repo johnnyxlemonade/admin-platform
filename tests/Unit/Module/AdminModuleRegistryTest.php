@@ -94,6 +94,16 @@ final class AdminModuleRegistryTest extends TestCase
             {
                 return new AdminModuleMetadata('example.module.name', AdminIcon::People, $this->group, 10, $this->segment);
             }
+
+            public function permissionDefinitions(): array
+            {
+                return [];
+            }
+
+            public function auditEventDefinitions(): array
+            {
+                return [];
+            }
         };
     }
 

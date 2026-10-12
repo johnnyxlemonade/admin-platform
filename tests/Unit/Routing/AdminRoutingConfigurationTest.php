@@ -134,6 +134,16 @@ final class AdminRoutingConfigurationTest extends TestCase
                     routeSegment: 'news',
                 );
             }
+
+            public function permissionDefinitions(): array
+            {
+                return [];
+            }
+
+            public function auditEventDefinitions(): array
+            {
+                return [];
+            }
         };
     }
 }

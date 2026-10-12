@@ -23,4 +23,17 @@ final class RolesModuleDefinitionTest extends TestCase
         ], array_map(static fn(PermissionDefinition $definition): string => $definition->code(), $definitions));
         self::assertSame([[], ['system.roles.view'], ['system.roles.view'], ['system.roles.view'], ['system.roles.view']], array_map(static fn(PermissionDefinition $definition): array => $definition->requires(), $definitions));
     }
+
+    public function testItDeclaresPresentationsForAllEmittedRoleEvents(): void
+    {
+        $definitions = (new RolesModuleDefinition())->auditEventDefinitions();
+
+        self::assertSame([
+            'created',
+            'updated',
+            'permissions_changed',
+            'deleted',
+            'restored',
+        ], array_map(static fn(\Lemonade\Admin\Audit\AuditEventDefinition $definition): string => $definition->suffix, $definitions));
+    }
 }

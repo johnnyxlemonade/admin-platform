@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Languages;
 
+use Lemonade\Admin\Audit\AuditEventDefinition;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
@@ -88,6 +89,22 @@ final readonly class LanguagesModuleDefinition implements AdminModuleDefinitionI
                 delegation: PermissionDelegation::Normally,
                 requires: ['system.languages.view'],
             ),
+        ];
+    }
+
+    /**
+     * Deklaruje presentation udalosti skutecnych mutaci systemovych jazyku
+     *
+     * @return list<AuditEventDefinition>
+     */
+    public function auditEventDefinitions(): array
+    {
+        return [
+            new AuditEventDefinition('created', 'languages.audit.events.created', AdminIcon::PlusLg),
+            new AuditEventDefinition('updated', 'languages.audit.events.updated', AdminIcon::PencilSquare),
+            new AuditEventDefinition('enabled', 'languages.audit.events.enabled', AdminIcon::CheckCircle),
+            new AuditEventDefinition('disabled', 'languages.audit.events.disabled', AdminIcon::PauseCircle),
+            new AuditEventDefinition('default_changed', 'languages.audit.events.default_changed', AdminIcon::Check2),
         ];
     }
 }

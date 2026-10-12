@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\System\Notifications;
 
 use Lemonade\Admin\Action\ModuleActionRegistry;
+use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Editor\EditorDispatcher;
@@ -25,7 +26,6 @@ use Lemonade\Admin\System\Notifications\Actions\NotificationsDeactivateAction;
 use Lemonade\Admin\System\Notifications\Actions\NotificationsDeleteAction;
 use Lemonade\Admin\System\Notifications\Actions\NotificationsResetDisplayAction;
 use Lemonade\Admin\System\Notifications\Actions\NotificationsRestoreAction;
-use Lemonade\Admin\System\Notifications\Audit\NotificationsAuditPresentationRegistrar;
 use Lemonade\Admin\System\Notifications\DataGrid\NotificationsDataGrid;
 use Lemonade\Admin\System\Notifications\Editor\NotificationsEditor;
 use Lemonade\Admin\System\Notifications\Http\Controller\NotificationsAudienceOptionsController;
@@ -84,7 +84,7 @@ final class NotificationsModuleProvider implements ServiceProviderInterface, Boo
         $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), $container->get(NotificationsModulePageProvider::class));
         $container->get(ModulePageRegistry::class)->registerModalEditor($definition->code(), $container->get(NotificationsModulePageProvider::class));
         $container->get(NotificationsActionRegistrar::class)->register();
-        $container->get(NotificationsAuditPresentationRegistrar::class)->register();
+        $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(MigrationRegistry::class)->register(RegisterNotificationsModule::class);
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(NotificationsRouteRegistrar::class));

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Roles;
 
+use Lemonade\Admin\Audit\AuditEventDefinition;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
@@ -80,6 +81,22 @@ final readonly class RolesModuleDefinition implements AdminModuleDefinitionInter
                 delegation: PermissionDelegation::Normally,
                 requires: ['system.roles.view'],
             ),
+        ];
+    }
+
+    /**
+     * Deklaruje presentation udalosti skutecnych mutaci roli
+     *
+     * @return list<AuditEventDefinition>
+     */
+    public function auditEventDefinitions(): array
+    {
+        return [
+            new AuditEventDefinition('created', 'roles.audit.events.created', AdminIcon::PersonAdd),
+            new AuditEventDefinition('updated', 'roles.audit.events.updated', AdminIcon::PencilSquare),
+            new AuditEventDefinition('permissions_changed', 'roles.audit.events.permissions_changed', AdminIcon::ShieldLock),
+            new AuditEventDefinition('deleted', 'roles.audit.events.deleted', AdminIcon::Trash3),
+            new AuditEventDefinition('restored', 'roles.audit.events.restored', AdminIcon::ArrowCounterclockwise),
         ];
     }
 }

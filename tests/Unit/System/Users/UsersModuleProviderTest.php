@@ -23,7 +23,6 @@ use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
 use Lemonade\Admin\System\Users\Actions\UsersActionRegistrar;
-use Lemonade\Admin\System\Users\Audit\UsersAuditPresentationRegistrar;
 use Lemonade\Admin\System\Users\Dashboard\UsersDashboardWidgetProvider;
 use Lemonade\Admin\System\Users\DataGrid\UsersDataGrid;
 use Lemonade\Admin\System\Users\Editor\UsersEditor;
@@ -88,7 +87,6 @@ final class UsersModuleProviderTest extends TestCase
         $container->instance(UsersDataGrid::class, $this->createMock(DataGridProviderInterface::class));
         $container->instance(UsersEditor::class, $this->createMock(EditorProviderInterface::class));
         $this->resolveConcrete($container, UsersActionRegistrar::class);
-        $this->resolveConcrete($container, UsersAuditPresentationRegistrar::class);
         $container->freeze();
 
         $moduleBootstrap->boot($container);

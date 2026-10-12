@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Roles;
 
+use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Editor\EditorRegistry;
@@ -12,7 +13,6 @@ use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Roles\Actions\RolesActionRegistrar;
-use Lemonade\Admin\System\Roles\Audit\RolesAuditPresentationRegistrar;
 use Lemonade\Admin\System\Roles\DataGrid\RolesDataGrid;
 use Lemonade\Admin\System\Roles\Editor\RolesEditor;
 use Lemonade\Admin\System\Roles\Migrations\RegisterRolesModule;
@@ -53,7 +53,7 @@ final class RolesModuleProvider implements ServiceProviderInterface, BootableSer
         $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), $container->get(RolesModulePageProvider::class));
         $container->get(ModulePageRegistry::class)->registerEditor($definition->code(), $container->get(RolesModulePageProvider::class));
         $container->get(RolesActionRegistrar::class)->register();
-        $container->get(RolesAuditPresentationRegistrar::class)->register();
+        $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(RuleRegistry::class)->addRule('system_roles_permissions', RolePermissionsRule::class);
         $container->get(MigrationRegistry::class)->register(RegisterRolesModule::class);
     }

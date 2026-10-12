@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Notifications;
 
+use Lemonade\Admin\Audit\AuditEventDefinition;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
@@ -96,6 +97,24 @@ final readonly class NotificationsModuleDefinition implements AdminModuleDefinit
                 delegation: PermissionDelegation::Normally,
                 requires: ['system.notifications.view'],
             ),
+        ];
+    }
+
+    /**
+     * Deklaruje presentation udalosti publikovani a lifecycle oznameni
+     *
+     * @return list<AuditEventDefinition>
+     */
+    public function auditEventDefinitions(): array
+    {
+        return [
+            new AuditEventDefinition('published', 'notifications.audit.events.published', AdminIcon::PlusLg),
+            new AuditEventDefinition('updated', 'notifications.audit.events.updated', AdminIcon::PencilSquare),
+            new AuditEventDefinition('activated', 'notifications.audit.events.activated', AdminIcon::CheckCircle),
+            new AuditEventDefinition('deactivated', 'notifications.audit.events.deactivated', AdminIcon::PauseCircle),
+            new AuditEventDefinition('deleted', 'notifications.audit.events.deleted', AdminIcon::Trash3),
+            new AuditEventDefinition('restored', 'notifications.audit.events.restored', AdminIcon::ArrowCounterclockwise),
+            new AuditEventDefinition('display_reset', 'notifications.audit.events.display_reset', AdminIcon::ArrowCounterclockwise),
         ];
     }
 }

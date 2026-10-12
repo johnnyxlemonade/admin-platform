@@ -120,6 +120,11 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
             {
                 return [];
             }
+
+            public function auditEventDefinitions(): array
+            {
+                return [];
+            }
         });
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('get')->willReturnArgument(0);

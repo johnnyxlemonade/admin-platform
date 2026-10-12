@@ -54,6 +54,16 @@ final class ModuleRegistryTest extends TestCase
             {
                 return new \Lemonade\Admin\Module\AdminModuleMetadata('example.module.name', AdminIcon::People, AdminNavigationGroup::System, 10, 'examples');
             }
+
+            public function permissionDefinitions(): array
+            {
+                return [];
+            }
+
+            public function auditEventDefinitions(): array
+            {
+                return [];
+            }
         };
         $registry->register($definition);
 

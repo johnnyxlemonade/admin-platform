@@ -30,4 +30,17 @@ final class LanguagesModuleDefinitionTest extends TestCase
             'system.languages.set_default',
         ], array_map(static fn(\Lemonade\Admin\Authorization\PermissionDefinition $permission): string => $permission->code(), $definition->permissionDefinitions()));
     }
+
+    public function testItDeclaresPresentationsForAllEmittedLanguageEvents(): void
+    {
+        $definitions = (new LanguagesModuleDefinition())->auditEventDefinitions();
+
+        self::assertSame([
+            'created',
+            'updated',
+            'enabled',
+            'disabled',
+            'default_changed',
+        ], array_map(static fn(\Lemonade\Admin\Audit\AuditEventDefinition $definition): string => $definition->suffix, $definitions));
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Media;
 
+use Lemonade\Admin\Audit\AuditEventDefinition;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleMetadata;
@@ -35,5 +36,15 @@ final readonly class MediaModuleDefinition implements AdminModuleDefinitionInter
         return [
             new PermissionDefinition(code: 'system.media.view', moduleCode: $this->code(), nameKey: 'media.permissions.view'),
         ];
+    }
+
+    /**
+     * Shared file eventy nejsou vlastnene read-only Media modulem
+     *
+     * @return list<AuditEventDefinition>
+     */
+    public function auditEventDefinitions(): array
+    {
+        return [];
     }
 }

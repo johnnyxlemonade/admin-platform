@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\System\Languages;
 
 use Lemonade\Admin\Action\ModuleActionRegistry;
+use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Editor\EditorDispatcher;
@@ -16,7 +17,6 @@ use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Languages\Actions\LanguagesActionRegistrar;
 use Lemonade\Admin\System\Languages\Actions\LanguagesSetDefaultAction;
 use Lemonade\Admin\System\Languages\Actions\LanguagesSetEnabledAction;
-use Lemonade\Admin\System\Languages\Audit\LanguagesAuditPresentationRegistrar;
 use Lemonade\Admin\System\Languages\DataGrid\LanguagesDataGrid;
 use Lemonade\Admin\System\Languages\Editor\LanguagesEditor;
 use Lemonade\Admin\System\Languages\Migrations\RegisterLanguagesModule;
@@ -66,7 +66,7 @@ final class LanguagesModuleProvider implements ServiceProviderInterface, Bootabl
         $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), $container->get(LanguagesModulePageProvider::class));
         $container->get(ModulePageRegistry::class)->registerModalEditor($definition->code(), $container->get(LanguagesModulePageProvider::class));
         $container->get(LanguagesActionRegistrar::class)->register();
-        $container->get(LanguagesAuditPresentationRegistrar::class)->register();
+        $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(MigrationRegistry::class)->register(RegisterLanguagesModule::class);
     }

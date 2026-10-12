@@ -241,6 +241,16 @@ final class AdminNavigationTest extends TestCase
             {
                 return new AdminModuleMetadata('example.module.name', AdminIcon::People, $this->group, $this->order, str_replace('.', '-', $this->code), null, $this->superAdminOnly);
             }
+
+            public function permissionDefinitions(): array
+            {
+                return [];
+            }
+
+            public function auditEventDefinitions(): array
+            {
+                return [];
+            }
         };
     }
 

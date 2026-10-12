@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Users;
 
+use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\Dashboard\Contract\DashboardWidgetProviderInterface;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
@@ -17,7 +18,6 @@ use Lemonade\Admin\Presentation\AdminFileUsageDefinition;
 use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Users\Actions\UsersActionRegistrar;
-use Lemonade\Admin\System\Users\Audit\UsersAuditPresentationRegistrar;
 use Lemonade\Admin\System\Users\Dashboard\UsersDashboardWidgetProvider;
 use Lemonade\Admin\System\Users\DataGrid\UsersDataGrid;
 use Lemonade\Admin\System\Users\Editor\UsersEditor;
@@ -73,7 +73,7 @@ final class UsersModuleProvider implements ServiceProviderInterface, BootableSer
             static fn(): UsersModulePageProvider => $container->get(UsersModulePageProvider::class),
         );
         $container->get(UsersActionRegistrar::class)->register();
-        $container->get(UsersAuditPresentationRegistrar::class)->register();
+        $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(RuleRegistry::class)->addRule('system_users_unique_email', UniqueUserEmailRule::class);
         $container->get(RuleRegistry::class)->addRule('system_users_role', RoleAssignmentsRule::class);
         $container->get(RuleRegistry::class)->addRule('system_users_permission_overrides', PermissionOverridesRule::class);

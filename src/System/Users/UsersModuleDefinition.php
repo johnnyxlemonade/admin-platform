@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Users;
 
+use Lemonade\Admin\Audit\AuditEventDefinition;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
@@ -111,6 +112,26 @@ final readonly class UsersModuleDefinition implements AdminModuleDefinitionInter
                 delegation: PermissionDelegation::Normally,
                 requires: ['system.users.view'],
             ),
+        ];
+    }
+
+    /**
+     * Deklaruje presentation udalosti skutecnych mutaci uzivatelu
+     *
+     * @return list<AuditEventDefinition>
+     */
+    public function auditEventDefinitions(): array
+    {
+        return [
+            new AuditEventDefinition('created', 'users.audit.events.created', AdminIcon::PersonAdd),
+            new AuditEventDefinition('updated', 'users.audit.events.updated', AdminIcon::PencilSquare),
+            new AuditEventDefinition('password_changed', 'users.audit.events.password_changed', AdminIcon::Key),
+            new AuditEventDefinition('role_changed', 'users.audit.events.role_changed', AdminIcon::PersonGear),
+            new AuditEventDefinition('permissions_changed', 'users.audit.events.permissions_changed', AdminIcon::ShieldLock),
+            new AuditEventDefinition('activated', 'users.audit.events.activated', AdminIcon::CheckCircle),
+            new AuditEventDefinition('deactivated', 'users.audit.events.deactivated', AdminIcon::PauseCircle),
+            new AuditEventDefinition('deleted', 'users.audit.events.deleted', AdminIcon::Trash3),
+            new AuditEventDefinition('restored', 'users.audit.events.restored', AdminIcon::ArrowCounterclockwise),
         ];
     }
 }

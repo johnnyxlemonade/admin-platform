@@ -18,11 +18,10 @@ final readonly class AuditModulePresentation
      */
     public function __construct(
         private string $moduleCode,
-        private string $translationGroup,
         private string $nameKey,
         private AdminIcon|null $icon = null,
     ) {
-        if ($this->moduleCode === '' || $this->translationGroup === '' || $this->nameKey === '') {
+        if ($this->moduleCode === '' || $this->nameKey === '') {
             throw new InvalidArgumentException('Audit module presentation identity and localization fields must not be empty.');
         }
     }
@@ -33,14 +32,6 @@ final readonly class AuditModulePresentation
     public function moduleCode(): string
     {
         return $this->moduleCode;
-    }
-
-    /**
-     * Vrati skupinu lokalizace modulu
-     */
-    public function translationGroup(): string
-    {
-        return $this->translationGroup;
     }
 
     /**

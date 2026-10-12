@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Translations;
 
+use Lemonade\Admin\Audit\AuditEventDefinition;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
@@ -62,6 +63,20 @@ final readonly class TranslationsModuleDefinition implements AdminModuleDefiniti
                 delegation: PermissionDelegation::Normally,
                 requires: ['system.translations.view'],
             ),
+        ];
+    }
+
+    /**
+     * Deklaruje presentation udalosti zmen runtime override prekladu
+     *
+     * @return list<AuditEventDefinition>
+     */
+    public function auditEventDefinitions(): array
+    {
+        return [
+            new AuditEventDefinition('override_created', 'translations.audit.events.created', AdminIcon::PlusLg),
+            new AuditEventDefinition('override_updated', 'translations.audit.events.updated', AdminIcon::PencilSquare),
+            new AuditEventDefinition('override_removed', 'translations.audit.events.removed', AdminIcon::ArrowCounterclockwise),
         ];
     }
 }

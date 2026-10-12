@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Audit;
 
+use Lemonade\Admin\Audit\AuditEventDefinition;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
@@ -51,5 +52,15 @@ final readonly class AuditModuleDefinition implements AdminModuleDefinitionInter
                 delegation: PermissionDelegation::SuperAdminOnly,
             ),
         ];
+    }
+
+    /**
+     * Read-only modul auditu neemituje vlastni udalosti
+     *
+     * @return list<AuditEventDefinition>
+     */
+    public function auditEventDefinitions(): array
+    {
+        return [];
     }
 }

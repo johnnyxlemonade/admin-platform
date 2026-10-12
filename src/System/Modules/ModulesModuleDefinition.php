@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Modules;
 
+use Lemonade\Admin\Audit\AuditEventDefinition;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
@@ -83,5 +84,15 @@ final readonly class ModulesModuleDefinition implements AdminModuleDefinitionInt
                 requires: ['system.modules.view'],
             ),
         ];
+    }
+
+    /**
+     * Globální module lifecycle eventy nejsou vlastnene timto Admin modulem
+     *
+     * @return list<AuditEventDefinition>
+     */
+    public function auditEventDefinitions(): array
+    {
+        return [];
     }
 }
