@@ -64,4 +64,9 @@
         flex-direction: column;
         gap: 10px;
     }
+
+    .lemonade-auth .lm-theme-control[data-lemonade-dropdown-placement="top-end"] [data-lemonade-dropdown-panel] {
+        right: auto;
+        left: 0;
+    }
 }

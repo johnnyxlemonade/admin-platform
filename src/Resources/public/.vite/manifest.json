@@ -111,8 +111,16 @@
     "file": "assets/auth-landscape-light-d12ca0f1dc6c9fc757d4.webp",
     "src": "source/images/auth/auth-landscape-light.webp"
   },
+  "source/images/locale/cs.svg": {
+    "file": "assets/cs-3e4972424265353f099f.svg",
+    "src": "source/images/locale/cs.svg"
+  },
+  "source/images/locale/en.svg": {
+    "file": "assets/en-ee3a51a4431a5410864a.svg",
+    "src": "source/images/locale/en.svg"
+  },
   "source/js/components/lemonade-action.js": {
-    "file": "assets/lemonade-action-d8c3e7328274e29ef430.js",
+    "file": "assets/lemonade-action-b56a8134511598071896.js",
     "name": "lemonade-action",
     "src": "source/js/components/lemonade-action.js",
     "isDynamicEntry": true,
@@ -134,7 +142,7 @@
     ]
   },
   "source/js/components/lemonade-dashboard-customize.js": {
-    "file": "assets/lemonade-dashboard-customize-e6a2598fb221730c1a71.js",
+    "file": "assets/lemonade-dashboard-customize-9657143635495e43828e.js",
     "name": "lemonade-dashboard-customize",
     "src": "source/js/components/lemonade-dashboard-customize.js",
     "isDynamicEntry": true,
@@ -185,7 +193,7 @@
     ]
   },
   "source/js/components/lemonade-file-upload.js": {
-    "file": "assets/lemonade-file-upload-6eba32892ba355892fa7.js",
+    "file": "assets/lemonade-file-upload-fb73849cd1c33dc0baa2.js",
     "name": "lemonade-file-upload",
     "src": "source/js/components/lemonade-file-upload.js",
     "isDynamicEntry": true,
@@ -196,7 +204,7 @@
     ]
   },
   "source/js/components/lemonade-form-dirty-state.js": {
-    "file": "assets/lemonade-form-dirty-state-69c6c52c4a506fe4103f.js",
+    "file": "assets/lemonade-form-dirty-state-427628a217b965794183.js",
     "name": "lemonade-form-dirty-state",
     "src": "source/js/components/lemonade-form-dirty-state.js",
     "isDynamicEntry": true,
@@ -207,7 +215,7 @@
     ]
   },
   "source/js/components/lemonade-form-editor.js": {
-    "file": "assets/lemonade-form-editor-667611211a1dbfc4e8f9.js",
+    "file": "assets/lemonade-form-editor-715813c4aec87d487488.js",
     "name": "lemonade-form-editor",
     "src": "source/js/components/lemonade-form-editor.js",
     "isDynamicEntry": true,
@@ -232,7 +240,7 @@
     ]
   },
   "source/js/components/lemonade-notifications.js": {
-    "file": "assets/lemonade-notifications-cbeedf799e619b941843.js",
+    "file": "assets/lemonade-notifications-22e735c071ef43794c83.js",
     "name": "lemonade-notifications",
     "src": "source/js/components/lemonade-notifications.js",
     "isDynamicEntry": true,
@@ -257,7 +265,7 @@
     ]
   },
   "source/js/components/lemonade-rich-text.js": {
-    "file": "assets/lemonade-rich-text-de24dfb962989ca5c004.js",
+    "file": "assets/lemonade-rich-text-6f0da8d36800c39616e5.js",
     "name": "lemonade-rich-text",
     "src": "source/js/components/lemonade-rich-text.js",
     "isDynamicEntry": true,
@@ -299,7 +307,7 @@
     "isDynamicEntry": true
   },
   "source/js/entries/admin.js": {
-    "file": "assets/admin-167e589a599dee5ee1da.js",
+    "file": "assets/admin-a0f73d1a3454dc82fe93.js",
     "name": "admin",
     "src": "source/js/entries/admin.js",
     "isEntry": true,
@@ -333,17 +341,19 @@
       "_lemonade-clock-cc50edbd5549a0e85ceb.js"
     ],
     "css": [
-      "assets/admin-79791be55974f1038ecd.css"
+      "assets/admin-4175708ab2903ea6ab3c.css"
     ],
     "assets": [
       "assets/inter-latin-ext-wght-normal-ced40a63fd22eeb2663d.woff2",
       "assets/inter-latin-wght-normal-f1e245c9025b62e1ab94.woff2",
       "assets/auth-landscape-light-d12ca0f1dc6c9fc757d4.webp",
-      "assets/auth-landscape-dark-7ea78f5a8722499c9e42.webp"
+      "assets/auth-landscape-dark-7ea78f5a8722499c9e42.webp",
+      "assets/cs-3e4972424265353f099f.svg",
+      "assets/en-ee3a51a4431a5410864a.svg"
     ]
   },
   "source/js/entries/auth.js": {
-    "file": "assets/auth-1f5bb36dce79890d2380.js",
+    "file": "assets/auth-a8892c45903e6e7c26de.js",
     "name": "auth",
     "src": "source/js/entries/auth.js",
     "isEntry": true,
@@ -351,13 +361,15 @@
       "_lemonade-auth-22ea76dbf93e572e5487.js"
     ],
     "css": [
-      "assets/auth-c0a73be591a97a69b898.css"
+      "assets/auth-1d506571a5402e85dc82.css"
     ],
     "assets": [
       "assets/inter-latin-ext-wght-normal-ced40a63fd22eeb2663d.woff2",
       "assets/inter-latin-wght-normal-f1e245c9025b62e1ab94.woff2",
       "assets/auth-landscape-light-d12ca0f1dc6c9fc757d4.webp",
-      "assets/auth-landscape-dark-7ea78f5a8722499c9e42.webp"
+      "assets/auth-landscape-dark-7ea78f5a8722499c9e42.webp",
+      "assets/cs-3e4972424265353f099f.svg",
+      "assets/en-ee3a51a4431a5410864a.svg"
     ]
   },
   "source/js/entries/installer.js": {

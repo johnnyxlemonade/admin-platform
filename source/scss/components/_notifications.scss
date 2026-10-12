@@ -46,6 +46,7 @@
 }
 
 .admin-shell .lm-user-menu-language-option {
+    color: var(--lm-text-muted);
     font-weight: 400;
 }
 
@@ -54,12 +55,42 @@
 }
 
 .admin-shell .lm-user-menu-language-option.is-active {
-    font-weight: 400;
+    color: var(--lm-text);
+    background: var(--lm-surface-selected);
+    font-weight: 500;
+}
+
+.admin-shell .lm-user-menu-language-option .lm-locale-flag {
+    display: block;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 14px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    filter: grayscale(1) saturate(.2);
+    opacity: .58;
+    transition: filter .16s ease, opacity .16s ease;
+}
+
+.admin-shell .lm-user-menu-language-option .lm-locale-flag--cs {
+    background-image: url("../../images/locale/cs.svg?no-inline");
+}
+
+.admin-shell .lm-user-menu-language-option .lm-locale-flag--en {
+    background-image: url("../../images/locale/en.svg?no-inline");
 }
 
 .admin-shell .lm-user-menu-language-option .lm-locale-label {
     flex: 1 1 auto;
     min-width: 0;
+}
+
+.admin-shell .lm-user-menu-language-option:hover .lm-locale-flag,
+.admin-shell .lm-user-menu-language-option:focus-visible .lm-locale-flag,
+.admin-shell .lm-user-menu-language-option.is-active .lm-locale-flag {
+    filter: none;
+    opacity: 1;
 }
 
 .admin-shell .lm-user-menu-language-option .lm-locale-check {

@@ -241,21 +241,58 @@ main.lemonade-auth {
     width: 96px;
     min-width: 96px;
     gap: 5px;
-    padding: 4px;
+    padding: 5px 7px;
     border: 0;
+    border-radius: var(--lm-radius);
     color: var(--lm-text-muted);
     background: transparent;
     font-size: 12px;
     font-weight: 400;
+    transition: color .16s ease, background-color .16s ease;
+}
+
+.lemonade-auth-language button:hover,
+.lemonade-auth-language button:focus-visible {
+    color: var(--lm-text-secondary);
 }
 
 .lemonade-auth-language button.is-active {
     color: var(--lm-text);
+    background: var(--lm-surface-selected);
+    font-weight: 500;
+}
+
+.lemonade-auth-language .lm-locale-flag {
+    display: block;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 14px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    filter: grayscale(1) saturate(.2);
+    opacity: .58;
+    transition: filter .16s ease, opacity .16s ease;
+}
+
+.lemonade-auth-language .lm-locale-flag--cs {
+    background-image: url("../../images/locale/cs.svg?no-inline");
+}
+
+.lemonade-auth-language .lm-locale-flag--en {
+    background-image: url("../../images/locale/en.svg?no-inline");
 }
 
 .lemonade-auth-language .lm-locale-label {
     flex: 0 0 42px;
     width: 42px;
+}
+
+.lemonade-auth-language button:hover .lm-locale-flag,
+.lemonade-auth-language button:focus-visible .lm-locale-flag,
+.lemonade-auth-language button.is-active .lm-locale-flag {
+    filter: none;
+    opacity: 1;
 }
 
 .lemonade-auth-language .lm-locale-check {
@@ -290,17 +327,19 @@ main.lemonade-auth {
         width: 100%;
         max-width: none;
         min-height: 0;
+        min-width: 0;
         border: 0;
         box-shadow: none;
     }
     .lemonade-auth-panel {
         flex-basis: auto;
+        min-width: 0;
     }
     .lemonade-auth-visual {
         display: none;
     }
     .lemonade-auth-panel {
-        padding: 22px 24px 28px;
+        padding: 22px clamp(16px, 6vw, 28px) 28px;
     }
     .lemonade-auth-content {
         flex: 0 0 auto;
@@ -312,22 +351,27 @@ main.lemonade-auth {
         align-items: flex-start;
         flex-direction: column;
         gap: 16px;
+        min-width: 0;
     }
     .lemonade-auth-footer-copy {
         min-height: 50px;
         gap: 4px;
     }
     .lemonade-auth-language {
-        min-width: 196px;
+        width: min(100%, 196px);
+        min-width: 0;
         flex-wrap: wrap;
         gap: 8px;
     }
     .lemonade-auth-language button {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
         padding: 5px 2px;
     }
     .lemonade-auth .lm-auth-partner {
         margin-top: 0;
-        padding: 0 24px 28px;
+        padding: 0 clamp(16px, 6vw, 28px) 28px;
     }
     .lemonade-auth .lm-auth-partner img {
         max-width: min(112px, 38vw);
