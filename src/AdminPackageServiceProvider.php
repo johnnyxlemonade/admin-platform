@@ -31,7 +31,6 @@ use Lemonade\Admin\Platform\Migrations\CreateCoreTranslationOverrides;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUserIdentities;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUsers;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUserTotp;
-use Lemonade\Admin\Platform\Migrations\RemoveCoreLanguageFlags;
 use Lemonade\Admin\Presentation\AdminPresentationServiceProvider;
 use Lemonade\Admin\System\SystemModuleServiceProvider;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
@@ -100,7 +99,6 @@ final class AdminPackageServiceProvider implements ServiceProviderInterface, Boo
     private function registerPlatformMigrations(MigrationRegistry $migrations): void
     {
         $migrations->register(CreateCoreLanguages::class);
-        $migrations->register(RemoveCoreLanguageFlags::class);
         $migrations->register(CreateCoreModuleCatalog::class);
         $migrations->register(CreateCoreModuleRoutePrefixes::class);
         $migrations->register(CreateCoreUsers::class);

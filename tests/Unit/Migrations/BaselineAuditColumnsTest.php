@@ -59,6 +59,8 @@ final class BaselineAuditColumnsTest extends TestCase
         $statements = $this->createStatements();
         unset($statements['system_user_identity']);
 
+        self::assertStringNotContainsString('flag_code', $statements['system_language']);
+
         foreach ($statements as $table => $statement) {
             self::assertMatchesRegularExpression('/`created_at` DATETIME NULL/', $statement, $table);
             self::assertMatchesRegularExpression('/`updated_at` DATETIME NULL/', $statement, $table);
