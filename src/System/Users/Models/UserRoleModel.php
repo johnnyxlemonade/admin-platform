@@ -130,7 +130,7 @@ final class UserRoleModel extends Model
     public function ensureRootRole(): int
     {
         $this->db->query(
-            "INSERT INTO system_role (code, name, is_system, is_super_admin) VALUES ('root', 'Root', 1, 1) ON DUPLICATE KEY UPDATE name = VALUES(name), is_system = 1, is_super_admin = 1, deleted_at = NULL",
+            "INSERT INTO system_role (code, name, is_system, is_super_admin) VALUES ('root', 'Systémový správce', 1, 1) ON DUPLICATE KEY UPDATE name = VALUES(name), is_system = 1, is_super_admin = 1, deleted_at = NULL",
         );
 
         $role = $this->query()
@@ -151,7 +151,7 @@ final class UserRoleModel extends Model
     public function ensureCanonicalSystemRoles(): void
     {
         foreach ([
-            ['root', 'Root', 1],
+            ['root', 'Systémový správce', 1],
             ['admin', 'Administrátor', 0],
             ['editor', 'Editor', 0],
         ] as [$code, $name, $superAdmin]) {
