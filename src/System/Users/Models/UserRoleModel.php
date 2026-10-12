@@ -163,60 +163,6 @@ final class UserRoleModel extends Model
     }
 
     /**
-     * Synchronizuje canonical permission sety systemovych roli pri instalaci
-     */
-    public function synchronizeCanonicalSystemRolePermissions(): void
-    {
-        foreach ([
-            'admin' => [
-                'system.users.view',
-                'system.users.create',
-                'system.users.edit',
-                'system.users.disable',
-                'system.users.delete',
-                'system.users.restore',
-                'system.users.manage_roles',
-                'system.users.manage_permissions',
-                'system.audit.view',
-                'system.notifications.view',
-                'system.notifications.publish',
-                'system.notifications.activate',
-                'system.notifications.deactivate',
-                'system.notifications.delete',
-                'system.notifications.restore',
-                'system.notifications.reset_display',
-                'system.languages.view',
-                'system.languages.create',
-                'system.languages.edit',
-                'system.languages.enable',
-                'system.languages.disable',
-                'system.languages.set_default',
-                'system.roles.view',
-                'system.roles.create',
-                'system.roles.edit',
-                'system.roles.delete',
-                'system.roles.restore',
-                'system.media.view',
-                'system.media.edit',
-            ],
-            'editor' => [],
-        ] as $roleCode => $permissionCodes) {
-            $this->db->query(
-                'DELETE assignments FROM system_role_permission assignments INNER JOIN system_role role ON role.id = assignments.role_id WHERE role.code = ?',
-                [$roleCode],
-            );
-            if ($permissionCodes === []) {
-                continue;
-            }
-            $placeholders = implode(', ', array_fill(0, count($permissionCodes), '?'));
-            $this->db->query(
-                'INSERT INTO system_role_permission (role_id, permission_id) SELECT role.id, permission.id FROM system_role role INNER JOIN system_permission permission ON permission.code IN (' . $placeholders . ') WHERE role.code = ?',
-                [...$permissionCodes, $roleCode],
-            );
-        }
-    }
-
-    /**
      * Vrati query nad assignment tabulkou uzivatel-role
      */
     private function userRoleQuery(): QueryBuilder

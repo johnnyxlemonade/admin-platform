@@ -266,11 +266,10 @@ final class InstallationService implements InstallationStateInterface
                         $this->modules()->migrateInstalled(AuditActor::migration('web-installer'));
                         break;
                     case InstallStep::Permissions:
-                        $this->permissions()->sync();
                         if ($initialInstall) {
                             $this->roles()->ensureCanonicalSystemRoles();
-                            $this->roles()->synchronizeCanonicalSystemRolePermissions();
                         }
+                        $this->permissions()->sync();
                         break;
                 }
                 $this->markCompleted($step);

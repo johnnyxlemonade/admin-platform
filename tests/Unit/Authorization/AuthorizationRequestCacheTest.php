@@ -16,6 +16,18 @@ use PHPUnit\Framework\TestCase;
 
 final class AuthorizationRequestCacheTest extends TestCase
 {
+    public function testSuperAdminBypassesPermissionsWithoutExplicitAssignments(): void
+    {
+        $connection = $this->createMock(ConnectionInterface::class);
+        $connection->expects(self::once())->method('select')->with(
+            'SELECT 1 FROM system_user_role ur JOIN system_role r ON r.id=ur.role_id WHERE ur.user_id=? AND r.deleted_at IS NULL AND r.is_super_admin=1 LIMIT 1',
+            [42],
+        )->willReturn([['1' => 1]]);
+        $authorization = new AuthorizationService($this->principal(42), $this->database($connection));
+
+        self::assertTrue($authorization->hasPermission('system.modules.manage_features'));
+    }
+
     public function testRepeatedChecksReuseSuperAdminRoleAndOverrideReads(): void
     {
         $connection = $this->createMock(ConnectionInterface::class);

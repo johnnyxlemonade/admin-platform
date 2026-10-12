@@ -14,84 +14,210 @@ use PHPUnit\Framework\TestCase;
 
 final class PermissionSyncServiceTest extends TestCase
 {
-    public function testItInsertsTranslationKeysInsteadOfLocaleSpecificLabels(): void
+    public function testAdministratorReceivesEveryAvailablePermissionExceptModuleManagementCapabilities(): void
     {
-        $connection = $this->createMock(ConnectionInterface::class);
-        $connection->expects(self::once())->method('select')->with('SELECT code,module_code,name_key FROM system_permission')->willReturn([]);
-        $connection->expects(self::once())->method('statement')->with(
-            'INSERT INTO system_permission (code,module_code,name_key) VALUES (?,?,?)',
-            ['system.users.view', 'system.users', 'users.permissions.view'],
-        )->willReturn(1);
-        $catalog = new PermissionCatalogRegistry();
-        $catalog->register(new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'));
+        $state = new PermissionSyncState();
+        $catalog = $this->catalog(
+            new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'),
+            new PermissionDefinition('cms.news.edit', 'cms.news', 'news.permissions.edit'),
+            new PermissionDefinition('system.modules.view', 'system.modules', 'modules.permissions.view'),
+            new PermissionDefinition('system.modules.install', 'system.modules', 'modules.permissions.install'),
+            new PermissionDefinition('system.modules.enable', 'system.modules', 'modules.permissions.enable'),
+            new PermissionDefinition('system.modules.disable', 'system.modules', 'modules.permissions.disable'),
+            new PermissionDefinition('system.modules.manage_features', 'system.modules', 'modules.permissions.manage_features'),
+        );
 
-        $report = (new PermissionSyncService($catalog, $this->database($connection)))->sync();
+        (new PermissionSyncService($catalog, $this->database($state)))->sync();
+
+        self::assertSame(['cms.news.edit', 'system.users.view'], $state->administratorPermissions());
+    }
+
+    public function testReconcileAddsNewAvailablePermissionAndIsIdempotent(): void
+    {
+        $state = new PermissionSyncState([
+            ['code' => 'system.users.view', 'module_code' => 'system.users', 'name_key' => 'users.permissions.view'],
+        ], ['system.users.view']);
+        $catalog = $this->catalog(
+            new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'),
+            new PermissionDefinition('system.media.view', 'system.media', 'media.permissions.view'),
+        );
+        $service = new PermissionSyncService($catalog, $this->database($state));
+
+        $service->sync();
+
+        self::assertSame(['system.media.view', 'system.users.view'], $state->administratorPermissions());
+        $roleMutationsAfterFirstSync = $state->administratorMutationCount();
+
+        $service->sync();
+
+        self::assertSame($roleMutationsAfterFirstSync, $state->administratorMutationCount());
+    }
+
+    public function testReconcileRemovesAssignmentForPermissionRemovedFromCatalog(): void
+    {
+        $state = new PermissionSyncState([
+            ['code' => 'system.users.view', 'module_code' => 'system.users', 'name_key' => 'users.permissions.view'],
+            ['code' => 'system.media.legacy', 'module_code' => 'system.media', 'name_key' => 'media.permissions.legacy'],
+        ], ['system.media.legacy', 'system.users.view']);
+        $catalog = $this->catalog(new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'));
+
+        $report = (new PermissionSyncService($catalog, $this->database($state)))->sync();
+
+        self::assertSame(['system.media.legacy'], $report->stale());
+        self::assertSame(['system.users.view'], $state->administratorPermissions());
+    }
+
+    public function testSyncModuleAddsAnOptionalModulePermissionToAdministrator(): void
+    {
+        $state = new PermissionSyncState([
+            ['code' => 'system.users.view', 'module_code' => 'system.users', 'name_key' => 'users.permissions.view'],
+        ], ['system.users.view']);
+        $catalog = $this->catalog(
+            new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'),
+            new PermissionDefinition('cms.news.view', 'cms.news', 'news.permissions.view'),
+        );
+
+        $report = (new PermissionSyncService($catalog, $this->database($state)))->syncModule('cms.news');
 
         self::assertSame(1, $report->inserted());
+        self::assertSame(['cms.news.view', 'system.users.view'], $state->administratorPermissions());
     }
 
-    public function testItUpdatesAChangedTranslationKey(): void
+    public function testSyncModuleRemovesStaleOptionalModulePermissionWithoutTouchingOtherModules(): void
     {
-        $connection = $this->createMock(ConnectionInterface::class);
-        $connection->expects(self::once())->method('select')->with('SELECT code,module_code,name_key FROM system_permission')->willReturn([
-            ['code' => 'system.users.view', 'module_code' => 'system.users', 'name_key' => 'users.permissions.old_view'],
-        ]);
-        $connection->expects(self::once())->method('statement')->with(
-            'UPDATE system_permission SET module_code=?,name_key=? WHERE code=?',
-            ['system.users', 'users.permissions.view', 'system.users.view'],
-        )->willReturn(1);
+        $state = new PermissionSyncState([
+            ['code' => 'system.users.view', 'module_code' => 'system.users', 'name_key' => 'users.permissions.view'],
+            ['code' => 'cms.news.legacy', 'module_code' => 'cms.news', 'name_key' => 'news.permissions.legacy'],
+        ], ['cms.news.legacy', 'system.users.view']);
+        $catalog = $this->catalog(new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'));
+
+        $report = (new PermissionSyncService($catalog, $this->database($state)))->syncModule('cms.news');
+
+        self::assertSame(['cms.news.legacy'], $report->stale());
+        self::assertSame(['system.users.view'], $state->administratorPermissions());
+        self::assertArrayHasKey('system.users.view', $state->permissions);
+    }
+
+    public function testSyncRetainsTranslationKeysInsteadOfLocaleSpecificLabels(): void
+    {
+        $state = new PermissionSyncState();
+        $catalog = $this->catalog(new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'));
+
+        (new PermissionSyncService($catalog, $this->database($state)))->sync();
+
+        self::assertSame('users.permissions.view', $state->permissions['system.users.view']['name_key']);
+    }
+
+    private function catalog(PermissionDefinition ...$definitions): PermissionCatalogRegistry
+    {
         $catalog = new PermissionCatalogRegistry();
-        $catalog->register(new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'));
+        foreach ($definitions as $definition) {
+            $catalog->register($definition);
+        }
 
-        $report = (new PermissionSyncService($catalog, $this->database($connection)))->sync();
-
-        self::assertSame(1, $report->updated());
+        return $catalog;
     }
 
-    public function testItRemovesStalePermissionsWithTheirAssignments(): void
+    private function database(PermissionSyncState $state): Database
     {
         $connection = $this->createMock(ConnectionInterface::class);
-        $connection->expects(self::once())->method('select')->with('SELECT code,module_code,name_key FROM system_permission')->willReturn([
-            ['code' => 'system.media.remove', 'module_code' => 'system.media', 'name_key' => 'media.permissions.remove'],
-        ]);
-        $statements = [];
-        $connection->expects(self::exactly(3))->method('statement')->willReturnCallback(
-            static function (string $sql, array $bindings) use (&$statements): int {
-                $statements[] = [$sql, $bindings];
+        $connection->method('select')->willReturnCallback($state->select(...));
+        $connection->method('statement')->willReturnCallback($state->statement(...));
 
-                return 1;
-            },
-        );
-        $report = (new PermissionSyncService(new PermissionCatalogRegistry(), $this->database($connection)))->sync();
+        return new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+    }
+}
 
-        self::assertSame(['system.media.remove'], $report->stale());
-        self::assertSame([
-            ['DELETE assignments FROM system_role_permission assignments INNER JOIN system_permission permission ON permission.id = assignments.permission_id WHERE permission.code IN (?)', ['system.media.remove']],
-            ['DELETE assignments FROM system_user_permission assignments INNER JOIN system_permission permission ON permission.id = assignments.permission_id WHERE permission.code IN (?)', ['system.media.remove']],
-            ['DELETE FROM system_permission WHERE code IN (?)', ['system.media.remove']],
-        ], $statements);
+final class PermissionSyncState
+{
+    /** @var array<string, array{code:string,module_code:string,name_key:string}> */
+    public array $permissions = [];
+
+    /** @var array<string, true> */
+    private array $administratorAssignments = [];
+
+    private int $administratorMutations = 0;
+
+    /**
+     * @param list<array{code:string,module_code:string,name_key:string}> $permissions
+     * @param list<string> $administratorAssignments
+     */
+    public function __construct(array $permissions = [], array $administratorAssignments = [])
+    {
+        foreach ($permissions as $permission) {
+            $this->permissions[$permission['code']] = $permission;
+        }
+        foreach ($administratorAssignments as $code) {
+            $this->administratorAssignments[$code] = true;
+        }
     }
 
     /**
-     * Instalace modulu doplni jen jeho prava a nema destruktivni side effect na chybejici package
+     * @param list<string> $bindings
+     * @return list<array<string, string>>
      */
-    public function testItSynchronizesOneInstalledModuleWithoutRemovingOtherPermissions(): void
+    public function select(string $sql, array $bindings = []): array
     {
-        $connection = $this->createMock(ConnectionInterface::class);
-        $connection->expects(self::once())->method('select')->with('SELECT code,module_code,name_key FROM system_permission WHERE module_code=?', ['cms.news'])->willReturn([]);
-        $connection->expects(self::once())->method('statement')->with('INSERT INTO system_permission (code,module_code,name_key) VALUES (?,?,?)', ['cms.news.view', 'cms.news', 'news.permissions.view'])->willReturn(1);
-        $catalog = new PermissionCatalogRegistry();
-        $catalog->register(new PermissionDefinition('cms.news.view', 'cms.news', 'news.permissions.view'));
-        $catalog->register(new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'));
+        if ($sql === 'SELECT code,module_code,name_key FROM system_permission') {
+            return array_values($this->permissions);
+        }
+        if ($sql === 'SELECT code,module_code,name_key FROM system_permission WHERE module_code=?') {
+            return array_values(array_filter(
+                $this->permissions,
+                static fn(array $permission): bool => $permission['module_code'] === $bindings[0],
+            ));
+        }
+        if ($sql === 'SELECT code FROM system_permission') {
+            return array_map(static fn(string $code): array => ['code' => $code], array_keys($this->permissions));
+        }
+        if (str_contains($sql, 'FROM system_role_permission assignments')) {
+            return array_map(static fn(string $code): array => ['code' => $code], array_keys($this->administratorAssignments));
+        }
 
-        $report = (new PermissionSyncService($catalog, $this->database($connection)))->syncModule('cms.news');
-
-        self::assertSame(1, $report->inserted());
-        self::assertSame([], $report->stale());
+        return [];
     }
 
-    private function database(ConnectionInterface $connection): Database
+    /** @param list<string> $bindings */
+    public function statement(string $sql, array $bindings = []): int
     {
-        return new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        if ($sql === 'INSERT INTO system_permission (code,module_code,name_key) VALUES (?,?,?)') {
+            $this->permissions[$bindings[0]] = ['code' => $bindings[0], 'module_code' => $bindings[1], 'name_key' => $bindings[2]];
+        } elseif ($sql === 'UPDATE system_permission SET module_code=?,name_key=? WHERE code=?') {
+            $this->permissions[$bindings[2]] = ['code' => $bindings[2], 'module_code' => $bindings[0], 'name_key' => $bindings[1]];
+        } elseif ($sql === 'DELETE FROM system_permission WHERE code IN (?)') {
+            foreach ($bindings as $code) {
+                unset($this->permissions[$code], $this->administratorAssignments[$code]);
+            }
+        } elseif (str_starts_with($sql, 'DELETE assignments FROM system_role_permission assignments INNER JOIN system_permission permission')) {
+            foreach ($bindings as $code) {
+                unset($this->administratorAssignments[$code]);
+            }
+        } elseif (str_starts_with($sql, 'DELETE assignments FROM system_role_permission assignments INNER JOIN system_role role')) {
+            foreach (array_slice($bindings, 1) as $code) {
+                unset($this->administratorAssignments[$code]);
+            }
+            $this->administratorMutations++;
+        } elseif (str_starts_with($sql, 'INSERT INTO system_role_permission')) {
+            foreach (array_slice($bindings, 0, -1) as $code) {
+                $this->administratorAssignments[$code] = true;
+            }
+            $this->administratorMutations++;
+        }
+
+        return 1;
+    }
+
+    /** @return list<string> */
+    public function administratorPermissions(): array
+    {
+        $permissions = array_keys($this->administratorAssignments);
+        sort($permissions);
+
+        return $permissions;
+    }
+
+    public function administratorMutationCount(): int
+    {
+        return $this->administratorMutations;
     }
 }
