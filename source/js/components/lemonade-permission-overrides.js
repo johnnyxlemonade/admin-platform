@@ -203,6 +203,29 @@ let rebindListenerRemover = null;
                 groupToggle.setAttribute("aria-label", container.getAttribute("data-lemonade-permission-select-all-label") || "");
             }
         });
+        root.querySelectorAll("[data-lemonade-permission-section]").forEach(function (section) {
+            const toggles = section.querySelectorAll("[data-lemonade-permission-toggle]");
+            const selected = Array.prototype.filter.call(toggles, function (toggle) { return toggle.checked; }).length;
+            const total = toggles.length;
+            const counter = section.querySelector("[data-lemonade-permission-section-count]");
+            const sectionToggle = section.querySelector("[data-lemonade-permission-section-toggle]");
+            const editable = Array.prototype.filter.call(toggles, function (toggle) { return !toggle.disabled; });
+            const editableSelected = editable.filter(function (toggle) { return toggle.checked; }).length;
+            if (counter) {
+                counter.textContent = selected + " / " + total;
+                counter.setAttribute("data-selected-count", String(selected));
+                counter.setAttribute("data-total-count", String(total));
+                const label = container.getAttribute("data-lemonade-permission-count-label") || "";
+                counter.setAttribute("aria-label", label + (label ? ": " : "") + selected + " / " + total);
+            }
+            if (sectionToggle) {
+                const allSelected = editable.length > 0 && editableSelected === editable.length;
+                sectionToggle.checked = allSelected;
+                sectionToggle.indeterminate = editableSelected > 0 && !allSelected;
+                sectionToggle.disabled = sectionToggle.hasAttribute("data-lemonade-permission-section-disabled") || editable.length === 0;
+                sectionToggle.setAttribute("aria-label", container.getAttribute("data-lemonade-permission-select-all-label") || "");
+            }
+        });
     };
 
     const bindToggles = function (root) {
@@ -236,7 +259,99 @@ let rebindListenerRemover = null;
                 updateCounters(root);
             });
         });
+        container.querySelectorAll("[data-lemonade-permission-section-toggle]").forEach(function (sectionToggle) {
+            if (sectionToggle.dataset.lemonadePermissionBound) return;
+            sectionToggle.dataset.lemonadePermissionBound = "true";
+            sectionToggle.addEventListener("change", function () {
+                const section = sectionToggle.closest("[data-lemonade-permission-section]");
+                if (!section) return;
+                const toggles = Array.prototype.filter.call(section.querySelectorAll("[data-lemonade-permission-toggle]"), function (toggle) {
+                    return !toggle.disabled;
+                });
+                if (sectionToggle.checked) {
+                    toggles.forEach(function (toggle) { requestToggle(root, toggle, true); });
+                } else {
+                    toggles.slice().reverse().forEach(function (toggle) {
+                        if (toggle.checked) requestToggle(root, toggle, false);
+                    });
+                }
+                updateCounters(root);
+            });
+        });
+        container.querySelectorAll("[data-lemonade-permission-group-expand]").forEach(function (button) {
+            if (button.dataset.lemonadePermissionBound) return;
+            button.dataset.lemonadePermissionBound = "true";
+            button.addEventListener("click", function () {
+                const group = button.closest("[data-lemonade-permission-group]");
+                if (!group) return;
+                const expanded = button.getAttribute("aria-expanded") !== "true";
+                button.setAttribute("aria-expanded", String(expanded));
+                group.querySelectorAll("[data-lemonade-permission-item-extra]").forEach(function (item) {
+                    item.hidden = !expanded;
+                });
+                const label = button.querySelector("[data-lemonade-permission-group-expand-label]");
+                if (label) label.textContent = expanded
+                    ? (button.getAttribute("data-lemonade-hide-label") || "")
+                    : (button.getAttribute("data-lemonade-show-all-label") || "");
+            });
+        });
         updateCounters(root);
+    };
+
+    const permissionGroupMarkup = function (container, group, editable, allLabel, allLabelI18n) {
+        const permissions = group.permissions || [];
+        const icon = group.icon ? '<span class="lm-permission-group-icon"><i class="' + escapeHtml(group.icon) + '" aria-hidden="true"></i></span>' : "";
+        const groupId = "permission-group-" + String(group.moduleCode).replace(/[^a-z0-9_-]+/gi, "-");
+        const items = permissions.map(function (permission, index) {
+            const allowed = permission.state === "allow" || permission.state === "inherited_allow";
+            const inherited = isInherited(permission.state);
+            const id = "permission-" + String(permission.code).replace(/[^a-z0-9_-]+/g, "-");
+            const sourceLabel = inherited
+                ? container.getAttribute("data-lemonade-permission-role-label")
+                : container.getAttribute("data-lemonade-permission-override-label");
+            const stateLabel = permissionStateLabel(container, permission.state);
+            const requires = Array.isArray(permission.requires) ? permission.requires.filter(function (code) { return typeof code === "string"; }).join(",") : "";
+            return '<div class="lm-permission-item" data-lemonade-permission-item' + (index >= 3 ? ' hidden data-lemonade-permission-item-extra' : "") + '>' +
+                '<input type="hidden" name="permission_overrides[' + escapeHtml(permission.code) + ']" value="' + (inherited ? "" : escapeHtml(permission.state)) + '"' + (inherited ? " disabled" : "") + ' data-lemonade-permission-input>' +
+                '<input class="form-check-input" id="' + escapeHtml(id) + '" type="checkbox"' + (allowed ? " checked" : "") + (editable ? "" : " disabled") + ' data-lemonade-permission-toggle data-lemonade-permission-code="' + escapeHtml(permission.code) + '" data-lemonade-permission-requires="' + escapeHtml(requires) + '"' + (inherited ? ' data-lemonade-permission-inherited-state="' + escapeHtml(permission.state) + '"' : "") + ' data-lemonade-permission-state="' + escapeHtml(permission.state) + '" aria-describedby="' + escapeHtml(id) + '-state">' +
+                '<label class="form-check-label" for="' + escapeHtml(id) + '" data-lemonade-i18n="' + escapeHtml(permission.labelKey) + '">' + escapeHtml(permission.label) + "</label>" +
+                '<span class="lm-permission-source ' + (inherited ? "is-inherited" : "is-override") + '" data-lemonade-permission-source>' + (inherited ? '<i class="bi bi-lock" aria-hidden="true"></i>' : "") + '<span data-lemonade-permission-source-label>' + escapeHtml(sourceLabel) + "</span></span>" +
+                '<span class="visually-hidden" id="' + escapeHtml(id) + '-state" data-lemonade-permission-state-label data-lemonade-i18n="users.editor.permission_' + escapeHtml(permission.state) + '">' + escapeHtml(stateLabel) + "</span>" +
+                "</div>";
+        }).join("");
+        const selected = permissions.filter(function (permission) {
+            return permission.state === "allow" || permission.state === "inherited_allow";
+        }).length;
+        const allDisabled = editable ? "" : " disabled";
+        const disabledMarker = editable ? "" : " data-lemonade-permission-group-disabled";
+        const showAllLabel = (container.getAttribute("data-lemonade-permission-show-all-label") || "").replace("{count}", String(permissions.length));
+        const hideLabel = container.getAttribute("data-lemonade-permission-hide-label") || "";
+        const footer = permissions.length > 3
+            ? '<div class="lm-permission-group-footer"><button class="lm-permission-group-expand" type="button" data-lemonade-permission-group-expand aria-expanded="false" aria-controls="' + escapeHtml(groupId) + '-permissions" data-lemonade-show-all-label="' + escapeHtml(showAllLabel) + '" data-lemonade-hide-label="' + escapeHtml(hideLabel) + '"><span data-lemonade-permission-group-expand-label>' + escapeHtml(showAllLabel) + '</span><i class="bi bi-chevron-down" aria-hidden="true"></i></button></div>'
+            : "";
+        return '<section class="lm-permission-group" data-lemonade-permission-group aria-labelledby="' + escapeHtml(groupId) + '">' +
+            '<div class="lm-permission-group-header"><div class="lm-permission-group-heading">' + icon + '<h4 class="lm-permission-group-title" id="' + escapeHtml(groupId) + '"><span' + (group.labelKey ? ' data-lemonade-i18n="' + escapeHtml(group.labelKey) + '"' : "") + ">" + escapeHtml(group.label) + "</span></h4></div>" +
+            '<div class="lm-permission-group-actions"><span class="lm-permission-group-count" data-lemonade-permission-count data-selected-count="' + selected + '" data-total-count="' + permissions.length + '" aria-live="polite">' + selected + " / " + permissions.length + '</span><span class="lm-permission-group-select-all"><input class="form-check-input lm-permission-group-toggle" id="' + escapeHtml(groupId) + '-all" type="checkbox"' + (selected === permissions.length && permissions.length > 0 ? " checked" : "") + allDisabled + disabledMarker + ' data-lemonade-permission-group-toggle aria-controls="' + escapeHtml(groupId) + '-permissions"><label class="form-check-label" for="' + escapeHtml(groupId) + '-all"' + allLabelI18n + ">" + escapeHtml(allLabel) + "</label></span></div></div>" +
+            '<div class="lm-permission-grid" id="' + escapeHtml(groupId) + '-permissions">' + items + "</div>" + footer + "</section>";
+    };
+
+    const permissionSectionMarkup = function (container, scope, groups, editable, allLabel, allLabelI18n) {
+        if (groups.length === 0) return "";
+        const permissions = groups.flatMap(function (group) { return group.permissions || []; });
+        const selected = permissions.filter(function (permission) {
+            return permission.state === "allow" || permission.state === "inherited_allow";
+        }).length;
+        const sectionId = "permission-section-" + scope;
+        const title = container.getAttribute("data-lemonade-permission-" + scope + "-title") || "";
+        const description = container.getAttribute("data-lemonade-permission-" + scope + "-description") || "";
+        const icon = scope === "system" ? "bi-gear" : "bi-boxes";
+        const allDisabled = editable ? "" : " disabled data-lemonade-permission-section-disabled";
+        return '<section class="lm-permission-section" data-lemonade-permission-section aria-labelledby="' + sectionId + '">' +
+            '<header class="lm-permission-section-header"><div class="lm-permission-section-heading"><span class="lm-permission-section-icon"><i class="bi ' + icon + '" aria-hidden="true"></i></span><div><h3 id="' + sectionId + '">' + escapeHtml(title) + "</h3><p>" + escapeHtml(description) + "</p></div></div>" +
+            '<div class="lm-permission-section-actions"><span class="lm-permission-section-count" data-lemonade-permission-section-count data-selected-count="' + selected + '" data-total-count="' + permissions.length + '" aria-live="polite">' + selected + " / " + permissions.length + '</span><span class="lm-permission-section-select-all"><input class="form-check-input" id="' + sectionId + '-all" type="checkbox"' + (selected === permissions.length && permissions.length > 0 ? " checked" : "") + allDisabled + ' data-lemonade-permission-section-toggle aria-controls="' + sectionId + '-groups"><label class="form-check-label" for="' + sectionId + '-all"' + allLabelI18n + ">" + escapeHtml(allLabel) + "</label></span></div></header>" +
+            '<div class="lm-permission-section-groups" id="' + sectionId + '-groups">' + groups.map(function (group) {
+                return permissionGroupMarkup(container, group, editable, allLabel, allLabelI18n);
+            }).join("") + "</div></section>";
     };
 
 export const PermissionOverrides = {
@@ -315,37 +430,14 @@ export const PermissionOverrides = {
             const allLabel = container.getAttribute("data-lemonade-permission-select-all-label") || "";
             const allLabelKey = container.getAttribute("data-lemonade-permission-select-all-label-key") || "";
             const allLabelI18n = allLabelKey ? ' data-lemonade-i18n="' + escapeHtml(allLabelKey) + '"' : "";
-            container.innerHTML = (groups || []).map(function (group) {
-                const permissions = group.permissions || [];
-                const icon = group.icon ? '<i class="lm-permission-group-icon ' + escapeHtml(group.icon) + '" aria-hidden="true"></i>' : "";
-                const groupId = "permission-group-" + String(group.moduleCode).replace(/[^a-z0-9_-]+/gi, "-");
-                const items = permissions.map(function (permission) {
-                    const allowed = permission.state === "allow" || permission.state === "inherited_allow";
-                    const inherited = isInherited(permission.state);
-                    const id = "permission-" + String(permission.code).replace(/[^a-z0-9_-]+/g, "-");
-                    const sourceLabel = inherited
-                        ? container.getAttribute("data-lemonade-permission-role-label")
-                        : container.getAttribute("data-lemonade-permission-override-label");
-                    const stateLabel = permissionStateLabel(container, permission.state);
-                    const requires = Array.isArray(permission.requires) ? permission.requires.filter(function (code) { return typeof code === "string"; }).join(",") : "";
-                    return '<div class="lm-permission-item" data-lemonade-permission-item>' +
-                        '<input type="hidden" name="permission_overrides[' + escapeHtml(permission.code) + ']" value="' + (inherited ? "" : escapeHtml(permission.state)) + '"' + (inherited ? " disabled" : "") + ' data-lemonade-permission-input>' +
-                        '<input class="form-check-input" id="' + escapeHtml(id) + '" type="checkbox"' + (allowed ? " checked" : "") + (editable ? "" : " disabled") + ' data-lemonade-permission-toggle data-lemonade-permission-code="' + escapeHtml(permission.code) + '" data-lemonade-permission-requires="' + escapeHtml(requires) + '"' + (inherited ? ' data-lemonade-permission-inherited-state="' + escapeHtml(permission.state) + '"' : "") + ' data-lemonade-permission-state="' + escapeHtml(permission.state) + '" aria-describedby="' + escapeHtml(id) + '-state">' +
-                        '<label class="form-check-label" for="' + escapeHtml(id) + '" data-lemonade-i18n="' + escapeHtml(permission.labelKey) + '">' + escapeHtml(permission.label) + "</label>" +
-                        '<span class="lm-permission-source ' + (inherited ? "is-inherited" : "is-override") + '" data-lemonade-permission-source>' + (inherited ? '<i class="bi bi-lock" aria-hidden="true"></i>' : "") + '<span data-lemonade-permission-source-label>' + escapeHtml(sourceLabel) + "</span></span>" +
-                        '<span class="visually-hidden" id="' + escapeHtml(id) + '-state" data-lemonade-permission-state-label data-lemonade-i18n="users.editor.permission_' + escapeHtml(permission.state) + '">' + escapeHtml(stateLabel) + "</span>" +
-                        "</div>";
-                }).join("");
-                const selected = permissions.filter(function (permission) {
-                    return permission.state === "allow" || permission.state === "inherited_allow";
-                }).length;
-                const allDisabled = editable ? "" : " disabled";
-                const disabledMarker = editable ? "" : " data-lemonade-permission-group-disabled";
-                return '<section class="lm-permission-group" data-lemonade-permission-group aria-labelledby="' + escapeHtml(groupId) + '">' +
-                    '<div class="lm-permission-group-header"><h3 class="lm-permission-group-title" id="' + escapeHtml(groupId) + '">' + icon + '<span' + (group.labelKey ? ' data-lemonade-i18n="' + escapeHtml(group.labelKey) + '"' : "") + ">" + escapeHtml(group.label) + "</span></h3>" +
-                    '<div class="lm-permission-group-actions"><span class="lm-permission-group-count" data-lemonade-permission-count data-selected-count="' + selected + '" data-total-count="' + permissions.length + '" aria-live="polite">' + selected + " / " + permissions.length + '</span><span class="lm-permission-group-select-all"><input class="form-check-input lm-permission-group-toggle" id="' + escapeHtml(groupId) + '-all" type="checkbox"' + (selected === permissions.length && permissions.length > 0 ? " checked" : "") + allDisabled + disabledMarker + ' data-lemonade-permission-group-toggle aria-controls="' + escapeHtml(groupId) + '-permissions"><label class="form-check-label" for="' + escapeHtml(groupId) + '-all"' + allLabelI18n + '>' + escapeHtml(allLabel) + "</label></span></div></div>" +
-                    '<div class="lm-permission-grid" id="' + escapeHtml(groupId) + '-permissions">' + items + "</div></section>";
-            }).join("");
+            const systemGroups = (groups || []).filter(function (group) {
+                return String(group.moduleCode || "").indexOf("system.") === 0;
+            });
+            const moduleGroups = (groups || []).filter(function (group) {
+                return String(group.moduleCode || "").indexOf("system.") !== 0;
+            });
+            container.innerHTML = permissionSectionMarkup(container, "system", systemGroups, editable, allLabel, allLabelI18n)
+                + permissionSectionMarkup(container, "modules", moduleGroups, editable, allLabel, allLabelI18n);
             bindToggles(root);
             if (I18n) I18n.apply(container);
             root.dispatchEvent(new CustomEvent("lemonade:dirty-state:resync", { bubbles: true }));

@@ -1,12 +1,122 @@
 .admin-shell .lm-permission-groups {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--lm-space-4);
     min-width: 0;
     container-type: inline-size;
 }
 
+.admin-shell .lm-permission-section {
+    min-width: 0;
+    padding: var(--lm-space-5);
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius-lg);
+    background: var(--lm-surface);
+}
+
+.admin-shell .lm-permission-section-header,
+.admin-shell .lm-permission-section-heading,
+.admin-shell .lm-permission-section-actions,
+.admin-shell .lm-permission-section-select-all,
+.admin-shell .lm-permission-group-heading,
+.admin-shell .lm-permission-group-actions,
+.admin-shell .lm-permission-group-select-all,
+.admin-shell .lm-permission-group-expand {
+    display: flex;
+    align-items: center;
+}
+
+.admin-shell .lm-permission-section-header {
+    justify-content: space-between;
+    gap: var(--lm-space-5);
+    padding: 0 var(--lm-space-2) var(--lm-space-5);
+    border-bottom: 1px solid var(--lm-line-subtle);
+}
+
+.admin-shell .lm-permission-section-heading,
+.admin-shell .lm-permission-group-heading {
+    min-width: 0;
+}
+
+.admin-shell .lm-permission-section-heading {
+    gap: var(--lm-space-3);
+}
+
+.admin-shell .lm-permission-section-icon,
+.admin-shell .lm-permission-group-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--lm-radius);
+}
+
+.admin-shell .lm-permission-section-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 24px;
+}
+
+.admin-shell .lm-permission-section h3,
+.admin-shell .lm-permission-group-title {
+    margin: 0;
+    color: var(--lm-text-heading);
+    font-weight: 700;
+}
+
+.admin-shell .lm-permission-section h3 {
+    font-size: 18px;
+    letter-spacing: -.2px;
+}
+
+.admin-shell .lm-permission-section-heading p {
+    margin: 3px 0 0;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+
+.admin-shell .lm-permission-section-actions,
+.admin-shell .lm-permission-group-actions {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    gap: var(--lm-space-3);
+}
+
+.admin-shell .lm-permission-section-count,
+.admin-shell .lm-permission-group-count {
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-permission-section-select-all,
+.admin-shell .lm-permission-group-select-all {
+    gap: 6px;
+    color: var(--lm-text-secondary);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-permission-section-select-all .form-check-input,
+.admin-shell .lm-permission-group-select-all .form-check-input,
+.admin-shell .lm-permission-item .form-check-input {
+    float: none;
+    margin: 0;
+}
+
+.admin-shell .lm-permission-section-groups {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--lm-space-4);
+    padding-top: var(--lm-space-5);
+}
+
 .admin-shell .lm-permission-group {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     overflow: hidden;
     border: 1px solid var(--lm-line);
@@ -16,24 +126,28 @@
 
 .admin-shell .lm-permission-group-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    min-width: 0;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--lm-line);
-    background: var(--lm-surface-soft);
+    gap: var(--lm-space-3);
+    padding: var(--lm-space-4);
+}
+
+.admin-shell .lm-permission-group-heading {
+    align-items: flex-start;
+    gap: var(--lm-space-2);
+}
+
+.admin-shell .lm-permission-group-icon {
+    width: 44px;
+    height: 44px;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 21px;
 }
 
 .admin-shell .lm-permission-group-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     min-width: 0;
-    margin: 0;
-    color: var(--lm-text-heading);
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -.1px;
 }
 
 .admin-shell .lm-permission-group-title > span {
@@ -41,47 +155,15 @@
     overflow-wrap: anywhere;
 }
 
-.admin-shell .lm-permission-group-icon {
-    flex: 0 0 auto;
-    color: var(--lm-primary);
-    font-size: 15px;
-}
-
-.admin-shell .lm-permission-group-count {
-    flex: 0 0 auto;
-    color: var(--lm-text-muted);
-    font-size: 12px;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-
 .admin-shell .lm-permission-group-actions {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-    flex: 0 0 auto;
-}
-
-.admin-shell .lm-permission-group-select-all {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--lm-text-secondary);
-    font-size: 12px;
-    white-space: nowrap;
-}
-
-.admin-shell .lm-permission-group-select-all .form-check-input {
-    float: none;
-    margin: 0;
+    align-self: flex-start;
+    gap: var(--lm-space-2);
 }
 
 .admin-shell .lm-permission-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px 20px;
-    padding: 14px 16px;
+    gap: var(--lm-space-2);
+    padding: var(--lm-space-2) var(--lm-space-4) var(--lm-space-4);
 }
 
 .admin-shell .lm-permission-item {
@@ -90,17 +172,13 @@
     align-items: center;
     gap: 8px;
     min-width: 0;
-    min-height: 34px;
-}
-
-.admin-shell .lm-permission-item .form-check-input {
-    float: none;
-    margin: 0;
+    min-height: 30px;
 }
 
 .admin-shell .lm-permission-item .form-check-label {
     min-width: 0;
     color: var(--lm-text-secondary);
+    font-size: 14px;
     overflow-wrap: anywhere;
 }
 
@@ -115,39 +193,73 @@
     white-space: nowrap;
 }
 
-.admin-shell .lm-permission-source.is-inherited {
-    color: var(--lm-text-muted);
-}
-
 .admin-shell .lm-permission-source.is-override {
     color: var(--lm-primary);
 }
 
-@container (max-width: 900px) {
-    .admin-shell .lm-permission-grid {
+.admin-shell .lm-permission-group-footer {
+    padding: 0 var(--lm-space-4) var(--lm-space-4);
+    margin-top: auto;
+}
+
+.admin-shell .lm-permission-group-expand {
+    width: 100%;
+    gap: 7px;
+    padding: var(--lm-space-3) 0 0;
+    border: 0;
+    border-top: 1px solid var(--lm-line-subtle);
+    color: var(--lm-primary);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.admin-shell .lm-permission-group-expand .bi {
+    margin-left: auto;
+    transition: transform .16s ease;
+}
+
+.admin-shell .lm-permission-group-expand[aria-expanded="true"] .bi {
+    transform: rotate(180deg);
+}
+
+@container (max-width: 1480px) {
+    .admin-shell .lm-permission-section-groups {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@container (max-width: 1060px) {
+    .admin-shell .lm-permission-section-groups {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@container (max-width: 560px) {
-    .admin-shell .lm-permission-grid {
+@container (max-width: 680px) {
+    .admin-shell .lm-permission-section-groups {
         grid-template-columns: minmax(0, 1fr);
     }
-}
 
-@media (max-width: 575.98px) {
+    .admin-shell .lm-permission-section-header,
     .admin-shell .lm-permission-group-header {
         align-items: flex-start;
         flex-direction: column;
-        gap: 4px;
     }
 
+    .admin-shell .lm-permission-section-actions,
     .admin-shell .lm-permission-group-actions {
         justify-content: space-between;
         width: 100%;
     }
+}
 
-    .admin-shell .lm-permission-grid {
-        padding: 12px;
+@media (max-width: 575.98px) {
+    .admin-shell .lm-permission-section {
+        padding: var(--lm-space-3);
+    }
+
+    .admin-shell .lm-permission-section-groups {
+        gap: var(--lm-space-3);
     }
 }
