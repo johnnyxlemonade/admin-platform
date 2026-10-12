@@ -29,7 +29,10 @@ use Lemonade\Admin\Navigation\AdminNavigationEntryInterface;
 use Lemonade\Admin\Navigation\AdminNavigationGroup;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Admin\Navigation\AdminNavigationItem;
+use Lemonade\Admin\System\Languages\LanguagesModuleDefinition;
+use Lemonade\Admin\System\Roles\RolesModuleDefinition;
 use Lemonade\Admin\System\SystemModuleServiceProvider;
+use Lemonade\Admin\System\Users\UsersModuleDefinition;
 use Lemonade\Framework\Core\Context\ApplicationContextFactory;
 use Lemonade\Framework\Database\Connection\ConnectionInterface;
 use Lemonade\Framework\Database\Database;
@@ -157,6 +160,43 @@ final class AdminNavigationTest extends TestCase
 
         self::assertTrue($item->isActiveFor($metadata));
         self::assertFalse($item->isActiveFor(null));
+    }
+
+    /**
+     * Index, create a edit standardnich modulu drzi stejnou polozku pres resolved metadata
+     */
+    public function testItKeepsTheManagementNavigationItemActiveAcrossTheStandardLifecycle(): void
+    {
+        foreach ([
+            new UsersModuleDefinition(),
+            new RolesModuleDefinition(),
+            new LanguagesModuleDefinition(),
+        ] as $definition) {
+            $registry = new AdminModuleRegistry($this->navigationGroups());
+            $registry->register($definition);
+            $metadata = (new AdminModuleRouteResolver($registry, new ModuleRegistry()))
+                ->metadata($definition->adminMetadata()->routeSegment());
+            $item = new AdminNavigationItem(
+                key: 'module:' . $definition->code(),
+                order: $metadata->navigationOrder(),
+                label: $metadata->nameKey(),
+                labelKey: $metadata->nameKey(),
+                route: 'admin.' . $metadata->navigationGroup->value . '.module.index',
+                routeParameters: ['module' => $metadata->routeSegment()],
+                routePrefix: false,
+                icon: $metadata->icon(),
+                moduleCode: $definition->code(),
+                moduleNavigationGroup: $metadata->navigationGroup,
+                moduleRouteSegment: $metadata->routeSegment(),
+            );
+
+            foreach (['index', 'create', 'edit'] as $lifecycleAction) {
+                self::assertTrue(
+                    $item->isActiveFor($metadata),
+                    sprintf('%s must keep %s active.', $lifecycleAction, $definition->code()),
+                );
+            }
+        }
     }
 
     /** @param list<AdminModuleDefinitionInterface> $definitions */

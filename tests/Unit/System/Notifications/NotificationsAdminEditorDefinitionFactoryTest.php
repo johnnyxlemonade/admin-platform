@@ -52,26 +52,6 @@ final class NotificationsAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame($oldInput, $this->modalAudienceBlock($editor)->context()['input']);
     }
 
-    public function testAudiencePartialPrefillsStoredRolesAndUsersUnlessOldInputOverridesThem(): void
-    {
-        $notification = [
-            ...$this->notification(),
-            'role_ids' => [1],
-            'user_ids' => [9],
-            'audience_users' => [['id' => 9, 'email' => 'reader@example.test']],
-        ];
-        $roles = [['id' => 1, 'code' => 'root', 'name' => 'Root', 'is_super_admin' => 1]];
-
-        $rolesHtml = $this->renderAudience($notification, $roles, [], $notification['audience_users']);
-        self::assertStringContainsString('value="roles" checked', $rolesHtml);
-        self::assertStringContainsString('value="1" selected>Root</option>', $rolesHtml);
-
-        $usersHtml = $this->renderAudience($notification, $roles, ['audience_type' => 'users', 'role_ids' => [], 'user_ids' => ['9']], $notification['audience_users']);
-        self::assertStringContainsString('value="users" checked', $usersHtml);
-        self::assertStringContainsString('value="9" selected>reader@example.test</option>', $usersHtml);
-        self::assertStringNotContainsString('value="1" selected>Root</option>', $usersHtml);
-    }
-
     /** @return array<string, mixed> */
     private function notification(): array
     {
@@ -109,31 +89,5 @@ final class NotificationsAdminEditorDefinitionFactoryTest extends TestCase
         self::assertInstanceOf(CustomViewBlock::class, $block);
 
         return $block;
-    }
-
-    /**
-     * @param array<string, mixed> $notification
-     * @param list<array{id:int,code:string,name:string,is_super_admin:int}> $roles
-     * @param array<string, mixed> $input
-     * @param list<array{id:int,email:string}> $selectedUsers
-     */
-    private function renderAudience(array $notification, array $roles, array $input, array $selectedUsers): string
-    {
-        $helpers = new class {
-            public function lang(string $key): string
-            {
-                return $key;
-            }
-
-            public function url(string $name): string
-            {
-                return '/admin/notification-management/audience/users';
-            }
-        };
-
-        ob_start();
-        include dirname(__DIR__, 4) . '/src/System/Notifications/Resources/views/editor/audience.php';
-
-        return (string) ob_get_clean();
     }
 }

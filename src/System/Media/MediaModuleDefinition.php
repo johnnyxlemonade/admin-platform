@@ -27,7 +27,7 @@ final readonly class MediaModuleDefinition implements AdminModuleDefinitionInter
     }
 
     /**
-     * Deklaruje pravo pro zobrazeni sdileneho katalogu
+     * Deklaruje prava pro cteni katalogu a upravu presentation metadat souboru
      *
      * @return list<PermissionDefinition>
      */
@@ -35,11 +35,17 @@ final readonly class MediaModuleDefinition implements AdminModuleDefinitionInter
     {
         return [
             new PermissionDefinition(code: 'system.media.view', moduleCode: $this->code(), nameKey: 'media.permissions.view'),
+            new PermissionDefinition(
+                code: 'system.media.edit',
+                moduleCode: $this->code(),
+                nameKey: 'media.permissions.edit',
+                requires: ['system.media.view'],
+            ),
         ];
     }
 
     /**
-     * Shared file eventy nejsou vlastnene read-only Media modulem
+     * Shared file eventy patri skutecnemu ownerovi souboru, ne Media katalogu
      *
      * @return list<AuditEventDefinition>
      */

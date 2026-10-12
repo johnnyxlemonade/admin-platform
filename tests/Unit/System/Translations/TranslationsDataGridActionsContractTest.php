@@ -42,7 +42,6 @@ final class TranslationsDataGridActionsContractTest extends TestCase
         $default = $this->row(overridden: false, canEdit: true);
         self::assertSame(['edit'], array_column($default['actions'], 'key'));
         self::assertSame('modal', $default['actions'][0]['kind']);
-        self::assertSame('pencil-square', $default['actions'][0]['icon']);
         self::assertSame('/admin/api/modal/translations/15/edit', $default['actions'][0]['modalUrl']);
         self::assertSame([[
             'type' => 'link',

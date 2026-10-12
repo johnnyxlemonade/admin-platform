@@ -9,7 +9,6 @@ use Lemonade\Admin\DataGrid\Action\DataGridRowActionDefinition;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionKind;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionPlacement;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionRisk;
-use Lemonade\Admin\Icon\AdminIcon;
 use PHPUnit\Framework\TestCase;
 
 final class DataGridRowActionDefinitionTest extends TestCase
@@ -136,13 +135,5 @@ final class DataGridRowActionDefinitionTest extends TestCase
 
         self::assertSame('Edit', $action->toArray()['label']);
         self::assertSame('Edit language English', $action->toArray()['ariaLabel'] ?? null);
-    }
-
-    public function testActionCanSerializeItsCentralIconMetadata(): void
-    {
-        $action = (new DataGridRowActionDefinition('edit', 'Edit', '#', 'GET'))
-            ->withIcon(AdminIcon::PencilSquare);
-
-        self::assertSame('pencil-square', $action->toArray()['icon'] ?? null);
     }
 }

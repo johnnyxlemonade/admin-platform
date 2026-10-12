@@ -197,6 +197,7 @@ final class UserRoleModel extends Model
                 'system.roles.delete',
                 'system.roles.restore',
                 'system.media.view',
+                'system.media.edit',
             ],
             'editor' => [],
         ] as $roleCode => $permissionCodes) {

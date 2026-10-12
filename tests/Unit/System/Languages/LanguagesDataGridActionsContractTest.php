@@ -11,7 +11,6 @@ use Lemonade\Admin\Auth\LocalAdminPrincipal;
 use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionDefinition;
-use Lemonade\Admin\DataGrid\Action\DataGridRowActionIcon;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionKind;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionPlacement;
 use Lemonade\Admin\DataGrid\DataGridRowDefinition;
@@ -44,7 +43,6 @@ final class LanguagesDataGridActionsContractTest extends TestCase
         self::assertSame('secondary', $actions[0]['placement']);
         self::assertSame('/admin/api/modal/languages/15/edit', $actions[0]['modalUrl']);
         self::assertSame('medium', $actions[0]['modalSize']);
-        self::assertSame('pencil-square', $actions[0]['icon']);
         self::assertTrue($actions[0]['refresh']);
     }
 
@@ -59,15 +57,12 @@ final class LanguagesDataGridActionsContractTest extends TestCase
         self::assertSame(['edit', 'disable', 'set-default'], array_column($actions, 'key'));
         self::assertSame('secondary', $actions[0]['placement']);
         self::assertSame('modal', $actions[0]['kind']);
-        self::assertSame('pencil-square', $actions[0]['icon']);
         self::assertSame('secondary', $actions[1]['placement']);
         self::assertSame('mutation', $actions[1]['kind']);
-        self::assertSame('pause-circle', $actions[1]['icon']);
         self::assertSame('languages.confirm.disable', $actions[1]['confirm']);
         self::assertSame('languages.confirm.disable_title', $actions[1]['confirmTitle']);
         self::assertSame('secondary', $actions[2]['placement']);
         self::assertSame('mutation', $actions[2]['kind']);
-        self::assertSame('star', $actions[2]['icon']);
         self::assertSame('languages.confirm.set_default', $actions[2]['confirm']);
     }
 
@@ -83,7 +78,6 @@ final class LanguagesDataGridActionsContractTest extends TestCase
         self::assertSame('secondary', $actions[0]['placement']);
         self::assertSame('secondary', $actions[1]['placement']);
         self::assertSame('mutation', $actions[1]['kind']);
-        self::assertSame('check-circle', $actions[1]['icon']);
         self::assertSame('languages.confirm.enable', $actions[1]['confirm']);
         self::assertSame('languages.confirm.enable_title', $actions[1]['confirmTitle']);
     }
@@ -215,7 +209,7 @@ final class LanguagesDataGridActionsContractTest extends TestCase
                     default => throw new \LogicException('Unexpected action.'),
                 };
 
-                return (new DataGridRowActionDefinition(
+                return new DataGridRowActionDefinition(
                     key: $action,
                     label: $action,
                     url: '/admin/languages/ajax/' . $entityId,
@@ -224,7 +218,7 @@ final class LanguagesDataGridActionsContractTest extends TestCase
                     kind: DataGridRowActionKind::Mutation,
                     placement: $placement,
                     refresh: true,
-                ))->withIcon(DataGridRowActionIcon::forKey($action) ?? throw new \LogicException('Missing DataGrid action icon.'));
+                );
             },
         );
 

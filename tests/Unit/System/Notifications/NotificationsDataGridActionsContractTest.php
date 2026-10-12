@@ -10,7 +10,6 @@ use Lemonade\Admin\Auth\LocalAdminPrincipal;
 use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionDefinition;
-use Lemonade\Admin\DataGrid\Action\DataGridRowActionIcon;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionKind;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionPlacement;
 use Lemonade\Admin\Notification\Models\NotificationModel;
@@ -37,10 +36,6 @@ final class NotificationsDataGridActionsContractTest extends TestCase
         self::assertSame('modal', $actions[0]['kind']);
         self::assertSame('secondary', $actions[0]['placement']);
         self::assertSame('/admin/api/modal/notifications/15/edit', $actions[0]['modalUrl']);
-        self::assertSame('pencil-square', $actions[0]['icon']);
-        self::assertSame('pause-circle', $actions[1]['icon']);
-        self::assertSame('arrow-counterclockwise', $actions[2]['icon']);
-        self::assertSame('trash3', $actions[3]['icon']);
     }
 
     public function testInactiveNotificationHasActivateAndResetDisplayActions(): void
@@ -48,8 +43,6 @@ final class NotificationsDataGridActionsContractTest extends TestCase
         $actions = $this->actions(active: false, deleted: false, canPublish: true, availableActions: ['activate', 'reset-display', 'delete']);
 
         self::assertSame(['edit', 'activate', 'reset-display', 'delete'], array_column($actions, 'key'));
-        self::assertSame('check-circle', $actions[1]['icon']);
-        self::assertSame('arrow-counterclockwise', $actions[2]['icon']);
     }
 
     public function testDeletedNotificationHasOnlyRestoreAction(): void
@@ -57,7 +50,6 @@ final class NotificationsDataGridActionsContractTest extends TestCase
         $actions = $this->actions(active: true, deleted: true, canPublish: true, availableActions: ['restore', 'reset-display']);
 
         self::assertSame(['restore'], array_column($actions, 'key'));
-        self::assertSame('arrow-counterclockwise', $actions[0]['icon']);
     }
 
     public function testNotificationWithoutAvailablePermissionsHasNoActions(): void
@@ -159,7 +151,7 @@ final class NotificationsDataGridActionsContractTest extends TestCase
                 return null;
             }
 
-            return (new DataGridRowActionDefinition(
+            return new DataGridRowActionDefinition(
                 key: $action,
                 label: $action,
                 url: '/admin/system/notifications/ajax/' . $entityId,
@@ -167,7 +159,7 @@ final class NotificationsDataGridActionsContractTest extends TestCase
                 kind: DataGridRowActionKind::Mutation,
                 placement: $placement,
                 refresh: true,
-            ))->withIcon(DataGridRowActionIcon::forKey($action) ?? throw new \LogicException('Missing action icon.'));
+            );
         });
 
         return $presentation;

@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Media\DataGrid;
 
+use Lemonade\Admin\Authorization\AuthorizationService;
+use Lemonade\Admin\DataGrid\Action\DataGridRowActionDefinition;
+use Lemonade\Admin\DataGrid\Action\DataGridRowActionKind;
+use Lemonade\Admin\DataGrid\Action\DataGridRowActionPlacement;
 use Lemonade\Admin\DataGrid\Cell\DateTimeCell;
 use Lemonade\Admin\DataGrid\Cell\StackedCell;
 use Lemonade\Admin\DataGrid\Cell\StatusCell;
@@ -16,6 +20,7 @@ use Lemonade\Admin\DataGrid\DataGridFilterDefinition;
 use Lemonade\Admin\DataGrid\DataGridResult;
 use Lemonade\Admin\DataGrid\DataGridRowDefinition;
 use Lemonade\Admin\DataGrid\Query\DataGridQuery;
+use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Modules\State\ModuleStateResolver;
 use Lemonade\Admin\Presentation\AdminThumbnailComponent;
 use Lemonade\Admin\Presentation\MediaCategory;
@@ -34,6 +39,7 @@ final class MediaDataGrid implements DataGridProviderInterface
         private readonly MediaService $media,
         private readonly ModuleStateResolver $modules,
         private readonly AdminThumbnailComponent $thumbnails,
+        private readonly AuthorizationService $authorization,
         private readonly TranslatorInterface $translator,
         private readonly UrlGenerator $urls,
     ) {}
@@ -44,7 +50,7 @@ final class MediaDataGrid implements DataGridProviderInterface
     }
 
     /**
-     * Deklaruje type views, module filtr a read-only katalogove sloupce
+     * Deklaruje type views, module filtr, katalogove sloupce a dostupne row actions
      */
     public function dataGridDefinition(): DataGridDefinition
     {
@@ -78,6 +84,7 @@ final class MediaDataGrid implements DataGridProviderInterface
                     sortKey: 'createdAt',
                     class: 'd-none d-lg-table-cell',
                 ),
+                new DataGridColumnDefinition(key: 'actions', translationKey: 'admin.common.actions'),
             ],
             searchEnabled: true,
             filters: [
@@ -168,8 +175,6 @@ final class MediaDataGrid implements DataGridProviderInterface
                     )
                     : $this->thumbnails->fallback(fallback: $fallback),
                 secondary: $displayName !== '' && $displayName !== $originalFilename ? $originalFilename : '',
-                url: $this->urls->route(name: 'admin.media.download', params: ['file' => $id]),
-                download: true,
             ),
             'type' => new StatusCell(
                 value: $this->translator->get('media.list.' . $type->value),
@@ -184,6 +189,40 @@ final class MediaDataGrid implements DataGridProviderInterface
                 secondary: (string) $file['usage'],
             ),
             'createdAt' => new DateTimeCell(value: (string) $file['created_at']),
-        ]);
+        ], actions: $this->actions($id));
+    }
+
+    /**
+     * Sklada download pro kazdeho ctenare a modalni upravu pouze pro Media editora
+     *
+     * @return list<DataGridRowActionDefinition>
+     */
+    private function actions(int $id): array
+    {
+        $actions = [
+            (new DataGridRowActionDefinition(
+                key: 'download',
+                label: $this->translator->get('admin.common.download'),
+                url: $this->urls->route(name: 'admin.media.download', params: ['file' => $id]),
+                method: 'GET',
+                kind: DataGridRowActionKind::Navigate,
+                placement: DataGridRowActionPlacement::Secondary,
+            ))->withIcon(AdminIcon::Export),
+        ];
+        if ($this->authorization->hasPermission('system.media.edit')) {
+            $actions[] = (new DataGridRowActionDefinition(
+                key: 'edit',
+                label: $this->translator->get('admin.common.edit'),
+                url: '#',
+                method: 'GET',
+                modalUrl: $this->urls->route(name: 'admin.media.presentation.modal', params: ['file' => $id]),
+                modalSize: 'medium',
+                kind: DataGridRowActionKind::Modal,
+                placement: DataGridRowActionPlacement::Secondary,
+                refresh: true,
+            ))->withIcon(AdminIcon::PencilSquare);
+        }
+
+        return $actions;
     }
 }

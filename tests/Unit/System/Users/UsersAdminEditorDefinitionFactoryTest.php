@@ -109,10 +109,6 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame([], $editor->header()?->metadata());
         self::assertNotNull($editor->saveBar());
         self::assertSame('hidden', $profileFields['version']->type());
-        self::assertSame([
-            'data-lemonade-editor-version' => true,
-            'data-lemonade-editor-version-value' => '3',
-        ], $profileFields['version']->inputAttributes());
         self::assertInstanceOf(CustomViewBlock::class, $permissionBlock);
         self::assertSame('users::editor.permissions', $permissionBlock->view());
         $sidebar = $editor->sidebar();

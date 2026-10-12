@@ -45,6 +45,7 @@ final class AdminPageRenderer
             : $this->avatar($currentUser->id(), $avatarInitials);
 
         $pageData = [
+            'activeAdminModule' => null,
             ...$data,
             'navigation' => $this->navigation->items(),
             'currentUser' => $currentUser,

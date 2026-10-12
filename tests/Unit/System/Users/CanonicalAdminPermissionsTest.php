@@ -59,6 +59,7 @@ final class CanonicalAdminPermissionsTest extends TestCase
             'system.roles.delete',
             'system.roles.restore',
             'system.media.view',
+            'system.media.edit',
             'admin',
         ], $adminPermissions[0]['bindings']);
     }

@@ -32,6 +32,7 @@ use Lemonade\Framework\View\ViewHelpers;
                     <a
                         class="nav-link<?= $itemActive ? ' is-active' : '' ?>"
                         href="<?= e($itemUrl) ?>"
+                        <?= $itemActive ? 'aria-current="page"' : '' ?>
                         data-lemonade-navigation-item-key="<?= e($entry->key()) ?>"
                     >
                         <span class="sidebar-nav-icon-wrap">
@@ -111,6 +112,7 @@ use Lemonade\Framework\View\ViewHelpers;
                         <a
                             <?= $itemActive ? 'class="is-active"' : '' ?>
                             href="<?= e($itemUrl) ?>"
+                            <?= $itemActive ? 'aria-current="page"' : '' ?>
                             data-lemonade-navigation-item-key="<?= e($item->key()) ?>"
                             data-lemonade-navigation-item-label="<?= e($item->key()) ?>"
                         >

@@ -113,7 +113,7 @@
 
 .admin-shell .lm-permission-section-groups {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--lm-space-4);
     padding-top: var(--lm-space-5);
 }
@@ -133,6 +133,7 @@
     justify-content: space-between;
     gap: var(--lm-space-3);
     padding: var(--lm-space-4);
+    border-bottom: 1px solid var(--lm-line-subtle);
 }
 
 .admin-shell .lm-permission-group-heading {
@@ -174,7 +175,7 @@
 .admin-shell .lm-permission-grid {
     display: grid;
     gap: var(--lm-space-2);
-    padding: var(--lm-space-2) var(--lm-space-4) var(--lm-space-4);
+    padding: var(--lm-space-3) var(--lm-space-4) var(--lm-space-4);
 }
 
 .admin-shell .lm-permission-item {

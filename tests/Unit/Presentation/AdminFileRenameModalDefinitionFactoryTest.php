@@ -35,6 +35,17 @@ final class AdminFileRenameModalDefinitionFactoryTest extends TestCase
         }
     }
 
+    public function testBuildsTheSamePresentationEditorForTheCentralMediaCatalog(): void
+    {
+        $editor = $this->factory()->mediaModal(14);
+
+        self::assertSame('admin.file.presentation', $editor->id());
+        self::assertSame('/admin/system/media/14/presentation', $editor->form()->action());
+        self::assertSame('edit', $editor->form()->actionKey());
+        self::assertArrayHasKey('display_name', $this->fields($editor));
+        self::assertArrayHasKey('caption', $this->fields($editor));
+    }
+
     /**
      * @return array<string, AdminEditorFieldDefinition>
      */
@@ -58,6 +69,11 @@ final class AdminFileRenameModalDefinitionFactoryTest extends TestCase
             name: 'admin.file.collection.rename',
             path: '/admin/files/{module}/{usage}/{entity}/{file}/rename',
             action: ControllerAction::for('TestController', 'rename'),
+        );
+        $router->postNamed(
+            name: 'admin.media.presentation.save',
+            path: '/admin/system/media/{file}/presentation',
+            action: ControllerAction::for('TestController', 'savePresentation'),
         );
 
         return new AdminFileRenameModalDefinitionFactory(new UrlGenerator(router: $router));

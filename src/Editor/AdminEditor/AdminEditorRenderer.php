@@ -149,20 +149,25 @@ final class AdminEditorRenderer
 
         $tabs = $this->tabs($editor);
         $panels = $this->tabContent($editor, $context);
-        if ($sidebar === null || $sidebar->panels() === []) {
-            return '<div class="lm-tabs admin-editor-tabs" data-lemonade-tabs><div class="admin-editor-main">' . $tabs . $panels . '</div></div>';
-        }
-
-        return '<div class="lm-tabs admin-editor-tabs" data-lemonade-tabs>' . $tabs . $this->layout($panels, $sidebar, $editor, $context) . '</div>';
+        return '<div class="lm-tabs admin-editor-tabs" data-lemonade-tabs>' . $tabs . $this->layout($panels, $sidebar, $editor, $context, afterTabs: true) . '</div>';
     }
 
     /**
      * Vykresluje shared main a optional sidebar sloupce pod spolecnym obsahem editoru
      */
-    private function layout(string $main, ?AdminEditorSidebarDefinition $sidebar, AdminEditorDefinition $editor, AdminEditorRenderContext $context): string
-    {
+    private function layout(
+        string $main,
+        ?AdminEditorSidebarDefinition $sidebar,
+        AdminEditorDefinition $editor,
+        AdminEditorRenderContext $context,
+        bool $afterTabs = false,
+    ): string {
         if ($sidebar === null || $sidebar->panels() === []) {
-            return '<div class="admin-editor-main">' . $main . '</div>';
+            if (!$afterTabs) {
+                return '<div class="admin-editor-main">' . $main . '</div>';
+            }
+
+            return '<div class="admin-editor-layout"><main class="admin-editor-main">' . $main . '</main></div>';
         }
 
         return '<div class="admin-editor-layout"><main class="admin-editor-main">' . $main . '</main><aside class="admin-editor-sidebar">' . $this->blocks($sidebar->panels(), $editor, $context) . '</aside></div>';

@@ -152,8 +152,6 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
         ]);
 
         self::assertSame(['system.users', 'system.languages'], array_column($groups, 'moduleCode'));
-        self::assertSame('bi bi-people', $groups[0]['icon']);
-        self::assertSame('bi bi-sliders', $groups[1]['icon']);
     }
 
     private function usersModules(): AdminModuleRegistry

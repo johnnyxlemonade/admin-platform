@@ -43,6 +43,14 @@ final class AdminRoutingConfigurationTest extends TestCase
 
         self::assertSame($basePath, $router->url('admin.dashboard'));
         self::assertSame($basePath . '/system/users', $router->url('admin.system.module.index', ['module' => 'users']));
+        self::assertSame($basePath . '/system/users/create', $router->url('admin.system.module.create', ['module' => 'users']));
+        self::assertSame($basePath . '/system/users/edit/42', $router->url('admin.system.module.edit', ['module' => 'users', 'id' => 42]));
+        self::assertSame($basePath . '/system/roles', $router->url('admin.system.module.index', ['module' => 'roles']));
+        self::assertSame($basePath . '/system/roles/create', $router->url('admin.system.module.create', ['module' => 'roles']));
+        self::assertSame($basePath . '/system/roles/edit/42', $router->url('admin.system.module.edit', ['module' => 'roles', 'id' => 42]));
+        self::assertSame($basePath . '/system/languages', $router->url('admin.system.module.index', ['module' => 'languages']));
+        self::assertSame($basePath . '/system/languages/create', $router->url('admin.system.module.create', ['module' => 'languages']));
+        self::assertSame($basePath . '/system/languages/edit/42', $router->url('admin.system.module.edit', ['module' => 'languages', 'id' => 42]));
         self::assertSame($basePath . '/content/news', $router->url('admin.content.module.index', ['module' => 'news']));
         self::assertSame($basePath . '/content/news/create', $router->url('admin.content.module.create', ['module' => 'news']));
         self::assertSame($basePath . '/content/news/edit/42', $router->url('admin.content.module.edit', ['module' => 'news', 'id' => 42]));

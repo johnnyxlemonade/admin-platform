@@ -7,6 +7,7 @@ use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Http\AdminAuthorizationResponseHandler;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
+use Lemonade\Admin\Module\AdminModuleMetadata;
 use Lemonade\Admin\Navigation\AdminNavigationEntryInterface;
 use Lemonade\Admin\Presentation\AdminBranding;
 use Lemonade\Admin\Presentation\AdminThumbnail;
@@ -20,6 +21,7 @@ use Lemonade\Framework\View\ViewHelpers;
 /** @var string $title */
 /** @var string $locale */
 /** @var list<AdminNavigationEntryInterface> $navigation */
+/** @var AdminModuleMetadata|null $activeAdminModule */
 /** @var ClientTranslationVersion $clientTranslationVersion */
 /** @var AdminBranding $branding */
 /** @var AdminAssetManifest $adminAssets */
@@ -28,6 +30,7 @@ use Lemonade\Framework\View\ViewHelpers;
 /** @var string $content */
 
 $locale = $locale ?? 'cs';
+$activeAdminModule = $activeAdminModule ?? null;
 $sidebarStorageKey = 'lemonade-admin-sidebar';
 $principalRoleLabelKey = 'admin.account.administrator';
 $vendorStyles = $adminAssets->styles('vendor');
@@ -60,7 +63,7 @@ $adminMarkUrl = $adminAssets->staticUrl('images/branding/admin-mark.svg');
     <div class="admin-shell" data-lemonade-admin-shell data-lemonade-admin-base-path="<?= e($helpers->url('admin.dashboard')) ?>" data-lemonade-locale="<?= e($locale) ?>" data-lemonade-i18n-resource-map-source="<?= e($helpers->url('admin.resources.i18n.index')) ?>" data-lemonade-i18n-namespace="admin" data-lemonade-i18n-namespace-source="<?= e($helpers->url('admin.resources.i18n', ['group' => 'admin'])) ?>?locale={locale}&amp;v={version}" data-lemonade-i18n-namespace-versions="<?= e(json_encode($clientTranslationVersion->versions('admin'), JSON_THROW_ON_ERROR)) ?>" data-lemonade-navigation-source="<?= e($helpers->url('admin.resources.i18n', ['group' => 'navigation'])) ?>?locale={locale}">
         <aside class="sidebar" aria-label="<?= e($helpers->lang('admin.sidebar.mainNavigation')) ?>" data-lemonade-i18n-aria-label="admin.sidebar.mainNavigation" data-lemonade-sidebar data-lemonade-storage-key="<?= e($sidebarStorageKey) ?>">
             <a class="brand" href="<?= e($helpers->url('admin.dashboard')) ?>"><img class="brand-mark" src="<?= e($adminMarkUrl) ?>" alt="" aria-hidden="true"><span class="brand-copy"><span class="brand-title"><?= e($branding->applicationName) ?></span><span class="brand-subtitle" data-lemonade-i18n="admin.brand.subtitle"><?= e($helpers->lang('admin.brand.subtitle')) ?></span></span></a>
-            <?= $this->partial('admin::navigation.sidebar', ['navigation' => $navigation]) ?>
+            <?= $this->partial('admin::navigation.sidebar', ['navigation' => $navigation, 'activeAdminModule' => $activeAdminModule ?? null]) ?>
             <div class="sidebar-footer"><button class="collapse-link" type="button" data-lemonade-sidebar-toggle aria-expanded="true" aria-label="<?= e($helpers->lang('admin.sidebar.collapseNavigation')) ?>" data-lemonade-i18n-aria-label="admin.sidebar.collapseNavigation"><i class="<?= e(AdminIcon::ChevronBarLeft->cssClass()) ?>" data-lemonade-sidebar-toggle-icon aria-hidden="true"></i><span data-lemonade-i18n="admin.sidebar.collapse"><?= e($helpers->lang('admin.sidebar.collapse')) ?></span></button></div>
         </aside>
         <div class="admin-frame">

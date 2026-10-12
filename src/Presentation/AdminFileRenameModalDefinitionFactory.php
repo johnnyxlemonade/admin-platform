@@ -26,18 +26,40 @@ final class AdminFileRenameModalDefinitionFactory
      */
     public function modal(string $module, string $usage, int $entityId, int $fileId): AdminEditorDefinition
     {
-        $parameters = [
-            'module' => $module,
-            'usage' => $usage,
-            'entity' => $entityId,
-            'file' => $fileId,
-        ];
+        return $this->definition(
+            route: 'admin.file.collection.rename',
+            parameters: [
+                'module' => $module,
+                'usage' => $usage,
+                'entity' => $entityId,
+                'file' => $fileId,
+            ],
+        );
+    }
 
+    /**
+     * Vytvori stejnou definici pro Media katalog, ktery autorizuje pouze file identitu
+     */
+    public function mediaModal(int $fileId): AdminEditorDefinition
+    {
+        return $this->definition(
+            route: 'admin.media.presentation.save',
+            parameters: ['file' => $fileId],
+        );
+    }
+
+    /**
+     * Sklada form contract nad zvolenym authenticated presentation endpointem
+     *
+     * @param array<string,int|string> $parameters
+     */
+    private function definition(string $route, array $parameters): AdminEditorDefinition
+    {
         return AdminEditorBuilder::create('admin.file.presentation')
             ->form(new AdminEditorFormDefinition(
                 id: 'admin-file-presentation-form',
-                action: $this->urls->route('admin.file.collection.rename', $parameters),
-                actionUrl: $this->urls->route('admin.file.collection.rename', $parameters),
+                action: $this->urls->route($route, $parameters),
+                actionUrl: $this->urls->route($route, $parameters),
                 actionKey: 'edit',
                 novalidate: true,
             ))

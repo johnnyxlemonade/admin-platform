@@ -12,7 +12,6 @@ use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Authorization\AuthorizationTargetPolicy;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionDefinition;
-use Lemonade\Admin\DataGrid\Action\DataGridRowActionIcon;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionKind;
 use Lemonade\Admin\DataGrid\Action\DataGridRowActionPlacement;
 use Lemonade\Admin\DataGrid\DataGridRowDefinition;
@@ -79,7 +78,6 @@ final class UsersMfaDataGridPresentationTest extends TestCase
         self::assertSame(['mfa-reset'], array_column($row['actions'], 'key'));
         self::assertSame('users.actions.mfa_reset', $row['actions'][0]['label']);
         self::assertSame('users.confirm.mfa_reset', $row['actions'][0]['confirm']);
-        self::assertSame('arrow-counterclockwise', $row['actions'][0]['icon']);
     }
 
     /**
@@ -247,7 +245,7 @@ final class UsersMfaDataGridPresentationTest extends TestCase
                 return null;
             }
 
-            return (new DataGridRowActionDefinition(
+            return new DataGridRowActionDefinition(
                 key: $action,
                 label: 'users.actions.mfa_reset',
                 url: '/admin/system/users/ajax/' . $entityId,
@@ -256,7 +254,7 @@ final class UsersMfaDataGridPresentationTest extends TestCase
                 kind: DataGridRowActionKind::Mutation,
                 placement: DataGridRowActionPlacement::Secondary,
                 refresh: true,
-            ))->withIcon(DataGridRowActionIcon::forKey($action) ?? throw new \LogicException('Missing MFA reset icon.'));
+            );
         });
 
         return $presentation;

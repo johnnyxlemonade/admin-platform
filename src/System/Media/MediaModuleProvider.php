@@ -13,6 +13,7 @@ use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Media\DataGrid\MediaDataGrid;
 use Lemonade\Admin\System\Media\Http\Controller\MediaDownloadController;
+use Lemonade\Admin\System\Media\Http\Controller\MediaFilePresentationController;
 use Lemonade\Admin\System\Media\Migrations\RegisterMediaModule;
 use Lemonade\Admin\System\Media\Routing\MediaRouteRegistrar;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
@@ -33,6 +34,7 @@ final class MediaModuleProvider implements ServiceProviderInterface, BootableSer
     public function register(ContainerBuilderInterface $container): void
     {
         $container->scoped(MediaDownloadController::class, MediaDownloadController::class);
+        $container->scoped(MediaFilePresentationController::class, MediaFilePresentationController::class);
     }
 
     /**
