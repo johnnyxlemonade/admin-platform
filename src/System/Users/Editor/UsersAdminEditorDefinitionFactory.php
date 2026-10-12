@@ -52,6 +52,7 @@ final class UsersAdminEditorDefinitionFactory
         ?AdminFileUploadCollection $avatarUpload = null,
         bool $isSelf = false,
         bool $canResetMfa = false,
+        bool $profileContext = false,
     ): AdminEditorDefinition {
         $isCreate = $mode === 'create';
         $activeValue = $activeEditable && $hasActiveInput && (string) $activeInput === '1'
@@ -59,13 +60,19 @@ final class UsersAdminEditorDefinitionFactory
             : ((int) ($user['active'] ?? 0) === 1 ? '1' : '0');
         $titleKey = $isCreate ? 'users.editor.create_title' : 'users.editor.title';
         $descriptionKey = $isCreate ? 'users.editor.create_description' : 'users.editor.description';
-        $indexUrl = $this->urls->route(name: 'admin.system.module.index', params: ['module' => 'users']);
-        $formAction = $isCreate
+        $indexUrl = $profileContext
+            ? $this->urls->route(name: 'admin.dashboard')
+            : $this->urls->route(name: 'admin.system.module.index', params: ['module' => 'users']);
+        $formAction = $profileContext
+            ? $this->urls->route(name: 'admin.system.users.profile')
+            : ($isCreate
             ? $this->urls->route(name: 'admin.system.module.create', params: ['module' => 'users'])
-            : $this->urls->route(name: 'admin.system.module.edit', params: ['module' => 'users', 'id' => (int) $user['id']]);
-        $actionUrl = $isCreate
+            : $this->urls->route(name: 'admin.system.module.edit', params: ['module' => 'users', 'id' => (int) $user['id']]));
+        $actionUrl = $profileContext
+            ? $this->urls->route(name: 'admin.system.users.profile.ajax')
+            : ($isCreate
             ? $this->urls->route(name: 'admin.system.module.ajax.create', params: ['module' => 'users'])
-            : $this->urls->route(name: 'admin.system.module.ajax.entity', params: ['module' => 'users', 'id' => (int) $user['id']]);
+            : $this->urls->route(name: 'admin.system.module.ajax.entity', params: ['module' => 'users', 'id' => (int) $user['id']]));
         $headerMetadata = [];
 
         $roleFields = [];
@@ -129,13 +136,13 @@ final class UsersAdminEditorDefinitionFactory
                     md: 6,
                 ),
             ]),
-            new CustomViewBlock(
+            ...($profileContext ? [] : [new CustomViewBlock(
                 view: 'users::editor.active',
                 context: [
                     'activeEditable' => $activeEditable,
                     'activeValue' => $activeValue,
                 ],
-            ),
+            )]),
         ];
         if (!$isCreate) {
             array_unshift($profileBlocks, AdminEditorFieldDefinition::hidden('version')
@@ -143,6 +150,9 @@ final class UsersAdminEditorDefinitionFactory
                     'data-lemonade-editor-version' => true,
                     'data-lemonade-editor-version-value' => (string) ((int) ($user['version'] ?? 1)),
                 ]));
+        }
+        if ($profileContext) {
+            $profileBlocks[] = AdminEditorFieldDefinition::hidden('active')->defaultValue('1');
         }
 
         $basicBlocks = [
@@ -189,10 +199,12 @@ final class UsersAdminEditorDefinitionFactory
                 titleKey: $titleKey,
                 description: '',
                 descriptionKey: $descriptionKey,
-                breadcrumbs: [
-                    ['label' => '', 'labelKey' => 'users.module.name', 'href' => $indexUrl],
-                    ['label' => '', 'labelKey' => $titleKey, 'current' => true],
-                ],
+                breadcrumbs: $profileContext
+                    ? [['label' => '', 'labelKey' => 'admin.account.profile', 'current' => true]]
+                    : [
+                        ['label' => '', 'labelKey' => 'users.module.name', 'href' => $indexUrl],
+                        ['label' => '', 'labelKey' => $titleKey, 'current' => true],
+                    ],
                 actions: [
                     new AdminEditorActionDefinition(label: '', labelKey: 'admin.common.back', href: $indexUrl),
                     new AdminEditorActionDefinition(label: '', labelKey: 'admin.common.save', submit: true, primary: true),
@@ -218,7 +230,7 @@ final class UsersAdminEditorDefinitionFactory
                 default: true,
             ));
 
-        if (!$isCreate) {
+        if (!$isCreate && !$profileContext) {
             $builder->tab(new AdminEditorTab(
                 id: 'permissions',
                 label: '',
@@ -235,6 +247,8 @@ final class UsersAdminEditorDefinitionFactory
                 ],
                 labelKey: 'users.editor.tabs.permissions',
             ));
+        }
+        if (!$isCreate) {
             $builder->sidebar(new AdminEditorSidebarDefinition([
                 new SectionBlock(
                     id: 'summary',

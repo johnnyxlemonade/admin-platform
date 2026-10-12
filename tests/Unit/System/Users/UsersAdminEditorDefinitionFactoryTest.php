@@ -228,6 +228,42 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         ], $this->customBlock($editor, 'access', 0)->context());
     }
 
+    public function testProfileDefinitionUsesCanonicalSelfServiceUrlsAndHidesManagementControls(): void
+    {
+        $editor = $this->factory()->create(
+            user: $this->user(),
+            roleOptions: ['editor' => 'Editor'],
+            permissionGroups: $this->permissionGroups(),
+            roleEditable: false,
+            activeEditable: false,
+            activeInput: null,
+            hasActiveInput: false,
+            permissionEditable: false,
+            hasProtectedAuthority: false,
+            mode: 'edit',
+            isSelf: true,
+            canResetMfa: false,
+            profileContext: true,
+        );
+        $profileFields = $this->profileFields($editor);
+        $access = $this->card($editor, 'access');
+
+        self::assertSame('/admin/system/users/profile', $editor->form()->action());
+        self::assertSame('/admin/system/users/profile/ajax', $editor->form()->actionUrl());
+        self::assertSame(['basic'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
+        $header = $editor->header();
+        self::assertNotNull($header);
+        self::assertSame('/admin', $header->actions()[0]->href());
+        $profileBreadcrumb = $header->breadcrumbs()[0];
+        self::assertSame('admin.account.profile', $profileBreadcrumb['labelKey'] ?? null);
+        self::assertSame('hidden', $profileFields['version']->type());
+        self::assertSame('hidden', $profileFields['active']->type());
+        self::assertCount(1, $access->blocks());
+        self::assertSame('users::editor.access-info', $this->customBlock($editor, 'access', 0)->view());
+        self::assertTrue($this->customBlock($editor, 'access', 0)->context()['isSelf']);
+        self::assertSame('/admin/mfa/modal', $this->customBlock($editor, 'access', 0)->context()['mfaModalUrl']);
+    }
+
     public function testOtherUserExposesResetOnlyForAnAuthorizedActiveCredential(): void
     {
         $activeUser = $this->user() + ['mfa_active' => 1];
@@ -332,8 +368,11 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
     private function factory(): UsersAdminEditorDefinitionFactory
     {
         $router = new Router();
+        $router->getNamed('admin.dashboard', '/admin', ControllerAction::for('TestController', 'dashboard'));
         $router->getNamed('admin.module.index', '/admin/{module}', ControllerAction::for('TestController', 'index'));
         $router->getNamed('admin.system.module.index', '/admin/system/{module}', ControllerAction::for('TestController', 'index'));
+        $router->getNamed('admin.system.users.profile', '/admin/system/users/profile', ControllerAction::for('TestController', 'profile'));
+        $router->postNamed('admin.system.users.profile.ajax', '/admin/system/users/profile/ajax', ControllerAction::for('TestController', 'ajax'));
         $router->getNamed('admin.system.module.create', '/admin/system/{module}/create', ControllerAction::for('TestController', 'create'));
         $router->getNamed('admin.system.module.edit', '/admin/system/{module}/edit/{id}', ControllerAction::for('TestController', 'edit'));
         $router->postNamed('admin.system.module.ajax.create', '/admin/system/{module}/ajax', ControllerAction::for('TestController', 'create'));

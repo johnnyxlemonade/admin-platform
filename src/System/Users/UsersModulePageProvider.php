@@ -107,6 +107,17 @@ final class UsersModulePageProvider implements ModuleIndexPageProviderInterface,
     }
 
     /**
+     * Sestavi self-service profil bez zavislosti na Users management indexu
+     *
+     * @param array<string, string> $errors
+     * @param array<string, mixed> $input
+     */
+    public function profile(EditorLoaded $editor, array $errors, array $input, string $locale): ModulePage
+    {
+        return $this->editorPage(editor: $editor, errors: $errors, input: $input, locale: $locale, mode: 'profile');
+    }
+
+    /**
      * Vytvari self-profile zpravu pri konfliktu editor locku stejneho uzivatele
      */
     public function editorOpenLockConflictMessage(int $entityId, EditorLockOwner $owner): ?EditorLockConflictMessage
@@ -154,9 +165,10 @@ final class UsersModulePageProvider implements ModuleIndexPageProviderInterface,
                     hasActiveInput: array_key_exists('active', $input),
                     permissionEditable: ($editorData['permissionEditable'] ?? false) === true,
                     hasProtectedAuthority: ($editorData['hasProtectedAuthority'] ?? false) === true,
-                    hasExternalIdentity: (int) ($user['has_external_identity'] ?? 0) === 1,
                     mode: $mode,
+                    hasExternalIdentity: (int) ($user['has_external_identity'] ?? 0) === 1,
                     avatarUpload: $mode === 'edit'
+                        || $mode === 'profile'
                         ? $this->files->collection(
                             module: 'system.users',
                             entityId: (int) $user['id'],
@@ -173,12 +185,13 @@ final class UsersModulePageProvider implements ModuleIndexPageProviderInterface,
                         : null,
                     isSelf: ($editorData['isSelf'] ?? false) === true,
                     canResetMfa: ($editorData['canResetMfa'] ?? false) === true,
+                    profileContext: $mode === 'profile',
                 ),
                 'adminEditorContext' => new AdminEditorRenderContext(
                     values: $user + ['role' => $editorData['roleId']],
                     oldInput: $input,
                     errors: $errors,
-                    mode: $mode,
+                    mode: $mode === 'profile' ? 'edit' : $mode,
                 ),
                 'locale' => $locale,
             ],

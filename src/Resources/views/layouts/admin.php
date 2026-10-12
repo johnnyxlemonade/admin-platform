@@ -109,7 +109,7 @@ $adminMarkUrl = $adminAssets->staticUrl('images/branding/admin-mark.svg');
                         <div class="lm-dropdown-menu lm-user-menu-dropdown-menu" data-lemonade-dropdown-panel hidden>
                             <div class="lm-user-menu-header"><strong><?= e($currentUser?->email() ?? '') ?></strong><?php if ($currentUser !== null): ?><span><?= e($currentUser->email()) ?></span><?php endif; ?><span data-lemonade-i18n="<?= e($principalRoleLabelKey) ?>"><?= e($helpers->lang($principalRoleLabelKey)) ?></span></div>
                             <?php if ($currentUser !== null): ?>
-                                <a class="lm-dropdown-item" href="<?= e($helpers->url('admin.system.module.edit', ['module' => 'users', 'id' => $currentUser->id()])) ?>"><i class="<?= e(AdminIcon::Person->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="admin.account.profile"><?= e($helpers->lang('admin.account.profile')) ?></span></a>
+                                <a class="lm-dropdown-item" href="<?= e($helpers->url('admin.system.users.profile')) ?>"><i class="<?= e(AdminIcon::Person->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="admin.account.profile"><?= e($helpers->lang('admin.account.profile')) ?></span></a>
                                 <div class="lm-dropdown-divider"></div>
                             <?php endif; ?>
                             <form method="post" action="<?= e($helpers->url('admin.logout')) ?>"><?= $helpers->csrfField() ?><button class="lm-dropdown-item lm-user-menu-logout" type="submit"><i class="<?= e(AdminIcon::BoxArrowRight->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="admin.account.logout"><?= e($helpers->lang('admin.account.logout')) ?></span></button></form>

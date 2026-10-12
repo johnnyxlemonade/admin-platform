@@ -15,12 +15,15 @@ use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Presentation\AdminFileUploadPresentation;
 use Lemonade\Admin\Presentation\AdminFileUsageDefinition;
 use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
+use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Users\Actions\UsersActionRegistrar;
 use Lemonade\Admin\System\Users\Audit\UsersAuditPresentationRegistrar;
 use Lemonade\Admin\System\Users\Dashboard\UsersDashboardWidgetProvider;
 use Lemonade\Admin\System\Users\DataGrid\UsersDataGrid;
 use Lemonade\Admin\System\Users\Editor\UsersEditor;
+use Lemonade\Admin\System\Users\Http\Controller\UsersProfileController;
 use Lemonade\Admin\System\Users\Migrations\RegisterUsersModule;
+use Lemonade\Admin\System\Users\Routing\UsersProfileRouteRegistrar;
 use Lemonade\Admin\System\Users\Validation\PermissionOverridesRule;
 use Lemonade\Admin\System\Users\Validation\RoleAssignmentsRule;
 use Lemonade\Admin\System\Users\Validation\UniqueUserEmailRule;
@@ -45,6 +48,7 @@ final class UsersModuleProvider implements ServiceProviderInterface, BootableSer
     {
         $container->transient(UsersDashboardWidgetProvider::class, UsersDashboardWidgetProvider::class);
         $container->tag(UsersDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
+        $container->scoped(UsersProfileController::class, UsersProfileController::class);
     }
 
     /**
@@ -76,5 +80,6 @@ final class UsersModuleProvider implements ServiceProviderInterface, BootableSer
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(AdminFileUsageRegistry::class)->register(new AdminFileUsageDefinition('system.users', 'thumbnail', 'image', 'admin-image', false, false, AdminFileUploadPresentation::Avatar));
         $container->get(MigrationRegistry::class)->register(RegisterUsersModule::class);
+        $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(UsersProfileRouteRegistrar::class));
     }
 }
