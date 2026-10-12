@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Navigation;
 
 use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Admin\Module\AdminModuleMetadata;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 
 /**
  * Predstavuje jednu odkazovou polozku navigace
@@ -25,6 +27,8 @@ final class AdminNavigationItem implements AdminNavigationEntryInterface
         private readonly bool $routePrefix,
         private readonly ?AdminIcon $icon,
         private readonly ?string $moduleCode,
+        private readonly ?AdminNavigationGroup $moduleNavigationGroup = null,
+        private readonly ?string $moduleRouteSegment = null,
     ) {}
 
     /**
@@ -98,5 +102,15 @@ final class AdminNavigationItem implements AdminNavigationEntryInterface
     public function moduleCode(): ?string
     {
         return $this->moduleCode;
+    }
+
+    /**
+     * Rozhoduje, zda polozka patri aktualne otevrenemu standardnimu modulu
+     */
+    public function isActiveFor(?AdminModuleMetadata $metadata): bool
+    {
+        return $metadata !== null
+            && $this->moduleNavigationGroup === $metadata->navigationGroup
+            && $this->moduleRouteSegment === $metadata->routeSegment();
     }
 }

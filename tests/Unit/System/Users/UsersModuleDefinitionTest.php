@@ -6,6 +6,7 @@ namespace Lemonade\Admin\Tests\Unit\System\Users;
 
 use Lemonade\Admin\Editor\Contract\EditorProviderInterface;
 use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\System\Users\DataGrid\UsersDataGrid;
 use Lemonade\Admin\System\Users\Editor\UsersEditor;
@@ -23,12 +24,9 @@ final class UsersModuleDefinitionTest extends TestCase
         self::assertSame('system.users', $definition->code());
         self::assertSame('users.module.name', $metadata->nameKey());
         self::assertSame(AdminIcon::People, $metadata->icon());
-        self::assertSame('system', $metadata->navigationGroup());
-        self::assertFalse($metadata->isStandaloneNavigation());
+        self::assertSame(AdminNavigationGroup::System, $metadata->navigationGroup);
         self::assertSame(45, $metadata->navigationOrder());
-        self::assertSame('admin.system.module.index', $metadata->destinationRoute());
         self::assertSame('users', $metadata->routeSegment());
-        self::assertSame(['module' => 'users'], $metadata->destinationParameters());
         self::assertSame('system.users.view', $metadata->navigationPermission());
         self::assertSame([
             'users.permissions.view',

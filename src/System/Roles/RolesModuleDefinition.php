@@ -8,6 +8,7 @@ use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleMetadata;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 
 /**
@@ -25,12 +26,11 @@ final readonly class RolesModuleDefinition implements AdminModuleDefinitionInter
         return new AdminModuleMetadata(
             nameKey: 'roles.module.name',
             icon: AdminIcon::ShieldLock,
-            navigationGroup: 'system',
+            navigationGroup: AdminNavigationGroup::System,
             navigationOrder: 50,
-            destinationRoute: 'admin.system.module.index',
             routeSegment: 'roles',
-            destinationParameters: ['module' => 'roles'],
             navigationPermission: 'system.roles.view',
+            descriptionKey: 'roles.module.description',
         );
     }
 

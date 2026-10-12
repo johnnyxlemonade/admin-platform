@@ -8,7 +8,7 @@ return [
     ],
     'brand' => ['subtitle' => 'Content Management System'],
     'administration' => ['navigation' => 'Administration'],
-    'navigation' => ['dashboard' => 'Overview', 'content' => 'Content', 'commerce' => 'Commerce', 'users' => 'Users and access', 'system' => 'System'],
+    'navigation' => ['dashboard' => 'Overview', 'content' => 'Content', 'commerce' => 'Commerce', 'users' => 'Users and access', 'system' => 'System', 'settings' => 'Settings'],
     'theme' => ['appearance' => 'Appearance', 'system' => 'System', 'light' => 'Light', 'dark' => 'Dark'],
     'confirm' => [
         'delete' => ['title' => 'Delete items?', 'message' => 'This action cannot be undone.'],

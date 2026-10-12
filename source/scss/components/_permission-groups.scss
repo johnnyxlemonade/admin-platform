@@ -38,6 +38,10 @@
     min-width: 0;
 }
 
+.admin-shell .lm-permission-group-copy {
+    min-width: 0;
+}
+
 .admin-shell .lm-permission-section-heading {
     gap: var(--lm-space-3);
 }
@@ -153,6 +157,13 @@
 .admin-shell .lm-permission-group-title > span {
     min-width: 0;
     overflow-wrap: anywhere;
+}
+
+.admin-shell .lm-permission-group-description {
+    margin: 3px 0 0;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 .admin-shell .lm-permission-group-actions {

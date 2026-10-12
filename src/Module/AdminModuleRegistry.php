@@ -43,9 +43,9 @@ final class AdminModuleRegistry
             throw new InvalidArgumentException(sprintf('Module route segment "%s" is already registered.', $segment));
         }
 
-        $navigationGroup = $definition->adminMetadata()->navigationGroup();
-        if ($navigationGroup !== null && !$this->navigationGroups->has($navigationGroup)) {
-            throw new InvalidArgumentException(sprintf('Admin navigation group "%s" is not registered.', $navigationGroup));
+        $navigationGroup = $definition->adminMetadata()->navigationGroup;
+        if (!$this->navigationGroups->has($navigationGroup->value)) {
+            throw new InvalidArgumentException(sprintf('Admin navigation group "%s" is not registered.', $navigationGroup->value));
         }
 
         $this->definitions[$moduleCode] = $definition;

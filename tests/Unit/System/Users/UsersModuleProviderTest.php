@@ -14,13 +14,11 @@ use Lemonade\Admin\DataGrid\Contract\DataGridProviderInterface;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Editor\Contract\EditorProviderInterface;
 use Lemonade\Admin\Editor\EditorRegistry;
-use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\ModuleBootstrapServiceProvider;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
-use Lemonade\Admin\Navigation\AdminNavigationGroupDefinition;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
@@ -166,15 +164,12 @@ final class UsersModuleProviderTest extends TestCase
      */
     private function registerRuntimeRegistries(Container $container): array
     {
-        $navigationGroups = new AdminNavigationGroupRegistry();
-        $navigationGroups->register(new AdminNavigationGroupDefinition('system', 'admin.navigation.system', 50, AdminIcon::Gear));
-
         $registries = [
             'translations' => new TranslationResourceRegistry(),
             'views' => new ViewResourceRegistry(),
             'clientTranslations' => new ClientTranslationGroupRegistry(),
             'modules' => new ModuleRegistry(),
-            'adminModules' => new AdminModuleRegistry($navigationGroups),
+            'adminModules' => new AdminModuleRegistry(new AdminNavigationGroupRegistry()),
             'dataGrids' => new DataGridRegistry(),
             'editors' => new EditorRegistry(),
             'pages' => new ModulePageRegistry(),

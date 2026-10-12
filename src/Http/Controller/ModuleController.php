@@ -71,7 +71,7 @@ final class ModuleController
         if (!$this->authorization->hasPermission($provider->indexPermission())) {
             return $this->responses->authorizationDenied($request);
         }
-        return $this->render($provider->index($locale));
+        return $this->render($provider->index($locale), activeModuleSegment: $module);
     }
 
     /**
@@ -220,7 +220,7 @@ final class ModuleController
                     return $this->responses->recordNotFound($request, $this->moduleIndexDestination($module));
                 }
 
-                return $this->render($page);
+                return $this->render($page, activeModuleSegment: $module);
             }
             $message = $acquisition->lockedBy !== null && $pageProvider instanceof EditorLockConflictMessageProviderInterface
                 ? $pageProvider->editorOpenLockConflictMessage($id, $acquisition->lockedBy)
@@ -235,7 +235,7 @@ final class ModuleController
             return $this->responses->recordNotFound($request, $this->moduleIndexDestination($module));
         }
 
-        return $this->render($page, $status);
+        return $this->render($page, $status, $module);
     }
 
     /**
@@ -267,7 +267,7 @@ final class ModuleController
             return $this->responses->notFound($request);
         }
 
-        return $this->render($page, $status);
+        return $this->render($page, $status, $module);
     }
 
     /**
@@ -294,11 +294,6 @@ final class ModuleController
     private function moduleIndexDestination(string $segment): string
     {
         try {
-            $metadata = $this->routes->metadata($segment);
-            if (!$this->routes->isCmsSegment($segment)) {
-                return $this->urls->route($metadata->destinationRoute(), $metadata->destinationParameters());
-            }
-
             return $this->urls->route(
                 $this->routes->managementRouteName($segment, 'index'),
                 ['module' => $segment],
@@ -319,10 +314,15 @@ final class ModuleController
     /**
      * Zpracovava krok render v HTTP toku administrace
      */
-    private function render(ModulePage $page, ?int $status = null): ResponseInterface
+    private function render(ModulePage $page, ?int $status = null, ?string $activeModuleSegment = null): ResponseInterface
     {
         $status ??= HttpStatusCode::OK->value;
-        return $this->pages->render($page->view(), ['title' => $page->title(), ...$page->data()], $status);
+        $data = ['title' => $page->title(), ...$page->data()];
+        if ($activeModuleSegment !== null) {
+            $data['activeAdminModule'] = $this->routes->metadata($activeModuleSegment);
+        }
+
+        return $this->pages->render($page->view(), $data, $status);
     }
 
     /**

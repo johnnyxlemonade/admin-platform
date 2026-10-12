@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Navigation;
 
-use InvalidArgumentException;
+use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use RuntimeException;
 
 /**
@@ -16,19 +17,30 @@ final class AdminNavigationGroupRegistry
     private array $definitions = [];
 
     /**
-     * Registruje validni a jedinecnou skupinu navigace
+     * Pripravuje canonical skupiny navigace administrace
      */
-    public function register(AdminNavigationGroupDefinition $definition): void
+    public function __construct()
     {
-        $code = $definition->code();
-        if (preg_match('/^[a-z][a-z0-9-]*$/', $code) !== 1) {
-            throw new InvalidArgumentException(sprintf('Admin navigation group "%s" is invalid.', $code));
-        }
-        if (isset($this->definitions[$code])) {
-            throw new InvalidArgumentException(sprintf('Admin navigation group "%s" is already registered.', $code));
-        }
-
-        $this->definitions[$code] = $definition;
+        $this->definitions = [
+            AdminNavigationGroup::Content->value => new AdminNavigationGroupDefinition(
+                AdminNavigationGroup::Content->value,
+                'admin.navigation.content',
+                40,
+                AdminIcon::JournalText,
+            ),
+            AdminNavigationGroup::System->value => new AdminNavigationGroupDefinition(
+                AdminNavigationGroup::System->value,
+                'admin.navigation.system',
+                50,
+                AdminIcon::Gear,
+            ),
+            AdminNavigationGroup::Settings->value => new AdminNavigationGroupDefinition(
+                AdminNavigationGroup::Settings->value,
+                'admin.navigation.settings',
+                60,
+                AdminIcon::Sliders,
+            ),
+        ];
     }
 
     /**

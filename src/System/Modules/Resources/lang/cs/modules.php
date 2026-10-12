@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'module' => ['name' => 'Moduly'],
+    'module' => ['name' => 'Moduly', 'description' => 'Správa dostupných a nainstalovaných modulů.'],
     'widgets' => ['active' => ['title' => 'Aktivní moduly', 'description' => 'Přehled modulů dostupných v administraci.', 'empty' => 'Pro váš účet nejsou dostupné žádné aktivní moduly.']],
     'audit' => ['installed' => 'Modul byl nainstalován.', 'enabled' => 'Modul byl zapnut.', 'disabled' => 'Modul byl vypnut.', 'route_prefix_synchronized' => 'Výchozí veřejný prefix modulu byl doplněn.', 'feature_enabled' => 'Funkce modulu byla zapnuta.', 'feature_disabled' => 'Funkce modulu byla vypnuta.', 'feature_synchronized' => 'Funkce modulu byla synchronizována.'],
     'list' => ['title' => 'Moduly', 'description' => 'Správa nainstalovaných modulů administrace.', 'all' => 'Všechny', 'system' => 'Systémové', 'optional' => 'Volitelné', 'search' => 'Hledat moduly', 'loading' => 'Načítání modulů…', 'empty' => 'Žádné moduly nenalezeny.'],

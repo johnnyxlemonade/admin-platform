@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'module' => ['name' => 'Jazyky'],
+    'module' => ['name' => 'Jazyky', 'description' => 'Správa jazyků dostupných v systému.'],
     'permissions' => ['view' => 'Zobrazit jazyky', 'create' => 'Vytvářet jazyky', 'edit' => 'Upravovat jazyky', 'enable' => 'Aktivovat jazyky', 'disable' => 'Deaktivovat jazyky', 'set_default' => 'Nastavit výchozí jazyk'],
     'list' => ['title' => 'Jazyky', 'description' => 'Správa jazyků dostupných pro systémový obsah.', 'all' => 'Všechny', 'enabled' => 'Aktivní', 'disabled' => 'Neaktivní', 'default' => 'Výchozí', 'not_default' => '—', 'search' => 'Hledat jazyky', 'loading' => 'Načítání jazyků…', 'empty' => 'Žádné jazyky nenalezeny.'],
     'fields' => ['preset' => 'Jazykový preset', 'code' => 'Kód', 'name' => 'Název', 'enabled' => 'Stav', 'default' => 'Výchozí', 'sort_order' => 'Pořadí'],

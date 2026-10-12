@@ -8,7 +8,7 @@ return [
     ],
     'brand' => ['subtitle' => 'Redakční a administrační systém'],
     'administration' => ['navigation' => 'Správa'],
-    'navigation' => ['dashboard' => 'Přehled', 'content' => 'Obsah', 'commerce' => 'Obchod', 'users' => 'Uživatelé a přístupy', 'system' => 'Systém'],
+    'navigation' => ['dashboard' => 'Přehled', 'content' => 'Obsah', 'commerce' => 'Obchod', 'users' => 'Uživatelé a přístupy', 'system' => 'Systém', 'settings' => 'Nastavení'],
     'theme' => ['appearance' => 'Vzhled', 'system' => 'Systém', 'light' => 'Světlý', 'dark' => 'Tmavý'],
     'confirm' => [
         'delete' => ['title' => 'Smazat položky?', 'message' => 'Tuto akci nelze vrátit zpět.'],

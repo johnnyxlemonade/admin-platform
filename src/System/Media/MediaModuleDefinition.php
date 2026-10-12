@@ -7,6 +7,7 @@ namespace Lemonade\Admin\System\Media;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleMetadata;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 
 /**
@@ -21,7 +22,7 @@ final readonly class MediaModuleDefinition implements AdminModuleDefinitionInter
 
     public function adminMetadata(): AdminModuleMetadata
     {
-        return new AdminModuleMetadata(nameKey: 'media.module.name', icon: AdminIcon::Grid1x2, navigationGroup: 'system', navigationOrder: 35, destinationRoute: 'admin.system.module.index', routeSegment: 'media', destinationParameters: ['module' => 'media'], navigationPermission: 'system.media.view');
+        return new AdminModuleMetadata(nameKey: 'media.module.name', icon: AdminIcon::Grid1x2, navigationGroup: AdminNavigationGroup::System, navigationOrder: 35, routeSegment: 'media', navigationPermission: 'system.media.view', descriptionKey: 'media.module.description');
     }
 
     /**

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'module' => ['name' => 'Languages'],
+    'module' => ['name' => 'Languages', 'description' => 'Manage languages available in the system.'],
     'permissions' => ['view' => 'View languages', 'create' => 'Create languages', 'edit' => 'Edit languages', 'enable' => 'Enable languages', 'disable' => 'Disable languages', 'set_default' => 'Set default language'],
     'list' => ['title' => 'Languages', 'description' => 'Manage languages available for system content.', 'all' => 'All', 'enabled' => 'Enabled', 'disabled' => 'Disabled', 'default' => 'Default', 'not_default' => '—', 'search' => 'Search languages', 'loading' => 'Loading languages…', 'empty' => 'No languages found.'],
     'fields' => ['preset' => 'Language preset', 'code' => 'Code', 'name' => 'Name', 'enabled' => 'Status', 'default' => 'Default', 'sort_order' => 'Order'],

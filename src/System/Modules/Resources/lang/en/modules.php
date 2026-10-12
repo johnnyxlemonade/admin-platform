@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'module' => ['name' => 'Modules'],
+    'module' => ['name' => 'Modules', 'description' => 'Manage available and installed modules.'],
     'widgets' => ['active' => ['title' => 'Active modules', 'description' => 'Overview of modules available in the administration.', 'empty' => 'No active modules are available for your account.']],
     'audit' => ['installed' => 'Installed module.', 'enabled' => 'Enabled module.', 'disabled' => 'Disabled module.', 'route_prefix_synchronized' => 'A default public module route prefix was synchronized.', 'feature_enabled' => 'Module feature enabled.', 'feature_disabled' => 'Module feature disabled.', 'feature_synchronized' => 'Module feature synchronized.'],
     'list' => ['title' => 'Modules', 'description' => 'Manage installed administration modules.', 'all' => 'All', 'system' => 'System', 'optional' => 'Optional', 'search' => 'Search modules', 'loading' => 'Loading modules…', 'empty' => 'No modules found.'],

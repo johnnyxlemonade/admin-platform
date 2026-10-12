@@ -170,16 +170,11 @@ final class RolesAdminEditorDefinitionFactoryTest extends TestCase
     private function factory(): RolesAdminEditorDefinitionFactory
     {
         $router = new Router();
-        $router->getNamed('admin.module.index', '/admin/{module}', ControllerAction::for('TestController', 'index'));
         $router->getNamed('admin.system.module.index', '/admin/system/{module}', ControllerAction::for('TestController', 'index'));
         $router->getNamed('admin.system.module.create', '/admin/system/{module}/create', ControllerAction::for('TestController', 'create'));
         $router->getNamed('admin.system.module.edit', '/admin/system/{module}/edit/{id}', ControllerAction::for('TestController', 'edit'));
         $router->postNamed('admin.system.module.ajax.create', '/admin/system/{module}/ajax', ControllerAction::for('TestController', 'create'));
         $router->postNamed('admin.system.module.ajax.entity', '/admin/system/{module}/ajax/{id}', ControllerAction::for('TestController', 'entity'));
-        $router->getNamed('admin.module.create', '/admin/{module}/create', ControllerAction::for('TestController', 'create'));
-        $router->getNamed('admin.module.edit', '/admin/{module}/edit/{id}', ControllerAction::for('TestController', 'edit'));
-        $router->postNamed('admin.module.ajax.create', '/admin/{module}/ajax', ControllerAction::for('TestController', 'create'));
-        $router->postNamed('admin.module.ajax.entity', '/admin/{module}/ajax/{id}', ControllerAction::for('TestController', 'entity'));
 
         return new RolesAdminEditorDefinitionFactory(urls: new UrlGenerator(router: $router));
     }

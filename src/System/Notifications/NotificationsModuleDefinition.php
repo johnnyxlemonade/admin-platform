@@ -8,6 +8,7 @@ use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleMetadata;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 
 /**
@@ -25,12 +26,11 @@ final readonly class NotificationsModuleDefinition implements AdminModuleDefinit
         return new AdminModuleMetadata(
             nameKey: 'notifications.module.name',
             icon: AdminIcon::Bell,
-            navigationGroup: 'system',
+            navigationGroup: AdminNavigationGroup::System,
             navigationOrder: 65,
-            destinationRoute: 'admin.system.module.index',
             routeSegment: 'notifications',
-            destinationParameters: ['module' => 'notifications'],
             navigationPermission: 'system.notifications.view',
+            descriptionKey: 'notifications.module.description',
         );
     }
 

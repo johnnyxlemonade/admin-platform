@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\Modules;
 
 use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Modules\Definition\ModuleDefinitionInterface;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use PHPUnit\Framework\TestCase;
@@ -51,7 +52,7 @@ final class ModuleRegistryTest extends TestCase
 
             public function adminMetadata(): \Lemonade\Admin\Module\AdminModuleMetadata
             {
-                return new \Lemonade\Admin\Module\AdminModuleMetadata('example.module.name', AdminIcon::People, 'system', 10, 'admin.module.index', 'examples');
+                return new \Lemonade\Admin\Module\AdminModuleMetadata('example.module.name', AdminIcon::People, AdminNavigationGroup::System, 10, 'examples');
             }
         };
         $registry->register($definition);

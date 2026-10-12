@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'module' => ['name' => 'Notifications'],
+    'module' => ['name' => 'Notifications', 'description' => 'Manage notifications for administration users.'],
     'audit' => ['events' => ['published' => 'Notification published', 'updated' => 'Notification updated', 'activated' => 'Notification activated', 'deactivated' => 'Notification deactivated', 'deleted' => 'Notification deleted', 'restored' => 'Notification restored', 'display_reset' => 'Notification display reset']],
     'permissions' => ['view' => 'View notifications', 'publish' => 'Publish and edit notifications', 'activate' => 'Activate notifications', 'deactivate' => 'Deactivate notifications', 'delete' => 'Delete notifications', 'restore' => 'Restore notifications', 'reset_display' => 'Reset notification display'],
     'list' => ['title' => 'Notifications', 'description' => 'Published notifications for administration users.', 'loading' => 'Loading notifications…', 'empty' => 'No notifications found.', 'all' => 'All', 'active' => 'Active', 'inactive' => 'Inactive', 'deleted' => 'Deleted', 'search' => 'Search notifications'],

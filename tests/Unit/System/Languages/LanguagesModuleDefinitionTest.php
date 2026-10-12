@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\System\Languages;
 
 use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\System\Languages\LanguagesModuleDefinition;
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +18,7 @@ final class LanguagesModuleDefinitionTest extends TestCase
 
         self::assertSame('system.languages', $definition->code());
         self::assertSame('languages', $metadata->routeSegment());
-        self::assertSame('system', $metadata->navigationGroup());
+        self::assertSame(AdminNavigationGroup::System, $metadata->navigationGroup);
         self::assertSame(55, $metadata->navigationOrder());
         self::assertSame(AdminIcon::Sliders, $metadata->icon());
         self::assertSame([

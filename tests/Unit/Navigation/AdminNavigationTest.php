@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Navigation;
 
-use InvalidArgumentException;
 use Lemonade\Admin\Auth\AdminPrincipalInterface;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Auth\LocalAdminPrincipal;
@@ -15,6 +14,7 @@ use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleMetadata;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
+use Lemonade\Admin\Module\AdminNavigationGroup as AdminNavigationGroupCode;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Definition\ModuleKind;
@@ -27,14 +27,10 @@ use Lemonade\Admin\Modules\State\ModuleStateResolver;
 use Lemonade\Admin\Navigation\AdminNavigation;
 use Lemonade\Admin\Navigation\AdminNavigationEntryInterface;
 use Lemonade\Admin\Navigation\AdminNavigationGroup;
-use Lemonade\Admin\Navigation\AdminNavigationGroupDefinition;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Admin\Navigation\AdminNavigationItem;
 use Lemonade\Admin\System\SystemModuleServiceProvider;
-use Lemonade\Framework\Container\Container;
-use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Core\Context\ApplicationContextFactory;
-use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Database\Connection\ConnectionInterface;
 use Lemonade\Framework\Database\Database;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
@@ -57,16 +53,16 @@ final class AdminNavigationTest extends TestCase
         $this->temporaryCatalogRoots = [];
     }
 
-    public function testItOrdersStandaloneItemsAndGroupsInOneTopLevelSpace(): void
+    public function testItOrdersCanonicalGroupsAfterStandaloneItems(): void
     {
         $navigation = $this->navigation([
-            $this->definition('system.last', null, 30),
-            $this->definition('system.group', 'system', 10),
-            $this->definition('system.first', null, 10),
+            $this->definition('system.last', AdminNavigationGroupCode::System, 30),
+            $this->definition('system.group', AdminNavigationGroupCode::System, 10),
+            $this->definition('system.first', AdminNavigationGroupCode::System, 10),
         ]);
 
         self::assertSame(
-            ['standalone:dashboard', 'standalone:notifications', 'module:system.first', 'group:system', 'module:system.last'],
+            ['standalone:dashboard', 'standalone:notifications', 'group:system'],
             array_map(static fn(AdminNavigationEntryInterface $entry): string => $entry->key(), $navigation->items()),
         );
     }
@@ -74,10 +70,10 @@ final class AdminNavigationTest extends TestCase
     public function testItOrdersItemsInsideAGroupByOrderThenModuleCode(): void
     {
         $navigation = $this->navigation([
-            $this->definition('system.beta', 'system', 20),
-            $this->definition('system.third', 'system', 30),
-            $this->definition('system.alpha', 'system', 20),
-            $this->definition('system.first', 'system', 10),
+            $this->definition('system.beta', AdminNavigationGroupCode::System, 20),
+            $this->definition('system.third', AdminNavigationGroupCode::System, 30),
+            $this->definition('system.alpha', AdminNavigationGroupCode::System, 20),
+            $this->definition('system.first', AdminNavigationGroupCode::System, 10),
         ]);
         $entries = $navigation->items();
         $group = $entries[2] ?? null;
@@ -89,32 +85,9 @@ final class AdminNavigationTest extends TestCase
         );
     }
 
-    public function testItUsesCanonicalKeysForTiedTopLevelOrders(): void
-    {
-        $navigation = $this->navigation([
-            $this->definition('system.standalone', null, 20),
-            $this->definition('system.grouped', 'system', 10),
-        ]);
-
-        self::assertSame(
-            ['standalone:dashboard', 'standalone:notifications', 'group:system', 'module:system.standalone'],
-            array_map(static fn(AdminNavigationEntryInterface $entry): string => $entry->key(), $navigation->items()),
-        );
-    }
-
-    public function testItRejectsModulesReferencingAnUnregisteredNavigationGroup(): void
-    {
-        $groups = $this->navigationGroups();
-        $registry = new AdminModuleRegistry($groups);
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Admin navigation group "missing" is not registered.');
-        $registry->register($this->definition('system.invalid', 'missing', 10));
-    }
-
     public function testItOmitsAGroupWhoseOnlyItemIsNotVisible(): void
     {
-        $navigation = $this->navigation([$this->definition('system.private', 'system', 10, true)], false);
+        $navigation = $this->navigation([$this->definition('system.private', AdminNavigationGroupCode::System, 10, true)], false);
 
         self::assertSame(
             ['standalone:dashboard', 'standalone:notifications'],
@@ -125,8 +98,7 @@ final class AdminNavigationTest extends TestCase
     public function testItExposesTheNavigationViewModelDataWithoutLegacyArrays(): void
     {
         $navigation = $this->navigation([
-            $this->definition('system.standalone', null, 20, false, ['module' => 'system-standalone']),
-            $this->definition('system.grouped', 'system', 10),
+            $this->definition('system.grouped', AdminNavigationGroupCode::System, 10),
         ]);
         $entries = $navigation->items();
 
@@ -140,55 +112,51 @@ final class AdminNavigationTest extends TestCase
         self::assertSame('system', $entries[2]->code());
         self::assertSame('admin.navigation.system', $entries[2]->labelKey());
         self::assertSame(AdminIcon::Gear, $entries[2]->icon());
-        self::assertSame(20, $entries[2]->order());
+        self::assertSame(50, $entries[2]->order());
         self::assertCount(1, $entries[2]->items());
         self::assertSame('system.grouped', $entries[2]->items()[0]->moduleCode());
 
-        self::assertInstanceOf(AdminNavigationItem::class, $entries[3]);
-        self::assertSame('system.standalone', $entries[3]->moduleCode());
-        self::assertSame('example.module.name', $entries[3]->labelKey());
-        self::assertSame('admin.module.index', $entries[3]->route());
-        self::assertSame(['module' => 'system-standalone'], $entries[3]->routeParameters());
-        self::assertTrue($entries[3]->routePrefix());
-        self::assertSame(AdminIcon::People, $entries[3]->icon());
     }
 
-    public function testTheSystemModuleFamilyOwnsTheSystemGroupBeforeTheModuleBootstrap(): void
+    public function testItProvidesTheCanonicalSystemGroup(): void
     {
-        $container = new Container();
-        $container->singleton(AdminNavigationGroupRegistry::class, AdminNavigationGroupRegistry::class);
-
-        $provider = new SystemModuleServiceProvider();
-        $provider->register($container);
-        $provider->boot($container);
-        $groups = $container->get(AdminNavigationGroupRegistry::class);
-        self::assertInstanceOf(AdminNavigationGroupRegistry::class, $groups);
+        $groups = new AdminNavigationGroupRegistry();
         $definition = $groups->definition('system');
 
         self::assertSame('admin.navigation.system', $definition->nameKey());
         self::assertSame(50, $definition->order());
         self::assertSame(AdminIcon::Gear, $definition->icon());
+        self::assertTrue($groups->has(AdminNavigationGroupCode::Settings->value));
     }
 
-    public function testANewModuleFamilyCanRegisterAGroupWithoutChangingAdminServiceProvider(): void
+    /**
+     * Standardni lifecycle modulu zachovava aktivni polozku podle resolved metadata
+     */
+    public function testItMarksTheResolvedModuleInsteadOfMatchingUrlsByPrefix(): void
     {
-        $container = new Container();
-        $container->singleton(AdminNavigationGroupRegistry::class, AdminNavigationGroupRegistry::class);
-        $familyProvider = new class implements ServiceProviderInterface {
-            public function register(ContainerBuilderInterface $container): void
-            {
-                $container->get(AdminNavigationGroupRegistry::class)->register(
-                    new AdminNavigationGroupDefinition('catalog', 'catalog.navigation.group', 40, AdminIcon::Gear),
-                );
-            }
-        };
-        $familyProvider->register($container);
-        $groups = $container->get(AdminNavigationGroupRegistry::class);
-        self::assertInstanceOf(AdminNavigationGroupRegistry::class, $groups);
-        $modules = new AdminModuleRegistry($groups);
-        $modules->register($this->definition('catalog.items', 'catalog', 10));
+        $metadata = new AdminModuleMetadata(
+            nameKey: 'users.module.name',
+            icon: AdminIcon::People,
+            navigationGroup: AdminNavigationGroupCode::System,
+            navigationOrder: 10,
+            routeSegment: 'users',
+        );
+        $item = new AdminNavigationItem(
+            key: 'module:system.users',
+            order: 10,
+            label: 'Users',
+            labelKey: 'users.module.name',
+            route: 'admin.system.module.index',
+            routeParameters: ['module' => 'users'],
+            routePrefix: false,
+            icon: AdminIcon::People,
+            moduleCode: 'system.users',
+            moduleNavigationGroup: AdminNavigationGroupCode::System,
+            moduleRouteSegment: 'users',
+        );
 
-        self::assertTrue($modules->has('catalog.items'));
+        self::assertTrue($item->isActiveFor($metadata));
+        self::assertFalse($item->isActiveFor(null));
     }
 
     /** @param list<AdminModuleDefinitionInterface> $definitions */
@@ -251,23 +219,17 @@ final class AdminNavigationTest extends TestCase
 
     private function navigationGroups(): AdminNavigationGroupRegistry
     {
-        $groups = new AdminNavigationGroupRegistry();
-        $groups->register(new AdminNavigationGroupDefinition('system', 'admin.navigation.system', 20, AdminIcon::Gear));
-
-        return $groups;
+        return new AdminNavigationGroupRegistry();
     }
 
-    /** @param array<string, bool|float|int|string|null> $destinationParameters */
-    private function definition(string $code, ?string $group, int $order, bool $superAdminOnly = false, array $destinationParameters = []): AdminModuleDefinitionInterface
+    private function definition(string $code, AdminNavigationGroupCode $group, int $order, bool $superAdminOnly = false): AdminModuleDefinitionInterface
     {
-        return new class ($code, $group, $order, $superAdminOnly, $destinationParameters) implements AdminModuleDefinitionInterface {
+        return new class ($code, $group, $order, $superAdminOnly) implements AdminModuleDefinitionInterface {
             public function __construct(
                 private readonly string $code,
-                private readonly ?string $group,
+                private readonly AdminNavigationGroupCode $group,
                 private readonly int $order,
                 private readonly bool $superAdminOnly,
-                /** @var array<string, bool|float|int|string|null> */
-                private readonly array $destinationParameters,
             ) {}
 
             public function code(): string
@@ -277,7 +239,7 @@ final class AdminNavigationTest extends TestCase
 
             public function adminMetadata(): AdminModuleMetadata
             {
-                return new AdminModuleMetadata('example.module.name', AdminIcon::People, $this->group, $this->order, 'admin.module.index', str_replace('.', '-', $this->code), $this->destinationParameters, null, $this->superAdminOnly);
+                return new AdminModuleMetadata('example.module.name', AdminIcon::People, $this->group, $this->order, str_replace('.', '-', $this->code), null, $this->superAdminOnly);
             }
         };
     }

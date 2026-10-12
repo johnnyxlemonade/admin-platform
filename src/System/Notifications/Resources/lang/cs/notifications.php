@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'module' => ['name' => 'Oznámení'],
+    'module' => ['name' => 'Oznámení', 'description' => 'Správa oznámení pro uživatele administrace.'],
     'audit' => ['events' => ['published' => 'Oznámení publikováno', 'updated' => 'Oznámení upraveno', 'activated' => 'Oznámení aktivováno', 'deactivated' => 'Oznámení deaktivováno', 'deleted' => 'Oznámení smazáno', 'restored' => 'Oznámení obnoveno', 'display_reset' => 'Zobrazení oznámení resetováno']],
     'permissions' => ['view' => 'Zobrazit oznámení', 'publish' => 'Publikovat a upravovat oznámení', 'activate' => 'Aktivovat oznámení', 'deactivate' => 'Deaktivovat oznámení', 'delete' => 'Smazat oznámení', 'restore' => 'Obnovit oznámení', 'reset_display' => 'Resetovat zobrazení oznámení'],
     'list' => ['title' => 'Oznámení', 'description' => 'Publikovaná oznámení uživatelům administrace.', 'loading' => 'Načítání oznámení…', 'empty' => 'Nebyla nalezena žádná oznámení.', 'all' => 'Všechny', 'active' => 'Aktivní', 'inactive' => 'Neaktivní', 'deleted' => 'Smazané', 'search' => 'Hledat oznámení'],

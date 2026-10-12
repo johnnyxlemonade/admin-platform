@@ -17,14 +17,12 @@ final readonly class AdminModuleMetadata
     public function __construct(
         private string $nameKey,
         private AdminIcon $icon,
-        private ?string $navigationGroup,
+        public AdminNavigationGroup $navigationGroup,
         private int $navigationOrder,
-        private string $destinationRoute,
         private string $routeSegment,
-        /** @var array<string, scalar|null> */
-        private array $destinationParameters = [],
         private ?string $navigationPermission = null,
         private bool $superAdminOnly = false,
+        private ?string $descriptionKey = null,
     ) {}
 
     /**
@@ -36,27 +34,19 @@ final readonly class AdminModuleMetadata
     }
 
     /**
+     * Vraci lokalizacni klic kratkeho popisu modulu
+     */
+    public function descriptionKey(): ?string
+    {
+        return $this->descriptionKey;
+    }
+
+    /**
      * Vraci hodnotu icon z metadat modulu
      */
     public function icon(): AdminIcon
     {
         return $this->icon;
-    }
-
-    /**
-     * Vraci hodnotu navigationgroup z metadat modulu
-     */
-    public function navigationGroup(): ?string
-    {
-        return $this->navigationGroup;
-    }
-
-    /**
-     * Rozhoduje stav isstandalonenavigation
-     */
-    public function isStandaloneNavigation(): bool
-    {
-        return $this->navigationGroup === null;
     }
 
     /**
@@ -68,28 +58,11 @@ final readonly class AdminModuleMetadata
     }
 
     /**
-     * Vraci hodnotu destinationroute z metadat modulu
-     */
-    public function destinationRoute(): string
-    {
-        return $this->destinationRoute;
-    }
-
-    /**
      * Vraci hodnotu routesegment z metadat modulu
      */
     public function routeSegment(): string
     {
         return $this->routeSegment;
-    }
-
-    /**
-     * Vraci hodnotu destinationparameters z metadat modulu
-     * @return array<string, scalar|null>
-     */
-    public function destinationParameters(): array
-    {
-        return $this->destinationParameters;
     }
 
     /**

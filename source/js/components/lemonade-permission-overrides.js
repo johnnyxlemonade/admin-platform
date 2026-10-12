@@ -228,6 +228,13 @@ let rebindListenerRemover = null;
         });
     };
 
+    const expandLabel = function (container, button, expanded) {
+        const key = container.getAttribute(expanded ? "data-lemonade-permission-hide-key" : "data-lemonade-permission-show-all-key") || "";
+        const count = button.getAttribute("data-lemonade-permission-expand-count") || "0";
+
+        return I18n.t(key, expanded ? {} : { count: count });
+    };
+
     const bindToggles = function (root) {
         const container = root.querySelector("[data-lemonade-permission-groups]");
         if (!container) return;
@@ -290,9 +297,16 @@ let rebindListenerRemover = null;
                     item.hidden = !expanded;
                 });
                 const label = button.querySelector("[data-lemonade-permission-group-expand-label]");
-                if (label) label.textContent = expanded
-                    ? (button.getAttribute("data-lemonade-hide-label") || "")
-                    : (button.getAttribute("data-lemonade-show-all-label") || "");
+                if (label) {
+                    const key = container.getAttribute(expanded ? "data-lemonade-permission-hide-key" : "data-lemonade-permission-show-all-key") || "";
+                    label.textContent = expandLabel(container, button, expanded);
+                    label.setAttribute("data-lemonade-i18n", key);
+                    if (expanded) {
+                        label.removeAttribute("data-lemonade-i18n-param-count");
+                    } else {
+                        label.setAttribute("data-lemonade-i18n-param-count", button.getAttribute("data-lemonade-permission-expand-count") || "0");
+                    }
+                }
             });
         });
         updateCounters(root);
@@ -324,13 +338,16 @@ let rebindListenerRemover = null;
         }).length;
         const allDisabled = editable ? "" : " disabled";
         const disabledMarker = editable ? "" : " data-lemonade-permission-group-disabled";
-        const showAllLabel = (container.getAttribute("data-lemonade-permission-show-all-label") || "").replace("{count}", String(permissions.length));
-        const hideLabel = container.getAttribute("data-lemonade-permission-hide-label") || "";
+        const description = typeof group.description === "string" && group.description !== ""
+            ? '<p class="lm-permission-group-description"' + (group.descriptionKey ? ' data-lemonade-i18n="' + escapeHtml(group.descriptionKey) + '"' : "") + ">" + escapeHtml(group.description) + "</p>"
+            : "";
+        const showAllKey = container.getAttribute("data-lemonade-permission-show-all-key") || "";
+        const showAllLabel = I18n.t(showAllKey, { count: permissions.length });
         const footer = permissions.length > 3
-            ? '<div class="lm-permission-group-footer"><button class="lm-permission-group-expand" type="button" data-lemonade-permission-group-expand aria-expanded="false" aria-controls="' + escapeHtml(groupId) + '-permissions" data-lemonade-show-all-label="' + escapeHtml(showAllLabel) + '" data-lemonade-hide-label="' + escapeHtml(hideLabel) + '"><span data-lemonade-permission-group-expand-label>' + escapeHtml(showAllLabel) + '</span><i class="bi bi-chevron-down" aria-hidden="true"></i></button></div>'
+            ? '<div class="lm-permission-group-footer"><button class="lm-permission-group-expand" type="button" data-lemonade-permission-group-expand aria-expanded="false" aria-controls="' + escapeHtml(groupId) + '-permissions" data-lemonade-permission-expand-count="' + permissions.length + '"><span data-lemonade-permission-group-expand-label data-lemonade-i18n="' + escapeHtml(showAllKey) + '" data-lemonade-i18n-param-count="' + permissions.length + '">' + escapeHtml(showAllLabel) + '</span><i class="bi bi-chevron-down" aria-hidden="true"></i></button></div>'
             : "";
         return '<section class="lm-permission-group" data-lemonade-permission-group aria-labelledby="' + escapeHtml(groupId) + '">' +
-            '<div class="lm-permission-group-header"><div class="lm-permission-group-heading">' + icon + '<h4 class="lm-permission-group-title" id="' + escapeHtml(groupId) + '"><span' + (group.labelKey ? ' data-lemonade-i18n="' + escapeHtml(group.labelKey) + '"' : "") + ">" + escapeHtml(group.label) + "</span></h4></div>" +
+            '<div class="lm-permission-group-header"><div class="lm-permission-group-heading">' + icon + '<div class="lm-permission-group-copy"><h4 class="lm-permission-group-title" id="' + escapeHtml(groupId) + '"><span' + (group.labelKey ? ' data-lemonade-i18n="' + escapeHtml(group.labelKey) + '"' : "") + ">" + escapeHtml(group.label) + "</span></h4>" + description + "</div></div>" +
             '<div class="lm-permission-group-actions"><span class="lm-permission-group-count" data-lemonade-permission-count data-selected-count="' + selected + '" data-total-count="' + permissions.length + '" aria-live="polite">' + selected + " / " + permissions.length + '</span><span class="lm-permission-group-select-all"><input class="form-check-input lm-permission-group-toggle" id="' + escapeHtml(groupId) + '-all" type="checkbox"' + (selected === permissions.length && permissions.length > 0 ? " checked" : "") + allDisabled + disabledMarker + ' data-lemonade-permission-group-toggle aria-controls="' + escapeHtml(groupId) + '-permissions"><label class="form-check-label" for="' + escapeHtml(groupId) + '-all"' + allLabelI18n + ">" + escapeHtml(allLabel) + "</label></span></div></div>" +
             '<div class="lm-permission-grid" id="' + escapeHtml(groupId) + '-permissions">' + items + "</div>" + footer + "</section>";
     };

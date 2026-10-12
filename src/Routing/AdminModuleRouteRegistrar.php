@@ -9,6 +9,7 @@ use Lemonade\Admin\Http\Controller\DataGridController;
 use Lemonade\Admin\Http\Controller\ModuleController;
 use Lemonade\Admin\Http\Middleware\AdminAuthenticationMiddleware;
 use Lemonade\Admin\Module\AdminModuleRegistry;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Framework\Routing\ControllerAction;
 use Lemonade\Framework\Routing\Router;
 use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
@@ -19,7 +20,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 final class AdminModuleRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
-     * Nastavuje registry pro rozliseni System a ostatnich management rout
+     * Nastavuje registry canonical management rout modulu
      */
     public function __construct(private readonly AdminModuleRegistry $modules) {}
 
@@ -44,9 +45,9 @@ final class AdminModuleRouteRegistrar implements AdminRouteRegistrarInterface
      */
     public function registerRoutes(Router $router): void
     {
-        $this->registerSystemRoutes($router);
-        $this->registerCmsRoutes($router);
-        $this->registerModuleRoutes($router);
+        foreach (AdminNavigationGroup::cases() as $group) {
+            $this->registerManagementRoutes($router, $group);
+        }
         $router->getNamed(
             name: 'admin.api.datagrid.index',
             path: '/api/datagrid/{module}',
@@ -58,62 +59,64 @@ final class AdminModuleRouteRegistrar implements AdminRouteRegistrarInterface
     }
 
     /**
-     * Pridava canonical routy management modulu vlastnenych System namespace
+     * Pridava standardni lifecycle routy pro jednu canonical navigation group
      */
-    private function registerSystemRoutes(Router $router): void
+    private function registerManagementRoutes(Router $router, AdminNavigationGroup $group): void
     {
-        $segments = $this->systemSegments();
+        $segments = $this->segmentsForGroup($group);
+        $prefix = '/' . $group->value . '/{module}';
+        $routePrefix = 'admin.' . $group->value . '.module.';
         $router->getNamed(
-            name: 'admin.system.module.index',
-            path: '/system/{module}',
+            name: $routePrefix . 'index',
+            path: $prefix,
             action: ControllerAction::for(
                 controllerClass: ModuleController::class,
                 method: 'index',
             ),
         )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
         $router->getNamed(
-            name: 'admin.system.module.create',
-            path: '/system/{module}/create',
+            name: $routePrefix . 'create',
+            path: $prefix . '/create',
             action: ControllerAction::for(
                 controllerClass: ModuleController::class,
                 method: 'create',
             ),
         )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
         $router->postNamed(
-            name: 'admin.system.module.store',
-            path: '/system/{module}/create',
+            name: $routePrefix . 'store',
+            path: $prefix . '/create',
             action: ControllerAction::for(
                 controllerClass: ModuleController::class,
                 method: 'store',
             ),
         )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
         $router->getNamed(
-            name: 'admin.system.module.edit',
-            path: '/system/{module}/edit/{id}',
+            name: $routePrefix . 'edit',
+            path: $prefix . '/edit/{id}',
             action: ControllerAction::for(
                 controllerClass: ModuleController::class,
                 method: 'edit',
             ),
         )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
         $router->postNamed(
-            name: 'admin.system.module.update',
-            path: '/system/{module}/edit/{id}',
+            name: $routePrefix . 'update',
+            path: $prefix . '/edit/{id}',
             action: ControllerAction::for(
                 controllerClass: ModuleController::class,
                 method: 'update',
             ),
         )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
         $router->postNamed(
-            name: 'admin.system.module.ajax.create',
-            path: '/system/{module}/ajax',
+            name: $routePrefix . 'ajax.create',
+            path: $prefix . '/ajax',
             action: ControllerAction::for(
                 controllerClass: ModuleActionController::class,
                 method: 'create',
             ),
         )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
         $router->postNamed(
-            name: 'admin.system.module.ajax.entity',
-            path: '/system/{module}/ajax/{id}',
+            name: $routePrefix . 'ajax.entity',
+            path: $prefix . '/ajax/{id}',
             action: ControllerAction::for(
                 controllerClass: ModuleActionController::class,
                 method: 'entity',
@@ -122,156 +125,15 @@ final class AdminModuleRouteRegistrar implements AdminRouteRegistrarInterface
     }
 
     /**
-     * Pridava canonical routy management modulu vlastnenych CMS namespace
-     */
-    private function registerCmsRoutes(Router $router): void
-    {
-        $segments = $this->cmsSegments();
-        $router->getNamed(
-            name: 'admin.cms.module.index',
-            path: '/cms/{module}',
-            action: ControllerAction::for(
-                controllerClass: ModuleController::class,
-                method: 'index',
-            ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
-        $router->getNamed(
-            name: 'admin.cms.module.create',
-            path: '/cms/{module}/create',
-            action: ControllerAction::for(
-                controllerClass: ModuleController::class,
-                method: 'create',
-            ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
-        $router->postNamed(
-            name: 'admin.cms.module.store',
-            path: '/cms/{module}/create',
-            action: ControllerAction::for(
-                controllerClass: ModuleController::class,
-                method: 'store',
-            ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-        $router->getNamed(
-            name: 'admin.cms.module.edit',
-            path: '/cms/{module}/edit/{id}',
-            action: ControllerAction::for(
-                controllerClass: ModuleController::class,
-                method: 'edit',
-            ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
-        $router->postNamed(
-            name: 'admin.cms.module.update',
-            path: '/cms/{module}/edit/{id}',
-            action: ControllerAction::for(
-                controllerClass: ModuleController::class,
-                method: 'update',
-            ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-        $router->postNamed(
-            name: 'admin.cms.module.ajax.create',
-            path: '/cms/{module}/ajax',
-            action: ControllerAction::for(
-                controllerClass: ModuleActionController::class,
-                method: 'create',
-            ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-        $router->postNamed(
-            name: 'admin.cms.module.ajax.entity',
-            path: '/cms/{module}/ajax/{id}',
-            action: ControllerAction::for(
-                controllerClass: ModuleActionController::class,
-                method: 'entity',
-            ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-    }
-
-    /**
-     * Pridava routy pro administracni moduly mimo System namespace
-     */
-    private function registerModuleRoutes(Router $router): void
-    {
-        $segments = $this->nonSystemSegments();
-        $router->getNamed(
-            name: 'admin.module.index',
-            path: '/{module}',
-            action: ControllerAction::for(controllerClass: ModuleController::class, method: 'index'),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
-        $router->getNamed(
-            name: 'admin.module.create',
-            path: '/{module}/create',
-            action: ControllerAction::for(controllerClass: ModuleController::class, method: 'create'),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
-        $router->postNamed(
-            name: 'admin.module.store',
-            path: '/{module}/create',
-            action: ControllerAction::for(controllerClass: ModuleController::class, method: 'store'),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-        $router->getNamed(
-            name: 'admin.module.edit',
-            path: '/{module}/edit/{id}',
-            action: ControllerAction::for(controllerClass: ModuleController::class, method: 'edit'),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
-        $router->postNamed(
-            name: 'admin.module.update',
-            path: '/{module}/edit/{id}',
-            action: ControllerAction::for(controllerClass: ModuleController::class, method: 'update'),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-        $router->postNamed(
-            name: 'admin.module.ajax.create',
-            path: '/{module}/ajax',
-            action: ControllerAction::for(controllerClass: ModuleActionController::class, method: 'create'),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-        $router->postNamed(
-            name: 'admin.module.ajax.entity',
-            path: '/{module}/ajax/{id}',
-            action: ControllerAction::for(
-                controllerClass: ModuleActionController::class,
-                method: 'entity',
-            ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
-    }
-
-    /**
-     * Vraci segmenty modulu vlastnenych System namespace
+     * Vraci registrovane segmenty pro jednu canonical navigation group
      *
      * @return list<string>
      */
-    private function systemSegments(): array
-    {
-        return $this->segmentsFor(static fn(string $code): bool => str_starts_with($code, 'system.'));
-    }
-
-    /**
-     * Vraci segmenty modulu mimo System namespace
-     *
-     * @return list<string>
-     */
-    private function nonSystemSegments(): array
-    {
-        return $this->segmentsFor(static fn(string $code): bool => !str_starts_with($code, 'system.') && !str_starts_with($code, 'cms.'));
-    }
-
-    /**
-     * Vraci segmenty modulu vlastnenych CMS namespace
-     *
-     * @return list<string>
-     */
-    private function cmsSegments(): array
-    {
-        return $this->segmentsFor(static fn(string $code): bool => str_starts_with($code, 'cms.'));
-    }
-
-    /**
-     * Filtruje registrovane segmenty podle ownershipu modulu
-     *
-     * @param callable(string): bool $matches
-     * @return list<string>
-     */
-    private function segmentsFor(callable $matches): array
+    private function segmentsForGroup(AdminNavigationGroup $group): array
     {
         $segments = [];
         foreach ($this->modules->all() as $definition) {
-            if ($matches($definition->code())) {
+            if ($definition->adminMetadata()->navigationGroup === $group) {
                 $segments[] = $definition->adminMetadata()->routeSegment();
             }
         }

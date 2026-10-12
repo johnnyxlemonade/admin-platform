@@ -8,6 +8,7 @@ use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleMetadata;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 
 /**
@@ -25,13 +26,12 @@ final readonly class AuditModuleDefinition implements AdminModuleDefinitionInter
         return new AdminModuleMetadata(
             nameKey: 'audit.module.name',
             icon: AdminIcon::JournalText,
-            navigationGroup: 'system',
+            navigationGroup: AdminNavigationGroup::System,
             navigationOrder: 100,
-            destinationRoute: 'admin.system.module.index',
             routeSegment: 'audit',
-            destinationParameters: ['module' => 'audit'],
             navigationPermission: 'system.audit.view',
             superAdminOnly: false,
+            descriptionKey: 'audit.module.description',
         );
     }
 

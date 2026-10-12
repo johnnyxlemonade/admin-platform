@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'module' => [
         'name' => 'Audit',
-        'description' => 'Přehled důležitých změn provedených v administraci.',
+        'description' => 'Přehled důležitých událostí a přihlášení.',
     ],
     'list' => [
         'title' => 'Auditní log',

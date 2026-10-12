@@ -8,6 +8,7 @@ use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleMetadata;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 
 /**
@@ -25,13 +26,12 @@ final readonly class ModulesModuleDefinition implements AdminModuleDefinitionInt
         return new AdminModuleMetadata(
             nameKey: 'modules.module.name',
             icon: AdminIcon::Boxes,
-            navigationGroup: 'system',
+            navigationGroup: AdminNavigationGroup::System,
             navigationOrder: 70,
-            destinationRoute: 'admin.system.module.index',
             routeSegment: 'modules',
-            destinationParameters: ['module' => 'modules'],
             navigationPermission: 'system.modules.view',
             superAdminOnly: false,
+            descriptionKey: 'modules.module.description',
         );
     }
 

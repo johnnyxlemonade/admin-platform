@@ -257,7 +257,6 @@ final class ModuleFeatureStateResolverTest extends TestCase
     private function urls(): UrlGenerator
     {
         $router = new Router();
-        $router->postNamed('admin.module.ajax.entity', '/admin/{module}/ajax/{id}', ControllerAction::for('ModuleActionController', 'entity'));
         $router->postNamed('admin.system.module.ajax.entity', '/admin/system/{module}/ajax/{id}', ControllerAction::for('ModuleActionController', 'entity'));
 
         return new UrlGenerator($router);

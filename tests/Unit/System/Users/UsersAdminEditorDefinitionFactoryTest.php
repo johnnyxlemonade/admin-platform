@@ -379,7 +379,6 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
     {
         $router = new Router();
         $router->getNamed('admin.dashboard', '/admin', ControllerAction::for('TestController', 'dashboard'));
-        $router->getNamed('admin.module.index', '/admin/{module}', ControllerAction::for('TestController', 'index'));
         $router->getNamed('admin.system.module.index', '/admin/system/{module}', ControllerAction::for('TestController', 'index'));
         $router->getNamed('admin.system.users.profile', '/admin/system/users/profile', ControllerAction::for('TestController', 'profile'));
         $router->postNamed('admin.system.users.profile.ajax', '/admin/system/users/profile/ajax', ControllerAction::for('TestController', 'ajax'));
@@ -387,10 +386,6 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         $router->getNamed('admin.system.module.edit', '/admin/system/{module}/edit/{id}', ControllerAction::for('TestController', 'edit'));
         $router->postNamed('admin.system.module.ajax.create', '/admin/system/{module}/ajax', ControllerAction::for('TestController', 'create'));
         $router->postNamed('admin.system.module.ajax.entity', '/admin/system/{module}/ajax/{id}', ControllerAction::for('TestController', 'entity'));
-        $router->getNamed('admin.module.create', '/admin/{module}/create', ControllerAction::for('TestController', 'create'));
-        $router->getNamed('admin.module.edit', '/admin/{module}/edit/{id}', ControllerAction::for('TestController', 'edit'));
-        $router->postNamed('admin.module.ajax.create', '/admin/{module}/ajax', ControllerAction::for('TestController', 'create'));
-        $router->postNamed('admin.module.ajax.entity', '/admin/{module}/ajax/{id}', ControllerAction::for('TestController', 'entity'));
         $router->getNamed('admin.mfa.modal', '/admin/mfa/modal', ControllerAction::for('TestController', 'modal'));
         $router->postNamed('admin.users.avatar.upload', '/admin/users/edit/{id}/avatar', ControllerAction::for('TestController', 'upload'));
         $router->postNamed('admin.users.avatar.delete', '/admin/users/edit/{id}/avatar/delete', ControllerAction::for('TestController', 'delete'));

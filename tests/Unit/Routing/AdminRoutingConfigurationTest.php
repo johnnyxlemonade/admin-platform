@@ -12,6 +12,7 @@ use Lemonade\Admin\Editor\Routing\EditorModalRouteRegistrar;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleMetadata;
 use Lemonade\Admin\Module\AdminModuleRegistry;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\Notification\Routing\NotificationRouteRegistrar;
 use Lemonade\Admin\Routing\AdminModuleRouteRegistrar;
@@ -42,10 +43,12 @@ final class AdminRoutingConfigurationTest extends TestCase
 
         self::assertSame($basePath, $router->url('admin.dashboard'));
         self::assertSame($basePath . '/system/users', $router->url('admin.system.module.index', ['module' => 'users']));
-        self::assertSame($basePath . '/cms/news', $router->url('admin.cms.module.index', ['module' => 'news']));
-        self::assertSame($basePath . '/cms/news/create', $router->url('admin.cms.module.create', ['module' => 'news']));
-        self::assertSame($basePath . '/cms/news/edit/42', $router->url('admin.cms.module.edit', ['module' => 'news', 'id' => 42]));
-        self::assertSame($basePath . '/cms/news/ajax/42', $router->url('admin.cms.module.ajax.entity', ['module' => 'news', 'id' => 42]));
+        self::assertSame($basePath . '/content/news', $router->url('admin.content.module.index', ['module' => 'news']));
+        self::assertSame($basePath . '/content/news/create', $router->url('admin.content.module.create', ['module' => 'news']));
+        self::assertSame($basePath . '/content/news/edit/42', $router->url('admin.content.module.edit', ['module' => 'news', 'id' => 42]));
+        self::assertSame($basePath . '/content/news/ajax/42', $router->url('admin.content.module.ajax.entity', ['module' => 'news', 'id' => 42]));
+        self::assertSame($basePath . '/settings/example', $router->url('admin.settings.module.index', ['module' => 'example']));
+        self::assertSame([], $router->allowedMethodsForPath($basePath . '/cms/news'));
         self::assertSame([], $router->allowedMethodsForPath($basePath . '/news'));
         self::assertSame([], $router->allowedMethodsForPath($basePath . '/foo/news'));
         self::assertSame($basePath . '/api/datagrid/users', $router->url('admin.api.datagrid.index', ['module' => 'users']));
@@ -126,11 +129,9 @@ final class AdminRoutingConfigurationTest extends TestCase
                 return new AdminModuleMetadata(
                     nameKey: 'news.module.name',
                     icon: AdminIcon::JournalText,
-                    navigationGroup: 'content',
+                    navigationGroup: AdminNavigationGroup::Content,
                     navigationOrder: 10,
-                    destinationRoute: 'admin.cms.module.index',
                     routeSegment: 'news',
-                    destinationParameters: ['module' => 'news'],
                 );
             }
         };

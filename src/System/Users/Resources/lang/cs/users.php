@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $catalog = [
-    'module' => ['name' => 'Uživatelé', 'description' => 'Spravujte uživatelské účty a přístupy do administrace.'],
+    'module' => ['name' => 'Uživatelé', 'description' => 'Správa uživatelských účtů a přístupů do administrace.'],
     'list' => [
         'title' => 'Uživatelé',
         'description' => 'Spravujte uživatelské účty, role a přístupy do administrace.',

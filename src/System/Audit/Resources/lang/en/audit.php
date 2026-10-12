@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'module' => [
         'name' => 'Audit',
-        'description' => 'Overview of important changes made in the administration.',
+        'description' => 'Review important events and sign-ins.',
     ],
     'list' => [
         'title' => 'Audit Log',

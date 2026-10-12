@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'module' => ['name' => 'Translations'],
+    'module' => ['name' => 'Translations', 'description' => 'Manage administration translations.'],
     'audit' => [
         'events' => [
             'created' => 'Custom translation created',

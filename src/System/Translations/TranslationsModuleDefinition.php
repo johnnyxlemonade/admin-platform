@@ -8,6 +8,7 @@ use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionDelegation;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleMetadata;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 
 /**
@@ -31,12 +32,11 @@ final readonly class TranslationsModuleDefinition implements AdminModuleDefiniti
         return new AdminModuleMetadata(
             nameKey: 'translations.module.name',
             icon: AdminIcon::JournalText,
-            navigationGroup: 'system',
+            navigationGroup: AdminNavigationGroup::System,
             navigationOrder: 60,
-            destinationRoute: 'admin.system.module.index',
             routeSegment: 'translations',
-            destinationParameters: ['module' => 'translations'],
             navigationPermission: 'system.translations.view',
+            descriptionKey: 'translations.module.description',
         );
     }
 

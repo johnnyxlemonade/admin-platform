@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Admin\Module\AdminModuleMetadata;
 use Lemonade\Admin\Navigation\AdminNavigationEntryInterface;
 use Lemonade\Admin\Navigation\AdminNavigationGroup;
 use Lemonade\Admin\Navigation\AdminNavigationItem;
@@ -12,6 +13,7 @@ use Lemonade\Framework\View\ViewHelpers;
 /** @var ViewHelpers $helpers */
 /** @var RequestViewHelpers $requestHelpers */
 /** @var list<AdminNavigationEntryInterface> $navigation */
+/** @var AdminModuleMetadata|null $activeAdminModule */
 ?>
 <nav
     aria-label="<?= e($helpers->lang('admin.sidebar.sections')) ?>"
@@ -21,11 +23,9 @@ use Lemonade\Framework\View\ViewHelpers;
         <?php foreach ($navigation as $entry): ?>
             <?php if ($entry instanceof AdminNavigationItem): ?>
                 <?php
-                $itemActive = $requestHelpers->isRouteActive(
-                    $entry->route(),
-                    $entry->routeParameters(),
-                    $entry->routePrefix(),
-                );
+                $itemActive = $entry->moduleCode() === null
+                    ? $requestHelpers->isRouteActive($entry->route(), $entry->routeParameters(), $entry->routePrefix())
+                    : $entry->isActiveFor($activeAdminModule ?? null);
                 $itemUrl = $helpers->url($entry->route(), $entry->routeParameters());
                 ?>
                 <li>
@@ -52,11 +52,7 @@ use Lemonade\Framework\View\ViewHelpers;
             <?php $groupActive = false; ?>
             <?php foreach ($entry->items() as $item): ?>
                 <?php
-                $itemActive = $requestHelpers->isRouteActive(
-                    $item->route(),
-                    $item->routeParameters(),
-                    $item->routePrefix(),
-                );
+                $itemActive = $item->isActiveFor($activeAdminModule ?? null);
                 ?>
                 <?php if ($itemActive): ?>
                     <?php $groupActive = true; ?>
@@ -109,11 +105,7 @@ use Lemonade\Framework\View\ViewHelpers;
                     </div>
                     <?php foreach ($entry->items() as $item): ?>
                         <?php
-                        $itemActive = $requestHelpers->isRouteActive(
-                            $item->route(),
-                            $item->routeParameters(),
-                            $item->routePrefix(),
-                        );
+                        $itemActive = $item->isActiveFor($activeAdminModule ?? null);
                         $itemUrl = $helpers->url($item->route(), $item->routeParameters());
                         ?>
                         <a

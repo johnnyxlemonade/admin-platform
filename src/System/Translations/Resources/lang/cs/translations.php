@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'module' => ['name' => 'Překlady'],
+    'module' => ['name' => 'Překlady', 'description' => 'Správa překladů administrace.'],
     'audit' => [
         'events' => [
             'created' => 'Vlastní překlad vytvořen',

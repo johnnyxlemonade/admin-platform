@@ -74,32 +74,20 @@ final class AdminNavigation
                 continue;
             }
 
-            $usesCmsManagementRoute = $this->routes->isCmsModuleCode($moduleCode);
-            $route = $usesCmsManagementRoute
-                ? $this->routes->managementRouteNameForModuleCode($moduleCode, 'index')
-                : $metadata->destinationRoute();
-            $routeParameters = $usesCmsManagementRoute
-                ? ['module' => $metadata->routeSegment()]
-                : $metadata->destinationParameters();
-
             $item = new AdminNavigationItem(
                 key: 'module:' . $moduleCode,
                 order: $metadata->navigationOrder(),
                 label: $this->translator->get($metadata->nameKey()),
                 labelKey: $metadata->nameKey(),
-                route: $route,
-                routeParameters: $routeParameters,
-                routePrefix: $usesCmsManagementRoute || $metadata->destinationRoute() === 'admin.module.index',
+                route: $this->routes->managementRouteNameForMetadata($metadata, 'index'),
+                routeParameters: ['module' => $metadata->routeSegment()],
+                routePrefix: false,
                 icon: $metadata->icon(),
                 moduleCode: $moduleCode,
+                moduleNavigationGroup: $metadata->navigationGroup,
+                moduleRouteSegment: $metadata->routeSegment(),
             );
-            $groupCode = $metadata->navigationGroup();
-            if ($groupCode === null) {
-                $standalone[] = $item;
-                continue;
-            }
-
-            $grouped[$groupCode][] = $item;
+            $grouped[$metadata->navigationGroup->value][] = $item;
         }
 
         usort($standalone, static fn(AdminNavigationItem $left, AdminNavigationItem $right): int => [$left->order(), $left->key()] <=> [$right->order(), $right->key()]);

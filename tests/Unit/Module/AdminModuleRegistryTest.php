@@ -9,14 +9,30 @@ use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleMetadata;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
+use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
-use Lemonade\Admin\Navigation\AdminNavigationGroupDefinition;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class AdminModuleRegistryTest extends TestCase
 {
+    public function testAdminModuleMetadataRequiresACanonicalNavigationGroup(): void
+    {
+        $parameter = new \ReflectionParameter([AdminModuleMetadata::class, '__construct'], 'navigationGroup');
+        $type = $parameter->getType();
+
+        self::assertInstanceOf(\ReflectionNamedType::class, $type);
+        self::assertSame(AdminNavigationGroup::class, $type->getName());
+        $methods = array_map(
+            static fn(\ReflectionMethod $method): string => $method->getName(),
+            (new \ReflectionClass(AdminModuleMetadata::class))->getMethods(),
+        );
+
+        self::assertNotContains('destinationRoute', $methods);
+        self::assertNotContains('destinationParameters', $methods);
+    }
+
     public function testItResolvesAnExplicitAdminRouteSegmentToTheCoreModule(): void
     {
         $definition = $this->definition('system.users', 'users');
@@ -37,12 +53,36 @@ final class AdminModuleRegistryTest extends TestCase
         $registry->register($this->definition('system.second', 'users'));
     }
 
-    private function definition(string $code, string $segment): AdminModuleDefinitionInterface
+    /**
+     * Management route family vychazi jen z enumove navigation group
+     */
+    public function testItResolvesManagementRouteNamesFromMetadataNavigationGroup(): void
     {
-        return new class ($code, $segment) implements AdminModuleDefinitionInterface {
+        $core = new ModuleRegistry();
+        $admin = $this->adminRegistry();
+        foreach ([
+            $this->definition('custom.users', 'users', AdminNavigationGroup::System),
+            $this->definition('custom.news', 'news', AdminNavigationGroup::Content),
+            $this->definition('custom.settings', 'settings', AdminNavigationGroup::Settings),
+        ] as $definition) {
+            $core->register($definition);
+            $admin->register($definition);
+        }
+
+        $routes = new AdminModuleRouteResolver($admin, $core);
+
+        self::assertSame('admin.system.module.index', $routes->managementRouteName('users', 'index'));
+        self::assertSame('admin.content.module.edit', $routes->managementRouteName('news', 'edit'));
+        self::assertSame('admin.settings.module.ajax.entity', $routes->managementRouteName('settings', 'ajax.entity'));
+    }
+
+    private function definition(string $code, string $segment, AdminNavigationGroup $group = AdminNavigationGroup::System): AdminModuleDefinitionInterface
+    {
+        return new class ($code, $segment, $group) implements AdminModuleDefinitionInterface {
             public function __construct(
                 private readonly string $code,
                 private readonly string $segment,
+                private readonly AdminNavigationGroup $group,
             ) {}
 
             public function code(): string
@@ -52,16 +92,13 @@ final class AdminModuleRegistryTest extends TestCase
 
             public function adminMetadata(): AdminModuleMetadata
             {
-                return new AdminModuleMetadata('example.module.name', AdminIcon::People, 'system', 10, 'admin.module.index', $this->segment);
+                return new AdminModuleMetadata('example.module.name', AdminIcon::People, $this->group, 10, $this->segment);
             }
         };
     }
 
     private function adminRegistry(): AdminModuleRegistry
     {
-        $groups = new AdminNavigationGroupRegistry();
-        $groups->register(new AdminNavigationGroupDefinition('system', 'admin.navigation.system', 50, AdminIcon::Gear));
-
-        return new AdminModuleRegistry($groups);
+        return new AdminModuleRegistry(new AdminNavigationGroupRegistry());
     }
 }

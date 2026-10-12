@@ -30,21 +30,23 @@ final class EffectivePermissionGroupViewModelFactory
      * Sestavi efektivni opravneni seskupena podle modulu
      *
      * @param list<array{code:string,name_key:string,module_code:string}> $permissions
-     * @return list<array{moduleCode:string,label:string,labelKey:string|null,icon:string|null,permissions:list<array{code:string,label:string,labelKey:string,requires:list<string>}>}>
+     * @return list<array{moduleCode:string,label:string,labelKey:string|null,description:string|null,descriptionKey:string|null,icon:string|null,permissions:list<array{code:string,label:string,labelKey:string,requires:list<string>}>}>
      */
     public function create(array $permissions): array
     {
-        /** @var array<string, array{moduleCode:string,label:string,labelKey:string|null,icon:string|null,sortOrder:int,permissions:list<array{code:string,label:string,labelKey:string,requires:list<string>}>}> $groups */
+        /** @var array<string, array{moduleCode:string,label:string,labelKey:string|null,description:string|null,descriptionKey:string|null,icon:string|null,sortOrder:int,permissions:list<array{code:string,label:string,labelKey:string,requires:list<string>}>}> $groups */
         $groups = [];
 
         foreach ($permissions as $permission) {
             $moduleCode = $permission['module_code'];
             if (!isset($groups[$moduleCode])) {
-                [$label, $labelKey, $icon, $sortOrder] = $this->modulePresentation($moduleCode);
+                [$label, $labelKey, $description, $descriptionKey, $icon, $sortOrder] = $this->modulePresentation($moduleCode);
                 $groups[$moduleCode] = [
                     'moduleCode' => $moduleCode,
                     'label' => $label,
                     'labelKey' => $labelKey,
+                    'description' => $description,
+                    'descriptionKey' => $descriptionKey,
                     'icon' => $icon,
                     'sortOrder' => $sortOrder,
                     'permissions' => [],
@@ -74,7 +76,7 @@ final class EffectivePermissionGroupViewModelFactory
      * @param list<array{code:string,name_key:string,module_code:string}> $catalog
      * @param list<array{code:string,name_key:string,module_code:string}> $rolePermissions
      * @param array<string,string> $overrides
-     * @return list<array{moduleCode:string,label:string,labelKey:string|null,icon:string|null,permissions:list<array{code:string,label:string,labelKey:string,state:string,requires:list<string>}>}>
+     * @return list<array{moduleCode:string,label:string,labelKey:string|null,description:string|null,descriptionKey:string|null,icon:string|null,permissions:list<array{code:string,label:string,labelKey:string,state:string,requires:list<string>}>}>
      */
     public function createOverrideMatrix(array $catalog, array $rolePermissions, array $overrides): array
     {
@@ -83,8 +85,8 @@ final class EffectivePermissionGroupViewModelFactory
         foreach ($catalog as $permission) {
             $moduleCode = $permission['module_code'];
             if (!isset($groups[$moduleCode])) {
-                [$label, $labelKey, $icon, $sortOrder] = $this->modulePresentation($moduleCode);
-                $groups[$moduleCode] = ['moduleCode' => $moduleCode, 'label' => $label, 'labelKey' => $labelKey, 'icon' => $icon, 'sortOrder' => $sortOrder, 'permissions' => []];
+                [$label, $labelKey, $description, $descriptionKey, $icon, $sortOrder] = $this->modulePresentation($moduleCode);
+                $groups[$moduleCode] = ['moduleCode' => $moduleCode, 'label' => $label, 'labelKey' => $labelKey, 'description' => $description, 'descriptionKey' => $descriptionKey, 'icon' => $icon, 'sortOrder' => $sortOrder, 'permissions' => []];
             }
             $code = $permission['code'];
             $groups[$moduleCode]['permissions'][] = [
@@ -107,31 +109,38 @@ final class EffectivePermissionGroupViewModelFactory
     /**
      * Vrati lokalizovane zobrazeni modulu pro skupinu opravneni
      *
-     * @return array{string, string|null, string|null, int}
+     * @return array{string, string|null, string|null, string|null, string|null, int}
      */
     private function modulePresentation(string $moduleCode): array
     {
         if (isset(self::SHARED_MODULE_LABEL_KEYS[$moduleCode])) {
             $key = self::SHARED_MODULE_LABEL_KEYS[$moduleCode];
 
-            return [$this->translator->get($key), $key, null, 0];
+            return [$this->translator->get($key), $key, null, null, null, 0];
         }
 
         if (!$this->modules->has($moduleCode)) {
-            return [$moduleCode, null, null, PHP_INT_MAX];
+            return [$moduleCode, null, null, null, null, PHP_INT_MAX];
         }
 
         $metadata = $this->modules->definition($moduleCode)->adminMetadata();
         $key = $metadata->nameKey();
         $label = $this->translator->get($key);
+        $descriptionKey = $metadata->descriptionKey();
+        $description = $descriptionKey === null ? null : $this->translator->get($descriptionKey);
 
-        return [$label === $key ? $moduleCode : $label, $key, $metadata->icon()->cssClass(), $metadata->navigationOrder()];
+        if ($description === $descriptionKey) {
+            $description = null;
+            $descriptionKey = null;
+        }
+
+        return [$label === $key ? $moduleCode : $label, $key, $description, $descriptionKey, $metadata->icon()->cssClass(), $metadata->navigationOrder()];
     }
 
     /**
      * Seradi skupiny podle poradi modulu a jejich kodu
      *
-     * @template T of array{moduleCode:string,label:string,labelKey:string|null,icon:string|null,sortOrder:int,permissions:list<array<string,mixed>>}
+     * @template T of array{moduleCode:string,label:string,labelKey:string|null,description:string|null,descriptionKey:string|null,icon:string|null,sortOrder:int,permissions:list<array<string,mixed>>}
      * @param array<string, T> $groups
      * @return array<string, T>
      */

@@ -6,9 +6,12 @@ namespace Lemonade\Admin\Tests\Unit\Authorization;
 
 use Lemonade\Admin\Authorization\EffectivePermissionGroupViewModelFactory;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
+use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Admin\Module\AdminModuleMetadata;
 use Lemonade\Admin\Module\AdminModuleRegistry;
-use Lemonade\Admin\Navigation\AdminNavigationGroupDefinition;
+use Lemonade\Admin\Module\AdminNavigationGroup;
+use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Admin\System\Languages\LanguagesModuleDefinition;
 use Lemonade\Admin\System\Users\UsersModuleDefinition;
@@ -26,6 +29,7 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
 
             return match ($key) {
                 'users.module.name' => 'Uživatelé',
+                'users.module.description' => 'Spravujte uživatelské účty a přístupy do administrace.',
                 'users.permissions.edit' => 'Editovat uživatele',
                 'users.permissions.view' => 'Zobrazit uživatele',
                 default => $key,
@@ -38,6 +42,8 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
                 'moduleCode' => 'system.users',
                 'label' => 'Uživatelé',
                 'labelKey' => 'users.module.name',
+                'description' => 'Spravujte uživatelské účty a přístupy do administrace.',
+                'descriptionKey' => 'users.module.description',
                 'icon' => 'bi bi-people',
                 'permissions' => [
                     ['code' => 'system.users.edit', 'label' => 'Editovat uživatele', 'labelKey' => 'users.permissions.edit', 'requires' => ['system.users.view']],
@@ -68,6 +74,8 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
                 'moduleCode' => 'system.legacy',
                 'label' => 'system.legacy',
                 'labelKey' => null,
+                'description' => null,
+                'descriptionKey' => null,
                 'icon' => null,
                 'permissions' => [['code' => 'system.legacy.view', 'label' => 'legacy.permissions.view', 'labelKey' => 'legacy.permissions.view', 'requires' => []]],
             ],
@@ -89,6 +97,40 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
 
         self::assertSame('Zobrazit uživatele', (new EffectivePermissionGroupViewModelFactory($modules, $this->usersCatalog(), $czech))->create($permissions)[0]['permissions'][0]['label']);
         self::assertSame('View users', (new EffectivePermissionGroupViewModelFactory($modules, $this->usersCatalog(), $english))->create($permissions)[0]['permissions'][0]['label']);
+    }
+
+    public function testItDoesNotInventADescriptionWhenModuleMetadataDoesNotDeclareOne(): void
+    {
+        $modules = $this->emptyModules();
+        $modules->register(new class implements AdminModuleDefinitionInterface {
+            public function code(): string
+            {
+                return 'system.example';
+            }
+
+            public function adminMetadata(): AdminModuleMetadata
+            {
+                return new AdminModuleMetadata('example.module.name', AdminIcon::People, AdminNavigationGroup::System, 10, 'example');
+            }
+
+            /**
+             * @return list<PermissionDefinition>
+             */
+            public function permissionDefinitions(): array
+            {
+                return [];
+            }
+        });
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('get')->willReturnArgument(0);
+        $factory = new EffectivePermissionGroupViewModelFactory($modules, new PermissionCatalogRegistry(), $translator);
+
+        $group = $factory->create([
+            ['code' => 'system.example.view', 'name_key' => 'example.permissions.view', 'module_code' => 'system.example'],
+        ])[0];
+
+        self::assertNull($group['description']);
+        self::assertNull($group['descriptionKey']);
     }
 
     public function testItUsesRegisteredModuleOrderAndIconsForPermissionGroups(): void
@@ -135,9 +177,6 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
 
     private function emptyModules(): AdminModuleRegistry
     {
-        $groups = new AdminNavigationGroupRegistry();
-        $groups->register(new AdminNavigationGroupDefinition('system', 'admin.navigation.system', 50, AdminIcon::Gear));
-
-        return new AdminModuleRegistry($groups);
+        return new AdminModuleRegistry(new AdminNavigationGroupRegistry());
     }
 }

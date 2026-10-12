@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $catalog = [
-    'module' => ['name' => 'Users', 'description' => 'Manage user accounts and administration access.'],
+    'module' => ['name' => 'Users', 'description' => 'Manage user accounts and access to the administration.'],
     'list' => [
         'title' => 'Users',
         'description' => 'Manage user accounts, roles and access to the administration.',

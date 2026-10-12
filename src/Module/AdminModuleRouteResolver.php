@@ -46,11 +46,11 @@ final class AdminModuleRouteResolver
     }
 
     /**
-     * Vraci jmeno canonical management route podle ownershipu modulu
+     * Vraci jmeno canonical management route podle navigation group modulu
      */
     public function managementRouteName(string $segment, string $action): string
     {
-        return $this->managementRouteNameForModuleCode($this->resolve($segment)->code(), $action);
+        return $this->managementRouteNameForMetadata($this->metadata($segment), $action);
     }
 
     /**
@@ -58,27 +58,15 @@ final class AdminModuleRouteResolver
      */
     public function managementRouteNameForModuleCode(string $moduleCode, string $action): string
     {
-        return match (true) {
-            str_starts_with($moduleCode, 'system.') => 'admin.system.module.' . $action,
-            $this->isCmsModuleCode($moduleCode) => 'admin.cms.module.' . $action,
-            default => 'admin.module.' . $action,
-        };
+        return $this->managementRouteNameForMetadata($this->adminModules->definition($moduleCode)->adminMetadata(), $action);
     }
 
     /**
-     * Rozhoduje, zda module code patri CMS management ownershipu
+     * Vraci jmeno canonical management route podle metadat modulu
      */
-    public function isCmsModuleCode(string $moduleCode): bool
+    public function managementRouteNameForMetadata(AdminModuleMetadata $metadata, string $action): string
     {
-        return str_starts_with($moduleCode, 'cms.');
-    }
-
-    /**
-     * Rozhoduje, zda segment patri CMS management ownershipu
-     */
-    public function isCmsSegment(string $segment): bool
-    {
-        return $this->isCmsModuleCode($this->resolve($segment)->code());
+        return 'admin.' . $metadata->navigationGroup->value . '.module.' . $action;
     }
 
     /**
