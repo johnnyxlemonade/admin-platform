@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Presentation\AdminFileUploadCollection;
 use Lemonade\Admin\Presentation\AdminThumbnail;
 use Lemonade\Framework\View\View;
@@ -19,6 +20,10 @@ $name = trim($user['first_name'] . ' ' . $user['last_name']);
 $createdAt = str_replace(' ', 'T', $user['created_at']);
 $lastLoginAt = $user['last_login_at'] === null ? null : str_replace(' ', 'T', $user['last_login_at']);
 $statusKey = (int) $user['active'] === 1 ? 'users.status.active' : 'users.status.inactive';
+$mfaActive = (int) $user['mfa_active'] === 1;
+$mfaStatusKey = $mfaActive ? 'users.editor.mfa_active' : 'users.editor.mfa_inactive';
+$mfaStatusClass = $mfaActive ? 'status-success' : 'status-muted';
+$mfaIcon = $mfaActive ? AdminIcon::ShieldCheck : AdminIcon::Shield;
 $roleName = $user['roles'][0]['name'] ?? null;
 ?>
 <div class="lm-user-editor-summary">
@@ -40,7 +45,12 @@ $roleName = $user['roles'][0]['name'] ?? null;
         </div>
         <div>
             <dt data-lemonade-i18n="users.editor.summary.mfa"><?= e($helpers->lang('users.editor.summary.mfa')) ?></dt>
-            <dd data-lemonade-i18n="<?= e((int) $user['mfa_active'] === 1 ? 'users.editor.mfa_active' : 'users.editor.mfa_inactive') ?>"><?= e($helpers->lang((int) $user['mfa_active'] === 1 ? 'users.editor.mfa_active' : 'users.editor.mfa_inactive')) ?></dd>
+            <dd>
+                <span class="badge <?= e($mfaStatusClass) ?> lm-user-editor-summary-mfa-status">
+                    <i class="<?= e($mfaIcon->cssClass()) ?>" aria-hidden="true"></i>
+                    <span data-lemonade-i18n="<?= e($mfaStatusKey) ?>"><?= e($helpers->lang($mfaStatusKey)) ?></span>
+                </span>
+            </dd>
         </div>
     </dl>
 </div>

@@ -44,7 +44,7 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertNotNull($editor->saveBar());
         self::assertSame('admin.common.save_changes', $editor->saveBar()->primaryAction()->labelKey());
         self::assertSame('admin.common.discard', $editor->saveBar()->secondaryAction()?->labelKey());
-        self::assertSame(['basic'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
+        self::assertSame(['basic', 'security'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
         self::assertNull($editor->sidebar());
         self::assertSame('email', $profileFields['email']->type());
         self::assertSame('tel', $profileFields['phone']->type());
@@ -52,7 +52,7 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertInstanceOf(\Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition::class, $roleField);
         self::assertSame('select', $roleField->type());
         self::assertSame('users::editor.active', $this->customBlock($editor, 'profile', 1)->view());
-        self::assertSame('users::editor.password', $this->customBlock($editor, 'security', 0)->view());
+        self::assertSame('users::editor.password', $this->customBlock($editor, 'password', 0)->view());
         self::assertArrayNotHasKey('version', $profileFields);
     }
 
@@ -105,7 +105,7 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame('/admin/system/users/ajax/7', $editor->form()->actionUrl());
         self::assertSame('save', $editor->form()->actionKey());
         self::assertFalse($editor->form()->navigateToEditAfterCreate());
-        self::assertSame(['basic', 'permissions'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
+        self::assertSame(['basic', 'permissions', 'security'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
         self::assertSame([], $editor->header()?->metadata());
         self::assertNotNull($editor->saveBar());
         self::assertSame('hidden', $profileFields['version']->type());
@@ -141,10 +141,8 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
             hasProtectedAuthority: false,
             mode: 'edit',
         );
-        $accessCard = $this->card($editor, 'access');
-
-        self::assertCount(1, $accessCard->blocks());
-        self::assertSame('users::editor.access-info', $this->customBlock($editor, 'access', 0)->view());
+        self::assertSame(['profile'], $this->sectionIds($editor->tabs()[0]->blocks()));
+        self::assertSame('users::editor.access-info', $this->customBlock($editor, 'mfa', 0)->view());
         self::assertSame([
             'activeEditable' => false,
             'activeValue' => '1',
@@ -225,7 +223,7 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
             'canResetMfa' => false,
             'mfaModalUrl' => '/admin/mfa/modal',
             'mfaResetUrl' => '/admin/system/users/ajax/7',
-        ], $this->customBlock($editor, 'access', 0)->context());
+        ], $this->customBlock($editor, 'mfa', 0)->context());
     }
 
     public function testProfileDefinitionUsesCanonicalSelfServiceUrlsAndHidesManagementControls(): void
@@ -246,11 +244,10 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
             profileContext: true,
         );
         $profileFields = $this->profileFields($editor);
-        $access = $this->card($editor, 'access');
 
         self::assertSame('/admin/system/users/profile', $editor->form()->action());
         self::assertSame('/admin/system/users/profile/ajax', $editor->form()->actionUrl());
-        self::assertSame(['basic'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
+        self::assertSame(['basic', 'security'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
         $header = $editor->header();
         self::assertNotNull($header);
         self::assertSame('/admin', $header->actions()[0]->href());
@@ -258,10 +255,10 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame('admin.account.profile', $profileBreadcrumb['labelKey'] ?? null);
         self::assertSame('hidden', $profileFields['version']->type());
         self::assertSame('hidden', $profileFields['active']->type());
-        self::assertCount(1, $access->blocks());
-        self::assertSame('users::editor.access-info', $this->customBlock($editor, 'access', 0)->view());
-        self::assertTrue($this->customBlock($editor, 'access', 0)->context()['isSelf']);
-        self::assertSame('/admin/mfa/modal', $this->customBlock($editor, 'access', 0)->context()['mfaModalUrl']);
+        self::assertSame(['profile'], $this->sectionIds($editor->tabs()[0]->blocks()));
+        self::assertSame('users::editor.access-info', $this->customBlock($editor, 'mfa', 0)->view());
+        self::assertTrue($this->customBlock($editor, 'mfa', 0)->context()['isSelf']);
+        self::assertSame('/admin/mfa/modal', $this->customBlock($editor, 'mfa', 0)->context()['mfaModalUrl']);
     }
 
     public function testOtherUserExposesResetOnlyForAnAuthorizedActiveCredential(): void
@@ -294,10 +291,10 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
             canResetMfa: false,
         );
 
-        self::assertTrue($this->customBlock($authorized, 'access', 0)->context()['canResetMfa']);
-        self::assertTrue($this->customBlock($authorized, 'access', 0)->context()['mfaActive']);
-        self::assertFalse($this->customBlock($withoutCredential, 'access', 0)->context()['canResetMfa']);
-        self::assertFalse($this->customBlock($withoutCredential, 'access', 0)->context()['mfaActive']);
+        self::assertTrue($this->customBlock($authorized, 'mfa', 0)->context()['canResetMfa']);
+        self::assertTrue($this->customBlock($authorized, 'mfa', 0)->context()['mfaActive']);
+        self::assertFalse($this->customBlock($withoutCredential, 'mfa', 0)->context()['canResetMfa']);
+        self::assertFalse($this->customBlock($withoutCredential, 'mfa', 0)->context()['mfaActive']);
     }
 
     /** @return array<string, \Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition> */
@@ -323,13 +320,26 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
 
     private function card(AdminEditorDefinition $editor, string $id): SectionBlock
     {
-        foreach ($editor->tabs()[0]->blocks() as $block) {
-            if ($block instanceof SectionBlock && $block->id() === $id) {
-                return $block;
+        foreach ($editor->tabs() as $tab) {
+            foreach ($tab->blocks() as $block) {
+                if ($block instanceof SectionBlock && $block->id() === $id) {
+                    return $block;
+                }
             }
         }
 
         self::fail(sprintf('Missing %s card.', $id));
+    }
+
+    /** @param list<mixed> $blocks
+     * @return list<string>
+     */
+    private function sectionIds(array $blocks): array
+    {
+        return array_values(array_map(
+            static fn(SectionBlock $block): string => $block->id(),
+            array_filter($blocks, static fn(mixed $block): bool => $block instanceof SectionBlock),
+        ));
     }
 
     private function customBlock(AdminEditorDefinition $editor, string $cardId, int $index): CustomViewBlock

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Users\DataGrid;
 
+use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Authorization\AuthorizationService;
+use Lemonade\Admin\Authorization\AuthorizationTargetPolicy;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\DataGrid\Query\DataGridQuery;
 use Lemonade\Admin\DataGrid\Query\QueryPage;
@@ -22,6 +24,7 @@ final readonly class UsersDataGridQuery
         private UserModel $users,
         private CurrentPrincipalProviderInterface $currentPrincipal,
         private AuthorizationService $authorization,
+        private AuthorizationTargetPolicy $targets,
     ) {}
 
     /**
@@ -45,10 +48,10 @@ final readonly class UsersDataGridQuery
     }
 
     /**
-     * Urci, zda presentation muze nabidnout deaktivaci nebo smazani kazdeho radku
+     * Urci, zda presentation muze nabidnout lifecycle akce nebo reset MFA pro kazdy radek
      *
      * @param list<array<string,mixed>> $users
-     * @return array<int, array{deactivate:bool,delete:bool}>
+     * @return array<int, array{deactivate:bool,delete:bool,mfa_reset:bool}>
      */
     public function rowActionEligibility(array $users): array
     {
@@ -70,6 +73,7 @@ final readonly class UsersDataGridQuery
             $deleted = $user['deleted_at'] !== null;
             $isSuperAdmin = (int) ($user['is_super_admin'] ?? 0) === 1;
             $anotherActiveSuperAdminExists = !$active || !$isSuperAdmin || $activeSuperAdminCount > 1;
+            $mfaActive = (int) ($user['mfa_active'] ?? 0) === 1;
             $eligibility[$id] = [
                 'deactivate' => $actor !== null
                     && $actor->id() !== $id
@@ -79,6 +83,14 @@ final readonly class UsersDataGridQuery
                     && $actor->id() !== $id
                     && (!$isSuperAdmin || $actorIsSuperAdmin)
                     && $anotherActiveSuperAdminExists,
+                'mfa_reset' => !$deleted
+                    && $mfaActive
+                    && $actor !== null
+                    && $this->authorization->hasPermission('system.users.mfa_reset')
+                    && $this->targets->canTargetUser(
+                        $actor,
+                        new AuthenticatedUser($id, (string) $user['email']),
+                    ),
             ];
         }
 

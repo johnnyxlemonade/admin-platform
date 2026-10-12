@@ -51,7 +51,7 @@ final class UsersMfaResetAction implements ModuleActionHandlerInterface
         }
 
         return $reset
-            ? ModuleActionResult::success('users.actions.mfa_reset')
+            ? ModuleActionResult::success('users.actions.mfa_reset_success')
             : ModuleActionResult::info('users.actions.mfa_not_configured');
     }
 }

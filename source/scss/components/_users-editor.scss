@@ -185,3 +185,23 @@
     font-weight: 600;
     text-align: right;
 }
+
+.admin-shell .lm-access-mfa {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--lm-space-3);
+}
+
+.admin-shell .lm-access-mfa-status,
+.admin-shell .lm-user-editor-summary-mfa-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-shell .lm-access-mfa-status > .bi,
+.admin-shell .lm-user-editor-summary-mfa-status > .bi {
+    flex: 0 0 auto;
+    line-height: 1;
+}

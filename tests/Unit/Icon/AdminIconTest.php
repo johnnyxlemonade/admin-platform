@@ -23,6 +23,8 @@ final class AdminIconTest extends TestCase
         self::assertSame('bi bi-download', AdminIcon::Export->cssClass());
         self::assertSame('display', AdminIcon::Display->value);
         self::assertSame('star', AdminIcon::Star->value);
+        self::assertSame('shield', AdminIcon::Shield->value);
+        self::assertSame('bi bi-shield-check', AdminIcon::ShieldCheck->cssClass());
         self::assertNull(AdminIcon::tryFrom('people-gear'));
     }
 }

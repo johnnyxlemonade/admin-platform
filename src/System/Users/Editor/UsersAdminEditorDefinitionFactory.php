@@ -89,18 +89,6 @@ final class UsersAdminEditorDefinitionFactory
                         'data-lemonade-option-source' => 'static',
                     ]);
         }
-        $roleFields[] = new CustomViewBlock(
-            view: 'users::editor.access-info',
-            context: [
-                'hasProtectedAuthority' => $hasProtectedAuthority,
-                'isSelf' => $isSelf,
-                'mfaActive' => (int) ($user['mfa_active'] ?? 0) === 1,
-                'canResetMfa' => $canResetMfa,
-                'mfaModalUrl' => $this->urls->route(name: 'admin.mfa.modal'),
-                'mfaResetUrl' => $actionUrl,
-            ],
-        );
-
         $profileBlocks = [
             ...($hasExternalIdentity ? [new CustomViewBlock(
                 view: 'users::editor.external-profile-info',
@@ -162,18 +150,22 @@ final class UsersAdminEditorDefinitionFactory
                 title: '',
                 titleKey: 'users.editor.sections.profile',
             ),
-            new SectionBlock(
+        ];
+        if ($roleFields !== []) {
+            $basicBlocks[] = new SectionBlock(
                 id: 'access',
                 blocks: $roleFields,
                 title: '',
                 titleKey: 'users.editor.sections.access',
                 description: '',
                 descriptionKey: 'users.editor.roles_help',
-            ),
-        ];
+            );
+        }
+
+        $securityBlocks = [];
         if (!$hasExternalIdentity) {
-            $basicBlocks[] = new SectionBlock(
-                id: 'security',
+            $securityBlocks[] = new SectionBlock(
+                id: 'password',
                 blocks: [
                     new CustomViewBlock(
                         view: 'users::editor.password',
@@ -182,6 +174,26 @@ final class UsersAdminEditorDefinitionFactory
                 ],
                 title: '',
                 titleKey: 'users.editor.sections.security',
+            );
+        }
+        if (!$isCreate) {
+            $securityBlocks[] = new SectionBlock(
+                id: 'mfa',
+                blocks: [
+                    new CustomViewBlock(
+                        view: 'users::editor.access-info',
+                        context: [
+                            'hasProtectedAuthority' => $hasProtectedAuthority,
+                            'isSelf' => $isSelf,
+                            'mfaActive' => (int) ($user['mfa_active'] ?? 0) === 1,
+                            'canResetMfa' => $canResetMfa,
+                            'mfaModalUrl' => $this->urls->route(name: 'admin.mfa.modal'),
+                            'mfaResetUrl' => $actionUrl,
+                        ],
+                    ),
+                ],
+                title: '',
+                titleKey: 'users.editor.two_factor',
             );
         }
 
@@ -246,6 +258,14 @@ final class UsersAdminEditorDefinitionFactory
                     ),
                 ],
                 labelKey: 'users.editor.tabs.permissions',
+            ));
+        }
+        if ($securityBlocks !== []) {
+            $builder->tab(new AdminEditorTab(
+                id: 'security',
+                label: '',
+                blocks: $securityBlocks,
+                labelKey: 'users.editor.tabs.security',
             ));
         }
         if (!$isCreate) {

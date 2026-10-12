@@ -56,6 +56,7 @@ enum AdminIcon: string
     case PlusLg = 'plus-lg';
     case QuestionCircle = 'question-circle';
     case Search = 'search';
+    case Shield = 'shield';
     case ShieldCheck = 'shield-check';
     case ShieldLock = 'shield-lock';
     case Sliders = 'sliders';

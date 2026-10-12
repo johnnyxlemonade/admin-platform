@@ -72,6 +72,11 @@ final class UsersDataGrid implements DataGridProviderInterface
                     sortKey: 'status',
                 ),
                 new DataGridColumnDefinition(
+                    key: 'mfa',
+                    translationKey: 'users.fields.mfa',
+                    class: 'd-none d-md-table-cell',
+                ),
+                new DataGridColumnDefinition(
                     key: 'lastActivity',
                     translationKey: 'users.fields.last_login',
                     sortKey: 'lastActivity',
@@ -157,6 +162,7 @@ final class UsersDataGrid implements DataGridProviderInterface
             $email = (string) $user['email'];
             $active = (int) $user['active'] === 1;
             $deleted = $user['deleted_at'] !== null;
+            $mfaActive = (int) ($user['mfa_active'] ?? 0) === 1;
             $lastLogin = $user['last_login_at'];
             $roles = trim((string) ($user['roles'] ?? ''));
             $rows[] = new DataGridRowDefinition(
@@ -183,6 +189,7 @@ final class UsersDataGrid implements DataGridProviderInterface
                     ),
                     'email' => new ScalarCell(value: $email),
                     'status' => $this->statusCell(active: $active, deleted: $deleted),
+                    'mfa' => $this->mfaCell($mfaActive),
                     'lastActivity' => $lastLogin === null
                         ? new TranslationCell(
                             translationKey: 'users.list.never_logged_in',
@@ -218,6 +225,20 @@ final class UsersDataGrid implements DataGridProviderInterface
     }
 
     /**
+     * Sklada compact status cell pro aktivni nebo nenastavene MFA
+     */
+    private function mfaCell(bool $active): StatusCell
+    {
+        $translationKey = $active ? 'users.status.mfa_active' : 'users.status.mfa_inactive';
+
+        return new StatusCell(
+            value: $this->translator->get($translationKey),
+            variant: $active ? StatusVariant::Success : StatusVariant::Muted,
+            translationKey: $translationKey,
+        );
+    }
+
+    /**
      * Sklada edit route pouze pro nesmazany zaznam a presentation autorizovaneho actora
      */
     private function editUrl(int $id, bool $deleted): ?string
@@ -239,6 +260,10 @@ final class UsersDataGrid implements DataGridProviderInterface
     private function rowActions(array $user, bool $active, bool $deleted): array
     {
         $id = (int) $user['id'];
+        /**
+         * @var array{deactivate:bool,delete:bool,mfa_reset:bool} $eligibility
+         */
+        $eligibility = $user['action_eligibility'];
         $items = [];
         if ($deleted) {
             if (($action = $this->actionPresentation->rowAction(
@@ -262,7 +287,7 @@ final class UsersDataGrid implements DataGridProviderInterface
                 method: 'GET',
             ))->withIcon(AdminIcon::PencilSquare);
         }
-        if (($action = $this->actionPresentation->rowAction(
+        if ($eligibility['mfa_reset'] && ($action = $this->actionPresentation->rowAction(
             moduleCode: 'system.users',
             action: 'mfa-reset',
             entityId: $id,
@@ -276,10 +301,6 @@ final class UsersDataGrid implements DataGridProviderInterface
         )) !== null) {
             $items[] = $action;
         }
-        /**
-         * @var array{deactivate:bool,delete:bool} $eligibility
-         */
-        $eligibility = $user['action_eligibility'];
         if ($active && $eligibility['deactivate'] && ($action = $this->actionPresentation->rowAction(
             moduleCode: 'system.users',
             action: 'deactivate',

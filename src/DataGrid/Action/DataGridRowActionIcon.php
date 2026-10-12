@@ -22,6 +22,7 @@ final class DataGridRowActionIcon
             'disable', 'deactivate' => AdminIcon::PauseCircle,
             'delete', 'remove' => AdminIcon::Trash3,
             'restore' => AdminIcon::ArrowCounterclockwise,
+            'mfa-reset' => AdminIcon::ArrowCounterclockwise,
             'reset-display' => AdminIcon::ArrowCounterclockwise,
             'set-default' => AdminIcon::Star,
             'open', 'detail' => AdminIcon::BoxArrowUpRight,
