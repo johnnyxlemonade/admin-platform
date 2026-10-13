@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Presentation;
 
 use Lemonade\Admin\AdminServiceProvider;
+use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldRenderer;
 use Lemonade\Admin\Http\AdminResponseFactory;
 use Lemonade\Admin\Http\Controller\AdminErrorController;
 use Lemonade\Admin\Http\Controller\TranslationResourceController;
@@ -19,14 +20,10 @@ use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
-use Lemonade\Framework\Image\Value\ImageDimensions;
-use Lemonade\Framework\Image\Value\ImageFormat;
-use Lemonade\Framework\Image\Value\ImageQuality;
-use Lemonade\Framework\Image\Value\ImageVariantDefinition;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
+use Lemonade\Framework\View\View;
 use Lemonade\Framework\View\ViewResourceRegistry;
 use Lemonade\Image\Contract\ImageAssetResolverInterface;
-use Lemonade\Image\ImageVariantRegistry;
 
 /**
  * Registruje sdileny rendering, odpovedi a zdroje administracni prezentace
@@ -67,11 +64,8 @@ final class AdminPresentationServiceProvider implements ServiceProviderInterface
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(AdminErrorRouteRegistrar::class));
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(AdminFileUploadRouteRegistrar::class));
         $container->get(AdminFileAuditPresentationRegistrar::class)->register();
-        $container->get(ImageVariantRegistry::class)->register('datagrid', new ImageVariantDefinition(new ImageDimensions(32, 32), ImageFormat::Webp, ImageQuality::fromInt(82)));
-        $container->get(ImageVariantRegistry::class)->register('thumbnail', new ImageVariantDefinition(new ImageDimensions(160, 160), ImageFormat::Webp, ImageQuality::fromInt(82)));
-        $container->get(ImageVariantRegistry::class)->register('preview', new ImageVariantDefinition(new ImageDimensions(960, 540), ImageFormat::Webp, ImageQuality::fromInt(85)));
-
         $container->get(TranslationResourceRegistry::class)->register(dirname(__DIR__) . '/Resources/lang', 'admin');
         $container->get(ViewResourceRegistry::class)->register('admin', dirname(__DIR__) . '/Resources/views');
+        $container->get(View::class)->share('adminEditorFields', $container->get(AdminEditorFieldRenderer::class));
     }
 }

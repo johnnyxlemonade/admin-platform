@@ -19,7 +19,7 @@ final readonly class AdminFileUsageDefinition
         private string $profile,
         private bool $multiple,
         private bool $sortable,
-        private AdminFileUploadPresentation $presentation = AdminFileUploadPresentation::Standard,
+        private AdminFilePresentation $presentation = AdminFilePresentation::Standard,
         private ?string $imageProfile = null,
     ) {
         if ($this->imageProfile !== null && $this->kind !== 'file') {
@@ -86,7 +86,7 @@ final readonly class AdminFileUsageDefinition
     /**
      * Vraci shared editorovou presentation usage bez vlivu na transport
      */
-    public function presentation(): AdminFileUploadPresentation
+    public function presentation(): AdminFilePresentation
     {
         return $this->presentation;
     }

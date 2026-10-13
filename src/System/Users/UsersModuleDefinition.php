@@ -11,11 +11,14 @@ use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleMetadata;
 use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
+use Lemonade\Admin\Module\Contract\AdminModuleFileCapabilitiesInterface;
+use Lemonade\Admin\Presentation\AdminFileCapabilities;
+use Lemonade\Admin\Presentation\AdminFilePresentation;
 
 /**
  * Deklaruje metadata a oddelena prava spravy uzivatelu, role assignmentu a overrides
  */
-final readonly class UsersModuleDefinition implements AdminModuleDefinitionInterface
+final readonly class UsersModuleDefinition implements AdminModuleDefinitionInterface, AdminModuleFileCapabilitiesInterface
 {
     public function code(): string
     {
@@ -33,6 +36,14 @@ final readonly class UsersModuleDefinition implements AdminModuleDefinitionInter
             navigationPermission: 'system.users.view',
             descriptionKey: 'users.module.description',
         );
+    }
+
+    /**
+     * Vraci file capability Users modulu
+     */
+    public function fileCapabilities(): AdminFileCapabilities
+    {
+        return new AdminFileCapabilities(thumbnail: AdminFilePresentation::Avatar);
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Editor;
 
 use Lemonade\Admin\AdminServiceProvider;
+use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldRenderer;
 use Lemonade\Admin\Editor\Http\Controller\EditorModalController;
 use Lemonade\Admin\Editor\Lock\EditorLockController;
 use Lemonade\Admin\Editor\Lock\EditorLockOwnerReleaser;
@@ -12,12 +13,14 @@ use Lemonade\Admin\Editor\Lock\EditorLockOwnerReleaserInterface;
 use Lemonade\Admin\Editor\Lock\EditorLockRouteRegistrar;
 use Lemonade\Admin\Editor\Routing\EditorModalRouteRegistrar;
 use Lemonade\Admin\Module\AdminModuleTransportServiceProvider;
+use Lemonade\Admin\Presentation\AdminFileUploadComponent;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
+use Lemonade\Framework\View\ViewHelpers;
 
 /**
  * Registruje sdileny editor protocol, zamky a jejich HTTP endpointy
@@ -43,6 +46,10 @@ final class AdminEditorServiceProvider implements ServiceProviderInterface, Depe
     public function register(ContainerBuilderInterface $container): void
     {
         $container->singleton(EditorRegistry::class, EditorRegistry::class);
+        $container->transient(AdminEditorFieldRenderer::class, static fn(ContainerInterface $container): AdminEditorFieldRenderer => new AdminEditorFieldRenderer(
+            helpers: $container->get(ViewHelpers::class),
+            files: $container->get(AdminFileUploadComponent::class),
+        ));
         $container->transient(EditorLockOwnerReleaserInterface::class, EditorLockOwnerReleaser::class);
         $container->scoped(EditorLockController::class, EditorLockController::class);
         $container->scoped(EditorModalController::class, EditorModalController::class);

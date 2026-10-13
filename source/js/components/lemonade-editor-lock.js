@@ -93,6 +93,7 @@ import { Message } from "./lemonade-message.js";
             try { url = new window.URL(editUrl || form.action, window.location.href); }
             catch (error) { return false; }
             const match = /^(.*)\/system\/([^/]+)\/edit\/([^/]+)$/.exec(url.pathname)
+                ?? /^(.*)\/content\/([^/]+)\/edit\/([^/]+)$/.exec(url.pathname)
                 ?? /^(.*)\/([^/]+)\/edit\/([^/]+)$/.exec(url.pathname);
             if (!match) { return false; }
             form.setAttribute("data-lemonade-editor-lock", "");

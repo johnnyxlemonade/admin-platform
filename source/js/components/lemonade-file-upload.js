@@ -16,6 +16,61 @@ import { Message } from "./lemonade-message.js";
 
 let mountedCollectionCount = 0;
 
+/**
+ * Uploads one file through the canonical Admin chunk transport.
+ */
+export async function uploadFileChunks(file, target, { signal, onStarted, onProgress } = {}) {
+    const started = await HttpHelper.post(target.startUrl, { filename: file.name, size: file.size }, { signal });
+    if (started?.success !== true || typeof started.uploadId !== "string") {
+        throw new Error("Upload session could not be started.");
+    }
+    onStarted?.(started.uploadId);
+    let offset = Number(started.offset || 0);
+    const chunkBytes = Number(started.chunkBytes || 2097152);
+    while (offset < file.size) {
+        const previousOffset = offset;
+        const chunk = file.slice(offset, offset + chunkBytes);
+        let failure = null;
+        for (let attempt = 0; attempt < 3; ++attempt) {
+            try {
+                const response = await HttpHelper.post(uploadUrl(target.appendUrlTemplate, started.uploadId), undefined, {
+                    headers: { "Upload-Offset": String(offset) },
+                    rawBody: chunk,
+                    signal,
+                });
+                offset = Number(response?.offset);
+                break;
+            } catch (error) {
+                failure = error;
+                if (signal?.aborted || attempt === 2 || !isRecoverableUploadFailure(error)) {
+                    throw error;
+                }
+            }
+        }
+        if (!Number.isSafeInteger(offset) || offset <= previousOffset || offset > file.size) {
+            throw failure || new Error("Upload offset is invalid.");
+        }
+        onProgress?.(offset, file.size);
+    }
+
+    const completed = await HttpHelper.post(uploadUrl(target.completeUrlTemplate, started.uploadId), undefined, { signal });
+    if (completed?.success !== true || !Array.isArray(completed.files)) {
+        throw new Error("Upload completion failed.");
+    }
+
+    return completed;
+}
+
+function uploadUrl(template, uploadId) {
+    return template.replace("__upload_id__", encodeURIComponent(uploadId));
+}
+
+function isRecoverableUploadFailure(error) {
+    return error instanceof HttpError
+        ? error.status === 408 || error.status === 429 || error.status >= 500
+        : error instanceof TypeError;
+}
+
 function refreshThumbnailState(event) {
     const state = event.detail;
     if (!state) {
@@ -152,33 +207,21 @@ class AdminFileUploadCollection {
         this.updateAvatarProgress(0);
         this.clearError();
         try {
-            const started = await HttpHelper.post(this.element.dataset.lemonadeFileUploadStartUrl, { filename: file.name, size: file.size }, { signal: controller.signal });
-            if (started?.success !== true || typeof started.uploadId !== "string") {
-                throw new Error("Upload session could not be started.");
-            }
-            uploadId = started.uploadId;
-            activeUpload.uploadId = uploadId;
-            if (controller.signal.aborted) {
-                await this.abortUpload(activeUpload);
-                return;
-            }
-            let offset = Number(started.offset || 0);
-            const chunkBytes = Number(started.chunkBytes || 2097152);
-            while (offset < file.size) {
-                const previousOffset = offset;
-                const chunk = file.slice(offset, offset + chunkBytes);
-                const response = await this.appendWithRetry(uploadId, offset, chunk, controller.signal);
-                offset = Number(response?.offset);
-                if (!Number.isSafeInteger(offset) || offset <= previousOffset || offset > file.size) {
-                    throw new Error("Upload offset is invalid.");
-                }
-                item.querySelector("progress").value = offset;
-                this.updateAvatarProgress((offset / file.size) * 100);
-            }
-            const completed = await HttpHelper.post(this.url("lemonadeFileUploadCompleteUrl", uploadId), undefined, { signal: controller.signal });
-            if (completed?.success !== true || !Array.isArray(completed.files)) {
-                throw new Error("Upload completion failed.");
-            }
+            const completed = await uploadFileChunks(file, {
+                startUrl: this.element.dataset.lemonadeFileUploadStartUrl,
+                appendUrlTemplate: this.element.dataset.lemonadeFileUploadAppendUrl,
+                completeUrlTemplate: this.element.dataset.lemonadeFileUploadCompleteUrl,
+            }, {
+                signal: controller.signal,
+                onStarted: (startedUploadId) => {
+                    uploadId = startedUploadId;
+                    activeUpload.uploadId = startedUploadId;
+                },
+                onProgress: (offset) => {
+                    item.querySelector("progress").value = offset;
+                    this.updateAvatarProgress((offset / file.size) * 100);
+                },
+            });
             this.render(completed.files);
         } catch (error) {
             if (controller.signal.aborted) {
@@ -200,22 +243,6 @@ class AdminFileUploadCollection {
                 item.remove();
             }
         }
-    }
-
-    async appendWithRetry(uploadId, offset, chunk, signal) {
-        let failure = null;
-        for (let attempt = 0; attempt < 3; ++attempt) {
-            try {
-                return await HttpHelper.post(this.url("lemonadeFileUploadAppendUrl", uploadId), undefined, { headers: { "Upload-Offset": String(offset) }, rawBody: chunk, signal: signal });
-            } catch (error) {
-                failure = error;
-                if (signal.aborted || attempt === 2 || !this.isRecoverableUploadFailure(error)) {
-                    throw error;
-                }
-            }
-        }
-
-        throw failure;
     }
 
     async click(event) {

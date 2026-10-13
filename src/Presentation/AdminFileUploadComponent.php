@@ -7,6 +7,7 @@ namespace Lemonade\Admin\Presentation;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
 use Lemonade\Framework\Routing\UrlGenerator;
 use Lemonade\Framework\Upload\Config\UploadConfig;
+use Lemonade\Image\ImageUrlGenerator;
 
 /**
  * Vytvari shared editorovou presentation uploadu podle modulove image identity
@@ -19,6 +20,7 @@ final readonly class AdminFileUploadComponent
     public function __construct(
         private AdminFileModel $files,
         private AdminThumbnailComponent $thumbnails,
+        private ImageUrlGenerator $images,
         private UrlGenerator $urls,
         private AdminFileUsageRegistry $usages,
         private UploadConfig $uploadConfig,
@@ -66,6 +68,32 @@ final readonly class AdminFileUploadComponent
     }
 
     /**
+     * Vytvori explicitni image target pro shared rich-text upload komponentu
+     */
+    public function richTextImageTarget(string $module, int $entityId): AdminRichTextImageUploadTarget
+    {
+        $definition = $this->usages->richTextImage($module);
+        $usage = $definition->usage();
+        if ($definition->kind() !== 'image' || !$definition->multiple()) {
+            throw new \LogicException('Rich-text image usage must accept multiple images.');
+        }
+
+        $placeholder = '__upload_id__';
+
+        return new AdminRichTextImageUploadTarget(
+            moduleCode: $module,
+            entityId: $entityId,
+            usage: $usage,
+            collectionUrl: $this->urls->route('admin.file.collection.index', ['module' => $module, 'usage' => $usage, 'entity' => $entityId]),
+            removeUrlTemplate: $this->urls->route('admin.file.collection.remove', ['module' => $module, 'usage' => $usage, 'entity' => $entityId, 'file' => $placeholder]),
+            startUrl: $this->urls->route('admin.file.chunk.start', ['module' => $module, 'usage' => $usage, 'entity' => $entityId]),
+            appendUrlTemplate: $this->urls->route('admin.file.chunk.append', ['uploadId' => $placeholder]),
+            completeUrlTemplate: $this->urls->route('admin.file.chunk.complete', ['uploadId' => $placeholder]),
+            abortUrlTemplate: $this->urls->route('admin.file.chunk.abort', ['uploadId' => $placeholder]),
+        );
+    }
+
+    /**
      * Vraci aktualni shared kolekci po samostatne AJAX mutaci.
      *
      * @return list<array<string,mixed>>
@@ -78,9 +106,13 @@ final readonly class AdminFileUploadComponent
 
             if ($file['kind'] === 'image' && is_string($file['source_version'] ?? null)) {
                 $definition = $this->usages->require($module, $usage);
-                $presentation = $definition->presentation() === AdminFileUploadPresentation::Landscape ? 'preview' : 'thumbnail';
+                $presentation = $definition->presentation() === AdminFilePresentation::Landscape ? 'preview' : 'thumbnail';
                 $url = $this->thumbnails->image($module, (string) $file['id'], presentation: $presentation)->url();
                 $file['preview_url'] = $url === null ? null : $this->versionedUrl($url, $file['source_version']);
+                $file['original_url'] = $this->versionedUrl(
+                    $this->images->originalUrl($module, (string) $file['id']),
+                    $file['source_version'],
+                );
             }
         }
         unset($file);

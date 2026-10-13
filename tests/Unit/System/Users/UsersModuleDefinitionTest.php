@@ -8,6 +8,8 @@ use Lemonade\Admin\Editor\Contract\EditorProviderInterface;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
+use Lemonade\Admin\Module\Contract\AdminModuleFileCapabilitiesInterface;
+use Lemonade\Admin\Presentation\AdminFilePresentation;
 use Lemonade\Admin\System\Users\DataGrid\UsersDataGrid;
 use Lemonade\Admin\System\Users\Editor\UsersEditor;
 use Lemonade\Admin\System\Users\UsersModuleDefinition;
@@ -21,6 +23,7 @@ final class UsersModuleDefinitionTest extends TestCase
         $metadata = $definition->adminMetadata();
 
         self::assertInstanceOf(AdminModuleDefinitionInterface::class, $definition);
+        self::assertInstanceOf(AdminModuleFileCapabilitiesInterface::class, $definition);
         self::assertSame('system.users', $definition->code());
         self::assertSame('users.module.name', $metadata->nameKey());
         self::assertSame(AdminIcon::People, $metadata->icon());
@@ -46,6 +49,7 @@ final class UsersModuleDefinitionTest extends TestCase
         self::assertIsArray($editorInterfaces);
         self::assertContains(\Lemonade\Admin\DataGrid\Contract\DataGridProviderInterface::class, $dataGridInterfaces);
         self::assertContains(EditorProviderInterface::class, $editorInterfaces);
+        self::assertSame(AdminFilePresentation::Avatar, $definition->fileCapabilities()->thumbnail);
     }
 
     public function testItDeclaresPresentationsForAllEmittedUserEvents(): void

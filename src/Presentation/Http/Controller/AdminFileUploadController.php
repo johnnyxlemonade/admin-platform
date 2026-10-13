@@ -94,6 +94,27 @@ final class AdminFileUploadController
     }
 
     /**
+     * Vrati aktualni aktivni soubory jednoho autorizovaneho owner targetu
+     */
+    public function collection(string $module, string $usage, int $entity): ResponseInterface
+    {
+        if (($response = $this->authorize($module, $entity)) !== null) {
+            return $response;
+        }
+
+        try {
+            $this->usages->require($module, $usage);
+        } catch (\Throwable $exception) {
+            return $this->uploadError($exception);
+        }
+
+        return $this->responses->json([
+            'success' => true,
+            'files' => $this->uploads->collectionState($module, $entity, $usage),
+        ]);
+    }
+
+    /**
      * Pripoji jeden sekvencni chunk po authorization proti serverovemu contextu
      */
     public function append(string $uploadId, ServerRequestInterface $request): ResponseInterface

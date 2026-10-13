@@ -19,7 +19,7 @@ const registry = [
     { name: "Select", selector: "select.form-select", load: () => import("./components/lemonade-select.js") },
     { name: "Conditional", selector: "[data-lemonade-conditional]", load: () => import("./components/lemonade-conditional.js") },
     { name: "Form editor", selector: "form[data-lemonade-editor-form]", load: () => import("./components/lemonade-form-editor.js") },
-    { name: "Rich text", selector: "textarea[data-lemonade-admin-rich-text]", load: () => import("./components/lemonade-rich-text.js") },
+    { name: "Jodit rich text", selector: "textarea[data-lemonade-admin-rich-text=jodit]", load: () => import("./components/lemonade-jodit-rich-text.js") },
     { name: "Language preset", selector: "[data-lemonade-language-preset-select]", load: () => import("./components/lemonade-language-preset.js") },
     { name: "Dirty state", selector: "[data-lemonade-admin-editor]", load: () => import("./components/lemonade-form-dirty-state.js") },
     { name: "Action", selector: "[data-lemonade-action], [data-lemonade-grid]", load: () => import("./components/lemonade-action.js") },

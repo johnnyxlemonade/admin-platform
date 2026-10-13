@@ -39,7 +39,7 @@ final class LanguagesEditorValidationSchema
         if ($create) {
             $schema->field('code', $this->translator->get('languages.fields.code'))
                 ->required($this->translator->get('languages.validation.code_required'))
-                ->maxLength(35, $this->translator->get('languages.validation.code_max_length'));
+                ->maxLength(10, $this->translator->get('languages.validation.code_max_length'));
         }
 
         return $schema

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
+use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldRenderer;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderContext;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderer;
 use Lemonade\Framework\View\View;
@@ -10,27 +11,14 @@ use Lemonade\Framework\View\ViewHelpers;
 
 /**
  * @var ViewHelpers $helpers
- */
-/**
  * @var View $this
- */
-/**
  * @var string $title
- */
-/**
  * @var string $titleKey
- */
-/**
  * @var string $description
- */
-/**
  * @var string $descriptionKey
- */
-/**
  * @var AdminEditorDefinition $adminEditor
- */
-/**
  * @var AdminEditorRenderContext $adminEditorContext
+ * @var AdminEditorFieldRenderer $adminEditorFields
  */
 
 $form = $adminEditor->form();
@@ -43,7 +31,7 @@ $form = $adminEditor->form();
     <button class="lm-modal-close" type="button" data-lemonade-modal-close="close" aria-label="<?= e($helpers->lang('admin.common.close')) ?>" data-lemonade-i18n-aria-label="admin.common.close"></button>
 </header>
 <section class="lm-modal-body" data-lemonade-modal-body>
-    <?= (new AdminEditorRenderer($this, $helpers))->render($adminEditor, $adminEditorContext) ?>
+    <?= (new AdminEditorRenderer($this, $helpers, $adminEditorFields))->render($adminEditor, $adminEditorContext) ?>
 </section>
 <footer class="lm-modal-footer">
     <button class="btn btn-light" type="button" data-lemonade-modal-close="cancel" data-lemonade-i18n="admin.common.cancel"><?= e($helpers->lang('admin.common.cancel')) ?></button>

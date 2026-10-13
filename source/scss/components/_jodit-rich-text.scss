@@ -1,0 +1,133 @@
+@use "jodit/es2021/jodit.min.css" as *;
+
+.admin-shell .jodit-container {
+    border-color: var(--lm-line);
+    border-radius: 0;
+    color: var(--lm-text);
+    background: var(--lm-surface);
+    font-family: var(--lm-font-family);
+}
+
+.admin-shell .jodit-toolbar__box:not(:empty),
+.admin-shell .jodit-status-bar {
+    border-color: var(--lm-line);
+    background: var(--lm-surface-soft);
+}
+
+.admin-shell .jodit-wysiwyg {
+    min-height: 16rem;
+    color: var(--lm-text);
+    background: var(--lm-surface);
+    font-family: var(--lm-font-family);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.admin-shell .jodit-wysiwyg img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-block: var(--lm-space-4);
+}
+
+.admin-shell .jodit-wysiwyg img[data-align="left"] {
+    float: left;
+    margin-right: var(--lm-space-4);
+}
+
+.admin-shell .jodit-wysiwyg img[data-align="center"] {
+    margin-inline: auto;
+}
+
+.admin-shell .jodit-wysiwyg img[data-align="right"] {
+    float: right;
+    margin-left: var(--lm-space-4);
+}
+
+.admin-shell .jodit-wysiwyg img[data-width="25"] { width: 25%; }
+.admin-shell .jodit-wysiwyg img[data-width="50"] { width: 50%; }
+.admin-shell .jodit-wysiwyg img[data-width="75"] { width: 75%; }
+.admin-shell .jodit-wysiwyg img[data-width="100"] { width: 100%; }
+
+.lm-modal[data-lemonade-modal-kind="rich-text-image-picker"] .lm-modal-dialog {
+    max-width: 760px;
+}
+
+.admin-shell .lm-rich-text-image-picker-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--lm-space-3);
+}
+
+.admin-shell .lm-rich-text-image-picker-tile {
+    position: relative;
+    width: 160px;
+    overflow: hidden;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    padding: 0;
+}
+
+.admin-shell .lm-rich-text-image-picker-select {
+    display: block;
+    width: 100%;
+    border: 0;
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+    padding: 0;
+    text-align: left;
+}
+
+.admin-shell .lm-rich-text-image-picker-preview {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: var(--lm-surface-soft);
+}
+
+.admin-shell .lm-rich-text-image-picker-name {
+    display: block;
+    overflow: hidden;
+    padding: var(--lm-space-2) var(--lm-space-3);
+    color: var(--lm-text-heading);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: .8125rem;
+    font-weight: 600;
+}
+
+.admin-shell .lm-rich-text-image-picker-remove {
+    position: absolute;
+    top: var(--lm-space-2);
+    right: var(--lm-space-2);
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 999px;
+    color: var(--lm-text-control);
+    background: color-mix(in srgb, var(--lm-surface) 88%, transparent);
+}
+
+.admin-shell .lm-rich-text-image-properties-preview {
+    display: block;
+    max-width: 100%;
+    max-height: 20rem;
+    margin: 0 0 var(--lm-space-4);
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+}
+
+.admin-shell .jodit-container:focus-within {
+    border-color: var(--lm-primary);
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--lm-primary) 20%, transparent);
+}
+
+[data-bs-theme="dark"] .admin-shell .jodit-container {
+    border-color: var(--lm-form-border);
+}
+
+[data-bs-theme="dark"] .admin-shell .jodit-container:focus-within {
+    border-color: var(--lm-form-border-focus);
+    box-shadow: var(--lm-focus-shadow);
+}

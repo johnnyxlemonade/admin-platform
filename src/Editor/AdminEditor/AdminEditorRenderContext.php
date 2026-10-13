@@ -22,7 +22,19 @@ final class AdminEditorRenderContext
         private readonly array $errors = [],
         private readonly string $mode = 'edit',
         private readonly array $uiFlags = [],
-    ) {}
+        private readonly ?string $moduleCode = null,
+        private readonly ?int $entityId = null,
+    ) {
+        if (($this->moduleCode === null) !== ($this->entityId === null)) {
+            throw new \InvalidArgumentException('Module code and entity ID must be provided together.');
+        }
+        if ($this->moduleCode !== null && trim($this->moduleCode) === '') {
+            throw new \InvalidArgumentException('Module code must not be empty.');
+        }
+        if ($this->entityId !== null && $this->entityId <= 0) {
+            throw new \InvalidArgumentException('Entity ID must be positive.');
+        }
+    }
 
     /**
      * Zpracovava hodnotu values v konfiguraci editoru
@@ -66,6 +78,22 @@ final class AdminEditorRenderContext
     public function uiFlags(): array
     {
         return $this->uiFlags;
+    }
+
+    /**
+     * Vraci modul vlastnici renderovany entity context
+     */
+    public function moduleCode(): ?string
+    {
+        return $this->moduleCode;
+    }
+
+    /**
+     * Vraci identitu renderovane entity pro modulove capability
+     */
+    public function entityId(): ?int
+    {
+        return $this->entityId;
     }
 
     /**

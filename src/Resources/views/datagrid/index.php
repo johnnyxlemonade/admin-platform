@@ -9,9 +9,11 @@ use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Framework\View\ViewHelpers;
 
-/** @var ViewHelpers $helpers */
-/** @var ClientTranslationVersion $clientTranslationVersion */
-/** @var DataGridIndexViewModel $dataGrid */
+/**
+ * @var ViewHelpers $helpers
+ * @var ClientTranslationVersion $clientTranslationVersion
+ * @var DataGridIndexViewModel $dataGrid
+ */
 
 $moduleCode = $dataGrid->moduleCode();
 $grid = $dataGrid->definition();
@@ -27,7 +29,7 @@ $bulkActions = $grid->bulkActions();
             <nav aria-label="Breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><span data-lemonade-i18n="admin.administration.navigation"><?= e($helpers->lang('admin.administration.navigation')) ?></span></li><li class="breadcrumb-item active" aria-current="page" data-lemonade-i18n="<?= e($moduleCode . '.module.name') ?>"><?= e($helpers->lang($moduleCode . '.module.name')) ?></li></ol></nav>
             <h1 data-lemonade-i18n="<?= e($moduleCode . '.list.title') ?>"><?= e($dataGrid->title()) ?></h1>
             <?php if ($dataGrid->description() !== null): ?><p data-lemonade-i18n="<?= e($moduleCode . '.list.description') ?>"><?= e($dataGrid->description()) ?></p><?php endif; ?>
-        </div><?php if ($action !== null): ?><a class="btn btn-primary lm-button-primary lm-button-with-icon" href="<?= e($action->href()) ?>"<?php if ($action->modalUrl() !== null): ?> data-lemonade-modal-form-url="<?= e($action->modalUrl()) ?>"<?php if ($action->modalSize() !== null): ?> data-lemonade-modal-size="<?= e($action->modalSize()) ?>"<?php endif; ?><?php endif; ?>><i class="<?= e($action->icon()->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="<?= e($action->translationKey()) ?>"><?= e($helpers->lang($action->translationKey())) ?></span></a><?php endif; ?>
+        </div><?php if ($action !== null && $action->actionForm() !== null): $actionForm = $action->actionForm(); ?><form id="<?= e($actionForm->id()) ?>" method="<?= e($actionForm->method()) ?>" action="<?= e($actionForm->action()) ?>" data-lemonade-action-form<?= $actionForm->navigateToEditAfterCreate() ? ' data-lemonade-navigate-to-edit-after-create' : '' ?><?= $actionForm->novalidate() ? ' novalidate' : '' ?> hidden><?php if ($actionForm->csrf()): ?><?= $helpers->csrfField() ?><?php endif; ?></form><button class="btn btn-primary lm-button-primary lm-button-with-icon" type="submit" form="<?= e($actionForm->id()) ?>" data-lemonade-action data-lemonade-form="<?= e($actionForm->id()) ?>" data-lemonade-url="<?= e((string) $actionForm->actionUrl()) ?>" data-lemonade-method="<?= e($actionForm->method()) ?>" data-lemonade-action-key="<?= e((string) $actionForm->actionKey()) ?>"><i class="<?= e($action->icon()->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="<?= e($action->translationKey()) ?>"><?= e($helpers->lang($action->translationKey())) ?></span></button><?php elseif ($action !== null): ?><a class="btn btn-primary lm-button-primary lm-button-with-icon" href="<?= e((string) $action->href()) ?>"<?php if ($action->modalUrl() !== null): ?> data-lemonade-modal-form-url="<?= e($action->modalUrl()) ?>"<?php if ($action->modalSize() !== null): ?> data-lemonade-modal-size="<?= e($action->modalSize()) ?>"<?php endif; ?><?php endif; ?>><i class="<?= e($action->icon()->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="<?= e($action->translationKey()) ?>"><?= e($helpers->lang($action->translationKey())) ?></span></a><?php endif; ?>
     </header>
 
     <section aria-label="<?= e($dataGrid->title()) ?>" data-lemonade-grid data-lemonade-grid-key="<?= e($grid->id()) ?>" data-lemonade-source="<?= e($dataGrid->endpoint()) ?>" data-lemonade-default-view="<?= e($grid->defaultView()) ?>" data-lemonade-default-sort="<?= e($grid->defaultSortKey()) ?>" data-lemonade-default-direction="<?= e($grid->defaultSortDirection()) ?>" data-lemonade-default-page-size="<?= e((string) $grid->defaultPageSize()) ?>">

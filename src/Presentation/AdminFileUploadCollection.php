@@ -31,7 +31,7 @@ final readonly class AdminFileUploadCollection
         private bool $sortable,
         private bool $editable,
         private AdminFileUploadProfilePresentation $profile,
-        private AdminFileUploadPresentation $presentation,
+        private AdminFilePresentation $presentation,
         private ?string $fallback,
         private string $alt,
     ) {}
@@ -129,7 +129,7 @@ final readonly class AdminFileUploadCollection
     /**
      * Vraci variantu shared preview presentation
      */
-    public function presentation(): AdminFileUploadPresentation
+    public function presentation(): AdminFilePresentation
     {
         return $this->presentation;
     }
@@ -165,7 +165,7 @@ final readonly class AdminFileUploadCollection
             alt: $this->alt,
             fallback: $this->fallback,
             size: 'detail',
-            shape: $this->presentation === AdminFileUploadPresentation::Avatar ? 'circle' : 'rounded',
+            shape: $this->presentation === AdminFilePresentation::Avatar ? 'circle' : 'rounded',
             fileIdentity: [
                 'module' => $this->moduleCode,
                 'entity' => (string) $this->entityId,

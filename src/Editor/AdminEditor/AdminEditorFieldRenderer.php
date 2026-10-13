@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Editor\AdminEditor;
 
+use Lemonade\Admin\Presentation\AdminFileUploadComponent;
 use Lemonade\Framework\View\ViewHelpers;
 
 /**
@@ -14,7 +15,10 @@ final class AdminEditorFieldRenderer
     /**
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
      */
-    public function __construct(private readonly ?ViewHelpers $helpers = null) {}
+    public function __construct(
+        private readonly ?ViewHelpers $helpers = null,
+        private readonly ?AdminFileUploadComponent $files = null,
+    ) {}
 
     /**
      * Vykresluje editor do HTML podle predane definice a kontextu
@@ -93,9 +97,10 @@ final class AdminEditorFieldRenderer
             return '<div class="form-check' . ($field->type() === 'toggle' ? ' form-switch' : '') . '"><input class="' . $class . '" type="checkbox" value="1"' . $common . $checked . '></div>' . $preservedValue;
         }
         if ($field->type() === 'textarea') {
-            $richText = $field->isRichText() ? ' data-lemonade-admin-rich-text' : '';
+            $richText = $field->isRichText() ? ' data-lemonade-admin-rich-text="jodit"' : '';
+            $imageUpload = $this->richTextImageUploadAttribute($field, $context);
 
-            return '<textarea class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . $richText . $this->placeholder($field) . '>' . $this->escape($this->stringValue($value)) . '</textarea>';
+            return '<textarea class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . $richText . $imageUpload . $this->placeholder($field) . '>' . $this->escape($this->stringValue($value)) . '</textarea>';
         }
         if ($field->type() === 'select') {
             $selectedValues = $field->isMultiple() ? $this->multipleValues($value) : [];
@@ -115,9 +120,13 @@ final class AdminEditorFieldRenderer
             'email' => 'email',
             'number' => 'number',
             'tel' => 'tel',
+            'datetime_local' => 'datetime-local',
             default => 'text',
         };
-        $input = '<input class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '" type="' . $inputType . '" value="' . $this->escape($this->stringValue($value)) . '"' . $common . $this->placeholder($field) . '>';
+        $inputValue = $field->type() === 'datetime_local'
+            ? $this->datetimeLocalValue($value)
+            : $this->stringValue($value);
+        $input = '<input class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '" type="' . $inputType . '" value="' . $this->escape($inputValue) . '"' . $common . $this->placeholder($field) . '>';
         if ($field->type() !== 'readonly_editable') {
             return $input;
         }
@@ -178,6 +187,23 @@ final class AdminEditorFieldRenderer
             return $context->values()[$field->name()];
         }
         return $field->hasDefaultValue() ? $field->configuredDefaultValue() : null;
+    }
+
+    /**
+     * Sestavi rich-text target z modulu a entity render contextu
+     */
+    private function richTextImageUploadAttribute(AdminEditorFieldDefinition $field, AdminEditorRenderContext $context): string
+    {
+        if (!$field->hasRichTextImageUpload() || $context->moduleCode() === null || $context->entityId() === null) {
+            return '';
+        }
+        if ($this->files === null) {
+            throw new \LogicException('Rich-text image upload requires AdminFileUploadComponent.');
+        }
+
+        $target = $this->files->richTextImageTarget($context->moduleCode(), $context->entityId());
+
+        return ' data-lemonade-rich-text-upload-target="' . $this->escape($target->toJson()) . '"';
     }
 
     /**
@@ -264,6 +290,19 @@ final class AdminEditorFieldRenderer
     private function stringValue(mixed $value): string
     {
         return is_scalar($value) || $value instanceof \Stringable ? (string) $value : '';
+    }
+
+    /**
+     * Prevede canonical databazovy datetime do native HTML hodnoty bez zmeny casove zony
+     */
+    private function datetimeLocalValue(mixed $value): string
+    {
+        $datetime = $this->stringValue($value);
+        if (preg_match('/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/', $datetime, $parts) !== 1) {
+            return $datetime;
+        }
+
+        return $parts[1] . 'T' . $parts[2];
     }
 
     /**

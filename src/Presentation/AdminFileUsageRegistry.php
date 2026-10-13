@@ -9,6 +9,12 @@ namespace Lemonade\Admin\Presentation;
  */
 final class AdminFileUsageRegistry
 {
+    private const ThumbnailUsage = 'thumbnail';
+    private const GalleryUsage = 'gallery';
+    private const AttachmentUsage = 'attachment';
+    private const RichTextImagesUsage = 'content_image';
+    private const RichTextFilesUsage = 'content_file';
+
     /** @var array<string,AdminFileUsageDefinition> */
     private array $definitions = [];
 
@@ -23,6 +29,74 @@ final class AdminFileUsageRegistry
         }
 
         $this->definitions[$key] = $definition;
+    }
+
+    /**
+     * Rozvine modulovou capability na interni usage kontrakty
+     */
+    public function registerCapabilities(string $moduleCode, AdminFileCapabilities $capabilities): void
+    {
+        if ($capabilities->thumbnail !== null) {
+            $this->register(new AdminFileUsageDefinition(
+                moduleCode: $moduleCode,
+                usage: self::ThumbnailUsage,
+                kind: 'image',
+                profile: 'admin-image',
+                multiple: false,
+                sortable: false,
+                presentation: $capabilities->thumbnail,
+            ));
+        }
+        if ($capabilities->gallery) {
+            $this->register(new AdminFileUsageDefinition(
+                moduleCode: $moduleCode,
+                usage: self::GalleryUsage,
+                kind: 'image',
+                profile: 'admin-image',
+                multiple: true,
+                sortable: true,
+            ));
+        }
+        if ($capabilities->attachments) {
+            $this->register(new AdminFileUsageDefinition(
+                moduleCode: $moduleCode,
+                usage: self::AttachmentUsage,
+                kind: 'file',
+                profile: 'admin-file',
+                multiple: true,
+                sortable: true,
+                imageProfile: 'admin-image',
+            ));
+        }
+        if ($capabilities->richTextImages) {
+            $this->register(new AdminFileUsageDefinition(
+                moduleCode: $moduleCode,
+                usage: self::RichTextImagesUsage,
+                kind: 'image',
+                profile: 'admin-image',
+                multiple: true,
+                sortable: false,
+            ));
+        }
+        if ($capabilities->richTextFiles) {
+            $this->register(new AdminFileUsageDefinition(
+                moduleCode: $moduleCode,
+                usage: self::RichTextFilesUsage,
+                kind: 'file',
+                profile: 'admin-file',
+                multiple: true,
+                sortable: false,
+                imageProfile: 'admin-image',
+            ));
+        }
+    }
+
+    /**
+     * Vraci interni usage rich-text obrazku deklarovanou modulem
+     */
+    public function richTextImage(string $moduleCode): AdminFileUsageDefinition
+    {
+        return $this->require($moduleCode, self::RichTextImagesUsage);
     }
 
     /**

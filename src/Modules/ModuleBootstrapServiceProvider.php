@@ -9,10 +9,13 @@ use Lemonade\Admin\Audit\CoreAuditEventServiceProvider;
 use Lemonade\Admin\Authorization\CoreAuthorizationServiceProvider;
 use Lemonade\Admin\Editor\AdminEditorServiceProvider;
 use Lemonade\Admin\Identity\CoreIdentityServiceProvider;
+use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminModuleTransportServiceProvider;
+use Lemonade\Admin\Module\Contract\AdminModuleFileCapabilitiesInterface;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestInterface;
 use Lemonade\Admin\Notification\AdminNotificationServiceProvider;
+use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
 use Lemonade\Admin\System\SystemModuleServiceProvider;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
@@ -72,6 +75,8 @@ final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderI
         foreach ($this->bootableProviders as $provider) {
             $provider->boot($container);
         }
+
+        $this->registerModuleFileCapabilities($container);
     }
 
     /**
@@ -95,6 +100,21 @@ final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderI
 
         if ($provider instanceof BootableServiceProviderInterface) {
             $this->bootableProviders[] = $provider;
+        }
+    }
+
+    /**
+     * Registruje interni file usages rozvinute z deklaraci aktivnich Admin modulu
+     */
+    private function registerModuleFileCapabilities(ContainerInterface $container): void
+    {
+        $usages = $container->get(AdminFileUsageRegistry::class);
+        foreach ($container->get(AdminModuleRegistry::class)->all() as $definition) {
+            if (!$definition instanceof AdminModuleFileCapabilitiesInterface) {
+                continue;
+            }
+
+            $usages->registerCapabilities($definition->code(), $definition->fileCapabilities());
         }
     }
 }

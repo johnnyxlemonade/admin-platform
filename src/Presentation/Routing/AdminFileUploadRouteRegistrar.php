@@ -37,6 +37,11 @@ final class AdminFileUploadRouteRegistrar implements AdminRouteRegistrarInterfac
      */
     public function registerRoutes(Router $router): void
     {
+        $router->getNamed(
+            name: 'admin.file.collection.index',
+            path: '/files/{module}/{usage}/{entity}',
+            action: ControllerAction::for(AdminFileUploadController::class, 'collection'),
+        )->middleware(AdminAuthenticationMiddleware::class);
         $router->postNamed(
             name: 'admin.file.chunk.start',
             path: '/files/{module}/{usage}/{entity}/chunks',

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\DataGrid;
 
+use InvalidArgumentException;
+use Lemonade\Admin\Editor\AdminEditor\AdminEditorFormDefinition;
 use Lemonade\Admin\Icon\AdminIcon;
 
 /**
@@ -12,15 +14,44 @@ use Lemonade\Admin\Icon\AdminIcon;
 final readonly class DataGridPrimaryAction
 {
     /**
-     * Nastavuje text, ikonu a cil hlavni akce datove tabulky
+     * Nastavuje text, ikonu a linkovou, modalni nebo standardni action variantu akce
      */
     public function __construct(
         private string $translationKey,
         private AdminIcon $icon,
-        private string $href,
+        private ?string $href = null,
         private ?string $modalUrl = null,
         private ?string $modalSize = null,
-    ) {}
+        private ?AdminEditorFormDefinition $actionForm = null,
+    ) {
+        if ($actionForm !== null) {
+            if ($href !== null || $modalUrl !== null || $modalSize !== null) {
+                throw new InvalidArgumentException('Action primary action cannot define a link or modal target.');
+            }
+
+            if ($actionForm->actionUrl() === null || $actionForm->actionKey() === null) {
+                throw new InvalidArgumentException('Action primary action requires an AJAX action form.');
+            }
+
+            return;
+        }
+
+        if ($href === null || trim($href) === '') {
+            throw new InvalidArgumentException('Link primary action requires a target URL.');
+        }
+    }
+
+    /**
+     * Vytvori hlavni akci nad existujicim standardnim editor action formularem
+     */
+    public static function action(string $translationKey, AdminIcon $icon, AdminEditorFormDefinition $form): self
+    {
+        return new self(
+            translationKey: $translationKey,
+            icon: $icon,
+            actionForm: $form,
+        );
+    }
 
     /**
      * Vraci prekladovy klic popisku akce
@@ -41,7 +72,7 @@ final readonly class DataGridPrimaryAction
     /**
      * Vraci cilovy odkaz akce
      */
-    public function href(): string
+    public function href(): ?string
     {
         return $this->href;
     }
@@ -60,5 +91,13 @@ final readonly class DataGridPrimaryAction
     public function modalSize(): ?string
     {
         return $this->modalSize;
+    }
+
+    /**
+     * Vraci standardni editor action formular, pokud akce neni odkazem
+     */
+    public function actionForm(): ?AdminEditorFormDefinition
+    {
+        return $this->actionForm;
     }
 }

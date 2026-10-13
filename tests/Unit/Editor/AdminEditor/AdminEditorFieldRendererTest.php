@@ -58,6 +58,20 @@ final class AdminEditorFieldRendererTest extends TestCase
         self::assertStringNotContainsString('autocomplete=', $html);
     }
 
+    /**
+     * Datetime field renderuje native control s canonical hodnotou bez sekund
+     */
+    public function testDatetimeLocalRendersCanonicalDatabaseValue(): void
+    {
+        $field = AdminEditorFieldDefinition::datetimeLocal('published_at', 'Published from')
+            ->value('2026-10-13 14:30:45');
+
+        $html = (new AdminEditorFieldRenderer())->render($field, new AdminEditorRenderContext(), 'article-editor');
+
+        self::assertStringContainsString('type="datetime-local"', $html);
+        self::assertStringContainsString('value="2026-10-13T14:30"', $html);
+    }
+
     public function testReadonlySelectUsesDisabledControlAndPreservesSubmittedValue(): void
     {
         $field = AdminEditorFieldDefinition::select('status', 'Status')

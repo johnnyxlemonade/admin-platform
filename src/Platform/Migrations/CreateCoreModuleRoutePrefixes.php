@@ -28,7 +28,7 @@ final class CreateCoreModuleRoutePrefixes implements MigrationInterface
     {
         $schema->create('system_module_route_prefix', static function (TableBlueprint $table): void {
             $table->unsignedBigInteger('module_id')->comment('Modul, kteremu prefix patri');
-            $table->string('locale', 35)->comment('Jazyk prefixu routy');
+            $table->string('locale', 10)->comment('Jazyk prefixu routy');
             $table->string('prefix', 120)->comment('Lokalizovany prefix verejne routy modulu');
             $table->timestamps();
             $table->softDeletes()->comment('Cas soft-delete zaznamu; NULL znamena existujici zaznam');

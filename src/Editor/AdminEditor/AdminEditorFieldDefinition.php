@@ -51,11 +51,13 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
         private ?self $markerField = null,
         private bool $multiple = false,
         private bool $richText = false,
+        private bool $richTextImageUpload = false,
+        private bool $richTextFileUpload = false,
     ) {
         if (trim($name) === '') {
             throw new InvalidArgumentException('Field name must not be empty.');
         }
-        if (!in_array($type, ['text', 'email', 'tel', 'number', 'textarea', 'select', 'checkbox', 'toggle', 'hidden', 'readonly_display', 'status_display', 'readonly_editable'], true)) {
+        if (!in_array($type, ['text', 'email', 'tel', 'number', 'datetime_local', 'textarea', 'select', 'checkbox', 'toggle', 'hidden', 'readonly_display', 'status_display', 'readonly_editable'], true)) {
             throw new InvalidArgumentException('Unsupported AdminEditor field type.');
         }
         if ($span < 1) {
@@ -104,6 +106,14 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
     public static function number(string $name, string $label = '', ?string $labelKey = null): self
     {
         return new self('number', $name, $label, $labelKey);
+    }
+
+    /**
+     * Zpracovava lokalni datum a cas v konfiguraci editoru
+     */
+    public static function datetimeLocal(string $name, string $label = '', ?string $labelKey = null): self
+    {
+        return new self('datetime_local', $name, $label, $labelKey);
     }
 
     /**
@@ -416,6 +426,22 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
     }
 
     /**
+     * Rozhoduje, zda rich-text field aktivuje modulovou image upload capability
+     */
+    public function hasRichTextImageUpload(): bool
+    {
+        return $this->richTextImageUpload;
+    }
+
+    /**
+     * Rozhoduje, zda rich-text field deklaruje modulovou file upload capability
+     */
+    public function hasRichTextFileUpload(): bool
+    {
+        return $this->richTextFileUpload;
+    }
+
+    /**
      * Zpracovava hodnotu value v konfiguraci editoru
      */
     public function value(mixed $value): self
@@ -499,8 +525,31 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
         if ($this->type !== 'textarea') {
             throw new InvalidArgumentException('Only textarea fields may be rich text.');
         }
-
         return $this->copy(richText: $value);
+    }
+
+    /**
+     * Aktivuje canonical image picker pro rich-text field
+     */
+    public function imageUpload(bool $value = true): self
+    {
+        if ($this->type !== 'textarea' || !$this->richText) {
+            throw new InvalidArgumentException('Only rich text textarea fields may enable image upload.');
+        }
+
+        return $this->copy(richTextImageUpload: $value);
+    }
+
+    /**
+     * Deklaruje pripravenost rich-text fieldu na canonical file picker
+     */
+    public function fileUpload(bool $value = true): self
+    {
+        if ($this->type !== 'textarea' || !$this->richText) {
+            throw new InvalidArgumentException('Only rich text textarea fields may enable file upload.');
+        }
+
+        return $this->copy(richTextFileUpload: $value);
     }
 
     /**
@@ -633,6 +682,8 @@ final readonly class AdminEditorFieldDefinition implements AdminEditorBlock
             $changes['markerField'] ?? $this->markerField,
             $changes['multiple'] ?? $this->multiple,
             $changes['richText'] ?? $this->richText,
+            $changes['richTextImageUpload'] ?? $this->richTextImageUpload,
+            $changes['richTextFileUpload'] ?? $this->richTextFileUpload,
         );
     }
 }

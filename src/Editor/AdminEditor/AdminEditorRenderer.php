@@ -18,9 +18,12 @@ final class AdminEditorRenderer
     /**
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
      */
-    public function __construct(private readonly ?View $view = null, private readonly ?ViewHelpers $helpers = null)
-    {
-        $this->fields = new AdminEditorFieldRenderer($helpers);
+    public function __construct(
+        private readonly ?View $view = null,
+        private readonly ?ViewHelpers $helpers = null,
+        ?AdminEditorFieldRenderer $fields = null,
+    ) {
+        $this->fields = $fields ?? new AdminEditorFieldRenderer($helpers);
     }
 
     /**

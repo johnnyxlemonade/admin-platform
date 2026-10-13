@@ -8,8 +8,8 @@ use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
 use Lemonade\Admin\Editor\AdminEditor\CustomViewBlock;
 use Lemonade\Admin\Editor\AdminEditor\FieldGroupBlock;
 use Lemonade\Admin\Editor\AdminEditor\SectionBlock;
+use Lemonade\Admin\Presentation\AdminFilePresentation;
 use Lemonade\Admin\Presentation\AdminFileUploadCollection;
-use Lemonade\Admin\Presentation\AdminFileUploadPresentation;
 use Lemonade\Admin\Presentation\AdminFileUploadProfilePresentation;
 use Lemonade\Admin\Presentation\AdminThumbnail;
 use Lemonade\Admin\System\Users\Editor\UsersAdminEditorDefinitionFactory;
@@ -93,7 +93,7 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
                     maxBytes: 5242880,
                     maxSizeLabel: '5 MB',
                 ),
-                presentation: AdminFileUploadPresentation::Avatar,
+                presentation: AdminFilePresentation::Avatar,
                 fallback: 'AL',
                 alt: '',
             ),

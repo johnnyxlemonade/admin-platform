@@ -13,9 +13,6 @@ use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
-use Lemonade\Admin\Presentation\AdminFileUploadPresentation;
-use Lemonade\Admin\Presentation\AdminFileUsageDefinition;
-use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Users\Actions\UsersActionRegistrar;
 use Lemonade\Admin\System\Users\Dashboard\UsersDashboardWidgetProvider;
@@ -78,7 +75,6 @@ final class UsersModuleProvider implements ServiceProviderInterface, BootableSer
         $container->get(RuleRegistry::class)->addRule('system_users_role', RoleAssignmentsRule::class);
         $container->get(RuleRegistry::class)->addRule('system_users_permission_overrides', PermissionOverridesRule::class);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
-        $container->get(AdminFileUsageRegistry::class)->register(new AdminFileUsageDefinition('system.users', 'thumbnail', 'image', 'admin-image', false, false, AdminFileUploadPresentation::Avatar));
         $container->get(MigrationRegistry::class)->register(RegisterUsersModule::class);
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(UsersProfileRouteRegistrar::class));
     }

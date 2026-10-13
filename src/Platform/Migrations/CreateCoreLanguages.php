@@ -36,7 +36,7 @@ final class CreateCoreLanguages implements MigrationInterface
     {
         $schema->create('system_language', static function (TableBlueprint $table): void {
             $table->id()->comment('Interni identifikator jazyka');
-            $table->string('code', 35)->unique()->comment('Stabilni kod jazyka');
+            $table->string('code', 10)->unique()->comment('Stabilni kod jazyka');
             $table->string('name', 100)->comment('Nazev jazyka v administraci');
             $table->boolean('enabled')->comment('Urcuje dostupnost jazyka');
             $table->boolean('is_default')->comment('Urcuje vychozi jazyk systemu');
