@@ -307,12 +307,25 @@ final class InstallationService implements InstallationStateInterface
             return ['success' => false, 'steps' => $steps, 'rootCreated' => false];
         }
 
-        $discoveryCompleted = $this->isCompleted(InstallStep::Discovery);
-        $steps[] = [
-            'key' => InstallStep::Discovery->value,
-            'ok' => true,
-            'error' => $discoveryCompleted ? '' : 'install.installSteps.skipped',
-        ];
+        if (!$initialInstall) {
+            $steps[] = [
+                'key' => InstallStep::Discovery->value,
+                'ok' => true,
+                'error' => 'install.installSteps.skipped',
+            ];
+        } elseif ($this->isCompleted(InstallStep::Discovery)) {
+            $steps[] = [
+                'key' => InstallStep::Discovery->value,
+                'ok' => true,
+                'error' => 'install.installSteps.skipped',
+            ];
+        } else {
+            $result = $this->executeStep(InstallStep::Discovery, $initialInstall);
+            $steps[] = $this->stepRecord($result);
+            if ($result['status'] === InstallStepStatus::Error) {
+                return ['success' => false, 'steps' => $steps, 'rootCreated' => false];
+            }
+        }
         $rootCreated = false;
         foreach ([InstallStep::Database, InstallStep::Modules, InstallStep::Permissions] as $step) {
             $result = $this->executeStep($step, $initialInstall);
@@ -346,11 +359,9 @@ final class InstallationService implements InstallationStateInterface
         $completed = $this->completedSteps();
         $states = [];
         foreach (InstallStep::pipeline() as $step) {
-            if ($step === InstallStep::Root && !$initialInstall) {
+            if (($step === InstallStep::Discovery || $step === InstallStep::Root) && !$initialInstall) {
                 $status = InstallStepStatus::Skipped;
             } elseif (in_array($step, $completed, true)) {
-                $status = InstallStepStatus::Success;
-            } elseif ($step === InstallStep::Discovery && $this->catalogExists()) {
                 $status = InstallStepStatus::Success;
             } else {
                 $status = InstallStepStatus::Pending;

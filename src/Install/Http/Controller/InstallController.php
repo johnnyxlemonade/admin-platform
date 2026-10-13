@@ -109,11 +109,8 @@ final class InstallController
             return $this->preflightFailureResponse($request, $initial);
         }
 
-        if (!$this->installation->catalogExists()) {
-            return $this->prepareCatalog($initial, $request, $initial ? 'admin.install' : 'admin.upgrade');
-        }
-        if ((string) (new RequestData($request))->input('prepare', '') === '1') {
-            return $this->prepareCatalog($initial, $request, $initial ? 'admin.install' : 'admin.upgrade');
+        if ($initial && (!$this->installation->catalogExists() || (string) (new RequestData($request))->input('prepare', '') === '1')) {
+            return $this->prepareCatalog($request);
         }
         if ($initial && !$this->authorizeInitialRequest($request)) {
             return $this->requests->wantsJson($request)
@@ -169,21 +166,19 @@ final class InstallController
     /**
      * Zpracovava krok preparecatalog v instalaci aplikace
      */
-    private function prepareCatalog(bool $initial, ServerRequestInterface $request, string $redirectRoute): ResponseInterface
+    private function prepareCatalog(ServerRequestInterface $request): ResponseInterface
     {
-        if ($initial && !$this->authorizeInitialRequest($request)) {
+        if (!$this->authorizeInitialRequest($request)) {
             return $this->invalidKeyResponse($request);
         }
 
         try {
             $this->installation->discoverCatalog();
-            if ($initial) {
-                $this->installation->authorizeInstall();
-            }
+            $this->installation->authorizeInstall();
 
-            return $this->responses->redirect($this->router->url($redirectRoute), 303);
+            return $this->responses->redirect($this->router->url('admin.install'), 303);
         } catch (\Throwable $exception) {
-            return $this->show($request, $initial, [
+            return $this->show($request, true, [
                 'generalError' => $this->localizeInstallerMessage($this->safeError($exception)),
             ], HttpStatusCode::INTERNAL_SERVER_ERROR->value);
         }
@@ -248,7 +243,7 @@ final class InstallController
     private function runJson(bool $initial, ServerRequestInterface $request): ResponseInterface
     {
         $step = InstallStep::tryFrom((string) (new RequestData($request))->input('step', ''));
-        if ($step === null || $step === InstallStep::Discovery) {
+        if ($step === null || (!$initial && $step === InstallStep::Discovery)) {
             return $this->jsonError($step, 'install.installErrors.step_invalid', HttpStatusCode::UNPROCESSABLE_ENTITY->value);
         }
 

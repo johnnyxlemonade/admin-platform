@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Modules;
 
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
-use Lemonade\Admin\Modules\Console\ModuleDiscoverCommand;
 use Lemonade\Admin\Modules\Console\ModuleInstallCommand;
 use Lemonade\Admin\Modules\Console\ModuleMigrateCommand;
 use Lemonade\Admin\Modules\Feature\FeatureProviderRegistry;
@@ -43,11 +42,6 @@ final class CoreModuleServiceProvider implements ServiceProviderInterface, Boota
     {
         if (method_exists($container, 'isBound') && $container->isBound(CommandRegistry::class)) {
             $commands = $container->get(CommandRegistry::class);
-            $commands->registerDefinition(new CommandDefinition(
-                name: 'modules:discover',
-                commandClass: ModuleDiscoverCommand::class,
-                description: 'Writes a diagnostic snapshot of Composer module manifests.',
-            ));
             $commands->registerDefinition(new CommandDefinition(
                 name: 'modules:install',
                 commandClass: ModuleInstallCommand::class,

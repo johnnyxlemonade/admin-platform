@@ -22,7 +22,6 @@ final class ModuleCatalogTest extends TestCase
         $scripts = $composer['scripts'] ?? [];
 
         self::assertArrayNotHasKey('post-autoload-dump', $scripts);
-        self::assertStringNotContainsString('modules:discover', json_encode($scripts, JSON_THROW_ON_ERROR));
         self::assertStringNotContainsString('database:migrate', json_encode($scripts, JSON_THROW_ON_ERROR));
         self::assertStringNotContainsString('modules:migrate', json_encode($scripts, JSON_THROW_ON_ERROR));
         self::assertStringNotContainsString('permissions:sync', json_encode($scripts, JSON_THROW_ON_ERROR));
