@@ -26,8 +26,8 @@
     "file": "assets/lemonade-event-helper-6d0592f5f48a92bcbd1a.js",
     "name": "lemonade-event-helper"
   },
-  "_lemonade-file-upload-4203bd8181cff78be412.js": {
-    "file": "assets/lemonade-file-upload-4203bd8181cff78be412.js",
+  "_lemonade-file-upload-877f9051a20c3904729b.js": {
+    "file": "assets/lemonade-file-upload-877f9051a20c3904729b.js",
     "name": "lemonade-file-upload",
     "imports": [
       "_rolldown-runtime-2178f5bcd152fc3f91dd.js",
@@ -111,7 +111,7 @@
     "src": "source/images/locale/en.svg"
   },
   "source/js/components/lemonade-action.js": {
-    "file": "assets/lemonade-action-ed06a085578f23d619f9.js",
+    "file": "assets/lemonade-action-36169864a3f7f6040947.js",
     "name": "lemonade-action",
     "src": "source/js/components/lemonade-action.js",
     "isDynamicEntry": true,
@@ -133,7 +133,7 @@
     ]
   },
   "source/js/components/lemonade-dashboard-customize.js": {
-    "file": "assets/lemonade-dashboard-customize-bc8f85eb2b19d80ad05a.js",
+    "file": "assets/lemonade-dashboard-customize-976cbe93cd4dd67c83e0.js",
     "name": "lemonade-dashboard-customize",
     "src": "source/js/components/lemonade-dashboard-customize.js",
     "isDynamicEntry": true,
@@ -184,7 +184,7 @@
     ]
   },
   "source/js/components/lemonade-form-dirty-state.js": {
-    "file": "assets/lemonade-form-dirty-state-20c4467f696c8cfea9f1.js",
+    "file": "assets/lemonade-form-dirty-state-6bd1de6c8612d37c0ffb.js",
     "name": "lemonade-form-dirty-state",
     "src": "source/js/components/lemonade-form-dirty-state.js",
     "isDynamicEntry": true,
@@ -195,7 +195,7 @@
     ]
   },
   "source/js/components/lemonade-form-editor.js": {
-    "file": "assets/lemonade-form-editor-9c87866cad3571805561.js",
+    "file": "assets/lemonade-form-editor-1919cf0167a4db007c2e.js",
     "name": "lemonade-form-editor",
     "src": "source/js/components/lemonade-form-editor.js",
     "isDynamicEntry": true,
@@ -205,7 +205,7 @@
     ]
   },
   "source/js/components/lemonade-jodit-rich-text.js": {
-    "file": "assets/lemonade-jodit-rich-text-68096f4cf119d2e7b43e.js",
+    "file": "assets/lemonade-jodit-rich-text-2f66543d872385c725c1.js",
     "name": "lemonade-jodit-rich-text",
     "src": "source/js/components/lemonade-jodit-rich-text.js",
     "isDynamicEntry": true,
@@ -214,10 +214,10 @@
       "_lemonade-theme-bff87b30bbd117aaaa89.js",
       "_lemonade-install-303ef48d78ab12ff87c5.js",
       "source/js/entries/admin.js",
-      "_lemonade-file-upload-4203bd8181cff78be412.js"
+      "_lemonade-file-upload-877f9051a20c3904729b.js"
     ],
     "css": [
-      "assets/lemonade-jodit-rich-text-f824feec7759f74b7e8c.css"
+      "assets/lemonade-jodit-rich-text-7219163d010ee4cae70a.css"
     ]
   },
   "source/js/components/lemonade-language-preset.js": {
@@ -236,7 +236,7 @@
     ]
   },
   "source/js/components/lemonade-notifications.js": {
-    "file": "assets/lemonade-notifications-ee3e82ac25f7db313781.js",
+    "file": "assets/lemonade-notifications-6d3cecdbc1fa238eef52.js",
     "name": "lemonade-notifications",
     "src": "source/js/components/lemonade-notifications.js",
     "isDynamicEntry": true,
@@ -285,7 +285,7 @@
     "isDynamicEntry": true
   },
   "source/js/entries/admin.js": {
-    "file": "assets/admin-6ac7d96df58384423979.js",
+    "file": "assets/admin-d2f0412ad7376eb83c3f.js",
     "name": "admin",
     "src": "source/js/entries/admin.js",
     "isEntry": true,
@@ -308,7 +308,7 @@
       "source/js/components/lemonade-action.js",
       "source/js/components/lemonade-editor-lock.js",
       "source/js/components/lemonade-permission-overrides.js",
-      "_lemonade-file-upload-4203bd8181cff78be412.js",
+      "_lemonade-file-upload-877f9051a20c3904729b.js",
       "source/js/components/lemonade-notifications.js",
       "source/js/components/lemonade-notification-audience.js",
       "_lemonade-password-toggle-dda025349d0c131b6650.js",
