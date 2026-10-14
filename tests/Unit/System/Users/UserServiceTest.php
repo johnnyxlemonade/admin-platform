@@ -148,7 +148,7 @@ final class UserServiceTest extends TestCase
             42 => [['code' => 'system.users.mfa_reset', 'name_key' => '', 'module_code' => 'system.users']],
         ]);
         $dependencies = new PermissionDependencyResolver(new PermissionCatalogRegistry());
-        $credentials = new TotpCredentialService($database, new MfaSecretCipher(str_repeat('a', 32)), new TotpSecretGenerator(), new TotpVerifier($this->clock()));
+        $credentials = new TotpCredentialService($database, MfaSecretCipher::fromKey(str_repeat('a', 32)), new TotpSecretGenerator(), new TotpVerifier($this->clock()));
         $mfa = new MfaAuthenticationService(new AdminMfaConfiguration('optional', 'Admin', base64_encode(str_repeat('a', 32))), $credentials, $database, $this->createMock(AuditLogWriterInterface::class));
         $service = new UserService(
             new UserModel($driver),

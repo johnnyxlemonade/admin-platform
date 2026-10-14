@@ -8,6 +8,7 @@ use Lemonade\Admin\Auth\Mfa\AdminMfaConfiguration;
 use Lemonade\Admin\Auth\Oidc\OidcProviderConfiguration;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 use Lemonade\Framework\Core\Config\Definition\AbstractConfigDefinition;
+use Lemonade\Framework\RateLimit\RateLimitPolicy;
 
 /**
  * Prevadi deklarovanou host konfiguraci na OIDC runtime administrace
@@ -82,6 +83,30 @@ final class AdminAuthConfigDefinition extends AbstractConfigDefinition
     }
 
     /**
+     * Sestavi hostem deklarovane zapnuti a fixed-window policy pro local login a MFA
+     */
+    public function throttlingConfiguration(): AdminAuthenticationThrottleConfiguration
+    {
+        $throttling = $this->toArray()['throttling'] ?? [];
+        if (!is_array($throttling)) {
+            throw new \InvalidArgumentException('Admin auth throttling configuration must be a mapping.');
+        }
+
+        $enabled = $this->boolean($throttling, 'enabled', true);
+        if (!$enabled) {
+            return new AdminAuthenticationThrottleConfiguration(enabled: false);
+        }
+
+        return new AdminAuthenticationThrottleConfiguration(
+            enabled: true,
+            loginIp: $this->rateLimitPolicy($throttling, 'login', 'ip'),
+            loginIdentity: $this->rateLimitPolicy($throttling, 'login', 'identity'),
+            mfaIp: $this->rateLimitPolicy($throttling, 'mfa', 'ip'),
+            mfaIdentity: $this->rateLimitPolicy($throttling, 'mfa', 'identity'),
+        );
+    }
+
+    /**
      * Vrati mapovani OIDC hodnot nebo ohlasi neplatnou konfiguraci
      *
      * @return array<string,mixed>
@@ -113,7 +138,7 @@ final class AdminAuthConfigDefinition extends AbstractConfigDefinition
     }
 
     /**
-     * Vrati boolean hodnotu konfigurace s volitelnym vychozim stavem
+     * Vrati boolean hodnotu Admin Auth konfigurace s volitelnym vychozim stavem
      *
      * @param array<string,mixed> $values
      */
@@ -121,7 +146,7 @@ final class AdminAuthConfigDefinition extends AbstractConfigDefinition
     {
         $value = $values[$key] ?? $default;
         if (!is_bool($value)) {
-            throw new \InvalidArgumentException(sprintf('Admin auth OIDC value "%s" must be a boolean.', $key));
+            throw new \InvalidArgumentException(sprintf('Admin auth configuration value "%s" must be a boolean.', $key));
         }
 
         return $value;
@@ -165,5 +190,43 @@ final class AdminAuthConfigDefinition extends AbstractConfigDefinition
         }
 
         return array_values(array_unique($items));
+    }
+
+    /**
+     * Overi jednu povinnou fixed-window policy z host konfigurace
+     *
+     * @param array<string,mixed> $throttling
+     */
+    private function rateLimitPolicy(array $throttling, string $flow, string $bucket): RateLimitPolicy
+    {
+        $flowConfiguration = $throttling[$flow] ?? null;
+        if (!is_array($flowConfiguration)) {
+            throw new \InvalidArgumentException(sprintf('Admin auth throttling requires mapping "%s".', $flow));
+        }
+
+        $bucketConfiguration = $flowConfiguration[$bucket] ?? null;
+        if (!is_array($bucketConfiguration)) {
+            throw new \InvalidArgumentException(sprintf('Admin auth throttling requires mapping "%s.%s".', $flow, $bucket));
+        }
+
+        return new RateLimitPolicy(
+            attempts: $this->positiveInteger($bucketConfiguration, 'attempts', $flow, $bucket),
+            windowSeconds: $this->positiveInteger($bucketConfiguration, 'window_seconds', $flow, $bucket),
+        );
+    }
+
+    /**
+     * Vraci povinne kladne cele cislo z jedne limiter policy
+     *
+     * @param array<string,mixed> $configuration
+     */
+    private function positiveInteger(array $configuration, string $key, string $flow, string $bucket): int
+    {
+        $value = $configuration[$key] ?? null;
+        if (!is_int($value) || $value < 1) {
+            throw new \InvalidArgumentException(sprintf('Admin auth throttling value "%s.%s.%s" must be a positive integer.', $flow, $bucket, $key));
+        }
+
+        return $value;
     }
 }

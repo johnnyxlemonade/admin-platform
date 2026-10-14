@@ -14,6 +14,39 @@ use PHPUnit\Framework\TestCase;
 final class AdminAuthConfigDefinitionTest extends TestCase
 {
     /**
+     * Overuje, ze vypnuty throttling nevyzaduje bucket policy
+     */
+    public function testDisabledThrottlingDoesNotRequireBucketPolicies(): void
+    {
+        $configuration = AdminAuthConfigDefinition::fromArrayData([
+            'throttling' => ['enabled' => false],
+        ])->throttlingConfiguration();
+
+        self::assertFalse($configuration->enabled());
+    }
+
+    /**
+     * Overuje, ze throttling je bez explicitni hodnoty zapnuty
+     */
+    public function testThrottlingDefaultsToEnabled(): void
+    {
+        $configuration = AdminAuthConfigDefinition::fromArrayData([
+            'throttling' => [
+                'login' => [
+                    'ip' => ['attempts' => 20, 'window_seconds' => 900],
+                    'identity' => ['attempts' => 5, 'window_seconds' => 900],
+                ],
+                'mfa' => [
+                    'ip' => ['attempts' => 20, 'window_seconds' => 900],
+                    'identity' => ['attempts' => 5, 'window_seconds' => 900],
+                ],
+            ],
+        ])->throttlingConfiguration();
+
+        self::assertTrue($configuration->enabled());
+    }
+
+    /**
      * Overuje vypnutou konfiguraci bez bezpecnostnich udaju
      */
     public function testDisabledConfigurationBootsWithoutCredentials(): void

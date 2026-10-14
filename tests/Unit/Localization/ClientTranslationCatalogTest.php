@@ -82,6 +82,33 @@ final class ClientTranslationCatalogTest extends TestCase
     }
 
     /**
+     * Overuje dostupnost sdilene auth skupiny pro login i MFA ve vsech podporovanych locale
+     */
+    public function testItExportsSharedAuthTranslationsForMfaInCzechAndEnglish(): void
+    {
+        $resources = new TranslationResourceRegistry();
+        $resources->register(dirname(__DIR__, 3) . '/src/Auth/Resources/lang', 'admin.auth');
+        $translator = new FileTranslator(
+            new ApplicationContext(
+                Environment::Testing,
+                new Path(sys_get_temp_dir()),
+                DebugMode::disabled(),
+            ),
+            new LocalizationConfig(
+                defaultLocale: 'cs',
+                fallbackLocale: 'en',
+                supportedLocales: ['cs', 'en'],
+                url: new LocalizationUrlConfig(false, 'localized.', '/{locale}', 'locale', false),
+            ),
+            $resources,
+        );
+        $catalog = new ClientTranslationCatalog($translator);
+
+        self::assertSame('Ověřovací kód', $catalog->export('auth', 'cs')['mfa']['code']);
+        self::assertSame('Authentication code', $catalog->export('auth', 'en')['mfa']['code']);
+    }
+
+    /**
      * Vybere sdilene texty, ktere potrebuji confirm dialog a DataGrid
      *
      * @param array<string, mixed> $catalog

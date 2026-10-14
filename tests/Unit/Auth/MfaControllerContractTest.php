@@ -12,6 +12,7 @@ use Lemonade\Admin\Auth\CurrentUserProvider;
 use Lemonade\Admin\Auth\Http\Controller\MfaController;
 use Lemonade\Admin\Auth\Mfa\AdminMfaConfiguration;
 use Lemonade\Admin\Auth\Mfa\MfaAuthenticationService;
+use Lemonade\Admin\Auth\Mfa\MfaLoginChallengeStore;
 use Lemonade\Admin\Auth\Mfa\MfaRecentPrimaryAuthenticationStore;
 use Lemonade\Admin\Auth\Mfa\MfaSecretCipher;
 use Lemonade\Admin\Auth\Mfa\TotpCredentialService;
@@ -21,6 +22,7 @@ use Lemonade\Framework\Core\Http\ResponseBuilder;
 use Lemonade\Framework\Database\Connection\ConnectionInterface;
 use Lemonade\Framework\Database\Database;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
+use Lemonade\Framework\Http\Request\HttpRequestInspector;
 use Lemonade\Framework\Http\Response\Responses;
 use Lemonade\Framework\Security\Totp\TotpSecretGenerator;
 use Lemonade\Framework\Security\Totp\TotpVerifier;
@@ -34,6 +36,27 @@ use ReflectionObject;
 
 final class MfaControllerContractTest extends TestCase
 {
+    /**
+     * Overuje JSON redirect pro vyprsely MFA challenge v auth AJAX transportu
+     */
+    public function testExpiredChallengeUsesJsonLoginRedirectForAjaxAuthTransport(): void
+    {
+        $fixture = $this->fixture('optional', false);
+        $this->set($fixture['controller'], 'requests', new HttpRequestInspector());
+
+        $response = $fixture['controller']->verifyChallenge(new ServerRequest(
+            'POST',
+            '/admin/login/mfa',
+            ['Accept' => 'application/json'],
+        ));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(
+            ['success' => true, 'redirect' => '/admin/login'],
+            json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR),
+        );
+    }
+
     public function testSelfDisableIsAllowedOnlyForFreshOptionalMfa(): void
     {
         $optional = $this->fixture('optional', true);
@@ -73,7 +96,7 @@ final class MfaControllerContractTest extends TestCase
         $configuration = new AdminMfaConfiguration($requirement, 'Admin', base64_encode(str_repeat('a', 32)));
         $credentials = new TotpCredentialService(
             $database,
-            new MfaSecretCipher(str_repeat('a', 32)),
+            MfaSecretCipher::fromKey(str_repeat('a', 32)),
             new TotpSecretGenerator(),
             new TotpVerifier($this->clock()),
         );
@@ -84,6 +107,7 @@ final class MfaControllerContractTest extends TestCase
         $this->set($controller, 'credentials', $credentials);
         $this->set($controller, 'mfa', new MfaAuthenticationService($configuration, $credentials, $database, $this->createMock(AuditLogWriterInterface::class)));
         $this->set($controller, 'routing', new AdminRoutingConfiguration('/admin'));
+        $this->set($controller, 'challenges', new MfaLoginChallengeStore($session, new AdminRoutingConfiguration('/admin')));
         $factory = new Psr17Factory();
         $this->set($controller, 'responses', new Responses(new ResponseBuilder($factory, $factory)));
         $views = $this->createMock(ViewRendererInterface::class);

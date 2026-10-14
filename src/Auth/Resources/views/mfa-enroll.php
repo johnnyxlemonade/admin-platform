@@ -10,6 +10,7 @@ use Lemonade\Framework\View\ViewHelpers;
 /** @var string|null $secret */
 /** @var string|null $provisioningUri */
 /** @var string|null $errorKey */
+/** @var string|null $errorMessage */
 
 $startRoute = $profile ? 'admin.profile.mfa.enroll.start' : 'admin.login.mfa.enroll.start';
 $confirmRoute = $profile ? 'admin.profile.mfa.enroll.confirm' : 'admin.login.mfa.enroll.confirm';
@@ -22,7 +23,7 @@ $confirmRoute = $profile ? 'admin.profile.mfa.enroll.confirm' : 'admin.login.mfa
     <p class="lm-auth-description" data-lemonade-i18n="auth.mfa.enroll_scan"><?= e($helpers->lang('auth.mfa.enroll_scan')) ?></p>
     <canvas class="lm-auth-mfa-qr" data-lemonade-mfa-qr data-provisioning-uri="<?= e($provisioningUri ?? '') ?>" aria-label="<?= e($helpers->lang('auth.mfa.enroll_scan')) ?>" data-lemonade-i18n-aria-label="auth.mfa.enroll_scan"></canvas>
     <p><code><?= e($secret) ?></code></p>
-    <?php if ($errorKey !== null): ?><div class="lm-message lm-message--error" role="alert"><i class="<?= e(AdminIcon::XCircle->cssClass()) ?>" aria-hidden="true"></i> <span data-lemonade-i18n="<?= e($errorKey) ?>"><?= e($helpers->lang($errorKey)) ?></span></div><?php endif; ?>
+    <?php if ($errorKey !== null): ?><div class="lm-message lm-message--error" role="alert"><i class="<?= e(AdminIcon::XCircle->cssClass()) ?>" aria-hidden="true"></i> <span<?= $errorMessage === null ? ' data-lemonade-i18n="' . e($errorKey) . '"' : '' ?>><?= e($errorMessage ?? $helpers->lang($errorKey)) ?></span></div><?php endif; ?>
     <form class="lm-auth-form" method="post" action="<?= e($helpers->url($confirmRoute)) ?>">
         <?= $helpers->csrfField() ?>
         <div class="lm-auth-field"><label for="mfa-code" data-lemonade-i18n="auth.mfa.code"><?= e($helpers->lang('auth.mfa.code')) ?></label><input class="form-control" id="mfa-code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" required autofocus></div>

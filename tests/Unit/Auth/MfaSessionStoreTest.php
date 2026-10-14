@@ -18,7 +18,7 @@ final class MfaSessionStoreTest extends TestCase
         $store = new MfaLoginChallengeStore($session, new AdminRoutingConfiguration('/admin'));
         $store->begin(42, 'verify', 'https://attacker.example');
 
-        self::assertSame(['userId', 'kind', 'issuedAt', 'intendedPath', 'attempts'], array_keys($session->values['admin.auth.mfa.challenge']));
+        self::assertSame(['userId', 'kind', 'issuedAt', 'intendedPath'], array_keys($session->values['admin.auth.mfa.challenge']));
         $challenge = $store->current();
         self::assertNotNull($challenge);
         self::assertNull($challenge['intendedPath']);
@@ -26,19 +26,6 @@ final class MfaSessionStoreTest extends TestCase
         $session->values['admin.auth.mfa.challenge']['issuedAt'] = time() - 301;
         self::assertNull($store->current());
         self::assertArrayNotHasKey('admin.auth.mfa.challenge', $session->values);
-    }
-
-    public function testChallengeTerminatesOnItsFifthInvalidAttempt(): void
-    {
-        $session = $this->session();
-        $store = new MfaLoginChallengeStore($session, new AdminRoutingConfiguration('/admin'));
-        $store->begin(42, 'verify', '/admin/users');
-
-        for ($attempt = 1; $attempt < 5; $attempt++) {
-            self::assertFalse($store->failedAttempt());
-        }
-        self::assertTrue($store->failedAttempt());
-        self::assertNull($store->current());
     }
 
     public function testRecentPrimaryAuthenticationIsBoundToTheUserAndExpires(): void

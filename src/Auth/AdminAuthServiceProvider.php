@@ -9,6 +9,7 @@ use Lemonade\Admin\Auth\Audit\AuthenticationAuditPresentationRegistrar;
 use Lemonade\Admin\Auth\Http\Controller\ForgotPasswordController;
 use Lemonade\Admin\Auth\Http\Controller\LoginController;
 use Lemonade\Admin\Auth\Http\Controller\MfaController;
+use Lemonade\Admin\Auth\Migrations\CreateFrameworkRateLimitTable;
 use Lemonade\Admin\Auth\Routing\AdminAuthRouteRegistrar;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
@@ -18,6 +19,7 @@ use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
+use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
 use Lemonade\Framework\View\ViewResourceRegistry;
 
@@ -50,7 +52,7 @@ final class AdminAuthServiceProvider implements ServiceProviderInterface, Depend
     }
 
     /**
-     * Registruje auth routy, resources a auditni presentation po container freeze
+     * Registruje auth routy, resources, auditni presentation a limiter migraci po container freeze
      */
     public function boot(ContainerInterface $container): void
     {
@@ -59,5 +61,6 @@ final class AdminAuthServiceProvider implements ServiceProviderInterface, Depend
         $container->get(ViewResourceRegistry::class)->register('admin-auth', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('auth');
         $container->get(AuthenticationAuditPresentationRegistrar::class)->register();
+        $container->get(MigrationRegistry::class)->register(CreateFrameworkRateLimitTable::class);
     }
 }

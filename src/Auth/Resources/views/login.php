@@ -9,6 +9,7 @@ use Lemonade\Framework\View\ViewHelpers;
 /** @var ViewHelpers $helpers */
 /** @var string $email */
 /** @var string|null $errorKey */
+/** @var string|null $errorMessage */
 /** @var string $locale */
 /** @var bool $oidcEnabled */
 /** @var AdminBranding $branding */
@@ -35,7 +36,7 @@ $descriptionKey = $oidcEnabled && $oidcProviderDisplayName !== null
     <?= $helpers->csrfField() ?>
     <div class="lm-message lm-message--error" role="alert" data-lemonade-auth-error<?= $errorKey === null ? ' hidden' : '' ?>>
         <i class="<?= e(AdminIcon::XCircle->cssClass()) ?> lm-message-icon" aria-hidden="true"></i>
-        <span class="lm-message-copy" data-lemonade-auth-error-copy<?= $errorKey === null ? '' : ' data-lemonade-i18n="' . e($errorKey) . '"' ?>><?= $errorKey === null ? '' : e($helpers->lang($errorKey)) ?></span>
+        <span class="lm-message-copy" data-lemonade-auth-error-copy<?= $errorKey === null || $errorMessage !== null ? '' : ' data-lemonade-i18n="' . e($errorKey) . '"' ?>><?= $errorKey === null ? '' : e($errorMessage ?? $helpers->lang($errorKey)) ?></span>
         <button class="lm-message-close" type="button" data-lemonade-message-close aria-label="<?= e($helpers->lang('auth.common.close')) ?>" title="<?= e($helpers->lang('auth.common.close')) ?>" data-lemonade-i18n-aria-label="auth.common.close" data-lemonade-i18n-title="auth.common.close"><i class="<?= e(AdminIcon::XLg->cssClass()) ?>" aria-hidden="true"></i></button>
     </div>
     <div class="lm-auth-credentials">

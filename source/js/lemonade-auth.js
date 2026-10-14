@@ -115,7 +115,7 @@ import { Theme } from "./core/lemonade-theme.js";
 
             this.errorCopy.textContent = message;
             this.error.hidden = false;
-            this.form.querySelectorAll('[name="email"], [name="password"]').forEach(function (field) {
+            this.form.querySelectorAll("[required]").forEach(function (field) {
                 field.classList.add("is-invalid");
             });
         }
@@ -127,15 +127,16 @@ import { Theme } from "./core/lemonade-theme.js";
             if (this.errorCopy) {
                 this.errorCopy.textContent = "";
             }
-            this.form.querySelectorAll('[name="email"], [name="password"]').forEach(function (field) {
+            this.form.querySelectorAll("[required]").forEach(function (field) {
                 field.classList.remove("is-invalid");
             });
         }
 
         defaultErrorMessage() {
-            const message = I18n.t("auth.errors.invalid");
+            const key = this.form.dataset.lemonadeAuthDefaultErrorKey || "auth.errors.invalid";
+            const message = I18n.t(key);
 
-            return message === "auth.errors.invalid"
+            return message === key
                 ? this.form.dataset.lemonadeAuthDefaultError || ""
                 : message;
         }

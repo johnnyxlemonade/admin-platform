@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Auth\Http\Controller;
 
 use Lemonade\Admin\Auth\AuthenticationService;
+use Lemonade\Admin\Auth\AuthenticationThrottler;
 use Lemonade\Admin\Auth\AuthPageRenderer;
 use Lemonade\Admin\Auth\CurrentUserProvider;
 use Lemonade\Admin\Auth\InternalAdminDestination;
@@ -18,8 +19,11 @@ use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Admin\Presentation\AdminBranding;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 use Lemonade\Framework\Core\Http\RequestData;
+use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
+use Lemonade\Framework\Http\Request\HttpRequestInspector;
 use Lemonade\Framework\Http\Response\Responses;
 use Lemonade\Framework\Localization\TranslatorInterface;
+use Lemonade\Framework\Security\Csrf\CsrfViewHelper;
 use Lemonade\Framework\Security\Totp\TotpConfiguration;
 use Lemonade\Framework\Security\Totp\TotpProvisioningUriFactory;
 use Lemonade\Framework\View\ViewRendererInterface;
@@ -41,6 +45,7 @@ final class MfaController
         private readonly MfaLoginChallengeStore $challenges,
         private readonly MfaRecentPrimaryAuthenticationStore $recentPrimary,
         private readonly AuthenticationService $authentication,
+        private readonly AuthenticationThrottler $throttler,
         private readonly CurrentUserProvider $currentUser,
         private readonly TotpProvisioningUriFactory $provisioningUris,
         private readonly AdminUiLocale $uiLocale,
@@ -50,6 +55,8 @@ final class MfaController
         private readonly AuthPageRenderer $pages,
         private readonly TranslatorInterface $translator,
         private readonly Responses $responses,
+        private readonly CsrfViewHelper $csrf,
+        private readonly HttpRequestInspector $requests,
         private readonly ViewRendererInterface $views,
     ) {}
 
@@ -67,7 +74,7 @@ final class MfaController
             return $this->responses->redirect($this->routing->path('/login/mfa/enroll'));
         }
 
-        return $this->render($request, 'admin-auth::mfa', ['errorKey' => null]);
+        return $this->render($request, 'admin-auth::mfa', ['errorKey' => null, 'errorMessage' => null]);
     }
 
     /**
@@ -77,25 +84,35 @@ final class MfaController
     {
         $challenge = $this->challenges->current();
         if (!$this->configuration->enabled() || $challenge === null || $challenge['kind'] !== 'verify') {
-            return $this->responses->redirect($this->routing->path('/login'));
+            return $this->redirect($request, $this->routing->path('/login'));
+        }
+
+        $limit = $this->throttler->mfaStatus($request, $challenge['userId']);
+        if (!$limit->allowed()) {
+            $this->challenges->clear();
+
+            return $this->throttledChallenge($request, $limit->retryAfterSeconds());
         }
 
         $code = (string) (new RequestData($request))->post('code', '');
         $user = $this->mfa->eligibleUser($challenge['userId']);
         if ($user === null || !$this->credentials->verifyAndConsume($challenge['userId'], $code)) {
-            if ($this->challenges->failedAttempt()) {
+            $limit = $this->throttler->failedMfa($request, $challenge['userId']);
+            if (!$limit->allowed()) {
+                $this->challenges->clear();
                 $this->mfa->challengeFailed($challenge['userId']);
 
-                return $this->responses->redirect($this->routing->path('/login'));
+                return $this->throttledChallenge($request, $limit->retryAfterSeconds());
             }
 
-            return $this->render($request, 'admin-auth::mfa', ['errorKey' => 'auth.mfa.errors.invalid'], 422);
+            return $this->failedChallenge($request);
         }
 
         $this->challenges->clear();
+        $this->throttler->clearMfaUser($challenge['userId']);
         $this->authentication->login($user, true);
 
-        return $this->responses->redirect($this->safeDestination($challenge['intendedPath']));
+        return $this->redirect($request, $this->safeDestination($challenge['intendedPath']));
     }
 
     /**
@@ -134,7 +151,22 @@ final class MfaController
             return $this->responses->redirect($this->routing->path('/login'));
         }
 
+        $limit = $this->throttler->mfaStatus($request, $challenge['userId']);
+        if (!$limit->allowed()) {
+            $this->challenges->clear();
+
+            return $this->throttledEnrollment($request, $challenge['userId'], $limit->retryAfterSeconds());
+        }
+
         if (!$this->credentials->confirmEnrollment($challenge['userId'], (string) (new RequestData($request))->post('code', ''))) {
+            $limit = $this->throttler->failedMfa($request, $challenge['userId']);
+            if (!$limit->allowed()) {
+                $this->challenges->clear();
+                $this->mfa->challengeFailed($challenge['userId']);
+
+                return $this->throttledEnrollment($request, $challenge['userId'], $limit->retryAfterSeconds());
+            }
+
             return $this->renderEnrollment($request, $challenge['userId'], false, false, 'auth.mfa.errors.invalid', 422);
         }
         $user = $this->mfa->eligibleUser($challenge['userId']);
@@ -146,6 +178,7 @@ final class MfaController
 
         $this->mfa->enrolled($user->id());
         $this->challenges->clear();
+        $this->throttler->clearMfaUser($user->id());
         $this->authentication->login($user, true);
 
         return $this->responses->redirect($this->safeDestination($challenge['intendedPath']));
@@ -229,8 +262,15 @@ final class MfaController
     /**
      * Vykresli enrollment s novym secret pouze pri explicitnim startu
      */
-    private function renderEnrollment(ServerRequestInterface $request, int $userId, bool $profile, bool $start = false, ?string $errorKey = null, int $status = 200): ResponseInterface
-    {
+    private function renderEnrollment(
+        ServerRequestInterface $request,
+        int $userId,
+        bool $profile,
+        bool $start = false,
+        ?string $errorKey = null,
+        int $status = HttpStatusCode::OK->value,
+        ?string $errorMessage = null,
+    ): ResponseInterface {
         $secret = $start ? $this->credentials->beginEnrollment($userId) : null;
         $user = $this->mfa->eligibleUser($userId);
         if ($user === null) {
@@ -242,6 +282,7 @@ final class MfaController
             'secret' => $secret?->toBase32(),
             'provisioningUri' => $secret === null ? null : $this->provisioningUris->create($this->configuration->issuer ?? '', $user->email(), $secret, new TotpConfiguration()),
             'errorKey' => $errorKey,
+            'errorMessage' => $errorMessage,
         ], $status);
     }
 
@@ -258,6 +299,94 @@ final class MfaController
             'locale' => $this->uiLocale->activate(null, (string) (new RequestData($request))->cookie('lemonade_locale', '')),
             'clientTranslationVersion' => $this->translationVersion,
         ], $status);
+    }
+
+    /**
+     * Vraci stejnou navigaci pro HTML fallback i JSON auth transport
+     */
+    private function redirect(ServerRequestInterface $request, string $destination): ResponseInterface
+    {
+        if ($this->requests->wantsJson($request)) {
+            return $this->responses->json([
+                'success' => true,
+                'redirect' => $destination,
+            ]);
+        }
+
+        return $this->responses->redirect($destination);
+    }
+
+    /**
+     * Vraci neplatny MFA kod do stejneho inline auth feedback kontraktu
+     */
+    private function failedChallenge(ServerRequestInterface $request): ResponseInterface
+    {
+        $errorKey = 'auth.mfa.errors.invalid';
+        if (!$this->requests->wantsJson($request)) {
+            return $this->render($request, 'admin-auth::mfa', ['errorKey' => $errorKey, 'errorMessage' => null], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
+        }
+
+        $message = $this->translator->get($errorKey);
+
+        return $this->responses->json([
+            'success' => false,
+            'errors' => ['code' => $message],
+            'message' => $message,
+            'csrf' => [
+                'name' => $this->csrf->fieldName(),
+                'value' => $this->csrf->token(),
+            ],
+        ], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
+    }
+
+    /**
+     * Vraci rate-limit odpoved s lokalizovanym casem do dalsiho MFA challenge pokusu
+     */
+    private function throttledChallenge(ServerRequestInterface $request, int $retryAfterSeconds): ResponseInterface
+    {
+        $errorKey = 'auth.mfa.errors.throttled';
+        $message = $this->throttledMessage($errorKey, $retryAfterSeconds);
+        if (!$this->requests->wantsJson($request)) {
+            return $this->render($request, 'admin-auth::mfa', ['errorKey' => $errorKey, 'errorMessage' => $message], HttpStatusCode::TOO_MANY_REQUESTS->value)
+                ->withHeader('Retry-After', (string) $retryAfterSeconds);
+        }
+
+        return $this->responses->json([
+            'success' => false,
+            'errors' => ['code' => $message],
+            'message' => $message,
+            'csrf' => [
+                'name' => $this->csrf->fieldName(),
+                'value' => $this->csrf->token(),
+            ],
+        ], HttpStatusCode::TOO_MANY_REQUESTS->value)->withHeader('Retry-After', (string) $retryAfterSeconds);
+    }
+
+    /**
+     * Vraci rate-limit odpoved s lokalizovanym casem do dalsiho MFA enrollment pokusu
+     */
+    private function throttledEnrollment(ServerRequestInterface $request, int $userId, int $retryAfterSeconds): ResponseInterface
+    {
+        return $this->renderEnrollment(
+            request: $request,
+            userId: $userId,
+            profile: false,
+            errorKey: 'auth.mfa.errors.throttled',
+            status: HttpStatusCode::TOO_MANY_REQUESTS->value,
+            errorMessage: $this->throttledMessage('auth.mfa.errors.throttled', $retryAfterSeconds),
+        )->withHeader('Retry-After', (string) $retryAfterSeconds);
+    }
+
+    /**
+     * Vrati lokalizovany cas do odemknuti limitovaneho MFA flow
+     */
+    private function throttledMessage(string $key, int $retryAfterSeconds): string
+    {
+        if ($retryAfterSeconds < 60) {
+            return $this->translator->get($key . '_seconds', ['seconds' => max(1, $retryAfterSeconds)]);
+        }
+
+        return $this->translator->get($key . '_minutes', ['minutes' => (int) ceil($retryAfterSeconds / 60)]);
     }
 
     /**

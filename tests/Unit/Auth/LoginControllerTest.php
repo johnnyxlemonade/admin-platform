@@ -7,6 +7,8 @@ namespace Lemonade\Admin\Tests\Unit\Auth;
 use DateTimeImmutable;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
 use Lemonade\Admin\Auth\AuthenticationService;
+use Lemonade\Admin\Auth\AuthenticationThrottler;
+use Lemonade\Admin\Auth\Config\AdminAuthenticationThrottleConfiguration;
 use Lemonade\Admin\Auth\Http\Controller\LoginController;
 use Lemonade\Admin\Auth\LocalAuthenticationProvider;
 use Lemonade\Admin\Auth\Mfa\AdminMfaConfiguration;
@@ -26,18 +28,67 @@ use Lemonade\Framework\Http\Response\Responses;
 use Lemonade\Framework\Localization\Config\LocalizationConfig;
 use Lemonade\Framework\Localization\Config\LocalizationUrlConfig;
 use Lemonade\Framework\Localization\TranslatorInterface;
+use Lemonade\Framework\RateLimit\RateLimiterInterface;
+use Lemonade\Framework\RateLimit\RateLimitPolicy;
+use Lemonade\Framework\RateLimit\RateLimitResult;
 use Lemonade\Framework\Security\Csrf\CsrfTokenManager;
+use Lemonade\Framework\Security\Csrf\CsrfViewHelper;
 use Lemonade\Framework\Security\Totp\TotpSecretGenerator;
 use Lemonade\Framework\Security\Totp\TotpVerifier;
 use Lemonade\Framework\Session\Contract\SessionInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionObject;
 
 final class LoginControllerTest extends TestCase
 {
+    /**
+     * Overuje zobrazeni zaokrouhleneho retry casu v JSON throttle odpovedi
+     */
+    #[DataProvider('retryTimeCases')]
+    public function testThrottledLoginReturnsLocalizedRetryTime(int $retryAfterSeconds, string $message): void
+    {
+        $session = new LoginControllerMemorySession();
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('setLocale')->willReturnSelf();
+        $translator->method('get')->willReturnCallback(static function (string $key, array $replacements = []): string {
+            return match ($key) {
+                'auth.errors.throttled_seconds' => 'Try again in ' . $replacements['seconds'] . ' seconds.',
+                'auth.errors.throttled_minutes' => 'Try again in ' . $replacements['minutes'] . ' minutes.',
+                default => $key,
+            };
+        });
+        $factory = new Psr17Factory();
+        $controller = (new ReflectionClass(LoginController::class))->newInstanceWithoutConstructor();
+        $this->set($controller, 'throttler', $this->throttler(new RateLimitResult(false, 0, $retryAfterSeconds)));
+        $this->set($controller, 'uiLocale', $this->locale($session, $translator));
+        $this->set($controller, 'translator', $translator);
+        $this->set($controller, 'csrf', new CsrfViewHelper(new CsrfTokenManager($session)));
+        $this->set($controller, 'responses', new Responses(new ResponseBuilder($factory, $factory)));
+        $this->set($controller, 'requests', new HttpRequestInspector());
+
+        $response = $controller->login((new ServerRequest('POST', '/admin/login', ['Accept' => 'application/json']))->withParsedBody([
+            'email' => 'dev-root@ddev.site',
+            'password' => 'dev-root@ddev.site',
+        ]));
+
+        self::assertSame(429, $response->getStatusCode());
+        self::assertSame((string) $retryAfterSeconds, $response->getHeaderLine('Retry-After'));
+        self::assertSame($message, json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR)['message']);
+    }
+
+    /**
+     * @return iterable<string, array{int, string}>
+     */
+    public static function retryTimeCases(): iterable
+    {
+        yield 'seconds' => [59, 'Try again in 59 seconds.'];
+        yield 'rounded minutes' => [61, 'Try again in 2 minutes.'];
+    }
+
     public function testJsonLoginReturnsMfaChallengeRedirectInsteadOfHtmlRedirect(): void
     {
         $session = new LoginControllerMemorySession();
@@ -52,13 +103,14 @@ final class LoginControllerTest extends TestCase
         );
         $credentials = new TotpCredentialService(
             $database,
-            new MfaSecretCipher(str_repeat('a', 32)),
+            MfaSecretCipher::fromKey(str_repeat('a', 32)),
             new TotpSecretGenerator(),
             new TotpVerifier($this->clock()),
         );
         $routing = new AdminRoutingConfiguration('/admin');
         $controller = (new ReflectionClass(LoginController::class))->newInstanceWithoutConstructor();
         $this->set($controller, 'authentication', $authentication);
+        $this->set($controller, 'throttler', $this->throttler());
         $this->set($controller, 'mfa', new MfaAuthenticationService(
             new AdminMfaConfiguration('optional', 'Admin', base64_encode(str_repeat('a', 32))),
             $credentials,
@@ -82,10 +134,12 @@ final class LoginControllerTest extends TestCase
         self::assertSame(['success' => true, 'redirect' => '/admin/login/mfa'], json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR));
     }
 
-    private function locale(SessionInterface $session): AdminUiLocale
+    private function locale(SessionInterface $session, ?TranslatorInterface $translator = null): AdminUiLocale
     {
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('setLocale')->willReturnSelf();
+        if ($translator === null) {
+            $translator = $this->createMock(TranslatorInterface::class);
+            $translator->method('setLocale')->willReturnSelf();
+        }
 
         return new AdminUiLocale(
             new LocalizationConfig('cs', 'cs', ['cs'], new LocalizationUrlConfig(false, '', '', 'locale', false)),
@@ -100,6 +154,28 @@ final class LoginControllerTest extends TestCase
         $clock->method('now')->willReturn(new DateTimeImmutable('@1767225600'));
 
         return $clock;
+    }
+
+    private function throttler(?RateLimitResult $status = null): AuthenticationThrottler
+    {
+        $limiter = $this->createMock(RateLimiterInterface::class);
+        $limiter->method('status')->willReturn($status ?? new RateLimitResult(true, 20, 0));
+        $limiter->method('hit')->willReturn(new RateLimitResult(true, 20, 0));
+        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver->method('tableExists')->with('framework_rate_limit')->willReturn(true);
+
+        return new AuthenticationThrottler(
+            limiter: $limiter,
+            configuration: new AdminAuthenticationThrottleConfiguration(
+                enabled: true,
+                loginIp: new RateLimitPolicy(20, 900),
+                loginIdentity: new RateLimitPolicy(5, 900),
+                mfaIp: new RateLimitPolicy(20, 900),
+                mfaIdentity: new RateLimitPolicy(5, 900),
+            ),
+            requests: new HttpRequestInspector(),
+            database: new Database($this->createMock(ConnectionInterface::class), $driver),
+        );
     }
 
     private function set(object $object, string $property, mixed $value): void

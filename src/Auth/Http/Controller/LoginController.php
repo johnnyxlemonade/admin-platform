@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Auth\Http\Controller;
 
 use Lemonade\Admin\Auth\AuthenticationService;
+use Lemonade\Admin\Auth\AuthenticationThrottler;
 use Lemonade\Admin\Auth\AuthPageRenderer;
 use Lemonade\Admin\Auth\Mfa\MfaAuthenticationService;
 use Lemonade\Admin\Auth\Mfa\MfaLoginChallengeStore;
@@ -38,6 +39,7 @@ final class LoginController
      */
     public function __construct(
         private readonly AuthenticationService $authentication,
+        private readonly AuthenticationThrottler $throttler,
         private readonly MfaAuthenticationService $mfa,
         private readonly MfaLoginChallengeStore $mfaChallenges,
         private readonly AdminUiLocale $uiLocale,
@@ -85,9 +87,19 @@ final class LoginController
             ]);
         }
 
+        $limit = $this->throttler->loginStatus($request, $email);
+        if (!$limit->allowed()) {
+            return $this->throttledLogin($request, $email, $limit->retryAfterSeconds());
+        }
+
         $attempt = $this->authentication->authenticateLocal($email, $password);
         $user = $attempt->user();
         if ($user === null) {
+            $limit = $this->throttler->failedLogin($request, $email);
+            if (!$limit->allowed()) {
+                return $this->throttledLogin($request, $email, $limit->retryAfterSeconds());
+            }
+
             $errorKey = $attempt->isInactive() ? 'auth.errors.disabled' : 'auth.errors.invalid';
 
             return $this->failedLogin(
@@ -98,6 +110,8 @@ final class LoginController
                 ['login' => $this->errorText($errorKey)],
             );
         }
+
+        $this->throttler->clearLoginIdentity($email);
 
         $redirect = AdminAuthenticationMiddleware::pullIntendedPath($this->session, $this->routing);
         $requirement = $this->mfa->loginRequirement($user);
@@ -168,12 +182,18 @@ final class LoginController
     /**
      * Zpracovava krok loginpage v HTTP toku administrace
      */
-    private function loginPage(ServerRequestInterface $request, ?string $errorKey = null, string $email = '', ?int $status = null): ResponseInterface
-    {
+    private function loginPage(
+        ServerRequestInterface $request,
+        ?string $errorKey = null,
+        string $email = '',
+        ?int $status = null,
+        ?string $errorMessage = null,
+    ): ResponseInterface {
         $status ??= HttpStatusCode::OK->value;
         return $this->pages->render('admin-auth::login', [
             'title' => $this->branding->applicationName . ' – ' . $this->translator->get('auth.login.page_title'),
             'errorKey' => $errorKey,
+            'errorMessage' => $errorMessage,
             'email' => $email,
             'locale' => $this->uiLocale->activate(null, (string) (new RequestData($request))->cookie('lemonade_locale', '')),
             'oidcEnabled' => $this->oidcConfiguration->isEnabled(),
@@ -186,16 +206,16 @@ final class LoginController
      *
      * @param array<string, string> $errors
      */
-    private function failedLogin(ServerRequestInterface $request, string $errorKey, string $email, int $status, array $errors): ResponseInterface
+    private function failedLogin(ServerRequestInterface $request, string $errorKey, string $email, int $status, array $errors, ?string $message = null): ResponseInterface
     {
         if (!$this->requests->wantsJson($request)) {
-            return $this->loginPage($request, $errorKey, $email, $status);
+            return $this->loginPage($request, $errorKey, $email, $status, $message);
         }
 
         return $this->responses->json([
             'success' => false,
             'errors' => array_filter($errors, static fn(string $message): bool => $message !== ''),
-            'message' => $this->errorText($errorKey),
+            'message' => $message ?? $this->errorText($errorKey),
             'csrf' => [
                 'name' => $this->csrf->fieldName(),
                 'value' => $this->csrf->token(),
@@ -204,10 +224,41 @@ final class LoginController
     }
 
     /**
+     * Vraci rate-limit odpoved s lokalizovanym casem do dalsiho login pokusu
+     */
+    private function throttledLogin(ServerRequestInterface $request, string $email, int $retryAfterSeconds): ResponseInterface
+    {
+        $errorKey = 'auth.errors.throttled';
+        $message = $this->throttledMessage($errorKey, $retryAfterSeconds);
+        $response = $this->failedLogin(
+            request: $request,
+            errorKey: $errorKey,
+            email: $email,
+            status: HttpStatusCode::TOO_MANY_REQUESTS->value,
+            errors: ['login' => $message],
+            message: $message,
+        );
+
+        return $response->withHeader('Retry-After', (string) $retryAfterSeconds);
+    }
+
+    /**
      * Zpracovava krok errortext v HTTP toku administrace
      */
     private function errorText(string $key): string
     {
         return $this->translator->get($key);
+    }
+
+    /**
+     * Vrati lokalizovany cas do odemknuti limitovaneho auth flow
+     */
+    private function throttledMessage(string $key, int $retryAfterSeconds): string
+    {
+        if ($retryAfterSeconds < 60) {
+            return $this->translator->get($key . '_seconds', ['seconds' => max(1, $retryAfterSeconds)]);
+        }
+
+        return $this->translator->get($key . '_minutes', ['minutes' => (int) ceil($retryAfterSeconds / 60)]);
     }
 }

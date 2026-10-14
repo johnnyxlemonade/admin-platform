@@ -38,7 +38,7 @@ final class MfaAuthenticationServiceTest extends TestCase
         $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
         $credentials = new TotpCredentialService(
             $database,
-            new MfaSecretCipher(str_repeat('a', 32)),
+            MfaSecretCipher::fromKey(str_repeat('a', 32)),
             new TotpSecretGenerator(),
             new TotpVerifier($this->clock()),
         );
@@ -75,7 +75,7 @@ final class MfaAuthenticationServiceTest extends TestCase
         );
         $connection = $this->createMock(ConnectionInterface::class);
         $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
-        $credentials = new TotpCredentialService($database, new MfaSecretCipher(str_repeat('a', 32)), new TotpSecretGenerator(), new TotpVerifier($this->clock()));
+        $credentials = new TotpCredentialService($database, MfaSecretCipher::fromKey(str_repeat('a', 32)), new TotpSecretGenerator(), new TotpVerifier($this->clock()));
         $service = new MfaAuthenticationService(new AdminMfaConfiguration('optional', 'Admin', base64_encode(str_repeat('a', 32))), $credentials, $database, $audit);
 
         $service->enrolled(42);
@@ -95,7 +95,7 @@ final class MfaAuthenticationServiceTest extends TestCase
         $connection = $this->createMock(ConnectionInterface::class);
         $connection->expects(self::exactly(2))->method('select')->willReturn([]);
         $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
-        $credentials = new TotpCredentialService($database, new MfaSecretCipher(str_repeat('a', 32)), new TotpSecretGenerator(), new TotpVerifier($this->clock()));
+        $credentials = new TotpCredentialService($database, MfaSecretCipher::fromKey(str_repeat('a', 32)), new TotpSecretGenerator(), new TotpVerifier($this->clock()));
         $service = new MfaAuthenticationService(new AdminMfaConfiguration('all', 'Admin', base64_encode(str_repeat('a', 32))), $credentials, $database, $this->createMock(AuditLogWriterInterface::class));
 
         self::assertNull($service->eligibleUser(42));

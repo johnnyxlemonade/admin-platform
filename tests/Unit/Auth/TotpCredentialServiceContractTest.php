@@ -19,7 +19,7 @@ final class TotpCredentialServiceContractTest extends TestCase
 {
     public function testItLocksCredentialAndRejectsAConsumedOrOlderTimeStep(): void
     {
-        $cipher = new MfaSecretCipher(str_repeat('a', 32));
+        $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
         $connection = $this->connection([[
             'secret_ciphertext' => $cipher->encrypt('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 42),
             'enabled_at' => '2026-01-01 00:00:00',
@@ -34,7 +34,7 @@ final class TotpCredentialServiceContractTest extends TestCase
 
     public function testEnrollmentConfirmationConsumesItsMatchingStep(): void
     {
-        $cipher = new MfaSecretCipher(str_repeat('a', 32));
+        $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
         $connection = $this->connection([[
             'pending_secret_ciphertext' => $cipher->encrypt('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 42),
             'enrollment_expires_at' => '2099-01-01 00:00:00',
@@ -47,7 +47,7 @@ final class TotpCredentialServiceContractTest extends TestCase
         $connection = $this->connection([]);
         $before = time();
 
-        $this->service($connection, new MfaSecretCipher(str_repeat('a', 32)), 59)->beginEnrollment(42);
+        $this->service($connection, MfaSecretCipher::fromKey(str_repeat('a', 32)), 59)->beginEnrollment(42);
 
         $bindings = $connection->statementBindings[0];
         self::assertSame($before + 600, strtotime((string) $bindings[3]));
@@ -55,7 +55,7 @@ final class TotpCredentialServiceContractTest extends TestCase
 
     public function testReEnrollmentKeepsTheActiveCredentialUntilTheNewSecretIsConfirmed(): void
     {
-        $cipher = new MfaSecretCipher(str_repeat('a', 32));
+        $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
         $connection = $this->connection([[
             'secret_ciphertext' => $cipher->encrypt('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 42),
             'enabled_at' => '2026-01-01 00:00:00',
@@ -81,7 +81,7 @@ final class TotpCredentialServiceContractTest extends TestCase
 
     public function testEnrollmentConfirmationPreventsTheSameTimeStepFromCompletingTheNextLogin(): void
     {
-        $cipher = new MfaSecretCipher(str_repeat('a', 32));
+        $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
         $connection = $this->connection([[
             'secret_ciphertext' => null,
             'pending_secret_ciphertext' => $cipher->encrypt('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 42),
@@ -97,7 +97,7 @@ final class TotpCredentialServiceContractTest extends TestCase
 
     public function testExpiredPendingEnrollmentIsLazilyClearedWithoutActivatingCredential(): void
     {
-        $cipher = new MfaSecretCipher(str_repeat('a', 32));
+        $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
         $connection = $this->connection([[
             'secret_ciphertext' => null,
             'pending_secret_ciphertext' => $cipher->encrypt('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 42),
@@ -113,7 +113,7 @@ final class TotpCredentialServiceContractTest extends TestCase
     {
         $connection = $this->connection([]);
 
-        $this->service($connection, new MfaSecretCipher(str_repeat('a', 32)), 59)->revoke(42);
+        $this->service($connection, MfaSecretCipher::fromKey(str_repeat('a', 32)), 59)->revoke(42);
 
         self::assertStringContainsString('secret_ciphertext=NULL', $connection->statementCalls[0]);
         self::assertStringContainsString('pending_secret_ciphertext=NULL', $connection->statementCalls[0]);

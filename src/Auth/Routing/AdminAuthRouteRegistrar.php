@@ -74,7 +74,7 @@ final class AdminAuthRouteRegistrar implements AdminRouteRegistrarInterface
         $router->getNamed(name: 'admin.login.mfa', path: '/login/mfa', action: ControllerAction::for(controllerClass: MfaController::class, method: 'challenge'))
             ->middleware(AdminAnonymousMiddleware::class);
         $router->postNamed(name: 'admin.login.mfa.verify', path: '/login/mfa', action: ControllerAction::for(controllerClass: MfaController::class, method: 'verifyChallenge'))
-            ->middleware(AdminAnonymousMiddleware::class, CsrfMiddleware::class);
+            ->middleware(AdminAnonymousMiddleware::class, AdminLoginAjaxCsrfMiddleware::class, CsrfMiddleware::class);
         $router->getNamed(name: 'admin.login.mfa.enroll', path: '/login/mfa/enroll', action: ControllerAction::for(controllerClass: MfaController::class, method: 'loginEnrollment'))
             ->middleware(AdminAnonymousMiddleware::class);
         $router->postNamed(name: 'admin.login.mfa.enroll.start', path: '/login/mfa/enroll/start', action: ControllerAction::for(controllerClass: MfaController::class, method: 'startLoginEnrollment'))
