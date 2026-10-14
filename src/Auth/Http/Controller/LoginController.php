@@ -62,12 +62,16 @@ final readonly class LoginController
      */
     public function form(ServerRequestInterface $request): ResponseInterface
     {
+        $requestData = new RequestData($request);
         $this->uiLocale->activate(
-            (string) (new RequestData($request))->query('locale', ''),
-            (string) (new RequestData($request))->cookie('lemonade_locale', ''),
+            (string) $requestData->query('locale', ''),
+            (string) $requestData->cookie('lemonade_locale', ''),
         );
 
-        return $this->loginPage($request);
+        return $this->loginPage(
+            request: $request,
+            errorKey: $requestData->query('session_expired', '') === '1' ? 'auth.errors.session_expired' : null,
+        );
     }
 
     /**

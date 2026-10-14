@@ -9,6 +9,7 @@ use Lemonade\Admin\Audit\AuditLogWriterInterface;
 use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Editor\Lock\EditorLockOwnerReleaserInterface;
 use Lemonade\Admin\Event\DomainEvent;
+use Lemonade\Framework\Clock\ClockInterface;
 use Lemonade\Framework\Database\Database;
 use Lemonade\Framework\Security\Csrf\CsrfTokenManager;
 use Lemonade\Framework\Session\Contract\SessionInterface;
@@ -19,8 +20,12 @@ use Lemonade\Framework\Session\Contract\SessionInterface;
 final readonly class AuthenticationService
 {
     private const string SESSION_USER_ID = 'admin.auth.user_id';
+    private const string SESSION_AUTHENTICATED_AT = 'admin.auth.authenticated_at';
+    private const string SESSION_LAST_ACTIVITY_AT = 'admin.auth.last_activity_at';
     private const string SESSION_OIDC_LOGOUT_CONTEXT = 'admin.auth.external_principal';
     private const string SESSION_OIDC_LOGOUT_ID_TOKEN = 'admin.auth.oidc.logout_id_token';
+    private const int IDLE_TIMEOUT_SECONDS = 1200;
+    private const int ABSOLUTE_LIFETIME_SECONDS = 172800;
 
     /**
      * Nastavi zavislosti pro prihlaseni, odhlaseni a audit
@@ -32,6 +37,7 @@ final readonly class AuthenticationService
         private CsrfTokenManager $csrf,
         private AuditLogWriterInterface $audit,
         private ?EditorLockOwnerReleaserInterface $locks = null,
+        private ?ClockInterface $clock = null,
     ) {}
 
     /**
@@ -61,6 +67,7 @@ final readonly class AuthenticationService
         $this->session->regenerate(true);
         $this->csrf->regenerate();
         $this->session->set(self::SESSION_USER_ID, $user->id());
+        $this->establishSessionLifetime();
         $this->session->remove(self::SESSION_OIDC_LOGOUT_CONTEXT);
         $this->session->remove(self::SESSION_OIDC_LOGOUT_ID_TOKEN);
         $this->database->statement(
@@ -82,6 +89,7 @@ final readonly class AuthenticationService
         $this->session->regenerate(true);
         $this->csrf->regenerate();
         $this->session->set(self::SESSION_USER_ID, $userId);
+        $this->establishSessionLifetime();
         $this->session->set(self::SESSION_OIDC_LOGOUT_CONTEXT, [
             'kind' => 'external_oidc', 'providerKey' => $providerKey,
         ]);
@@ -133,6 +141,48 @@ final readonly class AuthenticationService
     }
 
     /**
+     * Overuje canonical idle a absolutni lifetime aktualni Admin relace
+     */
+    public function hasActiveSession(): bool
+    {
+        if ($this->sessionUserId() === null) {
+            return false;
+        }
+
+        $authenticatedAt = $this->session->get(self::SESSION_AUTHENTICATED_AT);
+        $lastActivityAt = $this->session->get(self::SESSION_LAST_ACTIVITY_AT);
+        if (!is_int($authenticatedAt) || !is_int($lastActivityAt)) {
+            $this->clearAuthenticatedSession();
+
+            return false;
+        }
+
+        $now = $this->nowTimestamp();
+        if ($now - $lastActivityAt >= self::IDLE_TIMEOUT_SECONDS
+            || $now - $authenticatedAt >= self::ABSOLUTE_LIFETIME_SECONDS) {
+            $this->clearAuthenticatedSession();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Posouva idle aktivitu pouze pro explicitni heartbeat platne relace
+     */
+    public function heartbeat(): bool
+    {
+        if (!$this->hasActiveSession()) {
+            return false;
+        }
+
+        $this->session->set(self::SESSION_LAST_ACTIVITY_AT, $this->nowTimestamp());
+
+        return true;
+    }
+
+    /**
      * Vrati OIDC souvislosti potrebne pro odhlaseni pokud jsou ulozene v relaci
      *
      * @return array{kind:string,providerKey:string}|null
@@ -160,5 +210,35 @@ final readonly class AuthenticationService
         $value = $this->session->get(self::SESSION_OIDC_LOGOUT_ID_TOKEN);
 
         return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    /**
+     * Nastavuje shodny login cas pro absolutni i idle lifetime nove relace
+     */
+    private function establishSessionLifetime(): void
+    {
+        $timestamp = $this->nowTimestamp();
+        $this->session->set(self::SESSION_AUTHENTICATED_AT, $timestamp);
+        $this->session->set(self::SESSION_LAST_ACTIVITY_AT, $timestamp);
+    }
+
+    /**
+     * Odstranuje pouze identitu a casove udaje ukoncene Admin relace
+     */
+    private function clearAuthenticatedSession(): void
+    {
+        $this->session->remove(self::SESSION_USER_ID);
+        $this->session->remove(self::SESSION_AUTHENTICATED_AT);
+        $this->session->remove(self::SESSION_LAST_ACTIVITY_AT);
+        $this->session->remove(self::SESSION_OIDC_LOGOUT_CONTEXT);
+        $this->session->remove(self::SESSION_OIDC_LOGOUT_ID_TOKEN);
+    }
+
+    /**
+     * Vraci aktualni Unix timestamp z frameworkovych hodin nebo systemu
+     */
+    private function nowTimestamp(): int
+    {
+        return $this->clock?->now()->getTimestamp() ?? time();
     }
 }

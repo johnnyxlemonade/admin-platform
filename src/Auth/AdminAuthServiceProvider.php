@@ -9,6 +9,7 @@ use Lemonade\Admin\Auth\Audit\AuthenticationAuditPresentationRegistrar;
 use Lemonade\Admin\Auth\Http\Controller\ForgotPasswordController;
 use Lemonade\Admin\Auth\Http\Controller\LoginController;
 use Lemonade\Admin\Auth\Http\Controller\MfaController;
+use Lemonade\Admin\Auth\Http\Controller\SessionHeartbeatController;
 use Lemonade\Admin\Auth\Routing\AdminAuthRouteRegistrar;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
@@ -47,6 +48,7 @@ final readonly class AdminAuthServiceProvider implements ServiceProviderInterfac
         $container->scoped(LoginController::class, LoginController::class);
         $container->scoped(MfaController::class, MfaController::class);
         $container->scoped(ForgotPasswordController::class, ForgotPasswordController::class);
+        $container->scoped(SessionHeartbeatController::class, SessionHeartbeatController::class);
     }
 
     /**

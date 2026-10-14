@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Auth\Http\Middleware;
 
+use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -22,6 +23,7 @@ final readonly class AdminAnonymousMiddleware implements MiddlewareInterface
      */
     public function __construct(
         private CurrentPrincipalProviderInterface $currentPrincipal,
+        private AuthenticationService $authentication,
         private Psr17Factory $responses,
         private AdminRoutingConfiguration $routing,
     ) {}
@@ -31,7 +33,7 @@ final readonly class AdminAnonymousMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($this->currentPrincipal->currentPrincipal() !== null) {
+        if ($this->authentication->hasActiveSession() && $this->currentPrincipal->currentPrincipal() !== null) {
             return $this->responses->createResponse(302)->withHeader('Location', $this->routing->basePath);
         }
 

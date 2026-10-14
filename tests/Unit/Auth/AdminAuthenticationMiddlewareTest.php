@@ -4,10 +4,17 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Auth;
 
+use Lemonade\Admin\Audit\AuditLogWriterInterface;
 use Lemonade\Admin\Auth\AuthenticatedUser;
+use Lemonade\Admin\Auth\AuthenticationService;
+use Lemonade\Admin\Auth\LocalAuthenticationProvider;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\Http\Middleware\AdminAuthenticationMiddleware;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
+use Lemonade\Framework\Database\Connection\ConnectionInterface;
+use Lemonade\Framework\Database\Database;
+use Lemonade\Framework\Database\DatabaseDriverInterface;
+use Lemonade\Framework\Security\Csrf\CsrfTokenManager;
 use Lemonade\Framework\Session\Contract\SessionInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\Response;
@@ -19,10 +26,12 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
 {
     public function testItPassesAnAuthenticatedRequestToTheHandler(): void
     {
+        $session = $this->session();
+        $this->establishSession($session);
         $handler = $this->createMock(RequestHandlerInterface::class);
         $handler->expects(self::once())->method('handle')->willReturn(new Response(204));
 
-        $response = $this->middleware($this->session(), new AuthenticatedUser(42, 'admin@example.test'))->process(
+        $response = $this->middleware($session, new AuthenticatedUser(42, 'admin@example.test'))->process(
             new ServerRequest('GET', '/admin/users'),
             $handler,
         );
@@ -72,12 +81,57 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
         );
     }
 
+    public function testItExpiresAnIdleSessionBeforeResolvingTheCurrentUser(): void
+    {
+        $session = $this->session();
+        $session->set('admin.auth.user_id', 42);
+        $session->set('admin.auth.authenticated_at', time() - 1200);
+        $session->set('admin.auth.last_activity_at', time() - 1200);
+
+        $response = $this->middleware($session, new AuthenticatedUser(42, 'admin@example.test'))->process(
+            new ServerRequest('POST', '/admin/api/session/heartbeat'),
+            $this->createMock(RequestHandlerInterface::class),
+        );
+
+        self::assertSame(401, $response->getStatusCode());
+        self::assertNull($session->get('admin.auth.user_id'));
+    }
+
     private function middleware(SessionInterface $session, ?AuthenticatedUser $user = null): AdminAuthenticationMiddleware
     {
         $principal = $this->createMock(CurrentPrincipalProviderInterface::class);
         $principal->method('currentUser')->willReturn($user);
 
-        return new AdminAuthenticationMiddleware($principal, $session, new Psr17Factory(), $this->routing());
+        return new AdminAuthenticationMiddleware(
+            $principal,
+            $this->authentication($session),
+            $session,
+            new Psr17Factory(),
+            $this->routing(),
+        );
+    }
+
+    private function establishSession(SessionInterface $session): void
+    {
+        $session->set('admin.auth.user_id', 42);
+        $session->set('admin.auth.authenticated_at', time());
+        $session->set('admin.auth.last_activity_at', time());
+    }
+
+    private function authentication(SessionInterface $session): AuthenticationService
+    {
+        $database = new Database(
+            $this->createMock(ConnectionInterface::class),
+            $this->createMock(DatabaseDriverInterface::class),
+        );
+
+        return new AuthenticationService(
+            new LocalAuthenticationProvider($database),
+            $session,
+            $database,
+            new CsrfTokenManager($session),
+            $this->createMock(AuditLogWriterInterface::class),
+        );
     }
 
     private function routing(): AdminRoutingConfiguration

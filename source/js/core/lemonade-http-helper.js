@@ -18,6 +18,8 @@ export class HttpError extends Error {
 }
 
 export class HttpHelper {
+        static sessionExpiryRedirecting = false;
+
         static get(url, options) { return this.request(url, Object.assign({}, options, { method: "GET" })); }
         static post(url, data, options) { return this.request(url, Object.assign({}, options, { method: "POST", data: data })); }
         static patch(url, data, options) { return this.request(url, Object.assign({}, options, { method: "PATCH", data: data })); }
@@ -56,9 +58,31 @@ export class HttpHelper {
             const payload = contentType.indexOf("application/json") !== -1 ? await response.json() : await response.text();
 
             if (!response.ok) {
+                this.redirectForUnauthenticatedResponse(response, payload);
                 throw new HttpError("HTTP request failed.", response.status, payload);
             }
 
             return payload;
+        }
+
+        static redirectForUnauthenticatedResponse(response, payload) {
+            if (response.status !== 401 || payload?.error?.code !== "unauthenticated" || this.sessionExpiryRedirecting) {
+                return;
+            }
+
+            const shell = document.querySelector("[data-lemonade-admin-shell]");
+            const loginUrl = shell?.getAttribute("data-lemonade-admin-login-url");
+            if (!loginUrl) {
+                return;
+            }
+
+            const destination = new URL(loginUrl, window.location.origin);
+            if (destination.pathname === window.location.pathname) {
+                return;
+            }
+
+            this.sessionExpiryRedirecting = true;
+            destination.searchParams.set("session_expired", "1");
+            window.location.assign(destination.toString());
         }
 }

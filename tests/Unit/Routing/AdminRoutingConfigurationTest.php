@@ -65,6 +65,7 @@ final class AdminRoutingConfigurationTest extends TestCase
         self::assertSame($basePath . '/api/editor/languages/15/release', $router->url('admin.api.editor.release', ['module' => 'languages', 'id' => 15]));
         self::assertSame($basePath . '/api/editor/cleanup', $router->url('admin.api.editor.cleanup'));
         self::assertSame($basePath . '/api/notifications/indicator', $router->url('admin.api.notifications.indicator'));
+        self::assertSame($basePath . '/api/session/heartbeat', $router->url('admin.session.heartbeat'));
         self::assertSame($basePath . '/login', $router->url('admin.login'));
         self::assertSame($basePath . '/system/users/ajax/42', $router->url('admin.system.module.ajax.entity', ['module' => 'users', 'id' => 42]));
         self::assertSame($basePath . '/resources/i18n/admin', $router->url('admin.resources.i18n', ['group' => 'admin']));

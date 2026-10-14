@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Http\Middleware;
 
+use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\InternalAdminDestination;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\Http\AdminErrorCode;
@@ -28,6 +29,7 @@ final readonly class AdminAuthenticationMiddleware implements MiddlewareInterfac
      */
     public function __construct(
         private CurrentPrincipalProviderInterface $currentPrincipal,
+        private AuthenticationService $authentication,
         private SessionInterface $session,
         private Psr17Factory $responses,
         private AdminRoutingConfiguration $routing,
@@ -39,20 +41,12 @@ final readonly class AdminAuthenticationMiddleware implements MiddlewareInterfac
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $path = $request->getUri()->getPath();
-        $user = $this->currentPrincipal->currentUser();
-        if ($user !== null) {
+        if ($this->authentication->hasActiveSession() && $this->currentPrincipal->currentUser() !== null) {
             return $handler->handle($request);
         }
 
         if ($this->isApiPath($path)) {
-            return $this->responses->createResponse(HttpStatusCode::UNAUTHORIZED->value)
-                ->withHeader('Content-Type', 'application/json; charset=utf-8')
-                ->withBody($this->responses->createStream(json_encode([
-                    'error' => [
-                        'code' => AdminErrorCode::UNAUTHENTICATED->value,
-                        'message' => 'Authentication required.',
-                    ],
-                ], JSON_THROW_ON_ERROR)));
+            return self::unauthenticatedApiResponse($this->responses);
         }
 
         $this->storeIntendedPath($request);
@@ -94,5 +88,20 @@ final readonly class AdminAuthenticationMiddleware implements MiddlewareInterfac
         $session->remove(self::INTENDED_PATH);
 
         return InternalAdminDestination::isSafe($path, $routing) ? $path : $routing->basePath;
+    }
+
+    /**
+     * Vytvari sdilenou JSON odpoved pro neautentizovany Admin API pozadavek
+     */
+    public static function unauthenticatedApiResponse(Psr17Factory $responses): ResponseInterface
+    {
+        return $responses->createResponse(HttpStatusCode::UNAUTHORIZED->value)
+            ->withHeader('Content-Type', 'application/json; charset=utf-8')
+            ->withBody($responses->createStream(json_encode([
+                'error' => [
+                    'code' => AdminErrorCode::UNAUTHENTICATED->value,
+                    'message' => 'Authentication required.',
+                ],
+            ], JSON_THROW_ON_ERROR)));
     }
 }

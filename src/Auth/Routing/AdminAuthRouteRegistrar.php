@@ -7,6 +7,7 @@ namespace Lemonade\Admin\Auth\Routing;
 use Lemonade\Admin\Auth\Http\Controller\ForgotPasswordController;
 use Lemonade\Admin\Auth\Http\Controller\LoginController;
 use Lemonade\Admin\Auth\Http\Controller\MfaController;
+use Lemonade\Admin\Auth\Http\Controller\SessionHeartbeatController;
 use Lemonade\Admin\Auth\Http\Middleware\AdminAnonymousMiddleware;
 use Lemonade\Admin\Http\Middleware\AdminAuthenticationMiddleware;
 use Lemonade\Admin\Http\Middleware\AdminLoginAjaxCsrfMiddleware;
@@ -32,6 +33,18 @@ final readonly class AdminAuthRouteRegistrar implements AdminRouteRegistrarInter
 
     public function registerRoutes(Router $router): void
     {
+        $router->postNamed(
+            name: 'admin.session.heartbeat',
+            path: '/api/session/heartbeat',
+            action: ControllerAction::for(
+                controllerClass: SessionHeartbeatController::class,
+                method: 'heartbeat',
+            ),
+        )->middleware(
+            AdminAuthenticationMiddleware::class,
+            CsrfMiddleware::class,
+        );
+
         $router->getNamed(
             name: 'admin.login',
             path: '/login',
