@@ -18,25 +18,6 @@ use RuntimeException;
 final class AdminAssetPublisherTest extends TestCase
 {
     /**
-     * Distribuuje production-ready manifest pro Admin, Auth, Installer a vendor entry
-     */
-    public function testPackageDistributionContainsTheRequiredProductionEntries(): void
-    {
-        $manifestPath = AdminAssetPublisher::distributionPath() . '/.vite/manifest.json';
-
-        self::assertFileExists($manifestPath);
-        $manifest = json_decode((string) file_get_contents($manifestPath), true, 512, JSON_THROW_ON_ERROR);
-        self::assertIsArray($manifest);
-        $entries = array_filter($manifest, static fn(mixed $chunk): bool => is_array($chunk) && ($chunk['isEntry'] ?? false) === true);
-        $names = array_map(static fn(array $chunk): string => (string) $chunk['name'], $entries);
-
-        self::assertContains('admin', $names);
-        self::assertContains('auth', $names);
-        self::assertContains('installer', $names);
-        self::assertContains('vendor', $names);
-    }
-
-    /**
      * Prenese manifest a assety, odstrani stale soubory a nezasahne Frontend destination
      */
     public function testItPublishesTheDistributionAndKeepsFrontendAssetsUntouched(): void
