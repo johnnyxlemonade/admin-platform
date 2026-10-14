@@ -115,6 +115,7 @@ class AdminSessionLockManager {
         this.loginUrl = shell.getAttribute("data-lemonade-admin-login-url") || "";
         this.lastConfirmedActivity = Date.now();
         this.locked = false;
+        this.overlay = null;
         this.probing = null;
         this.oidc = false;
     }
@@ -123,7 +124,7 @@ class AdminSessionLockManager {
         if (!this.statusUrl) return;
         window.addEventListener("lemonade:session:locked", () => void this.probe());
         window.addEventListener("storage", (event) => {
-            if (event.key === AdminSessionLockManager.STATE_KEY) void this.probe();
+            if (event.key === AdminSessionLockManager.STATE_KEY) void this.probe(true);
         });
         window.addEventListener("pageshow", () => void this.probe());
         document.addEventListener("visibilitychange", () => {
@@ -144,8 +145,8 @@ class AdminSessionLockManager {
         return this.locked;
     }
 
-    async probe() {
-        if (this.locked || this.probing) return this.probing;
+    async probe(allowLocked = false) {
+        if ((this.locked && !allowLocked) || this.probing) return this.probing;
         this.probing = window.fetch(this.statusUrl, { headers: { Accept: "application/json" }, credentials: "same-origin" })
             .then(async (response) => {
                 if (response.status === 423) {
@@ -154,7 +155,10 @@ class AdminSessionLockManager {
                     this.lock();
                 }
                 else if (response.status === 401) this.redirectToLogin();
-                else if (response.ok) this.confirmActivity();
+                else if (response.ok) {
+                    this.confirmActivity();
+                    this.unlock();
+                }
             })
             .finally(() => { this.probing = null; });
         return this.probing;
@@ -187,6 +191,7 @@ class AdminSessionLockManager {
         this.broadcast();
         this.shell.inert = true;
         const overlay = document.createElement("div");
+        this.overlay = overlay;
         overlay.className = "lemonade-session-lock";
         overlay.setAttribute("role", "dialog");
         overlay.setAttribute("aria-modal", "true");
@@ -206,7 +211,7 @@ class AdminSessionLockManager {
             event.preventDefault();
             try {
                 await HttpHelper.post(this.unlockUrl, { password: password.value });
-                overlay.remove(); this.shell.inert = false; this.locked = false; this.confirmActivity(); this.broadcast();
+                this.unlock(); this.confirmActivity(); this.broadcast();
             } catch (reason) {
                 error.hidden = false;
                 error.textContent = reason.status === 429 ? I18n.t("auth.session_lock.throttled") : I18n.t("auth.session_lock.invalid");
@@ -218,11 +223,18 @@ class AdminSessionLockManager {
 
     openOidcPopup(overlay, error) {
         SessionUnlockHelper.openOidcPopup(this.oidcUnlockUrl, async () => {
-            this.locked = false;
-            await this.probe();
-            if (!this.locked) { overlay.remove(); this.shell.inert = false; this.confirmActivity(); this.broadcast(); }
+            await this.probe(true);
+            if (!this.locked) this.broadcast();
             else { error.hidden = false; error.textContent = I18n.t("auth.session_lock.oidc_failed"); }
         }, (reason) => { error.hidden = false; error.textContent = I18n.t(`auth.session_lock.${reason}`); });
+    }
+
+    unlock() {
+        if (!this.locked) return;
+        this.overlay?.remove();
+        this.overlay = null;
+        this.shell.inert = false;
+        this.locked = false;
     }
 
     logout() {
