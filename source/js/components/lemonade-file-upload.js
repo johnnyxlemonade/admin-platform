@@ -17,6 +17,42 @@ import { Message } from "./lemonade-message.js";
 let mountedCollectionCount = 0;
 
 /**
+ * Applies the upload profile's browser-side size and extension checks before a chunk session exists.
+ */
+export function uploadPreflightError(file, profile, translate = (key, params) => I18n.t(key, params)) {
+    const maxBytes = Number(profile?.maxBytes);
+    if (Number.isSafeInteger(maxBytes) && maxBytes > 0 && file.size > maxBytes) {
+        return translate("admin.file_upload.file_too_large", { size: profile?.maxSizeLabel || "" });
+    }
+
+    const allowedExtensions = new Set(Array.from(profile?.allowedExtensions || []).map((extension) => String(extension).toLowerCase()));
+    const extension = file.name.split(".").pop()?.toLowerCase() || "";
+    if (!allowedExtensions.has(extension)) {
+        return translate("admin.file_upload.extension_not_allowed");
+    }
+
+    return null;
+}
+
+/**
+ * Resolves a structured server-side upload validation reason to the same localized profile feedback as preflight.
+ */
+export function uploadValidationErrorMessage(error, profile, invalidMessage, fallbackMessage) {
+    const reason = error instanceof HttpError ? error.response?.error?.reason : null;
+    if (reason === "file_too_large") {
+        return I18n.t("admin.file_upload.file_too_large", { size: profile?.maxSizeLabel || "" });
+    }
+    if (reason === "extension_not_allowed") {
+        return I18n.t("admin.file_upload.extension_not_allowed");
+    }
+    if (reason === "invalid_file") {
+        return invalidMessage;
+    }
+
+    return fallbackMessage;
+}
+
+/**
  * Uploads one file through the canonical Admin chunk transport.
  */
 export async function uploadFileChunks(file, target, { signal, onStarted, onProgress } = {}) {
@@ -396,16 +432,17 @@ class AdminFileUploadCollection {
     }
 
     preflightError(file) {
-        if (Number.isSafeInteger(this.maxBytes) && this.maxBytes > 0 && file.size > this.maxBytes) {
-            return this.translate("admin.file_upload.file_too_large", { size: this.element.dataset.lemonadeFileUploadMaxSizeLabel || "" }, this.element.dataset.lemonadeFileUploadFileTooLargeLabel || "");
-        }
+        return uploadPreflightError(file, {
+            allowedExtensions: this.allowedExtensions,
+            maxBytes: this.maxBytes,
+            maxSizeLabel: this.element.dataset.lemonadeFileUploadMaxSizeLabel || "",
+        }, (key, params) => {
+            const fallback = key === "admin.file_upload.file_too_large"
+                ? this.element.dataset.lemonadeFileUploadFileTooLargeLabel || ""
+                : this.element.dataset.lemonadeFileUploadExtensionNotAllowedLabel || "";
 
-        const extension = file.name.split(".").pop()?.toLowerCase() || "";
-        if (!this.allowedExtensions.has(extension)) {
-            return this.translate("admin.file_upload.extension_not_allowed", null, this.element.dataset.lemonadeFileUploadExtensionNotAllowedLabel || "");
-        }
-
-        return null;
+            return this.translate(key, params, fallback);
+        });
     }
 
     isRecoverableUploadFailure(error) {

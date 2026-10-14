@@ -99,8 +99,9 @@ final class AdminEditorFieldRenderer
         if ($field->type() === 'textarea') {
             $richText = $field->isRichText() ? ' data-lemonade-admin-rich-text="jodit"' : '';
             $imageUpload = $this->richTextImageUploadAttribute($field, $context);
+            $fileUpload = $this->richTextFileUploadAttribute($field, $context);
 
-            return '<textarea class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . $richText . $imageUpload . $this->placeholder($field) . '>' . $this->escape($this->stringValue($value)) . '</textarea>';
+            return '<textarea class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . $richText . $imageUpload . $fileUpload . $this->placeholder($field) . '>' . $this->escape($this->stringValue($value)) . '</textarea>';
         }
         if ($field->type() === 'select') {
             $selectedValues = $field->isMultiple() ? $this->multipleValues($value) : [];
@@ -204,6 +205,23 @@ final class AdminEditorFieldRenderer
         $target = $this->files->richTextImageTarget($context->moduleCode(), $context->entityId());
 
         return ' data-lemonade-rich-text-upload-target="' . $this->escape($target->toJson()) . '"';
+    }
+
+    /**
+     * Sestavi rich-text file target z modulu a entity render contextu
+     */
+    private function richTextFileUploadAttribute(AdminEditorFieldDefinition $field, AdminEditorRenderContext $context): string
+    {
+        if (!$field->hasRichTextFileUpload() || $context->moduleCode() === null || $context->entityId() === null) {
+            return '';
+        }
+        if ($this->files === null) {
+            throw new \LogicException('Rich-text file upload requires AdminFileUploadComponent.');
+        }
+
+        $target = $this->files->richTextFileTarget($context->moduleCode(), $context->entityId());
+
+        return ' data-lemonade-rich-text-file-upload-target="' . $this->escape($target->toJson()) . '"';
     }
 
     /**

@@ -10,7 +10,7 @@
  */
 import { HttpHelper } from "../core/lemonade-http-helper.js";
 import { I18n } from "../core/lemonade-i18n.js";
-import { uploadFileChunks } from "./lemonade-file-upload.js";
+import { uploadFileChunks, uploadPreflightError, uploadValidationErrorMessage } from "./lemonade-file-upload.js";
 import { Modal } from "./lemonade-modal.js";
 
 function text(key) {
@@ -29,7 +29,7 @@ export function imageTargetFor(textarea) {
 
     try {
         const target = JSON.parse(serialized);
-        if (typeof target?.module !== "string" || !Number.isSafeInteger(target.entity) || target.entity <= 0 || target.usage !== "content_image" || target.kind !== "image" || typeof target.collectionUrl !== "string" || typeof target.removeUrlTemplate !== "string" || typeof target.startUrl !== "string" || typeof target.appendUrlTemplate !== "string" || typeof target.completeUrlTemplate !== "string" || typeof target.abortUrlTemplate !== "string") {
+        if (typeof target?.module !== "string" || !Number.isSafeInteger(target.entity) || target.entity <= 0 || target.usage !== "content_image" || target.kind !== "image" || typeof target.collectionUrl !== "string" || typeof target.removeUrlTemplate !== "string" || typeof target.startUrl !== "string" || typeof target.appendUrlTemplate !== "string" || typeof target.completeUrlTemplate !== "string" || typeof target.abortUrlTemplate !== "string" || typeof target.accept !== "string" || !Array.isArray(target.allowedExtensions) || !Number.isSafeInteger(target.maxBytes) || target.maxBytes <= 0 || typeof target.maxSizeLabel !== "string") {
             return null;
         }
 
@@ -43,14 +43,16 @@ export function imageTargetFor(textarea) {
  * Keeps the generic rich-text image selection and properties states in one Admin modal.
  */
 export class RichTextImagePicker {
-    constructor(target, opener, onSave) {
+    constructor(target, opener, onSave, onRemove, onDetach) {
         this.target = target;
         this.opener = opener;
         this.onSave = onSave;
+        this.onRemove = onRemove;
+        this.onDetach = onDetach;
         this.handleUpload = this.handleUpload.bind(this);
         this.uploadInput = document.createElement("input");
         this.uploadInput.type = "file";
-        this.uploadInput.accept = "image/*";
+        this.uploadInput.accept = target.accept;
         this.uploadInput.hidden = true;
         this.uploadInput.addEventListener("change", this.handleUpload);
         document.body.append(this.uploadInput);
@@ -107,15 +109,15 @@ export class RichTextImagePicker {
         body.className = "lm-modal-body";
         const upload = document.createElement("button");
         upload.type = "button";
-        upload.className = "btn btn-primary";
+        upload.className = "btn btn-primary lm-rich-text-upload-action";
         upload.textContent = text("upload_image");
         upload.addEventListener("click", () => this.uploadInput.click());
         const sectionTitle = document.createElement("h3");
-        sectionTitle.className = "h6 mt-4 mb-3";
+        sectionTitle.className = "h6 lm-rich-text-upload-existing-title";
         sectionTitle.textContent = text("existing_images");
         this.items = document.createElement("div");
         this.items.className = "lm-rich-text-image-picker-items";
-        body.append(upload, sectionTitle, this.items);
+        body.append(upload, this.uploadRules(), sectionTitle, this.items);
         content.append(header, body);
         modal.setContent(content);
         if (!modal.isOpen) {
@@ -179,6 +181,8 @@ export class RichTextImagePicker {
             try {
                 const response = await HttpHelper.post(uploadUrl(this.target.removeUrlTemplate, file.id));
                 if (response?.success === true) {
+                    this.onRemove(Number(file.id));
+                    this.clearDeletedSelection(Number(file.id));
                     tile.remove();
                 }
             } finally {
@@ -224,6 +228,19 @@ export class RichTextImagePicker {
         body.append(preview, this.field(text("alternative_text"), alt), this.field(text("alignment"), alignment), this.field(text("width"), width));
         const footer = document.createElement("footer");
         footer.className = "lm-modal-footer";
+        if (isEditing) {
+            const detach = document.createElement("button");
+            detach.type = "button";
+            detach.className = "btn btn-outline-danger me-auto";
+            detach.textContent = text("remove_from_content");
+            detach.addEventListener("click", () => {
+                if (this.onDetach(this.editingImage) !== false) {
+                    this.clearDetachedSelection();
+                    modal.close({ reason: "detached" });
+                }
+            });
+            footer.append(detach);
+        }
         const back = document.createElement("button");
         back.type = "button";
         back.className = "btn btn-light";
@@ -305,6 +322,11 @@ export class RichTextImagePicker {
         if (!file || this.uploadController) {
             return;
         }
+        const preflightError = uploadPreflightError(file, this.target);
+        if (preflightError) {
+            this.showUploadError(preflightError);
+            return;
+        }
 
         this.uploadController = new AbortController();
         try {
@@ -326,9 +348,7 @@ export class RichTextImagePicker {
         } catch (error) {
             if (!this.uploadController.signal.aborted) {
                 console.error("Rich-text image upload failed.", error);
-                if (this.items) {
-                    this.items.textContent = text("upload_failed");
-                }
+                this.showUploadError(uploadValidationErrorMessage(error, this.target, text("invalid_file"), text("upload_failed")));
             }
         } finally {
             this.uploadController = null;
@@ -371,5 +391,48 @@ export class RichTextImagePicker {
         }
 
         return { fileId, previewUrl: file.preview_url, originalUrl: file.original_url };
+    }
+
+    clearDeletedSelection(fileId) {
+        if (this.selection?.fileId !== fileId) {
+            return;
+        }
+
+        this.editingImage = null;
+        this.selection = null;
+        this.properties = null;
+    }
+
+    clearDetachedSelection() {
+        this.editingImage = null;
+        this.selection = null;
+        this.properties = null;
+    }
+
+    uploadRules() {
+        const rules = document.createElement("div");
+        rules.className = "lm-file-upload-rules lm-rich-text-upload-rules";
+        const title = document.createElement("span");
+        title.className = "lm-file-upload-rules-title";
+        title.textContent = I18n.t("admin.file_upload.allowed_types");
+        const extensions = document.createElement("div");
+        extensions.className = "lm-file-upload-chips";
+        this.target.allowedExtensions.forEach((extension) => {
+            const chip = document.createElement("span");
+            chip.className = "lm-file-upload-chip";
+            chip.textContent = extension;
+            extensions.append(chip);
+        });
+        const maximum = document.createElement("small");
+        maximum.textContent = I18n.t("admin.file_upload.max_size", { size: this.target.maxSizeLabel });
+        rules.append(title, extensions, maximum);
+
+        return rules;
+    }
+
+    showUploadError(message) {
+        if (this.items) {
+            this.items.textContent = message;
+        }
     }
 }

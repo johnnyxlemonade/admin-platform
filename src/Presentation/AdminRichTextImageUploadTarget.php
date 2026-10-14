@@ -24,6 +24,7 @@ final readonly class AdminRichTextImageUploadTarget
         private string $appendUrlTemplate,
         private string $completeUrlTemplate,
         private string $abortUrlTemplate,
+        private AdminFileUploadProfilePresentation $profile,
     ) {}
 
     /**
@@ -44,6 +45,10 @@ final readonly class AdminRichTextImageUploadTarget
             'appendUrlTemplate' => $this->appendUrlTemplate,
             'completeUrlTemplate' => $this->completeUrlTemplate,
             'abortUrlTemplate' => $this->abortUrlTemplate,
+            'accept' => $this->profile->accept(),
+            'allowedExtensions' => $this->profile->allowedExtensions(),
+            'maxBytes' => $this->profile->maxBytes(),
+            'maxSizeLabel' => $this->profile->maxSizeLabel(),
         ], JSON_THROW_ON_ERROR);
     }
 }

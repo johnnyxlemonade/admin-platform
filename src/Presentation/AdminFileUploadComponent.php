@@ -60,7 +60,7 @@ final readonly class AdminFileUploadComponent
             multiple: $definition->multiple(),
             sortable: $definition->sortable(),
             editable: $editable,
-            profile: $this->profilePresentation($definition),
+            profile: $this->profile($definition),
             presentation: $definition->presentation(),
             fallback: $fallback,
             alt: $alt,
@@ -90,6 +90,35 @@ final readonly class AdminFileUploadComponent
             appendUrlTemplate: $this->urls->route('admin.file.chunk.append', ['uploadId' => $placeholder]),
             completeUrlTemplate: $this->urls->route('admin.file.chunk.complete', ['uploadId' => $placeholder]),
             abortUrlTemplate: $this->urls->route('admin.file.chunk.abort', ['uploadId' => $placeholder]),
+            profile: $this->profile($definition),
+        );
+    }
+
+    /**
+     * Vytvori explicitni file target pro shared rich-text upload komponentu
+     */
+    public function richTextFileTarget(string $module, int $entityId): AdminRichTextFileUploadTarget
+    {
+        $definition = $this->usages->richTextFile($module);
+        $usage = $definition->usage();
+        if ($definition->kind() !== 'file' || !$definition->multiple()) {
+            throw new \LogicException('Rich-text file usage must accept multiple files.');
+        }
+
+        $placeholder = '__upload_id__';
+
+        return new AdminRichTextFileUploadTarget(
+            moduleCode: $module,
+            entityId: $entityId,
+            usage: $usage,
+            collectionUrl: $this->urls->route('admin.file.collection.index', ['module' => $module, 'usage' => $usage, 'entity' => $entityId]),
+            removeUrlTemplate: $this->urls->route('admin.file.collection.remove', ['module' => $module, 'usage' => $usage, 'entity' => $entityId, 'file' => $placeholder]),
+            startUrl: $this->urls->route('admin.file.chunk.start', ['module' => $module, 'usage' => $usage, 'entity' => $entityId]),
+            appendUrlTemplate: $this->urls->route('admin.file.chunk.append', ['uploadId' => $placeholder]),
+            completeUrlTemplate: $this->urls->route('admin.file.chunk.complete', ['uploadId' => $placeholder]),
+            abortUrlTemplate: $this->urls->route('admin.file.chunk.abort', ['uploadId' => $placeholder]),
+            publicDownloadUrlTemplate: $this->urls->route('api.file.download', ['file' => $placeholder]),
+            profile: $this->profile($definition),
         );
     }
 
@@ -129,9 +158,9 @@ final readonly class AdminFileUploadComponent
     }
 
     /**
-     * Prevadi authoritativni framework profil na data spotrebovavana pouze shared view
+     * Prevadi authoritativni framework profil na metadata sdileneho Admin uploadu
      */
-    private function profilePresentation(AdminFileUsageDefinition $definition): AdminFileUploadProfilePresentation
+    public function profile(AdminFileUsageDefinition $definition): AdminFileUploadProfilePresentation
     {
         $profile = $definition->kind() === 'image'
             ? $this->uploadConfig->images[$definition->profile()] ?? null

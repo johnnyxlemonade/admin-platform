@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Presentation;
 
+use Lemonade\Admin\Presentation\AdminFileCapabilities;
 use Lemonade\Admin\Presentation\AdminFileUsageDefinition;
+use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -46,5 +48,20 @@ final class AdminFileUsageDefinitionTest extends TestCase
             sortable: true,
             imageProfile: 'admin-image',
         );
+    }
+
+    /**
+     * Overi ze rich-text files zachovaji polymorfni attachment kontrakt
+     */
+    public function testRichTextFilesUseThePolymorphicGenericFileContract(): void
+    {
+        $registry = new AdminFileUsageRegistry();
+        $registry->registerCapabilities('cms.news', new AdminFileCapabilities(richTextFiles: true));
+
+        $definition = $registry->richTextFile('cms.news');
+
+        self::assertSame('content_file', $definition->usage());
+        self::assertSame('file', $definition->kind());
+        self::assertSame('admin-image', $definition->imageProfile());
     }
 }

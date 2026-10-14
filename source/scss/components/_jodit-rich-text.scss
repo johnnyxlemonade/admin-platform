@@ -49,8 +49,65 @@
 .admin-shell .jodit-wysiwyg img[data-width="75"] { width: 75%; }
 .admin-shell .jodit-wysiwyg img[data-width="100"] { width: 100%; }
 
-.lm-modal[data-lemonade-modal-kind="rich-text-image-picker"] .lm-modal-dialog {
-    max-width: 760px;
+.admin-shell .jodit-wysiwyg a[data-file-id] {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .1875rem .5rem;
+    color: var(--lm-text-heading);
+    text-decoration: none;
+    vertical-align: baseline;
+    background: var(--lm-surface-soft);
+    border: 1px solid var(--lm-line);
+    border-radius: 999px;
+}
+
+.admin-shell .jodit-wysiwyg a[data-file-id]::before {
+    content: "📎";
+    font-size: .875em;
+    line-height: 1;
+}
+
+.admin-shell .jodit-wysiwyg a[data-file-id]:hover {
+    color: var(--lm-primary);
+    background: color-mix(in srgb, var(--lm-primary) 8%, var(--lm-surface));
+    border-color: var(--lm-primary);
+}
+
+.admin-shell .jodit-wysiwyg a[data-file-id]:focus-visible {
+    outline: 0;
+    border-color: var(--lm-primary);
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--lm-primary) 20%, transparent);
+}
+
+.admin-shell .lm-rich-text-upload-action {
+    align-self: flex-start;
+}
+
+.admin-shell .lm-rich-text-upload-rules {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: var(--lm-space-2);
+    margin-top: var(--lm-space-3);
+    padding-block: var(--lm-space-3);
+    border-block: 1px solid var(--lm-line);
+}
+
+.admin-shell .lm-rich-text-upload-rules .lm-file-upload-rules-title {
+    color: var(--lm-text-muted);
+    font-weight: 600;
+}
+
+.admin-shell .lm-rich-text-upload-rules .lm-file-upload-chip {
+    padding: 2px 7px;
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    font-weight: 600;
+}
+
+.admin-shell .lm-rich-text-upload-existing-title {
+    margin: var(--lm-space-5) 0 var(--lm-space-3);
 }
 
 .admin-shell .lm-rich-text-image-picker-items {
@@ -116,6 +173,40 @@
     margin: 0 0 var(--lm-space-4);
     border: 1px solid var(--lm-line);
     border-radius: var(--lm-radius);
+}
+
+.admin-shell .lm-rich-text-file-picker-items {
+    display: grid;
+    gap: var(--lm-space-2);
+}
+
+.admin-shell .lm-rich-text-file-picker-row {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-2);
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+}
+
+.admin-shell .lm-rich-text-file-picker-select {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    padding: var(--lm-space-3);
+    color: var(--lm-text-heading);
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+}
+
+.admin-shell .lm-rich-text-file-picker-remove {
+    flex: 0 0 auto;
+    margin-right: var(--lm-space-2);
+    color: var(--bs-danger);
+    background: transparent;
+    border: 0;
 }
 
 .admin-shell .jodit-container:focus-within {

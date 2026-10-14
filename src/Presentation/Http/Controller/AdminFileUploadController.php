@@ -22,6 +22,7 @@ use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Http\Response\Responses;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Upload\Chunk\ChunkUploadService;
+use Lemonade\Framework\Upload\Exception\UploadValidationException;
 use Lemonade\Framework\Upload\ValueObject\UploadedFile;
 use Lemonade\Framework\View\ViewRendererInterface;
 use Nyholm\Psr7\UploadedFile as PsrUploadedFile;
@@ -69,6 +70,9 @@ final readonly class AdminFileUploadController
             $size = filter_var($data->input('size'), FILTER_VALIDATE_INT);
             if ($filename === '' || !is_int($size) || $size <= 0) {
                 throw new \InvalidArgumentException('Upload filename and size are required.');
+            }
+            if (($validation = $this->startValidationError($definition, $filename, $size)) !== null) {
+                return $validation;
             }
             $session = $this->chunks->start(
                 kind: $definition->kind(),
@@ -417,7 +421,47 @@ final readonly class AdminFileUploadController
 
         return $this->responses->json([
             'success' => false,
-            'error' => ['code' => AdminErrorCode::VALIDATION_FAILED->value],
+            'error' => [
+                'code' => AdminErrorCode::VALIDATION_FAILED->value,
+                'reason' => $exception instanceof UploadValidationException ? 'invalid_file' : null,
+            ],
+            'errors' => ['file' => $this->translator->get('admin.file_upload.failed')],
+        ], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
+    }
+
+    /**
+     * Vraci pred zahajenim chunk session pouze chyby, ktere lze rozhodnout z authoritativniho upload profilu
+     */
+    private function startValidationError(
+        \Lemonade\Admin\Presentation\AdminFileUsageDefinition $definition,
+        string $filename,
+        int $size,
+    ): ?ResponseInterface {
+        $profile = $this->uploads->profile($definition);
+        if ($size > $profile->maxBytes()) {
+            return $this->uploadValidationError('file_too_large');
+        }
+
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $allowedExtensions = array_map(strtolower(...), $profile->allowedExtensions());
+        if ($extension === '' || !in_array($extension, $allowedExtensions, true)) {
+            return $this->uploadValidationError('extension_not_allowed');
+        }
+
+        return null;
+    }
+
+    /**
+     * Vraci strojove citelny duvod upload validation bez duplikace upload profilu na klientovi
+     */
+    private function uploadValidationError(string $reason): ResponseInterface
+    {
+        return $this->responses->json([
+            'success' => false,
+            'error' => [
+                'code' => AdminErrorCode::VALIDATION_FAILED->value,
+                'reason' => $reason,
+            ],
             'errors' => ['file' => $this->translator->get('admin.file_upload.failed')],
         ], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
     }

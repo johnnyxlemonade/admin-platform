@@ -9,11 +9,11 @@ namespace Lemonade\Admin\Presentation;
  */
 final class AdminFileUsageRegistry
 {
-    private const ThumbnailUsage = 'thumbnail';
-    private const GalleryUsage = 'gallery';
-    private const AttachmentUsage = 'attachment';
-    private const RichTextImagesUsage = 'content_image';
-    private const RichTextFilesUsage = 'content_file';
+    private const string ThumbnailUsage = 'thumbnail';
+    private const string GalleryUsage = 'gallery';
+    private const string AttachmentUsage = 'attachment';
+    private const string RichTextImagesUsage = 'content_image';
+    private const string RichTextFilesUsage = 'content_file';
 
     /** @var array<string,AdminFileUsageDefinition> */
     private array $definitions = [];
@@ -97,6 +97,14 @@ final class AdminFileUsageRegistry
     public function richTextImage(string $moduleCode): AdminFileUsageDefinition
     {
         return $this->require($moduleCode, self::RichTextImagesUsage);
+    }
+
+    /**
+     * Vraci interni usage rich-text souboru deklarovanou modulem
+     */
+    public function richTextFile(string $moduleCode): AdminFileUsageDefinition
+    {
+        return $this->require($moduleCode, self::RichTextFilesUsage);
     }
 
     /**
