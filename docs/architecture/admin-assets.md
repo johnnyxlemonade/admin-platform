@@ -2,9 +2,9 @@
 
 ## Ownership a distribuce
 
-Admin package vlastni `source`, Vite vstupy, SCSS, fonty, ikony, obrazky a hotovou distribuci v `src/Resources/public`. Tento adresar obsahuje hashovane JS a CSS, staticke soubory i `.vite/manifest.json` a je soucasti Composer distribuce.
+Admin package vlastni canonical `source`, Vite vstupy, SCSS, fonty, ikony, obrazky a build tooling. `src/Resources/public` je ignorovana, generovana package distribuce: obsahuje hashovane JS a CSS, staticke soubory i `.vite/manifest.json`. Nevstupuje do Git ani do Composer distribution contractu.
 
-Host nevlastni Admin zdroje ani jejich build. Jeho public root je pouze deploy destination. Prikaz `admin:assets:publish` validuje package manifest, zkopiruje celou distribuci do hostem nastaveneho `public/assets/admin` a pred kopii odstrani pouze zastarale soubory teto destination. Prikaz nespousti Node ani Vite, takze produkcni deploy muze po `composer install` publikovat predpripravenou distribuci bez Node toolchainu.
+Release nebo CI nejdriv v package rootu spusti `npm ci` a `npm run build`; tim vytvori `src/Resources/public`. Host nevlastni Admin zdroje ani jejich build. Jeho public root je pouze deploy destination: `admin:assets:publish` validuje hotovy package manifest, zkopiruje celou distribuci do hostem nastaveneho `public/assets/admin` a pred kopii odstrani pouze zastarale soubory teto destination. Prikaz sam Node ani Vite nespousti.
 
 `AdminAssetConfiguration` je hostem vlastneny kontrakt pro verejnou URL a relativni destination v public rootu. Vychodzi host muze poskytnout `/assets/admin/` a `assets/admin`; jiny host muze pouzit jinou verejnou cestu. `AdminAssetManifest` cte pouze hostem publikovany manifest. Admin, Auth i Installer z nej pouzivaji stejne stabilni entry a staticke pre-paint assety.
 
