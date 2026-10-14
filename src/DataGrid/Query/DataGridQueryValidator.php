@@ -10,7 +10,7 @@ use Lemonade\Admin\DataGrid\DataGridDefinition;
 /**
  * Overuje parametry dotazu datove tabulky
  */
-final class DataGridQueryValidator
+final readonly class DataGridQueryValidator
 {
     /**
      * Overi klientsky vstup a vytvori dotaz povoleny definici gridu

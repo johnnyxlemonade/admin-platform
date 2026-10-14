@@ -12,13 +12,13 @@ use Lemonade\Admin\Icon\AdminIcon;
 /**
  * Registruje auditni podobu dashboardu
  */
-final class DashboardAuditPresentationRegistrar
+final readonly class DashboardAuditPresentationRegistrar
 {
     /**
      * Nastavi registry zobrazeni auditnich udalosti
      */
     public function __construct(
-        private readonly AuditEventPresentationRegistry $presentations,
+        private AuditEventPresentationRegistry $presentations,
     ) {}
 
     /**

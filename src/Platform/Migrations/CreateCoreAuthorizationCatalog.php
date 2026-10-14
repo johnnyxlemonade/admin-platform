@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari katalog roli a opravneni administrace
  */
-final class CreateCoreAuthorizationCatalog implements MigrationInterface
+final readonly class CreateCoreAuthorizationCatalog implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

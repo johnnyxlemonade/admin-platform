@@ -14,18 +14,18 @@ use Lemonade\Framework\Routing\Router;
 /**
  * Poskytuje data dashboardovych widgetu
  */
-final class DashboardWidgetApiService
+final readonly class DashboardWidgetApiService
 {
     /**
      * Nastavi sluzby pro dashboardove API
      */
     public function __construct(
-        private readonly DashboardWidgetRegistry $widgets,
-        private readonly DashboardWidgetAccessPolicy $access,
-        private readonly DashboardLayoutService $layout,
-        private readonly TranslatorInterface $translator,
-        private readonly ClientTranslationVersion $translationVersions,
-        private readonly Router $router,
+        private DashboardWidgetRegistry $widgets,
+        private DashboardWidgetAccessPolicy $access,
+        private DashboardLayoutService $layout,
+        private TranslatorInterface $translator,
+        private ClientTranslationVersion $translationVersions,
+        private Router $router,
     ) {}
 
     /**

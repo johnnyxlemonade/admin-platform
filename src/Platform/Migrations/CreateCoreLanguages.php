@@ -12,13 +12,13 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari katalog systemovych jazyku
  */
-final class CreateCoreLanguages implements MigrationInterface
+final readonly class CreateCoreLanguages implements MigrationInterface
 {
     /**
      * Prijima pripojeni pro canonical seed jazyka
      */
     public function __construct(
-        private readonly DatabaseDriverInterface $database,
+        private DatabaseDriverInterface $database,
     ) {}
 
     /**

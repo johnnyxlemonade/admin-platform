@@ -12,10 +12,10 @@ use Lemonade\Admin\Auth\Oidc\Contract\OidcJwksProviderInterface;
 /**
  * Zpracovava overenou identitu uzivatele
  */
-final class OidcIdTokenVerifier
+final readonly class OidcIdTokenVerifier
 {
-    private const CLOCK_SKEW_SECONDS = 60;
-    private const MAX_ISSUED_AT_AGE_SECONDS = 86400;
+    private const int CLOCK_SKEW_SECONDS = 60;
+    private const int MAX_ISSUED_AT_AGE_SECONDS = 86400;
 
     /**
      * Nastavuje data potrebna pro overeni identity

@@ -15,7 +15,7 @@ use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 /**
  * Predava zmenu vychoziho jazyka do service a mapuje jeji odmitnuti na action response
  */
-final class LanguagesSetDefaultAction implements ModuleActionHandlerInterface
+final readonly class LanguagesSetDefaultAction implements ModuleActionHandlerInterface
 {
     public function __construct(private readonly LanguageService $languages) {}
 

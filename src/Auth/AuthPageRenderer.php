@@ -12,15 +12,15 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Renderuje stranky prihlaseni ve sdilenem admin rozlozeni
  */
-final class AuthPageRenderer
+final readonly class AuthPageRenderer
 {
     /**
      * Nastavi renderer sablon prihlaseni
      */
     public function __construct(
-        private readonly ViewRendererInterface $views,
-        private readonly AdminBranding $branding,
-        private readonly AdminAssetManifest $assets,
+        private ViewRendererInterface $views,
+        private AdminBranding $branding,
+        private AdminAssetManifest $assets,
     ) {}
 
     /**

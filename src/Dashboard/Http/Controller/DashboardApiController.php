@@ -22,19 +22,19 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP pozadavky pro dashboardapi
  */
-final class DashboardApiController
+final readonly class DashboardApiController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly CurrentUserProvider $currentUser,
-        private readonly DashboardWidgetApiService $widgets,
-        private readonly AdminUiLocale $locale,
-        private readonly ExceptionLogger $exceptions,
-        private readonly ViewRendererInterface $views,
-        private readonly Responses $responses,
-        private readonly UrlGenerator $urls,
+        private CurrentUserProvider $currentUser,
+        private DashboardWidgetApiService $widgets,
+        private AdminUiLocale $locale,
+        private ExceptionLogger $exceptions,
+        private ViewRendererInterface $views,
+        private Responses $responses,
+        private UrlGenerator $urls,
     ) {}
 
     /**

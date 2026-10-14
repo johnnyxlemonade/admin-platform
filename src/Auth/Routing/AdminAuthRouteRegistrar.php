@@ -18,7 +18,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 /**
  * Registruje routy prihlaseni administrace
  */
-final class AdminAuthRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class AdminAuthRouteRegistrar implements AdminRouteRegistrarInterface
 {
     public function id(): string
     {

@@ -10,7 +10,7 @@ use RuntimeException;
 /**
  * Cte deklarace manifestu samostatne instalovanych Composer modulu
  */
-final class ComposerModuleManifestMetadata
+final readonly class ComposerModuleManifestMetadata
 {
     /**
      * Vrati manifest classy deklarovane Composer balicky

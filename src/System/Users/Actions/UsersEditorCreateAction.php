@@ -16,7 +16,7 @@ use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 /**
  * Prevadi zalozeni uzivatele z editoru na action response s navigaci do detailu
  */
-final class UsersEditorCreateAction implements ModuleActionHandlerInterface
+final readonly class UsersEditorCreateAction implements ModuleActionHandlerInterface
 {
     /**
      * Nastavuje shared editor dispatcher pro create workflow

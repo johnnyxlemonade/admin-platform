@@ -21,14 +21,14 @@ use Lemonade\Framework\Validation\ValidationSchema;
 /**
  * Predava editorovy save transport do canonical translation override service
  */
-final class TranslationsEditor implements EditorProviderInterface
+final readonly class TranslationsEditor implements EditorProviderInterface
 {
     /**
      * Nastavuje katalog pro read-only identitu a service pro jedinou write cestu
      */
     public function __construct(
-        private readonly TranslationsCatalog $catalog,
-        private readonly TranslationOverrideService $overrides,
+        private TranslationsCatalog $catalog,
+        private TranslationOverrideService $overrides,
     ) {}
 
     /**

@@ -11,7 +11,7 @@ use RuntimeException;
 /**
  * Uklada canonical vazby externich identit na lokalni ucty
  */
-final class ExternalIdentityRepository
+final readonly class ExternalIdentityRepository
 {
     /**
      * Vytvari repository nad portalovou databazi

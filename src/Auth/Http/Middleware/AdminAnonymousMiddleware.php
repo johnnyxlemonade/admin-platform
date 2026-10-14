@@ -15,15 +15,15 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Presmeruje prihlaseneho uzivatele z anonymnich auth rout
  */
-final class AdminAnonymousMiddleware implements MiddlewareInterface
+final readonly class AdminAnonymousMiddleware implements MiddlewareInterface
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly CurrentPrincipalProviderInterface $currentPrincipal,
-        private readonly Psr17Factory $responses,
-        private readonly AdminRoutingConfiguration $routing,
+        private CurrentPrincipalProviderInterface $currentPrincipal,
+        private Psr17Factory $responses,
+        private AdminRoutingConfiguration $routing,
     ) {}
 
     /**

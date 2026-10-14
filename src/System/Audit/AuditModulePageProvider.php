@@ -14,12 +14,12 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada indexovou stranku read-only auditniho DataGridu
  */
-final class AuditModulePageProvider implements ModuleIndexPageProviderInterface
+final readonly class AuditModulePageProvider implements ModuleIndexPageProviderInterface
 {
     public function __construct(
-        private readonly AuditDataGrid $grid,
-        private readonly TranslatorInterface $translator,
-        private readonly UrlGenerator $urls,
+        private AuditDataGrid $grid,
+        private TranslatorInterface $translator,
+        private UrlGenerator $urls,
     ) {}
 
     public function indexPermission(): string

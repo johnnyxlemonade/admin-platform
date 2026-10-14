@@ -11,14 +11,14 @@ use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 /**
  * Rozhoduje pristup k administracnimu modulu
  */
-final class AdminModuleAccessPolicy
+final readonly class AdminModuleAccessPolicy
 {
     /**
      * Nastavuje zavislosti potrebne pro praci s administracnimi moduly
      */
     public function __construct(
-        private readonly AuthorizationService $authorization,
-        private readonly CurrentPrincipalProviderInterface $principals,
+        private AuthorizationService $authorization,
+        private CurrentPrincipalProviderInterface $principals,
     ) {}
 
     /**

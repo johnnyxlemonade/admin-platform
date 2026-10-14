@@ -8,6 +8,7 @@ use Lemonade\Admin\AdminServiceProvider;
 use Lemonade\Admin\Notification\Contract\NotificationInboxRepositoryInterface;
 use Lemonade\Admin\Notification\Http\Controller\NotificationController;
 use Lemonade\Admin\Notification\Http\Controller\NotificationsController;
+use Lemonade\Admin\Notification\Migrations\CreateNotifications;
 use Lemonade\Admin\Notification\Models\NotificationModel;
 use Lemonade\Admin\Notification\Routing\NotificationRouteRegistrar;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
@@ -16,11 +17,12 @@ use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
+use Lemonade\Framework\Database\Migration\MigrationRegistry;
 
 /**
  * Registruje osobni notifikace administrace a jejich HTTP rozhrani
  */
-final class AdminNotificationServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
+final readonly class AdminNotificationServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Urcuje sdilenou infrastrukturu potrebnou pro osobni notifikace
@@ -46,10 +48,11 @@ final class AdminNotificationServiceProvider implements ServiceProviderInterface
     }
 
     /**
-     * Registruje notification routu po container freeze
+     * Registruje notification routu a schema migraci po container freeze
      */
     public function boot(ContainerInterface $container): void
     {
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(NotificationRouteRegistrar::class));
+        $container->get(MigrationRegistry::class)->register(CreateNotifications::class);
     }
 }

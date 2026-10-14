@@ -33,15 +33,15 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Promita databaseovy katalog system_file do DataGridu bez per-row lookupu
  */
-final class MediaDataGrid implements DataGridProviderInterface
+final readonly class MediaDataGrid implements DataGridProviderInterface
 {
     public function __construct(
-        private readonly MediaService $media,
-        private readonly ModuleStateResolver $modules,
-        private readonly AdminThumbnailComponent $thumbnails,
-        private readonly AuthorizationService $authorization,
-        private readonly TranslatorInterface $translator,
-        private readonly UrlGenerator $urls,
+        private MediaService $media,
+        private ModuleStateResolver $modules,
+        private AdminThumbnailComponent $thumbnails,
+        private AuthorizationService $authorization,
+        private TranslatorInterface $translator,
+        private UrlGenerator $urls,
     ) {}
 
     public function permission(): string

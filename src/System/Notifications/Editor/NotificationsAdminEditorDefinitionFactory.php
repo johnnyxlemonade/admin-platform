@@ -17,7 +17,7 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada modalni AdminEditor pro management obsahu a publika oznameni
  */
-final class NotificationsAdminEditorDefinitionFactory
+final readonly class NotificationsAdminEditorDefinitionFactory
 {
     /**
      * Nastavuje generator URL shared modalniho transportu

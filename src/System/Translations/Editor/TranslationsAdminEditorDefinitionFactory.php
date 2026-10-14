@@ -16,7 +16,7 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada modalni AdminEditor pro zmenu jedine vlastni hodnoty prekladu
  */
-final class TranslationsAdminEditorDefinitionFactory
+final readonly class TranslationsAdminEditorDefinitionFactory
 {
     /**
      * Nastavuje generator canonical Admin routes

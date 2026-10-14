@@ -11,21 +11,21 @@ use Lemonade\Admin\Action\Presentation\ConfirmationDefinition;
 /**
  * Registruje action transport s oddelenymi pravy mutace, lifecycle a permission preview
  */
-final class UsersActionRegistrar
+final readonly class UsersActionRegistrar
 {
     /**
      * Nastavuje registry a handlery vsech mutaci modulu uzivatelu
      */
     public function __construct(
-        private readonly ModuleActionRegistry $actions,
-        private readonly UsersEditorSaveAction $save,
-        private readonly UsersEditorCreateAction $create,
-        private readonly UsersPermissionPreviewAction $permissionsPreview,
-        private readonly UsersActivateAction $activate,
-        private readonly UsersDeactivateAction $deactivate,
-        private readonly UsersDeleteAction $delete,
-        private readonly UsersRestoreAction $restore,
-        private readonly UsersMfaResetAction $mfaReset,
+        private ModuleActionRegistry $actions,
+        private UsersEditorSaveAction $save,
+        private UsersEditorCreateAction $create,
+        private UsersPermissionPreviewAction $permissionsPreview,
+        private UsersActivateAction $activate,
+        private UsersDeactivateAction $deactivate,
+        private UsersDeleteAction $delete,
+        private UsersRestoreAction $restore,
+        private UsersMfaResetAction $mfaReset,
     ) {}
 
     /**

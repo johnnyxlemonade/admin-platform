@@ -16,21 +16,21 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Vykresluje administracni stranky se sdilenym layoutem a navigaci
  */
-final class AdminPageRenderer
+final readonly class AdminPageRenderer
 {
     /**
      * Nastavuje renderer, navigaci, aktualniho uzivatele a verzi prekladu
      */
     public function __construct(
-        private readonly ViewRendererInterface $views,
-        private readonly AdminNavigation $navigation,
-        private readonly CurrentUserProvider $currentUser,
-        private readonly AuthorizationService $authorization,
-        private readonly ClientTranslationVersion $translationVersion,
-        private readonly AdminBranding $branding,
-        private readonly AdminAssetManifest $assets,
-        private readonly AdminFileModel $files,
-        private readonly AdminThumbnailComponent $thumbnails,
+        private ViewRendererInterface $views,
+        private AdminNavigation $navigation,
+        private CurrentUserProvider $currentUser,
+        private AuthorizationService $authorization,
+        private ClientTranslationVersion $translationVersion,
+        private AdminBranding $branding,
+        private AdminAssetManifest $assets,
+        private AdminFileModel $files,
+        private AdminThumbnailComponent $thumbnails,
     ) {}
 
     /**

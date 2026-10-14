@@ -39,7 +39,7 @@ final class ModulesDataGridFeatureActionTest extends TestCase
             $grid = new ModulesDataGrid(
                 $states,
                 $this->translator(),
-                $this->createMock(ModuleActionPresentationFactory::class),
+                $this->getMockBuilder(ModuleActionPresentationFactory::class)->disableOriginalConstructor()->getMock(),
                 $this->urls(),
             );
             $items = array_map(static fn($item): array => $item->toArray(), $grid->execute(new \Lemonade\Admin\DataGrid\Query\DataGridQuery(1, 100, 'code', 'asc', '', []))->items());
@@ -67,7 +67,7 @@ final class ModulesDataGridFeatureActionTest extends TestCase
             $grid = new ModulesDataGrid(
                 $states,
                 $this->translator(),
-                $this->createMock(ModuleActionPresentationFactory::class),
+                $this->getMockBuilder(ModuleActionPresentationFactory::class)->disableOriginalConstructor()->getMock(),
                 $this->urls(),
             );
             $items = array_map(static fn($item): array => $item->toArray(), $grid->execute(new \Lemonade\Admin\DataGrid\Query\DataGridQuery(1, 100, 'code', 'asc', '', []))->items());
@@ -92,7 +92,7 @@ final class ModulesDataGridFeatureActionTest extends TestCase
             $grid = new ModulesDataGrid(
                 $states,
                 $translator,
-                $this->createMock(ModuleActionPresentationFactory::class),
+                $this->getMockBuilder(ModuleActionPresentationFactory::class)->disableOriginalConstructor()->getMock(),
                 $this->urls(),
             );
 

@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari sifrovane TOTP credentialy lokalnich uzivatelu
  */
-final class CreateCoreUserTotp implements MigrationInterface
+final readonly class CreateCoreUserTotp implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

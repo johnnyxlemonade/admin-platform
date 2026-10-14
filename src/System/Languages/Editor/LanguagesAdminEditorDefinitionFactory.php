@@ -18,7 +18,7 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada modalni AdminEditor pro zalozeni a upravu systemoveho jazyka
  */
-final class LanguagesAdminEditorDefinitionFactory
+final readonly class LanguagesAdminEditorDefinitionFactory
 {
     public function __construct(private readonly UrlGenerator $urls) {}
 

@@ -13,7 +13,7 @@ use Lemonade\Framework\Routing\Router;
 /**
  * Registruje management routu feature stranky modulu
  */
-final class ModulesRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class ModulesRouteRegistrar implements AdminRouteRegistrarInterface
 {
     public function id(): string
     {

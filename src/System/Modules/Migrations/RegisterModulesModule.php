@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari lifecycle zaznam systemoveho modulu pro management modulu
  */
-final class RegisterModulesModule implements MigrationInterface
+final readonly class RegisterModulesModule implements MigrationInterface
 {
     public function __construct(private readonly Database $database) {}
 

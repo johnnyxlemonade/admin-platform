@@ -20,14 +20,14 @@ use Lemonade\Framework\Localization\TranslatorInterface;
 /**
  * Poskytuje vlastnikovi dashboardu widget s jeho nedavnymi prihlasenimi
  */
-final class MyLoginsDashboardWidgetProvider implements DashboardWidgetProviderInterface
+final readonly class MyLoginsDashboardWidgetProvider implements DashboardWidgetProviderInterface
 {
     /**
      * Nastavi zdroj osobnich prihlaseni a jejich lokalizaci
      */
     public function __construct(
-        private readonly PersonalLoginAuditReaderInterface $audit,
-        private readonly TranslatorInterface $translator,
+        private PersonalLoginAuditReaderInterface $audit,
+        private TranslatorInterface $translator,
     ) {}
 
     /**

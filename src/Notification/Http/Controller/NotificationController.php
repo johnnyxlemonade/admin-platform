@@ -17,15 +17,15 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Poskytuje JSON inbox, indikaci neprectenych oznameni a read mutace
  */
-final class NotificationController
+final readonly class NotificationController
 {
     /**
      * Nastavuje sluzbu inboxu, lokalizaci a JSON odpovedi
      */
     public function __construct(
-        private readonly NotificationService $notifications,
-        private readonly AdminUiLocale $locale,
-        private readonly Responses $responses,
+        private NotificationService $notifications,
+        private AdminUiLocale $locale,
+        private Responses $responses,
     ) {}
 
     /**

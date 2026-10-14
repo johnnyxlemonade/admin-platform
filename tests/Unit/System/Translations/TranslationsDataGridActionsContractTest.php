@@ -178,7 +178,9 @@ final class TranslationsDataGridActionsContractTest extends TestCase
      */
     private function actionPresentation(bool $canEdit): ModuleActionPresentationFactory
     {
-        $presentation = $this->createMock(ModuleActionPresentationFactory::class);
+        $presentation = $this->getMockBuilder(ModuleActionPresentationFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $presentation->method('rowAction')->willReturnCallback(static function (
             string $moduleCode,
             string $action,

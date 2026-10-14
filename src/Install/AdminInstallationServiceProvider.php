@@ -20,7 +20,7 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje lifecycle instalace administrace, jeji UI a HTTP endpointy
  */
-final class AdminInstallationServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
+final readonly class AdminInstallationServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Urcuje sdilenou infrastrukturu potrebnou pro instalacni lifecycle

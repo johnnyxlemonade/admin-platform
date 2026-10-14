@@ -28,27 +28,27 @@ use Throwable;
 /**
  * Provadi jednotlive kroky instalace aplikace
  */
-final class InstallationService implements InstallationStateInterface
+final readonly class InstallationService implements InstallationStateInterface
 {
-    private const SESSION_AUTHORIZED_AT = 'install.install.authorized_at';
-    private const SESSION_COMPLETED_STEPS = 'install.install.completed_steps';
-    private const AUTHORIZATION_TTL = 600;
-    private const LOCK_FILE = 'cache/installer.lock';
+    private const string SESSION_AUTHORIZED_AT = 'install.install.authorized_at';
+    private const string SESSION_COMPLETED_STEPS = 'install.install.completed_steps';
+    private const int AUTHORIZATION_TTL = 600;
+    private const string LOCK_FILE = 'cache/installer.lock';
 
     /**
      * Nastavuje zavislosti potrebne pro instalacni tok
      */
     public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly ApplicationContext $context,
-        private readonly DatabaseConfig $databaseConfig,
-        private readonly DatabaseConfigurationValidator $databaseConfiguration,
-        private readonly ModuleCatalog $catalog,
-        private readonly ModuleManifestDiscovery $discovery,
-        private readonly MigrationRegistry $migrations,
-        private readonly Filesystem $filesystem,
-        private readonly SessionInterface $session,
-        private readonly AdminAssetManifest $assets,
+        private ContainerInterface $container,
+        private ApplicationContext $context,
+        private DatabaseConfig $databaseConfig,
+        private DatabaseConfigurationValidator $databaseConfiguration,
+        private ModuleCatalog $catalog,
+        private ModuleManifestDiscovery $discovery,
+        private MigrationRegistry $migrations,
+        private Filesystem $filesystem,
+        private SessionInterface $session,
+        private AdminAssetManifest $assets,
     ) {}
 
     /**

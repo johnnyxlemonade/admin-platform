@@ -11,14 +11,14 @@ use Lemonade\Framework\Core\Context\ApplicationContext;
 /**
  * Cte manifest Admin assetu publikovanych do public rootu host aplikace
  */
-final class AdminAssetManifest
+final readonly class AdminAssetManifest
 {
     /**
      * Nastavuje host konfiguraci a kontext pro hledani publikovaneho manifestu
      */
     public function __construct(
-        private readonly ApplicationContext $context,
-        private readonly AdminAssetConfiguration $configuration,
+        private ApplicationContext $context,
+        private AdminAssetConfiguration $configuration,
     ) {}
 
     /**

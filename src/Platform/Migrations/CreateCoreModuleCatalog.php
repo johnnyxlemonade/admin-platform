@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari katalog modulu a jejich funkci
  */
-final class CreateCoreModuleCatalog implements MigrationInterface
+final readonly class CreateCoreModuleCatalog implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

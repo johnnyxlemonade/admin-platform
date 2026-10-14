@@ -15,21 +15,21 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Prevadi chyby autorizace na odpovedi administrace
  */
-final class AdminAuthorizationResponseHandler
+final readonly class AdminAuthorizationResponseHandler
 {
-    public const FLASH_KEY = 'admin.message';
-    public const MESSAGE_KEY = 'admin.authorization.forbidden';
-    public const RECORD_NOT_FOUND_MESSAGE_KEY = 'admin.record.not_found';
-    public const RECORD_LOCKED_MESSAGE_KEY = 'admin.editor.record_locked';
-    public const RECORD_LOCKED_BY_MESSAGE_KEY = 'admin.editor.record_locked_by';
-    public const RECORD_CONFLICT_MESSAGE_KEY = 'admin.editor.record_conflict';
+    public const string FLASH_KEY = 'admin.message';
+    public const string MESSAGE_KEY = 'admin.authorization.forbidden';
+    public const string RECORD_NOT_FOUND_MESSAGE_KEY = 'admin.record.not_found';
+    public const string RECORD_LOCKED_MESSAGE_KEY = 'admin.editor.record_locked';
+    public const string RECORD_LOCKED_BY_MESSAGE_KEY = 'admin.editor.record_locked_by';
+    public const string RECORD_CONFLICT_MESSAGE_KEY = 'admin.editor.record_conflict';
 
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly HttpRequestInspector $requests,
-        private readonly AdminRoutingConfiguration $routing,
+        private HttpRequestInspector $requests,
+        private AdminRoutingConfiguration $routing,
     ) {}
 
     /**

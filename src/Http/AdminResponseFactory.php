@@ -20,19 +20,19 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Vytvari HTTP odpovedi pro administracni scenare
  */
-final class AdminResponseFactory
+final readonly class AdminResponseFactory
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly AdminAuthorizationResponseHandler $authorization,
-        private readonly AdminPageRenderer $pages,
-        private readonly AdminUiLocale $locale,
-        private readonly TranslatorInterface $translator,
-        private readonly FlashBagInterface $flash,
-        private readonly UrlGenerator $urls,
-        private readonly Responses $responses,
+        private AdminAuthorizationResponseHandler $authorization,
+        private AdminPageRenderer $pages,
+        private AdminUiLocale $locale,
+        private TranslatorInterface $translator,
+        private FlashBagInterface $flash,
+        private UrlGenerator $urls,
+        private Responses $responses,
     ) {}
 
     /**

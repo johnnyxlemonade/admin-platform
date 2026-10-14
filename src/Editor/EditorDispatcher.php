@@ -20,18 +20,18 @@ use Lemonade\Framework\Validation\FormValidation;
 /**
  * Zpracovava data potrebna pro administracni editor
  */
-final class EditorDispatcher
+final readonly class EditorDispatcher
 {
     /**
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
      */
     public function __construct(
-        private readonly ModuleRegistry $modules,
-        private readonly ModuleManager $moduleManager,
-        private readonly EditorRegistry $editors,
-        private readonly AuthorizationService $authorization,
-        private readonly FormValidation $validation,
-        private readonly EditorLockManager $locks,
+        private ModuleRegistry $modules,
+        private ModuleManager $moduleManager,
+        private EditorRegistry $editors,
+        private AuthorizationService $authorization,
+        private FormValidation $validation,
+        private EditorLockManager $locks,
     ) {}
 
     /**

@@ -11,7 +11,7 @@ use Lemonade\Framework\Core\ServiceProviderInterface;
 /**
  * Registruje auditni zapis a post-commit zpracovani domenovych udalosti
  */
-final class CoreAuditEventServiceProvider implements ServiceProviderInterface
+final readonly class CoreAuditEventServiceProvider implements ServiceProviderInterface
 {
     /**
      * Zapisuje celou transakcni pipeline pro auditovane mutace

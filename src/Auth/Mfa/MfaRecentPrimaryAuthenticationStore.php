@@ -9,10 +9,10 @@ use Lemonade\Framework\Session\Contract\SessionInterface;
 /**
  * Doklada kratke cerstve overeni hesla jen pro self-service MFA mutace
  */
-final class MfaRecentPrimaryAuthenticationStore
+final readonly class MfaRecentPrimaryAuthenticationStore
 {
-    private const SESSION_KEY = 'admin.auth.mfa.recent_primary';
-    private const TTL_SECONDS = 300;
+    private const string SESSION_KEY = 'admin.auth.mfa.recent_primary';
+    private const int TTL_SECONDS = 300;
 
     public function __construct(private readonly SessionInterface $session) {}
 

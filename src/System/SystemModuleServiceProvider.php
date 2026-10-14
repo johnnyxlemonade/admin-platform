@@ -12,7 +12,7 @@ use Lemonade\Framework\Core\ServiceProviderInterface;
 /**
  * Pripravuje zavislosti builtin systemovych modulu
  */
-final class SystemModuleServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface
+final readonly class SystemModuleServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface
 {
     /**
      * Urcuje registry potrebne pro skupiny systemove navigace

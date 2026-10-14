@@ -14,7 +14,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 /**
  * Registruje routy potrebne pro instalaci aplikace
  */
-final class InstallRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class InstallRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Vraci stabilni identifikator registratoru rout

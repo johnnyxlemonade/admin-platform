@@ -9,20 +9,20 @@ use Lemonade\Admin\Icon\AdminIcon;
 /**
  * Predstavuje skupinu serazenych polozek navigace
  */
-final class AdminNavigationGroup implements AdminNavigationEntryInterface
+final readonly class AdminNavigationGroup implements AdminNavigationEntryInterface
 {
     /**
      * Nastavuje hodnoty potrebne pro zobrazeni navigace
      * @param list<AdminNavigationItem> $items
      */
     public function __construct(
-        private readonly string $key,
-        private readonly int $order,
-        private readonly string $code,
-        private readonly string $label,
-        private readonly string $labelKey,
-        private readonly AdminIcon $icon,
-        private readonly array $items,
+        private string $key,
+        private int $order,
+        private string $code,
+        private string $label,
+        private string $labelKey,
+        private AdminIcon $icon,
+        private array $items,
     ) {}
 
     /**

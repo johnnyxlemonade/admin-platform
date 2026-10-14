@@ -32,20 +32,20 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Poskytuje DataGrid uzivatelu s neautoritativni presentation lifecycle akci
  */
-final class UsersDataGrid implements DataGridProviderInterface
+final readonly class UsersDataGrid implements DataGridProviderInterface
 {
     /**
      * Nastavuje gridovy query source, role source a presentation zavislosti
      */
     public function __construct(
-        private readonly UsersDataGridQuery $users,
-        private readonly UserService $userService,
-        private readonly TranslatorInterface $translator,
-        private readonly AuthorizationService $authorization,
-        private readonly ModuleActionPresentationFactory $actionPresentation,
-        private readonly UrlGenerator $urls,
-        private readonly AdminFileModel $files,
-        private readonly AdminThumbnailComponent $thumbnails,
+        private UsersDataGridQuery $users,
+        private UserService $userService,
+        private TranslatorInterface $translator,
+        private AuthorizationService $authorization,
+        private ModuleActionPresentationFactory $actionPresentation,
+        private UrlGenerator $urls,
+        private AdminFileModel $files,
+        private AdminThumbnailComponent $thumbnails,
     ) {}
 
     /**

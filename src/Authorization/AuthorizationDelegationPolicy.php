@@ -9,12 +9,12 @@ use Lemonade\Admin\Auth\AuthenticatedUser;
 /**
  * Overuje, ktera opravneni lze predat dal
  */
-final class AuthorizationDelegationPolicy
+final readonly class AuthorizationDelegationPolicy
 {
     public function __construct(
-        private readonly AuthorizationResolverInterface $authorization,
-        private readonly PermissionCatalogRegistry $catalog,
-        private readonly PermissionDependencyResolver $dependencies,
+        private AuthorizationResolverInterface $authorization,
+        private PermissionCatalogRegistry $catalog,
+        private PermissionDependencyResolver $dependencies,
     ) {}
 
     /** @param list<string> $permissionCodes */

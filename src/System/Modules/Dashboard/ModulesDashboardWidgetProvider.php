@@ -20,7 +20,7 @@ use Lemonade\Admin\Navigation\AdminNavigationItem;
 /**
  * Poskytuje dashboardovy widget z jiz autorizovane Admin navigace
  */
-final class ModulesDashboardWidgetProvider implements DashboardWidgetProviderInterface
+final readonly class ModulesDashboardWidgetProvider implements DashboardWidgetProviderInterface
 {
     /**
      * Nastavuje navigaci filtrovou autorizaci pred vytvorenim widgetu

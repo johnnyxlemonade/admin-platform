@@ -13,24 +13,24 @@ use Lemonade\Admin\Editor\EditorDispatcher;
 /**
  * Registruje management action transport pro editor a lifecycle oznameni
  */
-final class NotificationsActionRegistrar
+final readonly class NotificationsActionRegistrar
 {
     /**
      * Nastavuje registry a handlery management action
      */
     public function __construct(
-        private readonly ModuleActionRegistry $actions,
-        private readonly EditorDispatcher $editors,
-        private readonly NotificationsActivateAction $activate,
-        private readonly NotificationsDeactivateAction $deactivate,
-        private readonly NotificationsDeleteAction $delete,
-        private readonly NotificationsRestoreAction $restore,
-        private readonly NotificationsResetDisplayAction $resetDisplay,
-        private readonly NotificationsBulkDeactivateAction $bulkDeactivate,
-        private readonly NotificationsBulkDeleteAction $bulkDelete,
-        private readonly NotificationsBulkActivateAction $bulkActivate,
-        private readonly NotificationsBulkResetDisplayAction $bulkResetDisplay,
-        private readonly NotificationsBulkRestoreAction $bulkRestore,
+        private ModuleActionRegistry $actions,
+        private EditorDispatcher $editors,
+        private NotificationsActivateAction $activate,
+        private NotificationsDeactivateAction $deactivate,
+        private NotificationsDeleteAction $delete,
+        private NotificationsRestoreAction $restore,
+        private NotificationsResetDisplayAction $resetDisplay,
+        private NotificationsBulkDeactivateAction $bulkDeactivate,
+        private NotificationsBulkDeleteAction $bulkDelete,
+        private NotificationsBulkActivateAction $bulkActivate,
+        private NotificationsBulkResetDisplayAction $bulkResetDisplay,
+        private NotificationsBulkRestoreAction $bulkRestore,
     ) {}
 
     /**

@@ -9,7 +9,7 @@ use Lemonade\Admin\Auth\AuthenticatedUser;
 /**
  * Sklada kratke inicialy pro avatar prihlaseneho uzivatele
  */
-final class AdminAvatarInitials
+final readonly class AdminAvatarInitials
 {
     /**
      * Vraci inicialy z dostupnych udaju prihlaseneho uzivatele

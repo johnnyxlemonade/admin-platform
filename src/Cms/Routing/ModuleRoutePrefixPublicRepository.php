@@ -11,16 +11,16 @@ use Lemonade\Framework\Cache\CacheManager;
 /**
  * Zpristupnuje synchronizovane verejne prefixy rout modulu
  */
-final class ModuleRoutePrefixPublicRepository implements PublicModuleRoutePrefixRepositoryInterface
+final readonly class ModuleRoutePrefixPublicRepository implements PublicModuleRoutePrefixRepositoryInterface
 {
-    private const CACHE_KEY = 'admin.public-module-route-prefixes.v1';
+    private const string CACHE_KEY = 'admin.public-module-route-prefixes.v1';
 
     /**
      * Nastavuje persistence modulu s kanonickymi prefixy
      */
     public function __construct(
-        private readonly ModuleRoutePrefixModel $prefixes,
-        private readonly CacheManager $cache,
+        private ModuleRoutePrefixModel $prefixes,
+        private CacheManager $cache,
     ) {}
 
     /**

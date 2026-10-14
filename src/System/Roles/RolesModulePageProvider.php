@@ -21,17 +21,17 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada index a full-page editor pro presentation modulu roli
  */
-final class RolesModulePageProvider implements ModuleIndexPageProviderInterface, ModuleEditorPageProviderInterface
+final readonly class RolesModulePageProvider implements ModuleIndexPageProviderInterface, ModuleEditorPageProviderInterface
 {
     /**
      * Nastavuje presentation zavislosti stranek roli
      */
     public function __construct(
-        private readonly RolesDataGrid $grid,
-        private readonly TranslatorInterface $translator,
-        private readonly AuthorizationService $authorization,
-        private readonly RolesAdminEditorDefinitionFactory $adminEditorDefinitions,
-        private readonly UrlGenerator $urls,
+        private RolesDataGrid $grid,
+        private TranslatorInterface $translator,
+        private AuthorizationService $authorization,
+        private RolesAdminEditorDefinitionFactory $adminEditorDefinitions,
+        private UrlGenerator $urls,
     ) {}
 
     /**

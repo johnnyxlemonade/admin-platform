@@ -14,7 +14,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 /**
  * Registruje shared mutacni endpointy image upload komponenty
  */
-final class AdminFileUploadRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class AdminFileUploadRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Vraci stabilni identifikator shared image upload rout

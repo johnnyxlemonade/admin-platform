@@ -19,18 +19,18 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP pozadavky pro translationresource
  */
-final class TranslationResourceController
+final readonly class TranslationResourceController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly AdminUiLocale $uiLocale,
-        private readonly ClientTranslationCatalog $catalog,
-        private readonly ClientTranslationGroupRegistry $groups,
-        private readonly ClientTranslationVersion $versions,
-        private readonly Responses $responses,
-        private readonly Router $router,
+        private AdminUiLocale $uiLocale,
+        private ClientTranslationCatalog $catalog,
+        private ClientTranslationGroupRegistry $groups,
+        private ClientTranslationVersion $versions,
+        private Responses $responses,
+        private Router $router,
     ) {}
 
     /**

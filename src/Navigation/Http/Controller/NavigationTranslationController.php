@@ -19,16 +19,16 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Poskytuje prelozene popisky aktualni navigace pro klienta
  */
-final class NavigationTranslationController
+final readonly class NavigationTranslationController
 {
     /**
      * Nastavi lokalizaci, katalog, navigaci a JSON odpovedi
      */
     public function __construct(
-        private readonly AdminUiLocale $uiLocale,
-        private readonly ClientTranslationCatalog $catalog,
-        private readonly AdminNavigation $navigation,
-        private readonly Responses $responses,
+        private AdminUiLocale $uiLocale,
+        private ClientTranslationCatalog $catalog,
+        private AdminNavigation $navigation,
+        private Responses $responses,
     ) {}
 
     /**

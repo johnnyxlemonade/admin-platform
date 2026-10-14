@@ -14,7 +14,7 @@ use Lemonade\Framework\Core\ServiceProviderInterface;
 /**
  * Registruje sluzby auditni casti dashboardu
  */
-final class DashboardAuditServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
+final readonly class DashboardAuditServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Urcuje registry potrebne pro dashboardove auditni presentation

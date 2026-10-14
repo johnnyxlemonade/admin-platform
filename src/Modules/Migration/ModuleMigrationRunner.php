@@ -15,14 +15,14 @@ use LogicException;
 /**
  * Spousti migrace instalovanych modulu
  */
-final class ModuleMigrationRunner
+final readonly class ModuleMigrationRunner
 {
     public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly ModuleCatalog $catalog,
-        private readonly MigrationRegistry $globalRegistry,
-        private readonly MigrationStateRepository $ledger,
-        private readonly Schema $schema,
+        private ContainerInterface $container,
+        private ModuleCatalog $catalog,
+        private MigrationRegistry $globalRegistry,
+        private MigrationStateRepository $ledger,
+        private Schema $schema,
     ) {}
 
     public function migrate(ModuleMigrationManifestInterface $manifest): ModuleMigrationResult

@@ -14,14 +14,14 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Kontroluje HTTP pozadavek pred zpracovanim administrace
  */
-final class AdminAuthorizationRequestCacheMiddleware implements MiddlewareInterface
+final readonly class AdminAuthorizationRequestCacheMiddleware implements MiddlewareInterface
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly CurrentUserProvider $currentUser,
-        private readonly AuthorizationService $authorization,
+        private CurrentUserProvider $currentUser,
+        private AuthorizationService $authorization,
     ) {}
 
     /**

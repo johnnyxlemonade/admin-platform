@@ -17,12 +17,12 @@ use Lemonade\Admin\Modules\State\ModuleStateResolver;
 /**
  * Ridi zivotni cyklus prefixu routy modulu
  */
-final class ModuleRoutePrefixLifecycleService
+final readonly class ModuleRoutePrefixLifecycleService
 {
     public function __construct(
-        private readonly ModuleStateResolver $modules,
-        private readonly ModuleRoutePrefixModel $prefixes,
-        private readonly TransactionalEventProcessor $events,
+        private ModuleStateResolver $modules,
+        private ModuleRoutePrefixModel $prefixes,
+        private TransactionalEventProcessor $events,
     ) {}
 
     /** @return list<string> */

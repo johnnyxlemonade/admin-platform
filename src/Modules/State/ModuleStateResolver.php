@@ -15,7 +15,7 @@ use Lemonade\Framework\Cache\CacheManager;
  */
 final class ModuleStateResolver
 {
-    private const CACHE_KEY = 'admin.module-enabled-map.v1';
+    private const string CACHE_KEY = 'admin.module-enabled-map.v1';
     /** @var array<string, ModuleManifestInterface> */
     private array $manifests = [];
     /** @var array<string, bool> */

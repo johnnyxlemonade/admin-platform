@@ -28,16 +28,16 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Promita sdileny runtime stav modulu do management DataGridu
  */
-final class ModulesDataGrid implements DataGridProviderInterface
+final readonly class ModulesDataGrid implements DataGridProviderInterface
 {
     /**
      * Nastavuje runtime snapshot stavu a Admin presentation zavislosti
      */
     public function __construct(
-        private readonly ModuleStateResolver $states,
-        private readonly TranslatorInterface $translator,
-        private readonly ModuleActionPresentationFactory $actionPresentation,
-        private readonly UrlGenerator $urls,
+        private ModuleStateResolver $states,
+        private TranslatorInterface $translator,
+        private ModuleActionPresentationFactory $actionPresentation,
+        private UrlGenerator $urls,
     ) {}
 
     /**

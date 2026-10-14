@@ -9,7 +9,7 @@ use LogicException;
 /**
  * Preklada bunky tabulky do podoby pro zobrazeni
  */
-final class DataGridCellSerializer
+final readonly class DataGridCellSerializer
 {
     /**
      * Prevede typed bunku na hodnotu pro DataGrid JSON transport

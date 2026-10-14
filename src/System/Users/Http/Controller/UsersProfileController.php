@@ -30,23 +30,23 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje canonical self-service profil nad existujicim Users editorem
  */
-final class UsersProfileController
+final readonly class UsersProfileController
 {
     /**
      * Nastavuje session identity, shared editorovy transport a Users presentation
      */
     public function __construct(
-        private readonly CurrentPrincipalProviderInterface $currentUser,
-        private readonly EditorDispatcher $editors,
-        private readonly EditorLockManager $locks,
-        private readonly UsersModulePageProvider $pages,
-        private readonly ModuleActionController $actions,
-        private readonly ModuleController $modules,
-        private readonly AdminUiLocale $locale,
-        private readonly TranslatorInterface $translator,
-        private readonly AdminResponseFactory $responses,
-        private readonly AdminPageRenderer $renderer,
-        private readonly UrlGenerator $urls,
+        private CurrentPrincipalProviderInterface $currentUser,
+        private EditorDispatcher $editors,
+        private EditorLockManager $locks,
+        private UsersModulePageProvider $pages,
+        private ModuleActionController $actions,
+        private ModuleController $modules,
+        private AdminUiLocale $locale,
+        private TranslatorInterface $translator,
+        private AdminResponseFactory $responses,
+        private AdminPageRenderer $renderer,
+        private UrlGenerator $urls,
     ) {}
 
     /**

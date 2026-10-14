@@ -21,14 +21,14 @@ use Lemonade\Admin\System\Audit\Models\AuditLogModel;
 /**
  * Poskytuje dashboardovy widget s poslednimi udalostmi systemoveho auditu
  */
-final class AuditDashboardWidgetProvider implements DashboardWidgetProviderInterface
+final readonly class AuditDashboardWidgetProvider implements DashboardWidgetProviderInterface
 {
     /**
      * Nastavi zdroj udalosti a presenter jejich lokalizovane podoby
      */
     public function __construct(
-        private readonly AuditLogModel $audit,
-        private readonly AuditEventPresenter $presenter,
+        private AuditLogModel $audit,
+        private AuditEventPresenter $presenter,
     ) {}
 
     /**

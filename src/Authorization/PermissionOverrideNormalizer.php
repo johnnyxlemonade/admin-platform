@@ -7,7 +7,7 @@ namespace Lemonade\Admin\Authorization;
 /**
  * Sjednocuje individualni zmeny opravneni
  */
-final class PermissionOverrideNormalizer
+final readonly class PermissionOverrideNormalizer
 {
     /**
      * @param list<string> $rolePermissionCodes

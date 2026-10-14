@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Zapisuje systemovy Media modul do katalogu bez nove persistence tabulky
  */
-final class RegisterMediaModule implements MigrationInterface
+final readonly class RegisterMediaModule implements MigrationInterface
 {
     public function __construct(private readonly DatabaseDriverInterface $database) {}
 

@@ -30,25 +30,25 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP tok instalace aplikace
  */
-final class InstallController
+final readonly class InstallController
 {
     /**
      * Nastavuje zavislosti potrebne pro instalacni tok
      */
     public function __construct(
-        private readonly InstallationService $installation,
-        private readonly AdminUiLocale $uiLocale,
-        private readonly CurrentUserProvider $currentUser,
-        private readonly AuthorizationService $authorization,
-        private readonly CsrfTokenManager $csrf,
-        private readonly AuthPageRenderer $pages,
-        private readonly AdminPageRenderer $adminPages,
-        private readonly Responses $responses,
-        private readonly HttpRequestInspector $requests,
-        private readonly TranslatorInterface $translator,
-        private readonly FormValidation $validator,
-        private readonly ClientTranslationVersion $translationVersion,
-        private readonly Router $router,
+        private InstallationService $installation,
+        private AdminUiLocale $uiLocale,
+        private CurrentUserProvider $currentUser,
+        private AuthorizationService $authorization,
+        private CsrfTokenManager $csrf,
+        private AuthPageRenderer $pages,
+        private AdminPageRenderer $adminPages,
+        private Responses $responses,
+        private HttpRequestInspector $requests,
+        private TranslatorInterface $translator,
+        private FormValidation $validator,
+        private ClientTranslationVersion $translationVersion,
+        private Router $router,
     ) {}
 
     /**

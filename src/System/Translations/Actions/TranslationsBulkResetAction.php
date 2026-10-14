@@ -17,16 +17,16 @@ use RuntimeException;
 /**
  * Obnovuje vybrane source preklady odstranenim jejich existujicich override hodnot
  */
-final class TranslationsBulkResetAction implements ModuleActionHandlerInterface
+final readonly class TranslationsBulkResetAction implements ModuleActionHandlerInterface
 {
-    private const MAXIMUM_BATCH_SIZE = 100;
+    private const int MAXIMUM_BATCH_SIZE = 100;
 
     /**
      * Nastavuje source katalog a canonical service pro auditovane odstraneni hodnot
      */
     public function __construct(
-        private readonly TranslationsCatalog $catalog,
-        private readonly TranslationOverrideService $overrides,
+        private TranslationsCatalog $catalog,
+        private TranslationOverrideService $overrides,
     ) {}
 
     /**

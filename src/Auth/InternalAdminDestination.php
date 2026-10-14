@@ -9,7 +9,7 @@ use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 /**
  * Overuje bezpecny cil po prihlaseni do administrace
  */
-final class InternalAdminDestination
+final readonly class InternalAdminDestination
 {
     /**
      * Overi zda cil vede na bezpecnou interni cestu administrace

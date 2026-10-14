@@ -9,7 +9,7 @@ use Lemonade\Framework\Validation\Rule\ValidationRuleInterface;
 /**
  * Overuje tvar pozadovanych allow a deny permission overrides
  */
-final class PermissionOverridesRule implements ValidationRuleInterface
+final readonly class PermissionOverridesRule implements ValidationRuleInterface
 {
     /**
      * Prijme pouze mapu permission kodu na editorove boolean hodnoty

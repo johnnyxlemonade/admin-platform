@@ -17,7 +17,7 @@ use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 /**
  * Prevadi obnoveni soft-deleted role na shared action response
  */
-final class RolesRestoreAction implements ModuleActionHandlerInterface
+final readonly class RolesRestoreAction implements ModuleActionHandlerInterface
 {
     /**
      * Nastavuje sluzbu vlastnici restore invarianty role

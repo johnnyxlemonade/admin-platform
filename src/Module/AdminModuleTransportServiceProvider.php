@@ -22,7 +22,7 @@ use Lemonade\Framework\Core\ServiceProviderInterface;
 /**
  * Registruje sdileny HTTP transport a registry, do nichz prispivaji admin moduly
  */
-final class AdminModuleTransportServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
+final readonly class AdminModuleTransportServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Urcuje sdilenou infrastrukturu potrebnou pro transport admin modulu

@@ -96,6 +96,7 @@ final class MfaControllerContractTest extends TestCase
         $configuration = new AdminMfaConfiguration($requirement, 'Admin', base64_encode(str_repeat('a', 32)));
         $credentials = new TotpCredentialService(
             $database,
+            new \Lemonade\Admin\Auth\Mfa\TotpCredentialModel($database),
             MfaSecretCipher::fromKey(str_repeat('a', 32)),
             new TotpSecretGenerator(),
             new TotpVerifier($this->clock()),

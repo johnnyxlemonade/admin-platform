@@ -25,7 +25,7 @@ use Lemonade\Framework\View\ViewHelpers;
 /**
  * Registruje sdileny editor protocol, zamky a jejich HTTP endpointy
  */
-final class AdminEditorServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
+final readonly class AdminEditorServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Urcuje sdilenou infrastrukturu potrebnou pro editory modulu

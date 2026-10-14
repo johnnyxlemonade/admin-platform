@@ -10,7 +10,7 @@ use Lemonade\Framework\Validation\Rule\ValidationRuleInterface;
 /**
  * Overuje serializaci vybranych opravneni proti canonical katalogu
  */
-final class RolePermissionsRule implements ValidationRuleInterface
+final readonly class RolePermissionsRule implements ValidationRuleInterface
 {
     /**
      * Nastavuje katalog povolenych kodu opravneni

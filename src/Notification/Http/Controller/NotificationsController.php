@@ -15,16 +15,16 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP pozadavky pro notifications
  */
-final class NotificationsController
+final readonly class NotificationsController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly NotificationService $notifications,
-        private readonly AdminUiLocale $locale,
-        private readonly TranslatorInterface $translator,
-        private readonly AdminPageRenderer $pages,
+        private NotificationService $notifications,
+        private AdminUiLocale $locale,
+        private TranslatorInterface $translator,
+        private AdminPageRenderer $pages,
     ) {}
 
     /**

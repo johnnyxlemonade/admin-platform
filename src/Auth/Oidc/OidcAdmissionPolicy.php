@@ -7,7 +7,7 @@ namespace Lemonade\Admin\Auth\Oidc;
 /**
  * Overuje, zda muze OIDC ucet do administrace
  */
-final class OidcAdmissionPolicy
+final readonly class OidcAdmissionPolicy
 {
     public function allows(OidcProviderConfiguration $configuration, VerifiedExternalIdentity $identity): bool
     {

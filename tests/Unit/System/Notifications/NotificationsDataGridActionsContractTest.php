@@ -145,7 +145,9 @@ final class NotificationsDataGridActionsContractTest extends TestCase
     /** @param list<string> $availableActions */
     private function actionPresentation(array $availableActions): ModuleActionPresentationFactory
     {
-        $presentation = $this->createMock(ModuleActionPresentationFactory::class);
+        $presentation = $this->getMockBuilder(ModuleActionPresentationFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $presentation->method('rowAction')->willReturnCallback(static function (string $moduleCode, string $action, int $entityId, DataGridRowActionPlacement $placement) use ($availableActions): ?DataGridRowActionDefinition {
             if ($moduleCode !== 'system.notifications' || !in_array($action, $availableActions, true)) {
                 return null;

@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari prirazeni roli a permission overrides uzivatelu
  */
-final class CreateCoreAuthorizationAssignments implements MigrationInterface
+final readonly class CreateCoreAuthorizationAssignments implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

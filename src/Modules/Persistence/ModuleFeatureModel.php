@@ -9,7 +9,7 @@ use Lemonade\Framework\Database\Database;
 /**
  * Zprostredkuje data volitelnych funkci modulu
  */
-final class ModuleFeatureModel
+final readonly class ModuleFeatureModel
 {
     public function __construct(private readonly Database $database) {}
 

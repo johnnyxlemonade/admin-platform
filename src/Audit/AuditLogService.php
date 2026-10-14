@@ -10,7 +10,7 @@ use Lemonade\Framework\Database\Database;
 /**
  * Zapisuje udalosti do auditniho logu
  */
-final class AuditLogService implements AuditLogWriterInterface
+final readonly class AuditLogService implements AuditLogWriterInterface
 {
     public function __construct(private readonly Database $database) {}
 

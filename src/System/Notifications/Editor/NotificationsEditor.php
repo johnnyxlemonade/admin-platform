@@ -24,15 +24,15 @@ use Lemonade\Framework\Validation\ValidationSchema;
 /**
  * Propojuje management editor s canonical publikovanim a upravou oznameni
  */
-final class NotificationsEditor implements EditorProviderInterface
+final readonly class NotificationsEditor implements EditorProviderInterface
 {
     /**
      * Nastavuje publisher, local-actor guard a cteni management zaznamu
      */
     public function __construct(
-        private readonly NotificationPublicationService $publisher,
-        private readonly LocalActorGuard $actors,
-        private readonly NotificationModel $notifications,
+        private NotificationPublicationService $publisher,
+        private LocalActorGuard $actors,
+        private NotificationModel $notifications,
     ) {}
 
     public function editorDefinition(): EditorDefinition

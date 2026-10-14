@@ -14,7 +14,7 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada shared modal pro upravu presentation metadat jedne file identity
  */
-final class AdminFileRenameModalDefinitionFactory
+final readonly class AdminFileRenameModalDefinitionFactory
 {
     /**
      * Nastavuje generator canonical Admin route

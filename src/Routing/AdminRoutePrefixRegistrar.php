@@ -10,14 +10,14 @@ use Lemonade\Framework\Routing\RouteRegistrarInterface;
 /**
  * Aplikuje host base path na vsechny relativni Admin routy
  */
-final class AdminRoutePrefixRegistrar implements RouteRegistrarInterface
+final readonly class AdminRoutePrefixRegistrar implements RouteRegistrarInterface
 {
     /**
      * Nastavuje konfiguraci host cesty a registry Admin rout
      */
     public function __construct(
-        private readonly AdminRoutingConfiguration $routing,
-        private readonly AdminRouteRegistrarRegistry $registrars,
+        private AdminRoutingConfiguration $routing,
+        private AdminRouteRegistrarRegistry $registrars,
     ) {}
 
     /**

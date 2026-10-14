@@ -13,7 +13,7 @@ use Lemonade\Framework\Routing\Router;
 /**
  * Registruje sdilene endpointy modalnich editoru administrace
  */
-final class EditorModalRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class EditorModalRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Vraci stabilni identifikator shared modalniho transportu

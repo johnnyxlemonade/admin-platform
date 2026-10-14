@@ -18,16 +18,16 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Zpracovava HTTP podporu administrace
  */
-final class AdminInstallationGuard implements MiddlewareInterface
+final readonly class AdminInstallationGuard implements MiddlewareInterface
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly InstallationStateInterface $installation,
-        private readonly Router $router,
-        private readonly Psr17Factory $responses,
-        private readonly AdminRoutingConfiguration $routing,
+        private InstallationStateInterface $installation,
+        private Router $router,
+        private Psr17Factory $responses,
+        private AdminRoutingConfiguration $routing,
     ) {}
 
     /**

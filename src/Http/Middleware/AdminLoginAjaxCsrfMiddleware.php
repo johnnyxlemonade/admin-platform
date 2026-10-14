@@ -17,16 +17,16 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Kontroluje HTTP pozadavek pred zpracovanim administrace
  */
-final class AdminLoginAjaxCsrfMiddleware implements MiddlewareInterface
+final readonly class AdminLoginAjaxCsrfMiddleware implements MiddlewareInterface
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly CsrfViewHelper $csrf,
-        private readonly TranslatorInterface $translator,
-        private readonly HttpRequestInspector $requestInspector,
-        private readonly Psr17Factory $responses,
+        private CsrfViewHelper $csrf,
+        private TranslatorInterface $translator,
+        private HttpRequestInspector $requestInspector,
+        private Psr17Factory $responses,
     ) {}
 
     /**

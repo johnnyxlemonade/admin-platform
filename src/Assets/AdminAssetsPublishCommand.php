@@ -9,7 +9,7 @@ use Lemonade\Framework\Cli\CommandInterface;
 /**
  * Publikuje predpripravene Admin assety do public rootu aktualniho hosta
  */
-final class AdminAssetsPublishCommand implements CommandInterface
+final readonly class AdminAssetsPublishCommand implements CommandInterface
 {
     /**
      * Nastavuje publisher Admin distribuce

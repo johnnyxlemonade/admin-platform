@@ -9,7 +9,7 @@ namespace Lemonade\Admin\System\Notifications;
  */
 final readonly class NotificationsExportSelection
 {
-    private const MAXIMUM_SIZE = 100;
+    private const int MAXIMUM_SIZE = 100;
 
     /**
      * @param list<int> $ids

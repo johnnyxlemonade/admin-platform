@@ -21,7 +21,7 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada full-page AdminEditor pro mutaci role a jejiho permission setu
  */
-final class RolesAdminEditorDefinitionFactory
+final readonly class RolesAdminEditorDefinitionFactory
 {
     /**
      * Nastavuje generator canonical Admin routes

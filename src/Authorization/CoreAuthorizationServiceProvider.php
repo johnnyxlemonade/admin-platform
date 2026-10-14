@@ -15,7 +15,7 @@ use Lemonade\Framework\Core\ServiceProviderInterface;
 /**
  * Registruje sluzby pro autorizaci, katalog opravneni a jeho synchronizaci
  */
-final class CoreAuthorizationServiceProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class CoreAuthorizationServiceProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Zapisuje RBAC resolver, policy, permission catalog sluzby a synchronizacni command

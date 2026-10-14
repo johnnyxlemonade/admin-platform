@@ -11,7 +11,7 @@ use Lemonade\Framework\Cli\CommandInterface;
 /**
  * Spousti cekajici migrace nainstalovanych optional modulu
  */
-final class ModuleMigrateCommand implements CommandInterface
+final readonly class ModuleMigrateCommand implements CommandInterface
 {
     /**
      * Prijima lifecycle sluzbu modulu

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Lemonade\Admin\Auth\Migrations;
+namespace Lemonade\Admin\Platform\Migrations;
 
 use Lemonade\Framework\Database\Migration\MigrationInterface;
 use Lemonade\Framework\Database\Schema\Blueprint\TableBlueprint;
@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari technicke buckety frameworkoveho rate limiteru pro Admin autentizaci
  */
-final class CreateFrameworkRateLimitTable implements MigrationInterface
+final readonly class CreateFrameworkRateLimitTable implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

@@ -13,7 +13,7 @@ use Lemonade\Admin\Editor\EditorDispatcher;
 /**
  * Registruje CRUD action transport s oddelenymi management permissions roli
  */
-final class RolesActionRegistrar
+final readonly class RolesActionRegistrar
 {
     /**
      * Nastavuje registry a handlery action transportu roli

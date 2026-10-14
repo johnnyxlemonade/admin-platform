@@ -10,9 +10,9 @@ use RuntimeException;
 /**
  * Prevadi tabulkova data na bezpecny UTF-8 CSV stream
  */
-final class CsvExport
+final readonly class CsvExport
 {
-    public const CONTENT_TYPE = 'text/csv; charset=UTF-8';
+    public const string CONTENT_TYPE = 'text/csv; charset=UTF-8';
 
     /**
      * Vytvari CSV chunky s hlavickou a jednotlivymi radky

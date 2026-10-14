@@ -28,7 +28,7 @@ use Lemonade\Image\Contract\ImageAssetResolverInterface;
 /**
  * Registruje sdileny rendering, odpovedi a zdroje administracni prezentace
  */
-final class AdminPresentationServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
+final readonly class AdminPresentationServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Urcuje sdilenou infrastrukturu potrebnou pro admin presentation

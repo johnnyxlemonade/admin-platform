@@ -19,18 +19,18 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Kontroluje HTTP pozadavek pred zpracovanim administrace
  */
-final class AdminAuthenticationMiddleware implements MiddlewareInterface
+final readonly class AdminAuthenticationMiddleware implements MiddlewareInterface
 {
-    private const INTENDED_PATH = 'admin.auth.intended_path';
+    private const string INTENDED_PATH = 'admin.auth.intended_path';
 
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly CurrentPrincipalProviderInterface $currentPrincipal,
-        private readonly SessionInterface $session,
-        private readonly Psr17Factory $responses,
-        private readonly AdminRoutingConfiguration $routing,
+        private CurrentPrincipalProviderInterface $currentPrincipal,
+        private SessionInterface $session,
+        private Psr17Factory $responses,
+        private AdminRoutingConfiguration $routing,
     ) {}
 
     /**

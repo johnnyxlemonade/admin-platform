@@ -13,7 +13,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 /**
  * Zpracovava data potrebna pro administracni editor
  */
-final class EditorLockRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class EditorLockRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Zpracovava hodnotu id v konfiguraci editoru

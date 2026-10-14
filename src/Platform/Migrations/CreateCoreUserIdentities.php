@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari vazby externich identit na lokalni uzivatele
  */
-final class CreateCoreUserIdentities implements MigrationInterface
+final readonly class CreateCoreUserIdentities implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

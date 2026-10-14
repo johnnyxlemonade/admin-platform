@@ -12,16 +12,16 @@ use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 /**
  * Ridi prihlaseni pres OIDC poskytovatele
  */
-final class OidcAuthenticationService
+final readonly class OidcAuthenticationService
 {
     public function __construct(
-        private readonly OidcProviderConfiguration $configuration,
-        private readonly OpenIdConnectClientInterface $client,
-        private readonly OidcAuthorizationTransactionStore $transactions,
-        private readonly OidcAdmissionPolicy $admission,
-        private readonly OidcShadowUserProvisioner $provisioner,
-        private readonly AuthenticationService $authentication,
-        private readonly AdminRoutingConfiguration $routing,
+        private OidcProviderConfiguration $configuration,
+        private OpenIdConnectClientInterface $client,
+        private OidcAuthorizationTransactionStore $transactions,
+        private OidcAdmissionPolicy $admission,
+        private OidcShadowUserProvisioner $provisioner,
+        private AuthenticationService $authentication,
+        private AdminRoutingConfiguration $routing,
     ) {}
 
     public function begin(?string $intendedPath): string

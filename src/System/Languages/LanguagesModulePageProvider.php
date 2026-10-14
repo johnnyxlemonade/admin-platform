@@ -25,14 +25,14 @@ use LogicException;
 /**
  * Sklada indexovou stranku DataGridu systemovych jazyku
  */
-final class LanguagesModulePageProvider implements ModuleIndexPageProviderInterface, ModuleModalEditorPageProviderInterface
+final readonly class LanguagesModulePageProvider implements ModuleIndexPageProviderInterface, ModuleModalEditorPageProviderInterface
 {
     public function __construct(
-        private readonly LanguagesDataGrid $grid,
-        private readonly TranslatorInterface $translator,
-        private readonly AuthorizationService $authorization,
-        private readonly UrlGenerator $urls,
-        private readonly LanguagesAdminEditorDefinitionFactory $editorDefinitions,
+        private LanguagesDataGrid $grid,
+        private TranslatorInterface $translator,
+        private AuthorizationService $authorization,
+        private UrlGenerator $urls,
+        private LanguagesAdminEditorDefinitionFactory $editorDefinitions,
     ) {}
 
     public function indexPermission(): string

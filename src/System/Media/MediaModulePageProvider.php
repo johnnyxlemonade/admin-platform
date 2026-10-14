@@ -14,12 +14,12 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada indexovou stranku centralniho Media DataGridu
  */
-final class MediaModulePageProvider implements ModuleIndexPageProviderInterface
+final readonly class MediaModulePageProvider implements ModuleIndexPageProviderInterface
 {
     public function __construct(
-        private readonly MediaDataGrid $grid,
-        private readonly TranslatorInterface $translator,
-        private readonly UrlGenerator $urls,
+        private MediaDataGrid $grid,
+        private TranslatorInterface $translator,
+        private UrlGenerator $urls,
     ) {}
 
     public function indexPermission(): string

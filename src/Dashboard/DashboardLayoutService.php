@@ -15,16 +15,16 @@ use Lemonade\Admin\Event\TransactionalEventProcessor;
 /**
  * Sklada rozlozeni osobniho dashboardu
  */
-final class DashboardLayoutService
+final readonly class DashboardLayoutService
 {
     /**
      * Nastavi sluzby pro osobni rozlozeni dashboardu
      */
     public function __construct(
-        private readonly DashboardWidgetRegistry $widgets,
-        private readonly DashboardWidgetAccessPolicy $access,
-        private readonly DashboardWidgetPreferenceModel $preferences,
-        private readonly TransactionalEventProcessor $events,
+        private DashboardWidgetRegistry $widgets,
+        private DashboardWidgetAccessPolicy $access,
+        private DashboardWidgetPreferenceModel $preferences,
+        private TransactionalEventProcessor $events,
     ) {}
 
     /**

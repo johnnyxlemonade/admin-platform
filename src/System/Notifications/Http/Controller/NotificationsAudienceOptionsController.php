@@ -19,17 +19,17 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Poskytuje autorizovane asynchronni volby aktivnich prijemcu pro management editor
  */
-final class NotificationsAudienceOptionsController
+final readonly class NotificationsAudienceOptionsController
 {
-    private const PAGE_SIZE = 25;
-    private const CANDIDATE_BATCH_SIZE = 100;
+    private const int PAGE_SIZE = 25;
+    private const int CANDIDATE_BATCH_SIZE = 100;
 
     public function __construct(
-        private readonly CurrentUserProvider $current,
-        private readonly AuthorizationService $authorization,
-        private readonly AuthorizationTargetPolicy $targets,
-        private readonly NotificationModel $notifications,
-        private readonly Responses $responses,
+        private CurrentUserProvider $current,
+        private AuthorizationService $authorization,
+        private AuthorizationTargetPolicy $targets,
+        private NotificationModel $notifications,
+        private Responses $responses,
     ) {}
 
     /**

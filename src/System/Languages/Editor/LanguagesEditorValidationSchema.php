@@ -10,7 +10,7 @@ use Lemonade\Framework\Validation\ValidationSchema;
 /**
  * Sklada vstupni validaci create a update editoru jazyku
  */
-final class LanguagesEditorValidationSchema
+final readonly class LanguagesEditorValidationSchema
 {
     public function __construct(private readonly TranslatorInterface $translator) {}
 

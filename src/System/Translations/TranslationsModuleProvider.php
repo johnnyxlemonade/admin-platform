@@ -27,7 +27,7 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje source projection, editor a action transport modulu prekladu
  */
-final class TranslationsModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class TranslationsModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Pripojuje modulove registry a resources pred container freeze boundary

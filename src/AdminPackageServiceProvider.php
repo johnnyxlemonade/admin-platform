@@ -31,6 +31,7 @@ use Lemonade\Admin\Platform\Migrations\CreateCoreTranslationOverrides;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUserIdentities;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUsers;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUserTotp;
+use Lemonade\Admin\Platform\Migrations\CreateFrameworkRateLimitTable;
 use Lemonade\Admin\Presentation\AdminPresentationServiceProvider;
 use Lemonade\Admin\System\SystemModuleServiceProvider;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
@@ -110,6 +111,7 @@ final class AdminPackageServiceProvider implements ServiceProviderInterface, Boo
         $migrations->register(CreateCoreEditorLocks::class);
         $migrations->register(CreateCoreFiles::class);
         $migrations->register(CreateCoreTranslationOverrides::class);
+        $migrations->register(CreateFrameworkRateLimitTable::class);
     }
 
     /**

@@ -7,7 +7,7 @@ namespace Lemonade\Admin\Identity;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 
-final class LocalActorGuard
+final readonly class LocalActorGuard
 {
     public function __construct(private readonly CurrentPrincipalProviderInterface $principals) {}
 

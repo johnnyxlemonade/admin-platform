@@ -10,16 +10,16 @@ use Lemonade\Framework\Localization\TranslatorInterface;
 /**
  * Poskytuje osobni inbox a stav neprectenych administracnich oznameni
  */
-final class NotificationService
+final readonly class NotificationService
 {
     /**
      * Nastavuje zdroje inboxu, identity prijemce a presentation dat
      */
     public function __construct(
-        private readonly NotificationInboxRepositoryInterface $notifications,
-        private readonly NotificationRecipientIdentityResolver $recipients,
-        private readonly TranslatorInterface $translator,
-        private readonly NotificationPresentation $presentation,
+        private NotificationInboxRepositoryInterface $notifications,
+        private NotificationRecipientIdentityResolver $recipients,
+        private TranslatorInterface $translator,
+        private NotificationPresentation $presentation,
     ) {}
 
     /**

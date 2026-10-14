@@ -15,7 +15,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 /**
  * Registruje management routy exportu a voleb publika
  */
-final class NotificationsRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class NotificationsRouteRegistrar implements AdminRouteRegistrarInterface
 {
     public function id(): string
     {

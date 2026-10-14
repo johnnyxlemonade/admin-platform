@@ -28,18 +28,18 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Poskytuje DataGrid roli s neautoritativni presentation dostupnych akci
  */
-final class RolesDataGrid implements DataGridProviderInterface
+final readonly class RolesDataGrid implements DataGridProviderInterface
 {
     /**
      * Nastavuje data, authorization a action presentation prehledu
      */
     public function __construct(
-        private readonly RoleService $roles,
-        private readonly TranslatorInterface $translator,
-        private readonly AuthorizationService $authorization,
-        private readonly CurrentPrincipalProviderInterface $principals,
-        private readonly ModuleActionPresentationFactory $actionPresentation,
-        private readonly UrlGenerator $urls,
+        private RoleService $roles,
+        private TranslatorInterface $translator,
+        private AuthorizationService $authorization,
+        private CurrentPrincipalProviderInterface $principals,
+        private ModuleActionPresentationFactory $actionPresentation,
+        private UrlGenerator $urls,
     ) {}
 
     /**

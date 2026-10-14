@@ -11,13 +11,13 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP pozadavky pro adminerror
  */
-final class AdminErrorController
+final readonly class AdminErrorController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly AdminResponseFactory $responses,
+        private AdminResponseFactory $responses,
     ) {}
 
     /**

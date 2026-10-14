@@ -32,7 +32,7 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje Languages capability vcetne editoru, akci a DataGridu
  */
-final class LanguagesModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class LanguagesModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Zapojuje runtime sluzby a registruje modulove prispevky pred container freeze boundary

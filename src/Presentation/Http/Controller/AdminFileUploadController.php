@@ -32,25 +32,25 @@ use Psr\Log\LoggerInterface;
 /**
  * Obsluhuje shared upload a odstraneni image originalu pro autorizovane Admin editory
  */
-final class AdminFileUploadController
+final readonly class AdminFileUploadController
 {
     /**
      * Nastavuje editorovou authorization, image metadata, storage mutaci a JSON odpovedi
      */
     public function __construct(
-        private readonly EditorDispatcher $editors,
-        private readonly AdminFileMutationService $files,
-        private readonly AdminFileImageOriginalWriter $originals,
-        private readonly AdminFileUploadComponent $uploads,
-        private readonly AdminFileUsageRegistry $usages,
-        private readonly AdminFileModel $fileModel,
-        private readonly AdminFileRenameModalDefinitionFactory $renameModal,
-        private readonly ChunkUploadService $chunks,
-        private readonly Filesystem $filesystem,
-        private readonly Responses $responses,
-        private readonly TranslatorInterface $translator,
-        private readonly ViewRendererInterface $views,
-        private readonly LoggerInterface $logger,
+        private EditorDispatcher $editors,
+        private AdminFileMutationService $files,
+        private AdminFileImageOriginalWriter $originals,
+        private AdminFileUploadComponent $uploads,
+        private AdminFileUsageRegistry $usages,
+        private AdminFileModel $fileModel,
+        private AdminFileRenameModalDefinitionFactory $renameModal,
+        private ChunkUploadService $chunks,
+        private Filesystem $filesystem,
+        private Responses $responses,
+        private TranslatorInterface $translator,
+        private ViewRendererInterface $views,
+        private LoggerInterface $logger,
     ) {}
 
     /**

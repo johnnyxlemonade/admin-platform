@@ -11,10 +11,10 @@ use Lemonade\Admin\Presentation\Models\AdminFileModel;
 /**
  * Poskytuje read-only dotazy nad canonical katalogem system_file
  */
-final class MediaService
+final readonly class MediaService
 {
     public function __construct(
-        private readonly AdminFileModel $files,
+        private AdminFileModel $files,
     ) {}
 
     /**

@@ -9,7 +9,7 @@ use Lemonade\Framework\Localization\TranslatorInterface;
 /**
  * Popisuje data administracniho oznameni
  */
-final class NotificationPresentation
+final readonly class NotificationPresentation
 {
     /**
      * Zpracovava hodnotu author pro oznameni

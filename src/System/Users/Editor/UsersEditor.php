@@ -34,19 +34,19 @@ use Lemonade\Framework\Validation\ValidationSchema;
 /**
  * Propojuje Users editorovy transport s mutacemi a presentation projekcemi pristupu
  */
-final class UsersEditor implements EditorProviderInterface, EditorAccessPolicyInterface, EditorLockBypassPolicyInterface
+final readonly class UsersEditor implements EditorProviderInterface, EditorAccessPolicyInterface, EditorLockBypassPolicyInterface
 {
     /**
      * Nastavuje Users mutace, schema, authorization a self-service policy editoru
      */
     public function __construct(
-        private readonly UserService $users,
-        private readonly UsersEditorValidationSchema $validation,
-        private readonly AuthorizationService $authorization,
-        private readonly EffectivePermissionGroupViewModelFactory $permissionGroups,
-        private readonly UsersEditorAccessPolicy $access,
-        private readonly AuthorizationTargetPolicy $targets,
-        private readonly LocalActorGuard $actors,
+        private UserService $users,
+        private UsersEditorValidationSchema $validation,
+        private AuthorizationService $authorization,
+        private EffectivePermissionGroupViewModelFactory $permissionGroups,
+        private UsersEditorAccessPolicy $access,
+        private AuthorizationTargetPolicy $targets,
+        private LocalActorGuard $actors,
     ) {}
 
     /**

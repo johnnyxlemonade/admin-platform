@@ -20,16 +20,16 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada read-only feature projection pro management stranku modulu
  */
-final class ModulesFeaturesPageProvider
+final readonly class ModulesFeaturesPageProvider
 {
     /**
      * Nastavuje sdilene runtime resolvery a presentation zavislosti
      */
     public function __construct(
-        private readonly ModuleStateResolver $modules,
-        private readonly ModuleFeatureStateResolver $features,
-        private readonly TranslatorInterface $translator,
-        private readonly UrlGenerator $urls,
+        private ModuleStateResolver $modules,
+        private ModuleFeatureStateResolver $features,
+        private TranslatorInterface $translator,
+        private UrlGenerator $urls,
     ) {}
 
     /**

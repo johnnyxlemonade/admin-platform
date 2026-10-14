@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Registruje systemovy Users modul v lifecycle tabulce
  */
-final class RegisterUsersModule implements MigrationInterface
+final readonly class RegisterUsersModule implements MigrationInterface
 {
     /**
      * Nastavi databazovy driver pro registraci modulu

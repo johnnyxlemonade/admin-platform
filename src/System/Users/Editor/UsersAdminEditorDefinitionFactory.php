@@ -23,7 +23,7 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada full-page AdminEditor pro profil, role assignment a permission projection uzivatele
  */
-final class UsersAdminEditorDefinitionFactory
+final readonly class UsersAdminEditorDefinitionFactory
 {
     /**
      * Nastavuje generator named routes pro editorove formulare

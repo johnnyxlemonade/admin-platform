@@ -11,14 +11,14 @@ use Lemonade\Framework\Session\Contract\SessionInterface;
 /**
  * Uklada kratkodoby neautentizovany MFA krok lokalniho prihlaseni
  */
-final class MfaLoginChallengeStore
+final readonly class MfaLoginChallengeStore
 {
     private const string SESSION_KEY = 'admin.auth.mfa.challenge';
     private const int TTL_SECONDS = 300;
 
     public function __construct(
-        private readonly SessionInterface $session,
-        private readonly AdminRoutingConfiguration $routing,
+        private SessionInterface $session,
+        private AdminRoutingConfiguration $routing,
     ) {}
 
     /**

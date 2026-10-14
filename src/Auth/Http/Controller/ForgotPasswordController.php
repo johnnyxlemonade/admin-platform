@@ -17,17 +17,17 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP pozadavky pro forgotpassword
  */
-final class ForgotPasswordController
+final readonly class ForgotPasswordController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly AdminUiLocale $uiLocale,
-        private readonly ClientTranslationVersion $translationVersion,
-        private readonly AuthPageRenderer $pages,
-        private readonly TranslatorInterface $translator,
-        private readonly AdminBranding $branding,
+        private AdminUiLocale $uiLocale,
+        private ClientTranslationVersion $translationVersion,
+        private AuthPageRenderer $pages,
+        private TranslatorInterface $translator,
+        private AdminBranding $branding,
     ) {}
 
     /**

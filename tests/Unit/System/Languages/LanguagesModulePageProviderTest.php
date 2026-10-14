@@ -35,7 +35,9 @@ final class LanguagesModulePageProviderTest extends TestCase
             languages: (new \ReflectionClass(LanguageModel::class))->newInstanceWithoutConstructor(),
             translator: $translator,
             authorization: $authorization,
-            actionPresentation: $this->createMock(ModuleActionPresentationFactory::class),
+            actionPresentation: $this->getMockBuilder(ModuleActionPresentationFactory::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
             urls: $urls,
         );
         $provider = new LanguagesModulePageProvider(

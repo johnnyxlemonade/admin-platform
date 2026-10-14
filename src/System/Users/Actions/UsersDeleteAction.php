@@ -19,14 +19,14 @@ use RuntimeException;
 /**
  * Prevadi pozadavek na soft delete uzivatele do action transportu
  */
-final class UsersDeleteAction implements ModuleActionHandlerInterface
+final readonly class UsersDeleteAction implements ModuleActionHandlerInterface
 {
     /**
      * Nastavuje sluzby pro lokalni actor guard a smazani uzivatele
      */
     public function __construct(
-        private readonly UserService $users,
-        private readonly LocalActorGuard $actors,
+        private UserService $users,
+        private LocalActorGuard $actors,
     ) {}
 
     /**

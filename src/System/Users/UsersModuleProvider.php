@@ -36,7 +36,7 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje runtime contributions Users capability do shared Admin registry
  */
-final class UsersModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class UsersModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Pripoji explicitne definovany dashboardovy contribution pred container freeze boundary

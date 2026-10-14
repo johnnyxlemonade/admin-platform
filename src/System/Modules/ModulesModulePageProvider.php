@@ -14,15 +14,15 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada indexovou stranku management DataGridu nad runtime stavy modulu
  */
-final class ModulesModulePageProvider implements ModuleIndexPageProviderInterface
+final readonly class ModulesModulePageProvider implements ModuleIndexPageProviderInterface
 {
     /**
      * Nastavuje DataGrid a lokalizovane texty indexove prezentace
      */
     public function __construct(
-        private readonly ModulesDataGrid $grid,
-        private readonly TranslatorInterface $translator,
-        private readonly UrlGenerator $urls,
+        private ModulesDataGrid $grid,
+        private TranslatorInterface $translator,
+        private UrlGenerator $urls,
     ) {}
 
     public function indexPermission(): string

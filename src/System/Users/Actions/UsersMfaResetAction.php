@@ -19,14 +19,14 @@ use RuntimeException;
 /**
  * Prevadi autorizovany reset MFA uzivatele do shared action transportu
  */
-final class UsersMfaResetAction implements ModuleActionHandlerInterface
+final readonly class UsersMfaResetAction implements ModuleActionHandlerInterface
 {
     /**
      * Nastavuje Users mutaci a guard lokalniho actora
      */
     public function __construct(
-        private readonly UserService $users,
-        private readonly LocalActorGuard $actors,
+        private UserService $users,
+        private LocalActorGuard $actors,
     ) {}
 
     /**

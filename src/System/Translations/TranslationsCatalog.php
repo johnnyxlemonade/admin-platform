@@ -11,15 +11,15 @@ use Lemonade\Framework\Localization\TranslatorInterface;
 /**
  * Sklada read model source prekladu a explicitnich override hodnot pro administraci
  */
-final class TranslationsCatalog
+final readonly class TranslationsCatalog
 {
     /**
      * Nastavuje source katalog, resolved runtime a persistovane overrides
      */
     public function __construct(
-        private readonly TranslationSourceCatalogInterface $sources,
-        private readonly TranslatorInterface $translator,
-        private readonly TranslationOverrideProviderInterface $overrides,
+        private TranslationSourceCatalogInterface $sources,
+        private TranslatorInterface $translator,
+        private TranslationOverrideProviderInterface $overrides,
     ) {}
 
     /**

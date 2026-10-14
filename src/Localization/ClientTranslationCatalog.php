@@ -9,13 +9,13 @@ use Lemonade\Framework\Localization\TranslatorInterface;
 /**
  * Sklada preklady administrace do hierarchie pro klientsky loader
  */
-final class ClientTranslationCatalog
+final readonly class ClientTranslationCatalog
 {
     /**
      * Nastavuje prekladac, ktery poskytuje zdrojove skupiny
      */
     public function __construct(
-        private readonly TranslatorInterface $translator,
+        private TranslatorInterface $translator,
     ) {}
 
     /**

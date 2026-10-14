@@ -11,7 +11,7 @@ use Lemonade\Admin\Editor\Contract\EditorLockBypassPolicyInterface;
 /**
  * Urci uzky self-service pristup a lock bypass pro vlastni profil uzivatele
  */
-final class UsersEditorAccessPolicy implements EditorAccessPolicyInterface, EditorLockBypassPolicyInterface
+final readonly class UsersEditorAccessPolicy implements EditorAccessPolicyInterface, EditorLockBypassPolicyInterface
 {
     /**
      * Nastavuje authorization zdroj aktualniho uzivatele

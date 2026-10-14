@@ -33,18 +33,18 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Promita management oznameni do autorizovaneho DataGridu
  */
-final class NotificationsDataGrid implements DataGridProviderInterface
+final readonly class NotificationsDataGrid implements DataGridProviderInterface
 {
     /**
      * Nastavuje management projekci, presentation a action zavislosti
      */
     public function __construct(
-        private readonly NotificationModel $model,
-        private readonly NotificationPresentation $presentation,
-        private readonly TranslatorInterface $translator,
-        private readonly ModuleActionPresentationFactory $actionPresentation,
-        private readonly AuthorizationService $authorization,
-        private readonly UrlGenerator $urls,
+        private NotificationModel $model,
+        private NotificationPresentation $presentation,
+        private TranslatorInterface $translator,
+        private ModuleActionPresentationFactory $actionPresentation,
+        private AuthorizationService $authorization,
+        private UrlGenerator $urls,
     ) {}
 
     /**

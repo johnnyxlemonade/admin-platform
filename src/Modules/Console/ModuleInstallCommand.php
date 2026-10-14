@@ -11,7 +11,7 @@ use Lemonade\Framework\Cli\CommandInterface;
 /**
  * Instaluje jeden objeveny optional modul pres sdileny lifecycle
  */
-final class ModuleInstallCommand implements CommandInterface
+final readonly class ModuleInstallCommand implements CommandInterface
 {
     /**
      * Prijima lifecycle sluzbu modulu

@@ -9,7 +9,7 @@ use Lemonade\Framework\Database\Database;
 /**
  * Poskytuje data potrebna pro overeni identity
  */
-final class LocalAuthenticationProvider
+final readonly class LocalAuthenticationProvider
 {
     /**
      * Nastavuje data potrebna pro overeni identity

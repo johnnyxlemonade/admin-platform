@@ -10,7 +10,7 @@ use Lemonade\Cms\Routing\Module\PublicModuleStateResolverInterface;
 /**
  * Odvozuje dostupnost verejne routy z lifecycle modulu
  */
-final class ModuleLifecyclePublicModuleStateResolver implements PublicModuleStateResolverInterface
+final readonly class ModuleLifecyclePublicModuleStateResolver implements PublicModuleStateResolverInterface
 {
     /**
      * Nastavuje canonical resolver lifecycle modulu

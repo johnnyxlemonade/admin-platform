@@ -11,14 +11,14 @@ use RuntimeException;
 /**
  * Vyhledava administracni modul podle URL segmentu
  */
-final class AdminModuleRouteResolver
+final readonly class AdminModuleRouteResolver
 {
     /**
      * Nastavuje zavislosti potrebne pro praci s administracnimi moduly
      */
     public function __construct(
-        private readonly AdminModuleRegistry $adminModules,
-        private readonly ModuleRegistry $modules,
+        private AdminModuleRegistry $adminModules,
+        private ModuleRegistry $modules,
     ) {}
 
     /**

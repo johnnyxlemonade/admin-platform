@@ -22,19 +22,19 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Vytvari autorizovany CSV export vybranych management oznameni
  */
-final class NotificationsExportController
+final readonly class NotificationsExportController
 {
     /**
      * Nastavuje authorization, management projekci a CSV presentation
      */
     public function __construct(
-        private readonly AuthorizationService $authorization,
-        private readonly AdminResponseFactory $adminResponses,
-        private readonly NotificationModel $notifications,
-        private readonly NotificationPresentation $presentation,
-        private readonly CsvExport $csv,
-        private readonly TranslatorInterface $translator,
-        private readonly Responses $responses,
+        private AuthorizationService $authorization,
+        private AdminResponseFactory $adminResponses,
+        private NotificationModel $notifications,
+        private NotificationPresentation $presentation,
+        private CsvExport $csv,
+        private TranslatorInterface $translator,
+        private Responses $responses,
     ) {}
 
     /**

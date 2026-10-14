@@ -6,6 +6,7 @@ namespace Lemonade\Admin\Tests\Unit\Auth;
 
 use DateTimeImmutable;
 use Lemonade\Admin\Auth\Mfa\MfaSecretCipher;
+use Lemonade\Admin\Auth\Mfa\TotpCredentialModel;
 use Lemonade\Admin\Auth\Mfa\TotpCredentialService;
 use Lemonade\Framework\Clock\ClockInterface;
 use Lemonade\Framework\Database\Connection\ConnectionInterface;
@@ -135,8 +136,11 @@ final class TotpCredentialServiceContractTest extends TestCase
         $clock = $this->createMock(ClockInterface::class);
         $clock->method('now')->willReturn(new DateTimeImmutable('@' . $timestamp));
 
+        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+
         return new TotpCredentialService(
-            new Database($connection, $this->createMock(DatabaseDriverInterface::class)),
+            $database,
+            new TotpCredentialModel($database),
             $cipher,
             new TotpSecretGenerator(),
             new TotpVerifier($clock),

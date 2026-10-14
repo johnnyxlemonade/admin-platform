@@ -9,14 +9,14 @@ use Lemonade\Admin\Auth\AuthenticatedUser;
 /**
  * Poskytuje identitu a lokalizaci pro vykresleni widgetu
  */
-final class DashboardWidgetContext
+final readonly class DashboardWidgetContext
 {
     /**
      * Vytvori kontext pro konkretniho lokalniho uzivatele
      */
     public function __construct(
-        private readonly AuthenticatedUser $localUser,
-        private readonly string $locale,
+        private AuthenticatedUser $localUser,
+        private string $locale,
     ) {}
 
     /**

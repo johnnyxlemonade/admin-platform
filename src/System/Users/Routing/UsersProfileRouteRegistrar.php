@@ -14,7 +14,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 /**
  * Registruje profilove routy uzivatele
  */
-final class UsersProfileRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class UsersProfileRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Vraci identifikator registraru

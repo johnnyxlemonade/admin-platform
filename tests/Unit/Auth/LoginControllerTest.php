@@ -103,6 +103,7 @@ final class LoginControllerTest extends TestCase
         );
         $credentials = new TotpCredentialService(
             $database,
+            new \Lemonade\Admin\Auth\Mfa\TotpCredentialModel($database),
             MfaSecretCipher::fromKey(str_repeat('a', 32)),
             new TotpSecretGenerator(),
             new TotpVerifier($this->clock()),

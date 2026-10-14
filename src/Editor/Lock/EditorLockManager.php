@@ -11,15 +11,15 @@ use Throwable;
 /**
  * Zpracovava data potrebna pro administracni editor
  */
-final class EditorLockManager
+final readonly class EditorLockManager
 {
     /**
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
      */
     public function __construct(
-        private readonly Database $database,
-        private readonly CurrentUserProvider $currentUser,
-        private readonly EditorLockOwnerReleaserInterface $ownerReleaser,
+        private Database $database,
+        private CurrentUserProvider $currentUser,
+        private EditorLockOwnerReleaserInterface $ownerReleaser,
     ) {}
 
     /**

@@ -17,7 +17,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 /**
  * Registruje obecne routy pro prenos pozadavku admin modulu
  */
-final class AdminModuleRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class AdminModuleRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Nastavuje registry canonical management rout modulu

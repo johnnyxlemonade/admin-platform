@@ -16,17 +16,17 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje autorizovane zobrazeni feature management stranky modulu
  */
-final class ModulesFeaturesController
+final readonly class ModulesFeaturesController
 {
     /**
      * Nastavuje page projection a sdilene Admin HTTP zavislosti
      */
     public function __construct(
-        private readonly ModulesFeaturesPageProvider $pages,
-        private readonly AuthorizationService $authorization,
-        private readonly AdminUiLocale $locale,
-        private readonly AdminResponseFactory $responses,
-        private readonly AdminPageRenderer $pageRenderer,
+        private ModulesFeaturesPageProvider $pages,
+        private AuthorizationService $authorization,
+        private AdminUiLocale $locale,
+        private AdminResponseFactory $responses,
+        private AdminPageRenderer $pageRenderer,
     ) {}
 
     /**

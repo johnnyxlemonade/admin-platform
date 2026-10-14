@@ -23,21 +23,21 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP pozadavky pro moduleaction
  */
-final class ModuleActionController
+final readonly class ModuleActionController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly ModuleActionDispatcher $actions,
-        private readonly AdminAuthorizationResponseHandler $authorizationResponses,
-        private readonly AdminUiLocale $locale,
-        private readonly TranslatorInterface $translator,
-        private readonly ModulePageRegistry $pages,
-        private readonly AdminModuleRouteResolver $routes,
-        private readonly Responses $responses,
-        private readonly UrlGenerator $urls,
-        private readonly FlashBagInterface $flash,
+        private ModuleActionDispatcher $actions,
+        private AdminAuthorizationResponseHandler $authorizationResponses,
+        private AdminUiLocale $locale,
+        private TranslatorInterface $translator,
+        private ModulePageRegistry $pages,
+        private AdminModuleRouteResolver $routes,
+        private Responses $responses,
+        private UrlGenerator $urls,
+        private FlashBagInterface $flash,
     ) {}
 
     /**

@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari lifecycle zaznam systemoveho management modulu oznameni
  */
-final class RegisterNotificationsModule implements MigrationInterface
+final readonly class RegisterNotificationsModule implements MigrationInterface
 {
     public function __construct(private readonly DatabaseDriverInterface $database) {}
 

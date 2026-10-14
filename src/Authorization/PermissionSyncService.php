@@ -9,10 +9,10 @@ use Lemonade\Framework\Database\Database;
 /**
  * Synchronizuje opravneni ulozena v systemu
  */
-final class PermissionSyncService
+final readonly class PermissionSyncService
 {
     /** @var list<string> */
-    private const ADMINISTRATOR_EXCLUDED_PERMISSIONS = [
+    private const array ADMINISTRATOR_EXCLUDED_PERMISSIONS = [
         'system.modules.view',
         'system.modules.install',
         'system.modules.enable',
@@ -21,8 +21,8 @@ final class PermissionSyncService
     ];
 
     public function __construct(
-        private readonly PermissionCatalogRegistry $catalog,
-        private readonly Database $database,
+        private PermissionCatalogRegistry $catalog,
+        private Database $database,
     ) {}
 
     public function sync(): PermissionSyncReport

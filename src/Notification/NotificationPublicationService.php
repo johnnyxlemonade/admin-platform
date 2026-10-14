@@ -19,7 +19,7 @@ use RuntimeException;
 /**
  * Zpracovava zivotni cyklus nebo doruceni administracnich oznameni
  */
-final class NotificationPublicationService
+final readonly class NotificationPublicationService
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani oznameni

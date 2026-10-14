@@ -13,16 +13,16 @@ use Lemonade\Admin\Editor\EditorDispatcher;
 /**
  * Registruje save override a reset na package source bez dalsi auditni vrstvy
  */
-final class TranslationsActionRegistrar
+final readonly class TranslationsActionRegistrar
 {
     /**
      * Nastavuje shared action registry, editor transport a reset handler
      */
     public function __construct(
-        private readonly ModuleActionRegistry $actions,
-        private readonly EditorDispatcher $editors,
-        private readonly TranslationsResetAction $reset,
-        private readonly TranslationsBulkResetAction $bulkReset,
+        private ModuleActionRegistry $actions,
+        private EditorDispatcher $editors,
+        private TranslationsResetAction $reset,
+        private TranslationsBulkResetAction $bulkReset,
     ) {}
 
     /**

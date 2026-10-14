@@ -15,17 +15,17 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Odesila autorizovanemu administratorovi puvodni soubor z katalogu medii
  */
-final class MediaDownloadController
+final readonly class MediaDownloadController
 {
     /**
      * Nastavuje authorization, shared file metadata, storage resolvery a download odpovedi
      */
     public function __construct(
-        private readonly AuthorizationService $authorization,
-        private readonly AdminResponseFactory $adminResponses,
-        private readonly AdminFileModel $files,
-        private readonly AdminFileOriginalPathResolver $originals,
-        private readonly Responses $responses,
+        private AuthorizationService $authorization,
+        private AdminResponseFactory $adminResponses,
+        private AdminFileModel $files,
+        private AdminFileOriginalPathResolver $originals,
+        private Responses $responses,
     ) {}
 
     /**

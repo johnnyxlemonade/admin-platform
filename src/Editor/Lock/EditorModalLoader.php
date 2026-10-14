@@ -10,14 +10,14 @@ use Lemonade\Admin\Editor\EditorLoaded;
 /**
  * Zpracovava data potrebna pro administracni editor
  */
-final class EditorModalLoader
+final readonly class EditorModalLoader
 {
     /**
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
      */
     public function __construct(
-        private readonly EditorDispatcher $editors,
-        private readonly EditorLockManager $locks,
+        private EditorDispatcher $editors,
+        private EditorLockManager $locks,
     ) {}
 
     /**

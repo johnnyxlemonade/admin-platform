@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Migrations;
 
-use Lemonade\Admin\Migrations\CreateDashboardWidgets;
-use Lemonade\Admin\Migrations\CreateNotifications;
+use Lemonade\Admin\Dashboard\Migrations\CreateDashboardWidgets;
+use Lemonade\Admin\Notification\Migrations\CreateNotifications;
 use Lemonade\Admin\Platform\Migrations\CreateCoreAuditLog;
 use Lemonade\Admin\Platform\Migrations\CreateCoreAuthorizationAssignments;
 use Lemonade\Admin\Platform\Migrations\CreateCoreAuthorizationCatalog;

@@ -25,20 +25,20 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada management index, editorove stranky a jejich audience presentation
  */
-final class NotificationsModulePageProvider implements ModuleIndexPageProviderInterface, ModuleModalEditorPageProviderInterface
+final readonly class NotificationsModulePageProvider implements ModuleIndexPageProviderInterface, ModuleModalEditorPageProviderInterface
 {
     /**
      * Nastavuje management DataGrid, audience data a definice modalniho editoru
      */
     public function __construct(
-        private readonly NotificationsDataGrid $grid,
-        private readonly TranslatorInterface $translator,
-        private readonly CurrentUserProvider $current,
-        private readonly NotificationModel $model,
-        private readonly AuthorizationDelegationPolicy $delegation,
-        private readonly UrlGenerator $urls,
-        private readonly NotificationsAdminEditorDefinitionFactory $adminEditorDefinitions,
-        private readonly AuthorizationService $authorization,
+        private NotificationsDataGrid $grid,
+        private TranslatorInterface $translator,
+        private CurrentUserProvider $current,
+        private NotificationModel $model,
+        private AuthorizationDelegationPolicy $delegation,
+        private UrlGenerator $urls,
+        private NotificationsAdminEditorDefinitionFactory $adminEditorDefinitions,
+        private AuthorizationService $authorization,
     ) {}
 
     public function indexPermission(): string

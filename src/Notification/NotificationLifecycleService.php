@@ -16,15 +16,15 @@ use RuntimeException;
 /**
  * Zpracovava zivotni cyklus nebo doruceni administracnich oznameni
  */
-final class NotificationLifecycleService
+final readonly class NotificationLifecycleService
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani oznameni
      */
     public function __construct(
-        private readonly NotificationModel $notifications,
-        private readonly LocalActorGuard $actors,
-        private readonly TransactionalEventProcessor $events,
+        private NotificationModel $notifications,
+        private LocalActorGuard $actors,
+        private TransactionalEventProcessor $events,
     ) {}
 
     /**

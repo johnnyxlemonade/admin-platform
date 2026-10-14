@@ -18,7 +18,7 @@ use RuntimeException;
  */
 abstract class NotificationBulkAction implements ModuleActionHandlerInterface
 {
-    private const MAXIMUM_BATCH_SIZE = 100;
+    private const int MAXIMUM_BATCH_SIZE = 100;
 
     /**
      * Nastavuje canonical lifecycle service pro hromadne mutace

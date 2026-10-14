@@ -13,14 +13,14 @@ use Lemonade\Admin\Editor\EditorDispatcher;
 /**
  * Registruje editorove a stavove akce systemovych jazyku
  */
-final class LanguagesActionRegistrar
+final readonly class LanguagesActionRegistrar
 {
     public function __construct(
-        private readonly ModuleActionRegistry $actions,
-        private readonly EditorDispatcher $editors,
-        private readonly LanguagesSetEnabledAction $enable,
-        private readonly LanguagesSetEnabledAction $disable,
-        private readonly LanguagesSetDefaultAction $setDefault,
+        private ModuleActionRegistry $actions,
+        private EditorDispatcher $editors,
+        private LanguagesSetEnabledAction $enable,
+        private LanguagesSetEnabledAction $disable,
+        private LanguagesSetDefaultAction $setDefault,
     ) {}
 
     /**

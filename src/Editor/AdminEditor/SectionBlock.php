@@ -9,19 +9,19 @@ use InvalidArgumentException;
 /**
  * Zpracovava data potrebna pro administracni editor
  */
-class SectionBlock implements AdminEditorBlock
+final readonly class SectionBlock implements AdminEditorBlock
 {
     /**
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
      * @param list<AdminEditorBlock> $blocks
      */
     public function __construct(
-        private readonly string $id,
-        private readonly array $blocks,
-        private readonly ?string $title = null,
-        private readonly ?string $titleKey = null,
-        private readonly ?string $description = null,
-        private readonly ?string $descriptionKey = null,
+        private string $id,
+        private array $blocks,
+        private ?string $title = null,
+        private ?string $titleKey = null,
+        private ?string $description = null,
+        private ?string $descriptionKey = null,
     ) {
         if (trim($id) === '') {
             throw new InvalidArgumentException('Section ID must not be empty.');

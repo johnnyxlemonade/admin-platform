@@ -14,16 +14,16 @@ use Lemonade\Framework\Database\Database;
 /**
  * Ridi MFA rozhodnuti, finalni kontrolu uzivatele a bezpecne auditni udalosti
  */
-final class MfaAuthenticationService
+final readonly class MfaAuthenticationService
 {
     /**
      * Nastavuje MFA policy, credentialy, audit a overeni lokalniho uctu
      */
     public function __construct(
-        private readonly AdminMfaConfiguration $configuration,
-        private readonly TotpCredentialService $credentials,
-        private readonly Database $database,
-        private readonly AuditLogWriterInterface $audit,
+        private AdminMfaConfiguration $configuration,
+        private TotpCredentialService $credentials,
+        private Database $database,
+        private AuditLogWriterInterface $audit,
     ) {}
 
     /**

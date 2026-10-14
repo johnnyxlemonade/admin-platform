@@ -23,21 +23,21 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP pozadavky pro datagrid
  */
-final class DataGridController
+final readonly class DataGridController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly AdminModuleRouteResolver $routes,
-        private readonly AdminModuleAccessPolicy $moduleAccess,
-        private readonly ModuleManager $moduleManager,
-        private readonly DataGridRegistry $grids,
-        private readonly DataGridQueryValidator $queries,
-        private readonly AuthorizationService $authorization,
-        private readonly AdminAuthorizationResponseHandler $authorizationResponses,
-        private readonly AdminUiLocale $locale,
-        private readonly Responses $responses,
+        private AdminModuleRouteResolver $routes,
+        private AdminModuleAccessPolicy $moduleAccess,
+        private ModuleManager $moduleManager,
+        private DataGridRegistry $grids,
+        private DataGridQueryValidator $queries,
+        private AuthorizationService $authorization,
+        private AdminAuthorizationResponseHandler $authorizationResponses,
+        private AdminUiLocale $locale,
+        private Responses $responses,
     ) {}
 
     /**

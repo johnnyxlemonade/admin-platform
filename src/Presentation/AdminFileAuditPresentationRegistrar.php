@@ -11,7 +11,7 @@ use Lemonade\Admin\Icon\AdminIcon;
 /**
  * Registruje lokalizovanou auditni prezentaci shared file mutaci
  */
-final class AdminFileAuditPresentationRegistrar
+final readonly class AdminFileAuditPresentationRegistrar
 {
     /**
      * Nastavuje registry presentation auditnich udalosti

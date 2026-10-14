@@ -20,19 +20,19 @@ use RuntimeException;
 /**
  * Overuje a spousti registrovane admin akce modulu
  */
-final class ModuleActionDispatcher
+final readonly class ModuleActionDispatcher
 {
     /**
      * Nastavi sluzby potrebne pro overeni a spusteni akce
      */
     public function __construct(
-        private readonly AdminModuleRouteResolver $routes,
-        private readonly AdminModuleAccessPolicy $moduleAccess,
-        private readonly ModuleManager $modules,
-        private readonly ModuleActionRegistry $actions,
-        private readonly AuthorizationService $authorization,
-        private readonly EditorLockManager $locks,
-        private readonly ModulePageRegistry $pages,
+        private AdminModuleRouteResolver $routes,
+        private AdminModuleAccessPolicy $moduleAccess,
+        private ModuleManager $modules,
+        private ModuleActionRegistry $actions,
+        private AuthorizationService $authorization,
+        private EditorLockManager $locks,
+        private ModulePageRegistry $pages,
     ) {}
 
     /**

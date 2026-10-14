@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari canonical lokalni uzivatele administrace
  */
-final class CreateCoreUsers implements MigrationInterface
+final readonly class CreateCoreUsers implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

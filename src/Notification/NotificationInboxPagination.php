@@ -7,7 +7,7 @@ namespace Lemonade\Admin\Notification;
 /**
  * Popisuje data administracniho oznameni
  */
-final class NotificationInboxPagination
+final readonly class NotificationInboxPagination
 {
-    public const PER_PAGE = 10;
+    public const int PER_PAGE = 10;
 }

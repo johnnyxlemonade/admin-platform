@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari lokalizovane prefixy verejnych rout modulu
  */
-final class CreateCoreModuleRoutePrefixes implements MigrationInterface
+final readonly class CreateCoreModuleRoutePrefixes implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

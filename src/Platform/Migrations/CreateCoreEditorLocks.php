@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari vlastnicke zamky editoru
  */
-final class CreateCoreEditorLocks implements MigrationInterface
+final readonly class CreateCoreEditorLocks implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

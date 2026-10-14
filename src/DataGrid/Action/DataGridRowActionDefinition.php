@@ -10,27 +10,25 @@ use Lemonade\Admin\Icon\AdminIcon;
 /**
  * Nastavuje akci dostupnou na radku datove tabulky
  */
-final class DataGridRowActionDefinition
+final readonly class DataGridRowActionDefinition
 {
-    private ?string $ariaLabel = null;
-
-    private ?AdminIcon $icon = null;
-
     /**
      * Vytvori akci radku s volitelnym potvrzenim a zobrazenim
      */
     public function __construct(
-        private readonly string $key,
-        private readonly string $label,
-        private readonly string $url,
-        private readonly string $method,
-        private readonly ?ConfirmationDefinition $confirmation = null,
-        private readonly ?string $modalUrl = null,
-        private readonly ?string $modalSize = null,
-        private readonly ?DataGridRowActionKind $kind = null,
-        private readonly ?DataGridRowActionPlacement $placement = null,
-        private readonly ?DataGridRowActionRisk $risk = null,
-        private readonly ?bool $refresh = null,
+        private string $key,
+        private string $label,
+        private string $url,
+        private string $method,
+        private ?ConfirmationDefinition $confirmation = null,
+        private ?string $modalUrl = null,
+        private ?string $modalSize = null,
+        private ?DataGridRowActionKind $kind = null,
+        private ?DataGridRowActionPlacement $placement = null,
+        private ?DataGridRowActionRisk $risk = null,
+        private ?bool $refresh = null,
+        private ?string $ariaLabel = null,
+        private ?AdminIcon $icon = null,
     ) {}
 
     /**
@@ -38,10 +36,21 @@ final class DataGridRowActionDefinition
      */
     public function withAriaLabel(string $ariaLabel): self
     {
-        $action = clone $this;
-        $action->ariaLabel = $ariaLabel;
-
-        return $action;
+        return new self(
+            key: $this->key,
+            label: $this->label,
+            url: $this->url,
+            method: $this->method,
+            confirmation: $this->confirmation,
+            modalUrl: $this->modalUrl,
+            modalSize: $this->modalSize,
+            kind: $this->kind,
+            placement: $this->placement,
+            risk: $this->risk,
+            refresh: $this->refresh,
+            ariaLabel: $ariaLabel,
+            icon: $this->icon,
+        );
     }
 
     /**
@@ -49,10 +58,21 @@ final class DataGridRowActionDefinition
      */
     public function withIcon(AdminIcon $icon): self
     {
-        $action = clone $this;
-        $action->icon = $icon;
-
-        return $action;
+        return new self(
+            key: $this->key,
+            label: $this->label,
+            url: $this->url,
+            method: $this->method,
+            confirmation: $this->confirmation,
+            modalUrl: $this->modalUrl,
+            modalSize: $this->modalSize,
+            kind: $this->kind,
+            placement: $this->placement,
+            risk: $this->risk,
+            refresh: $this->refresh,
+            ariaLabel: $this->ariaLabel,
+            icon: $icon,
+        );
     }
 
     /**

@@ -17,7 +17,7 @@ use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 /**
  * Prevadi soft delete role na shared action response
  */
-final class RolesDeleteAction implements ModuleActionHandlerInterface
+final readonly class RolesDeleteAction implements ModuleActionHandlerInterface
 {
     /**
      * Nastavuje sluzbu vlastnici deletion invarianty role

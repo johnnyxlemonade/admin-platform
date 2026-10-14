@@ -10,14 +10,14 @@ use Lemonade\Admin\Modules\State\ModuleManager;
 /**
  * Ridi pristup k dashboardovemu widgetu
  */
-final class DashboardWidgetAccessPolicy
+final readonly class DashboardWidgetAccessPolicy
 {
     /**
      * Nastavi sluzby pro overeni stavu modulu a opravneni
      */
     public function __construct(
-        private readonly ModuleManager $modules,
-        private readonly AuthorizationService $authorization,
+        private ModuleManager $modules,
+        private AuthorizationService $authorization,
     ) {}
 
     /**

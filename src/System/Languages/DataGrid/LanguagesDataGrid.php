@@ -30,17 +30,17 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Poskytuje DataGrid se stavem, vychozim jazykem a autorizovanymi akcemi
  */
-final class LanguagesDataGrid implements DataGridProviderInterface
+final readonly class LanguagesDataGrid implements DataGridProviderInterface
 {
     /**
      * Nastavuje data a zavislosti pro lokalizovanou autorizovanou prezentaci
      */
     public function __construct(
-        private readonly LanguageModel $languages,
-        private readonly TranslatorInterface $translator,
-        private readonly AuthorizationService $authorization,
-        private readonly ModuleActionPresentationFactory $actionPresentation,
-        private readonly UrlGenerator $urls,
+        private LanguageModel $languages,
+        private TranslatorInterface $translator,
+        private AuthorizationService $authorization,
+        private ModuleActionPresentationFactory $actionPresentation,
+        private UrlGenerator $urls,
     ) {}
 
     /**

@@ -19,15 +19,15 @@ use RuntimeException;
 /**
  * Ridi mutace jazyku, audit a kontrolu enabled default invariant
  */
-final class LanguageService
+final readonly class LanguageService
 {
     /**
      * Nastavuje persistenci, auditni transakce a overeni lokalniho aktora
      */
     public function __construct(
-        private readonly LanguageModel $languages,
-        private readonly TransactionalEventProcessor $events,
-        private readonly LocalActorGuard $actors,
+        private LanguageModel $languages,
+        private TransactionalEventProcessor $events,
+        private LocalActorGuard $actors,
     ) {}
 
     /**

@@ -15,7 +15,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 /**
  * Registruje routy dashboardu
  */
-final class DashboardRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class DashboardRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Vrati stabilni identifikator registrace rout

@@ -17,14 +17,14 @@ use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 /**
  * Vytvari presentation nahled efektivnich opravneni pro zvolenou roli uzivatele
  */
-final class UsersPermissionPreviewAction implements ModuleActionHandlerInterface
+final readonly class UsersPermissionPreviewAction implements ModuleActionHandlerInterface
 {
     /**
      * Nastavuje sluzbu uzivatele a shared presenter permission skupin
      */
     public function __construct(
-        private readonly UserService $users,
-        private readonly EffectivePermissionGroupViewModelFactory $groups,
+        private UserService $users,
+        private EffectivePermissionGroupViewModelFactory $groups,
     ) {}
 
     /**

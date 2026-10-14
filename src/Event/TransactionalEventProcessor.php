@@ -11,12 +11,12 @@ use Lemonade\Framework\Database\Database;
 /**
  * Zpracuje udalosti po uspesnem dokonceni transakce
  */
-final class TransactionalEventProcessor
+final readonly class TransactionalEventProcessor
 {
     public function __construct(
-        private readonly Database $database,
-        private readonly AuditLogWriterInterface $audit,
-        private readonly DomainEventDispatcher $dispatcher,
+        private Database $database,
+        private AuditLogWriterInterface $audit,
+        private DomainEventDispatcher $dispatcher,
     ) {}
 
     /**

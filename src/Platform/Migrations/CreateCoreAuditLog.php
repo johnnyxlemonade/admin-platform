@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari auditni historii lokalnich akteru a systemu
  */
-final class CreateCoreAuditLog implements MigrationInterface
+final readonly class CreateCoreAuditLog implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

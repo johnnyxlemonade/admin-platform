@@ -16,7 +16,7 @@ use Lemonade\Framework\Core\ServiceProviderInterface;
 /**
  * Propojuje Admin lifecycle a locale capability s CMS runtime porty
  */
-final class AdminCmsServiceProvider implements ServiceProviderInterface
+final readonly class AdminCmsServiceProvider implements ServiceProviderInterface
 {
     /**
      * Zapisuje Admin implementace CMS runtime portu

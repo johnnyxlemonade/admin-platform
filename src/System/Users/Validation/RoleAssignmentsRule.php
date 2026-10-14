@@ -10,7 +10,7 @@ use Lemonade\Framework\Validation\Rule\ValidationRuleInterface;
 /**
  * Overuje tvar a existenci role zadane do Users editoru
  */
-final class RoleAssignmentsRule implements ValidationRuleInterface
+final readonly class RoleAssignmentsRule implements ValidationRuleInterface
 {
     /**
      * Nastavi Users service pro overeni aktivni role

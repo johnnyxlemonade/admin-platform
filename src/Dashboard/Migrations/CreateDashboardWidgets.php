@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Lemonade\Admin\Migrations;
+namespace Lemonade\Admin\Dashboard\Migrations;
 
 use Lemonade\Framework\Database\Migration\MigrationInterface;
 use Lemonade\Framework\Database\Schema\Blueprint\TableBlueprint;
@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari tabulky pro dashboardove widgety
  */
-final class CreateDashboardWidgets implements MigrationInterface
+final readonly class CreateDashboardWidgets implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

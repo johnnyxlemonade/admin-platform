@@ -9,7 +9,7 @@ use Lemonade\Admin\Auth\AuthenticatedUser;
 /**
  * Urcuje hranice pristupu k cizim uzivatelskym zaznamum
  */
-final class AuthorizationTargetPolicy
+final readonly class AuthorizationTargetPolicy
 {
     public function __construct(private readonly AuthorizationService $authorization) {}
 

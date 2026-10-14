@@ -15,19 +15,19 @@ use Lemonade\Framework\Localization\TranslatorInterface;
 /**
  * Sestavuje dostupne polozky navigace administrace
  */
-final class AdminNavigation
+final readonly class AdminNavigation
 {
     /**
      * Nastavuje hodnoty potrebne pro zobrazeni navigace
      */
     public function __construct(
-        private readonly ModuleManager $modules,
-        private readonly AuthorizationService $authorization,
-        private readonly AdminModuleRegistry $adminModules,
-        private readonly AdminModuleRouteResolver $routes,
-        private readonly AdminModuleAccessPolicy $access,
-        private readonly AdminNavigationGroupRegistry $groups,
-        private readonly TranslatorInterface $translator,
+        private ModuleManager $modules,
+        private AuthorizationService $authorization,
+        private AdminModuleRegistry $adminModules,
+        private AdminModuleRouteResolver $routes,
+        private AdminModuleAccessPolicy $access,
+        private AdminNavigationGroupRegistry $groups,
+        private TranslatorInterface $translator,
     ) {}
 
     /**

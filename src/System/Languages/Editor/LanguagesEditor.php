@@ -21,14 +21,14 @@ use Lemonade\Framework\Validation\ValidationSchema;
 /**
  * Propojuje editorovy transport s create a update odpovednostmi service
  */
-final class LanguagesEditor implements EditorProviderInterface
+final readonly class LanguagesEditor implements EditorProviderInterface
 {
     /**
      * Nastavuje service pro mutace a schema pro vstupni validaci
      */
     public function __construct(
-        private readonly LanguageService $languages,
-        private readonly LanguagesEditorValidationSchema $validation,
+        private LanguageService $languages,
+        private LanguagesEditorValidationSchema $validation,
     ) {}
 
     /**

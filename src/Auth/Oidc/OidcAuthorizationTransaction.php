@@ -7,15 +7,15 @@ namespace Lemonade\Admin\Auth\Oidc;
 /**
  * Nese stav rozpracovaneho OIDC prihlaseni
  */
-final class OidcAuthorizationTransaction
+final readonly class OidcAuthorizationTransaction
 {
     public function __construct(
-        private readonly string $providerKey,
-        private readonly string $state,
-        private readonly string $nonce,
-        private readonly string $codeVerifier,
-        private readonly int $issuedAt,
-        private readonly ?string $intendedPath,
+        private string $providerKey,
+        private string $state,
+        private string $nonce,
+        private string $codeVerifier,
+        private int $issuedAt,
+        private ?string $intendedPath,
     ) {}
 
     public function providerKey(): string

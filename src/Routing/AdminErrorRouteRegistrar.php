@@ -12,7 +12,7 @@ use Lemonade\Framework\Routing\Router;
 /**
  * Zachytava neznamou administracni cestu pred verejnym CMS fallbackem
  */
-final class AdminErrorRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class AdminErrorRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Vrati stabilni identifikator registrace rout

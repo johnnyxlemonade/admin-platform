@@ -25,17 +25,17 @@ use Lemonade\Framework\Validation\ValidationSchema;
 /**
  * Propojuje editorovy transport s autorizovanymi mutacemi role a permission setu
  */
-final class RolesEditor implements EditorProviderInterface
+final readonly class RolesEditor implements EditorProviderInterface
 {
     /**
      * Nastavuje role service a validation schema editoru
      */
     public function __construct(
-        private readonly RoleService $roles,
-        private readonly EffectivePermissionGroupViewModelFactory $permissionGroups,
-        private readonly RolesEditorValidationSchema $validation,
-        private readonly AuthorizationService $authorization,
-        private readonly CurrentPrincipalProviderInterface $principals,
+        private RoleService $roles,
+        private EffectivePermissionGroupViewModelFactory $permissionGroups,
+        private RolesEditorValidationSchema $validation,
+        private AuthorizationService $authorization,
+        private CurrentPrincipalProviderInterface $principals,
     ) {}
 
     /**

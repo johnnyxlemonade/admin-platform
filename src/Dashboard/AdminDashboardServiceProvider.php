@@ -8,6 +8,7 @@ use Lemonade\Admin\AdminServiceProvider;
 use Lemonade\Admin\Dashboard\Contract\DashboardWidgetProviderInterface;
 use Lemonade\Admin\Dashboard\Http\Controller\DashboardApiController;
 use Lemonade\Admin\Dashboard\Http\Controller\DashboardController;
+use Lemonade\Admin\Dashboard\Migrations\CreateDashboardWidgets;
 use Lemonade\Admin\Dashboard\Routing\DashboardRouteRegistrar;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
@@ -16,12 +17,13 @@ use Lemonade\Framework\Container\TaggedServicesInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
+use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use RuntimeException;
 
 /**
  * Registruje dashboardovou capability a jeji tagged widget composition
  */
-final class AdminDashboardServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
+final readonly class AdminDashboardServiceProvider implements ServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Urcuje sdilenou infrastrukturu potrebnou pro dashboard
@@ -71,10 +73,11 @@ final class AdminDashboardServiceProvider implements ServiceProviderInterface, D
     }
 
     /**
-     * Registruje dashboardovou routu po container freeze
+     * Registruje dashboardovou routu a schema migraci po container freeze
      */
     public function boot(ContainerInterface $container): void
     {
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(DashboardRouteRegistrar::class));
+        $container->get(MigrationRegistry::class)->register(CreateDashboardWidgets::class);
     }
 }

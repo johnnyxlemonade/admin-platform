@@ -9,7 +9,7 @@ use RuntimeException;
 /**
  * Overuje verejny prefix routy modulu
  */
-final class ModulePublicRoutePrefixManifestValidator
+final readonly class ModulePublicRoutePrefixManifestValidator
 {
     public static function validate(ModulePublicRoutePrefixManifestInterface $manifest): void
     {

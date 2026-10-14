@@ -10,7 +10,7 @@ use Lemonade\Admin\Event\DomainEventListenerInterface;
 /**
  * Po commitu invaliduje cache zmenene translation override skupiny
  */
-final class TranslationOverrideCacheInvalidator implements DomainEventListenerInterface
+final readonly class TranslationOverrideCacheInvalidator implements DomainEventListenerInterface
 {
     /**
      * Nastavuje cache s hodnotami a revizemi explicitnich overrides

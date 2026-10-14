@@ -12,7 +12,7 @@ use Lemonade\Admin\Icon\AdminIcon;
 /**
  * Registruje auditni podobu prihlaseni
  */
-final class AuthenticationAuditPresentationRegistrar
+final readonly class AuthenticationAuditPresentationRegistrar
 {
     public function __construct(private readonly AuditEventPresentationRegistry $presentations) {}
 

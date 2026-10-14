@@ -10,7 +10,7 @@ use Lemonade\Framework\Core\ServiceProviderInterface;
 /**
  * Registruje localni actor policy a vazby externich identit na uzivatele
  */
-final class CoreIdentityServiceProvider implements ServiceProviderInterface
+final readonly class CoreIdentityServiceProvider implements ServiceProviderInterface
 {
     /**
      * Zapisuje sluzby pro localni a externi application identity

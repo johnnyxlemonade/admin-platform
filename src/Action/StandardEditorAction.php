@@ -19,15 +19,15 @@ use RuntimeException;
 /**
  * Provadi vytvoreni a ulozeni zaznamu pres editor
  */
-final class StandardEditorAction implements ModuleActionHandlerInterface
+final readonly class StandardEditorAction implements ModuleActionHandlerInterface
 {
     /**
      * Nastavi editor a rezim provedeni akce
      */
     private function __construct(
-        private readonly EditorDispatcher $editors,
-        private readonly string $module,
-        private readonly bool $creating,
+        private EditorDispatcher $editors,
+        private string $module,
+        private bool $creating,
     ) {}
 
     /**

@@ -9,7 +9,7 @@ use Lemonade\Framework\Database\Database;
 /**
  * Zprostredkuje data prefixu rout modulu
  */
-final class ModuleRoutePrefixModel
+final readonly class ModuleRoutePrefixModel
 {
     public function __construct(private readonly Database $database) {}
 

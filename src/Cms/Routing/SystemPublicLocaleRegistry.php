@@ -11,7 +11,7 @@ use Lemonade\Cms\Routing\Locale\PublicLocaleSnapshot;
 /**
  * Zpristupnuje systemovy katalog jazyku verejnemu CMS routovani
  */
-final class SystemPublicLocaleRegistry implements PublicLocaleRegistryInterface
+final readonly class SystemPublicLocaleRegistry implements PublicLocaleRegistryInterface
 {
     /**
      * Nastavuje canonical registry jazyku Admin platformy

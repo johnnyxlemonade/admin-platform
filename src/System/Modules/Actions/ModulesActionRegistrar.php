@@ -11,17 +11,17 @@ use Lemonade\Admin\Action\Presentation\ConfirmationDefinition;
 /**
  * Registruje management action transport nad canonical module runtime sluzbami
  */
-final class ModulesActionRegistrar
+final readonly class ModulesActionRegistrar
 {
     /**
      * Nastavuje registry a handlery administracnich action entrypointu
      */
     public function __construct(
-        private readonly ModuleActionRegistry $actions,
-        private readonly ModulesInstallAction $install,
-        private readonly ModulesEnableAction $enable,
-        private readonly ModulesDisableAction $disable,
-        private readonly ModulesFeatureToggleAction $featureToggle,
+        private ModuleActionRegistry $actions,
+        private ModulesInstallAction $install,
+        private ModulesEnableAction $enable,
+        private ModulesDisableAction $disable,
+        private ModulesFeatureToggleAction $featureToggle,
     ) {}
 
     /**

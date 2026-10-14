@@ -15,7 +15,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 /**
  * Registruje routy administracnich oznameni
  */
-final class NotificationRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class NotificationRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Vrati stabilni identifikator registraru osobnich oznameni

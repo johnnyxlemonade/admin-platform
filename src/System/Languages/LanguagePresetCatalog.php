@@ -7,7 +7,7 @@ namespace Lemonade\Admin\System\Languages;
 /**
  * Poskytuje staticka metadata canonicalnich ISO 639-1 jazykovych presetu
  */
-final class LanguagePresetCatalog
+final readonly class LanguagePresetCatalog
 {
     /**
      * Vraci vsechny canonicalni jazykove presety serazene podle ISO kodu

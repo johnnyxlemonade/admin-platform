@@ -10,7 +10,7 @@ use Lemonade\Framework\Database\Exception\DatabaseException;
 /**
  * Zprostredkuje data nainstalovanych modulu
  */
-final class ModuleModel
+final readonly class ModuleModel
 {
     public function __construct(private readonly Database $database) {}
 

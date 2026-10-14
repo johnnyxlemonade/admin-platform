@@ -17,14 +17,14 @@ use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 /**
  * Odstranuje override a vraci runtime resolve na package source
  */
-final class TranslationsResetAction implements ModuleActionHandlerInterface, ModuleActionLockBypassPolicyInterface
+final readonly class TranslationsResetAction implements ModuleActionHandlerInterface, ModuleActionLockBypassPolicyInterface
 {
     /**
      * Nastavuje zdrojovou identitu a jedinou mutation service
      */
     public function __construct(
-        private readonly TranslationsCatalog $catalog,
-        private readonly TranslationOverrideService $overrides,
+        private TranslationsCatalog $catalog,
+        private TranslationOverrideService $overrides,
     ) {}
 
     /**

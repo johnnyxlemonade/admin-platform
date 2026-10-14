@@ -10,7 +10,7 @@ use Lemonade\Admin\Identity\ExternalIdentityRepository;
 /**
  * Propojuje overenou OIDC identitu s lokalnim shadow uctem
  */
-final class OidcShadowUserProvisioner
+final readonly class OidcShadowUserProvisioner
 {
     /**
      * Vytvari provisioner canonical OIDC identit

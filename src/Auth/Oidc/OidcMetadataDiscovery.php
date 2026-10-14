@@ -11,7 +11,7 @@ use Psr\Http\Client\ClientInterface;
 /**
  * Zpracovava overenou identitu uzivatele
  */
-final class OidcMetadataDiscovery
+final readonly class OidcMetadataDiscovery
 {
     /**
      * Nastavuje data potrebna pro overeni identity

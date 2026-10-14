@@ -9,10 +9,10 @@ use Lemonade\Framework\Session\Contract\SessionInterface;
 /**
  * Uklada rozpracovane OIDC prihlaseni
  */
-final class OidcAuthorizationTransactionStore
+final readonly class OidcAuthorizationTransactionStore
 {
-    private const SESSION_KEY = 'admin.auth.oidc.transactions';
-    private const TTL_SECONDS = 600;
+    private const string SESSION_KEY = 'admin.auth.oidc.transactions';
+    private const int TTL_SECONDS = 600;
 
     public function __construct(private readonly SessionInterface $session) {}
 

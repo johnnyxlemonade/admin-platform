@@ -27,23 +27,23 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje sdileny JSON transport modalnich editoru admin modulu
  */
-final class EditorModalController
+final readonly class EditorModalController
 {
     /**
      * Nastavuje capability lookup, editorovy transport a JSON rendering
      */
     public function __construct(
-        private readonly AdminModuleRouteResolver $routes,
-        private readonly AdminModuleAccessPolicy $moduleAccess,
-        private readonly ModuleManager $modules,
-        private readonly ModulePageRegistry $pages,
-        private readonly ModuleActionRegistry $actions,
-        private readonly EditorDispatcher $editors,
-        private readonly EditorModalLoader $modalLoader,
-        private readonly AdminAuthorizationResponseHandler $authorizationResponses,
-        private readonly AdminUiLocale $locale,
-        private readonly ViewRendererInterface $views,
-        private readonly Responses $responses,
+        private AdminModuleRouteResolver $routes,
+        private AdminModuleAccessPolicy $moduleAccess,
+        private ModuleManager $modules,
+        private ModulePageRegistry $pages,
+        private ModuleActionRegistry $actions,
+        private EditorDispatcher $editors,
+        private EditorModalLoader $modalLoader,
+        private AdminAuthorizationResponseHandler $authorizationResponses,
+        private AdminUiLocale $locale,
+        private ViewRendererInterface $views,
+        private Responses $responses,
     ) {}
 
     /**

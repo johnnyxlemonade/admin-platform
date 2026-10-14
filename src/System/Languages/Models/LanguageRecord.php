@@ -7,15 +7,15 @@ namespace Lemonade\Admin\System\Languages\Models;
 /**
  * Nese nemenny detail systemoveho jazyka pro editor a service
  */
-final class LanguageRecord
+final readonly class LanguageRecord
 {
     public function __construct(
-        private readonly int $id,
-        private readonly string $code,
-        private readonly string $name,
-        private readonly bool $enabled,
-        private readonly bool $default,
-        private readonly int $sortOrder,
+        private int $id,
+        private string $code,
+        private string $name,
+        private bool $enabled,
+        private bool $default,
+        private int $sortOrder,
     ) {}
 
     /**

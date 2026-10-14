@@ -32,29 +32,29 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP pozadavky pro login
  */
-final class LoginController
+final readonly class LoginController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly AuthenticationService $authentication,
-        private readonly AuthenticationThrottler $throttler,
-        private readonly MfaAuthenticationService $mfa,
-        private readonly MfaLoginChallengeStore $mfaChallenges,
-        private readonly AdminUiLocale $uiLocale,
-        private readonly SessionInterface $session,
-        private readonly CsrfViewHelper $csrf,
-        private readonly TranslatorInterface $translator,
-        private readonly OidcAuthenticationService $oidc,
-        private readonly OidcLogoutService $oidcLogout,
-        private readonly OidcProviderConfiguration $oidcConfiguration,
-        private readonly ClientTranslationVersion $translationVersion,
-        private readonly AdminBranding $branding,
-        private readonly AdminRoutingConfiguration $routing,
-        private readonly AuthPageRenderer $pages,
-        private readonly Responses $responses,
-        private readonly HttpRequestInspector $requests,
+        private AuthenticationService $authentication,
+        private AuthenticationThrottler $throttler,
+        private MfaAuthenticationService $mfa,
+        private MfaLoginChallengeStore $mfaChallenges,
+        private AdminUiLocale $uiLocale,
+        private SessionInterface $session,
+        private CsrfViewHelper $csrf,
+        private TranslatorInterface $translator,
+        private OidcAuthenticationService $oidc,
+        private OidcLogoutService $oidcLogout,
+        private OidcProviderConfiguration $oidcConfiguration,
+        private ClientTranslationVersion $translationVersion,
+        private AdminBranding $branding,
+        private AdminRoutingConfiguration $routing,
+        private AuthPageRenderer $pages,
+        private Responses $responses,
+        private HttpRequestInspector $requests,
     ) {}
 
     /**

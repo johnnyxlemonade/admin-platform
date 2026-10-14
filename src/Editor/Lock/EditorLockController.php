@@ -16,18 +16,18 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Obsluhuje HTTP pozadavky pro editorlock
  */
-final class EditorLockController
+final readonly class EditorLockController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly AdminModuleRouteResolver $routes,
-        private readonly AdminModuleAccessPolicy $moduleAccess,
-        private readonly ModuleManager $modules,
-        private readonly EditorLockManager $locks,
-        private readonly AdminAuthorizationResponseHandler $responses,
-        private readonly Responses $httpResponses,
+        private AdminModuleRouteResolver $routes,
+        private AdminModuleAccessPolicy $moduleAccess,
+        private ModuleManager $modules,
+        private EditorLockManager $locks,
+        private AdminAuthorizationResponseHandler $responses,
+        private Responses $httpResponses,
     ) {}
 
     /**

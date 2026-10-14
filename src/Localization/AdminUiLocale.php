@@ -13,7 +13,7 @@ use Lemonade\Framework\Session\Contract\SessionInterface;
  */
 final readonly class AdminUiLocale
 {
-    private const SESSION_KEY = 'admin.ui.locale';
+    private const string SESSION_KEY = 'admin.ui.locale';
 
     /**
      * Nastavuje konfiguraci podporovanych jazyku, relaci a prekladac

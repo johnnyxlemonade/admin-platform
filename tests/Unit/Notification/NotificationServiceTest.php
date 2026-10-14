@@ -86,7 +86,9 @@ final class NotificationServiceTest extends TestCase
 
     private function service(FakeInboxRepository $repository, ?NotificationRecipientIdentity $recipient): NotificationService
     {
-        $resolver = $this->createMock(NotificationRecipientIdentityResolver::class);
+        $resolver = $this->getMockBuilder(NotificationRecipientIdentityResolver::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $resolver->method('current')->willReturn($recipient);
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('get')->willReturn('Unknown user');

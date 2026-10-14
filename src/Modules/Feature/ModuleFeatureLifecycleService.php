@@ -18,13 +18,13 @@ use Lemonade\Admin\Modules\State\ModuleStateResolver;
 /**
  * Ridi zivotni cyklus volitelnych funkci modulu
  */
-final class ModuleFeatureLifecycleService
+final readonly class ModuleFeatureLifecycleService
 {
     public function __construct(
-        private readonly ModuleStateResolver $modules,
-        private readonly ModuleFeatureStateResolver $states,
-        private readonly ModuleFeatureModel $features,
-        private readonly TransactionalEventProcessor $events,
+        private ModuleStateResolver $modules,
+        private ModuleFeatureStateResolver $states,
+        private ModuleFeatureModel $features,
+        private TransactionalEventProcessor $events,
     ) {}
 
     /**

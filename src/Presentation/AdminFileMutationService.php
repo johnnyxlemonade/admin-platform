@@ -25,19 +25,19 @@ use Lemonade\Image\ImageOriginalMetadata;
 /**
  * Provadi auditovane ukladani a neobnovitelne odstraneni shared system_file zaznamu
  */
-final class AdminFileMutationService
+final readonly class AdminFileMutationService
 {
     /**
      * Nastavuje shared file metadata, auditni transakci a Framework storage contract
      */
     public function __construct(
-        private readonly AdminFileModel $files,
-        private readonly TransactionalEventProcessor $events,
-        private readonly LocalActorGuard $actors,
-        private readonly ImageVariantPathResolver $paths,
-        private readonly Filesystem $filesystem,
-        private readonly ApplicationContext $context,
-        private readonly Database $database,
+        private AdminFileModel $files,
+        private TransactionalEventProcessor $events,
+        private LocalActorGuard $actors,
+        private ImageVariantPathResolver $paths,
+        private Filesystem $filesystem,
+        private ApplicationContext $context,
+        private Database $database,
     ) {}
 
     /**

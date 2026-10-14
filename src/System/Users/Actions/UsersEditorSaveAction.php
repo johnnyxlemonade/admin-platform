@@ -23,14 +23,14 @@ use RuntimeException;
 /**
  * Uklada zmeny uzivatele se self-service pristupem a omezenym bypass editor locku
  */
-final class UsersEditorSaveAction implements ModuleActionHandlerInterface, ModuleActionAccessPolicyInterface, ModuleActionLockBypassPolicyInterface
+final readonly class UsersEditorSaveAction implements ModuleActionHandlerInterface, ModuleActionAccessPolicyInterface, ModuleActionLockBypassPolicyInterface
 {
     /**
      * Nastavuje dispatcher editoru a policy uzke self-service vyjimky
      */
     public function __construct(
-        private readonly EditorDispatcher $editors,
-        private readonly UsersEditorAccessPolicy $access,
+        private EditorDispatcher $editors,
+        private UsersEditorAccessPolicy $access,
     ) {}
 
     /**

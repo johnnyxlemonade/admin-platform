@@ -32,7 +32,7 @@ use Psr\Http\Client\ClientInterface as PsrHttpClientInterface;
  * typed admin_auth konfiguraci; tento provider z ni nejdrive svaze jednu OIDC
  * konfiguraci a az pote registruje jeji runtime konzumenty.
  */
-final class AdminAuthRuntimeServiceProvider implements ServiceProviderInterface
+final readonly class AdminAuthRuntimeServiceProvider implements ServiceProviderInterface
 {
     /**
      * Registruje host konfiguraci, lokalni autentizaci a generic OIDC klienty

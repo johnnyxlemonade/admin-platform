@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari lifecycle zaznam povinneho systemoveho modulu jazyku
  */
-final class RegisterLanguagesModule implements MigrationInterface
+final readonly class RegisterLanguagesModule implements MigrationInterface
 {
     public function __construct(private readonly DatabaseDriverInterface $database) {}
 

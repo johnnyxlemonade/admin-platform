@@ -10,7 +10,7 @@ use Lemonade\Admin\Event\DomainEventListenerInterface;
 /**
  * Po commitu zrusi public snapshot pri zmene systemovych jazyku
  */
-final class PublicLocaleSnapshotCacheInvalidator implements DomainEventListenerInterface
+final readonly class PublicLocaleSnapshotCacheInvalidator implements DomainEventListenerInterface
 {
     /**
      * Nastavuje registry s persistentnim public locale snapshotem

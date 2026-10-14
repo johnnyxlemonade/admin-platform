@@ -9,7 +9,7 @@ use RuntimeException;
 /**
  * Overuje manifest volitelne funkce
  */
-final class ModuleFeatureManifestValidator
+final readonly class ModuleFeatureManifestValidator
 {
     public static function validate(ModuleFeatureManifestInterface $manifest): void
     {

@@ -11,7 +11,7 @@ use Lemonade\Framework\Validation\Rule\ValidationRuleInterface;
 /**
  * Overuje format a unikatnost normalizovaneho e-mailu uzivatele
  */
-final class UniqueUserEmailRule implements ValidationRuleInterface
+final readonly class UniqueUserEmailRule implements ValidationRuleInterface
 {
     /**
      * Nastavi Users service pro overeni unikatnosti e-mailu

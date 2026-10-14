@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari lifecycle zaznam povinneho systemoveho modulu auditu
  */
-final class RegisterAuditModule implements MigrationInterface
+final readonly class RegisterAuditModule implements MigrationInterface
 {
     public function __construct(private readonly DatabaseDriverInterface $database) {}
 

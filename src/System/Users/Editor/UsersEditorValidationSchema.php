@@ -10,7 +10,7 @@ use Lemonade\Framework\Validation\ValidationSchema;
 /**
  * Definuje tvarovou validaci create a update vstupu Users editoru
  */
-final class UsersEditorValidationSchema
+final readonly class UsersEditorValidationSchema
 {
     /**
      * Nastavuje prekladovy zdroj chyb editorove validace

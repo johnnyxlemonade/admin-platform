@@ -33,18 +33,18 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Poskytuje in-memory projekci read-only source katalogu a runtime override stavu
  */
-final class TranslationsDataGrid implements DataGridProviderInterface
+final readonly class TranslationsDataGrid implements DataGridProviderInterface
 {
     /**
      * Nastavuje katalog, podporovane locale a presentation zavislosti gridu
      */
     public function __construct(
-        private readonly TranslationsCatalog $catalog,
-        private readonly LocalizationConfig $config,
-        private readonly TranslatorInterface $translator,
-        private readonly AuthorizationService $authorization,
-        private readonly ModuleActionPresentationFactory $actionPresentation,
-        private readonly UrlGenerator $urls,
+        private TranslationsCatalog $catalog,
+        private LocalizationConfig $config,
+        private TranslatorInterface $translator,
+        private AuthorizationService $authorization,
+        private ModuleActionPresentationFactory $actionPresentation,
+        private UrlGenerator $urls,
     ) {}
 
     /**

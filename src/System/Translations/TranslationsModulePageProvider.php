@@ -19,16 +19,16 @@ use LogicException;
 /**
  * Sklada indexovou a editorovou stranku managementu runtime prekladu
  */
-final class TranslationsModulePageProvider implements ModuleIndexPageProviderInterface, ModuleModalEditorPageProviderInterface
+final readonly class TranslationsModulePageProvider implements ModuleIndexPageProviderInterface, ModuleModalEditorPageProviderInterface
 {
     /**
      * Nastavuje grid a lokalizovanou presentation indexu
      */
     public function __construct(
-        private readonly TranslationsDataGrid $grid,
-        private readonly TranslatorInterface $translator,
-        private readonly UrlGenerator $urls,
-        private readonly TranslationsAdminEditorDefinitionFactory $editorDefinitions,
+        private TranslationsDataGrid $grid,
+        private TranslatorInterface $translator,
+        private UrlGenerator $urls,
+        private TranslationsAdminEditorDefinitionFactory $editorDefinitions,
     ) {}
 
     /**

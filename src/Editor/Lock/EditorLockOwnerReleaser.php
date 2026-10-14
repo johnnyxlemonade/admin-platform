@@ -9,7 +9,7 @@ use Lemonade\Framework\Database\Database;
 /**
  * Uvolnuje editacni zamky podle stabilni identity lokalniho uzivatele
  */
-final class EditorLockOwnerReleaser implements EditorLockOwnerReleaserInterface
+final readonly class EditorLockOwnerReleaser implements EditorLockOwnerReleaserInterface
 {
     /**
      * Nastavuje databazovou hranici pro odstraneni vlastnenych zamku

@@ -26,7 +26,7 @@ use Lemonade\Framework\Localization\TranslationResourceRegistry;
 /**
  * Registruje tenkou Admin presentation vrstvu nad shared system_file contractem
  */
-final class MediaModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class MediaModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Pripojuje read-only definici, grid, preklady a registracni migraci

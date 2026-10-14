@@ -43,7 +43,7 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje management contribution vedle sdilene osobni notification capability
  */
-final class NotificationsModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class NotificationsModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Zapojuje management editor, DataGrid, action a HTTP contributions pred container freeze boundary

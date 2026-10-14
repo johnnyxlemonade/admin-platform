@@ -27,18 +27,18 @@ use Lemonade\Framework\Routing\UrlGenerator;
 /**
  * Sklada index a full-page editor Users capability jako presentation nad shared transportem
  */
-final class UsersModulePageProvider implements ModuleIndexPageProviderInterface, ModuleEditorPageProviderInterface, EditorLockConflictMessageProviderInterface
+final readonly class UsersModulePageProvider implements ModuleIndexPageProviderInterface, ModuleEditorPageProviderInterface, EditorLockConflictMessageProviderInterface
 {
     /**
      * Nastavuje grid, editorovou factory a presentation zavislosti modulu
      */
     public function __construct(
-        private readonly UsersDataGrid $grid,
-        private readonly AuthorizationService $authorization,
-        private readonly TranslatorInterface $translator,
-        private readonly UsersAdminEditorDefinitionFactory $adminEditorDefinitions,
-        private readonly UrlGenerator $urls,
-        private readonly AdminFileUploadComponent $files,
+        private UsersDataGrid $grid,
+        private AuthorizationService $authorization,
+        private TranslatorInterface $translator,
+        private UsersAdminEditorDefinitionFactory $adminEditorDefinitions,
+        private UrlGenerator $urls,
+        private AdminFileUploadComponent $files,
     ) {}
 
     /**

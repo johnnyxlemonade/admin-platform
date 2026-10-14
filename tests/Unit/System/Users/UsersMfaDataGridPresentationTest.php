@@ -239,7 +239,9 @@ final class UsersMfaDataGridPresentationTest extends TestCase
      */
     private function actionPresentation(): ModuleActionPresentationFactory
     {
-        $presentation = $this->createMock(ModuleActionPresentationFactory::class);
+        $presentation = $this->getMockBuilder(ModuleActionPresentationFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $presentation->method('rowAction')->willReturnCallback(static function (string $moduleCode, string $action, int $entityId): ?DataGridRowActionDefinition {
             if ($moduleCode !== 'system.users' || $action !== 'mfa-reset') {
                 return null;

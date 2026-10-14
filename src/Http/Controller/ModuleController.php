@@ -32,24 +32,24 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP pozadavky pro module
  */
-final class ModuleController
+final readonly class ModuleController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly AdminModuleRouteResolver $routes,
-        private readonly AdminModuleAccessPolicy $moduleAccess,
-        private readonly ModuleManager $modules,
-        private readonly ModulePageRegistry $pageRegistry,
-        private readonly EditorDispatcher $editors,
-        private readonly EditorLockManager $locks,
-        private readonly AuthorizationService $authorization,
-        private readonly AdminUiLocale $locale,
-        private readonly TranslatorInterface $translator,
-        private readonly AdminResponseFactory $responses,
-        private readonly AdminPageRenderer $pages,
-        private readonly UrlGenerator $urls,
+        private AdminModuleRouteResolver $routes,
+        private AdminModuleAccessPolicy $moduleAccess,
+        private ModuleManager $modules,
+        private ModulePageRegistry $pageRegistry,
+        private EditorDispatcher $editors,
+        private EditorLockManager $locks,
+        private AuthorizationService $authorization,
+        private AdminUiLocale $locale,
+        private TranslatorInterface $translator,
+        private AdminResponseFactory $responses,
+        private AdminPageRenderer $pages,
+        private UrlGenerator $urls,
     ) {}
 
     /**

@@ -29,7 +29,7 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje runtime contributions modulu roli do shared Admin registry
  */
-final class RolesModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class RolesModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Pripoji sluzby, presentation registry, zdroje a migraci modulu roli

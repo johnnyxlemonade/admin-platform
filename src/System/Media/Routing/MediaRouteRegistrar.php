@@ -15,7 +15,7 @@ use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
 /**
  * Registruje authenticated download puvodnich souboru z Media katalogu
  */
-final class MediaRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class MediaRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Vraci stabilni identifikator rout Media capability

@@ -11,16 +11,16 @@ use Lemonade\Framework\Database\Database;
 /**
  * Registruje jazyky dostupne v aplikaci
  */
-final class LanguageRegistry
+final readonly class LanguageRegistry
 {
-    private const PUBLIC_LOCALE_SNAPSHOT_CACHE_KEY = 'admin.public-locale-snapshot.v1';
+    private const string PUBLIC_LOCALE_SNAPSHOT_CACHE_KEY = 'admin.public-locale-snapshot.v1';
 
     /**
      * Nastavuje persistence jazyku a sdilenou persistentni cache public snapshotu
      */
     public function __construct(
-        private readonly Database $database,
-        private readonly CacheManager $cache,
+        private Database $database,
+        private CacheManager $cache,
     ) {}
 
     /**

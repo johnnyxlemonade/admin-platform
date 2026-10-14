@@ -10,7 +10,7 @@ use Lemonade\Framework\Cli\CommandInterface;
 /**
  * Synchronizuje katalog opravneni deklarovany Admin moduly
  */
-final class PermissionsSyncCommand implements CommandInterface
+final readonly class PermissionsSyncCommand implements CommandInterface
 {
     /**
      * Prijima sluzbu pro synchronizaci katalogu opravneni

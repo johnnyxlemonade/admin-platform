@@ -16,17 +16,17 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje HTTP pozadavky pro dashboard
  */
-final class DashboardController
+final readonly class DashboardController
 {
     /**
      * Nastavuje zavislosti potrebne pro zpracovani pozadavku
      */
     public function __construct(
-        private readonly CurrentUserProvider $currentUser,
-        private readonly DashboardWidgetApiService $widgets,
-        private readonly AdminUiLocale $locale,
-        private readonly TranslatorInterface $translator,
-        private readonly AdminPageRenderer $pages,
+        private CurrentUserProvider $currentUser,
+        private DashboardWidgetApiService $widgets,
+        private AdminUiLocale $locale,
+        private TranslatorInterface $translator,
+        private AdminPageRenderer $pages,
     ) {}
 
     /**

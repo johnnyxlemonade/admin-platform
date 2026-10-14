@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Zapisuje systemovy modul prekladu do lifecycle katalogu
  */
-final class RegisterTranslationsModule implements MigrationInterface
+final readonly class RegisterTranslationsModule implements MigrationInterface
 {
     /**
      * Nastavuje databazovy pristup pro registracni migraci

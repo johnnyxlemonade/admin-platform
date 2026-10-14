@@ -16,22 +16,22 @@ use Lemonade\Framework\Session\Contract\SessionInterface;
 /**
  * Ridi prihlaseni a ukonceni relace administrace
  */
-final class AuthenticationService
+final readonly class AuthenticationService
 {
-    private const SESSION_USER_ID = 'admin.auth.user_id';
-    private const SESSION_OIDC_LOGOUT_CONTEXT = 'admin.auth.external_principal';
-    private const SESSION_OIDC_LOGOUT_ID_TOKEN = 'admin.auth.oidc.logout_id_token';
+    private const string SESSION_USER_ID = 'admin.auth.user_id';
+    private const string SESSION_OIDC_LOGOUT_CONTEXT = 'admin.auth.external_principal';
+    private const string SESSION_OIDC_LOGOUT_ID_TOKEN = 'admin.auth.oidc.logout_id_token';
 
     /**
      * Nastavi zavislosti pro prihlaseni, odhlaseni a audit
      */
     public function __construct(
-        private readonly LocalAuthenticationProvider $localAuthentication,
-        private readonly SessionInterface $session,
-        private readonly Database $database,
-        private readonly CsrfTokenManager $csrf,
-        private readonly AuditLogWriterInterface $audit,
-        private readonly ?EditorLockOwnerReleaserInterface $locks = null,
+        private LocalAuthenticationProvider $localAuthentication,
+        private SessionInterface $session,
+        private Database $database,
+        private CsrfTokenManager $csrf,
+        private AuditLogWriterInterface $audit,
+        private ?EditorLockOwnerReleaserInterface $locks = null,
     ) {}
 
     /**

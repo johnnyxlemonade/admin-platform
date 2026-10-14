@@ -11,11 +11,11 @@ use Lemonade\Framework\Localization\TranslatorInterface;
 /**
  * Prevadi auditni udalosti na lokalizovane texty, aktery a ikony pro administraci
  */
-final class AuditEventPresenter
+final readonly class AuditEventPresenter
 {
     public function __construct(
-        private readonly AuditEventPresentationRegistry $presentations,
-        private readonly TranslatorInterface $translator,
+        private AuditEventPresentationRegistry $presentations,
+        private TranslatorInterface $translator,
     ) {}
 
     /**

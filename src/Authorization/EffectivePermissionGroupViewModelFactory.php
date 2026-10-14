@@ -10,10 +10,10 @@ use Lemonade\Framework\Localization\TranslatorInterface;
 /**
  * Sklada skupiny efektivnich opravneni pro administraci
  */
-final class EffectivePermissionGroupViewModelFactory
+final readonly class EffectivePermissionGroupViewModelFactory
 {
     /** @var array<string, string> */
-    private const SHARED_MODULE_LABEL_KEYS = [
+    private const array SHARED_MODULE_LABEL_KEYS = [
         'system.dashboard' => 'admin.dashboard.module.name',
     ];
 
@@ -21,9 +21,9 @@ final class EffectivePermissionGroupViewModelFactory
      * Nastavi registry a preklady pro sestaveni skupin opravneni
      */
     public function __construct(
-        private readonly AdminModuleRegistry $modules,
-        private readonly PermissionCatalogRegistry $catalog,
-        private readonly TranslatorInterface $translator,
+        private AdminModuleRegistry $modules,
+        private PermissionCatalogRegistry $catalog,
+        private TranslatorInterface $translator,
     ) {}
 
     /**

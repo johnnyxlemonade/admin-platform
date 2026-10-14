@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari canonical metadata souboru prirazenych zaznamum Admin modulu
  */
-final class CreateCoreFiles implements MigrationInterface
+final readonly class CreateCoreFiles implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

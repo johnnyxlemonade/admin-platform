@@ -33,7 +33,7 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje Admin management contribution nad sdilenym module runtime
  */
-final class ModulesModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class ModulesModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Zapojuje DataGrid, action transport, presentation a route contributions pred container freeze boundary

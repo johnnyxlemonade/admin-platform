@@ -9,11 +9,11 @@ use Lemonade\Admin\Auth\Oidc\Contract\OpenIdConnectClientInterface;
 /**
  * Ridi odhlaseni pres OIDC poskytovatele
  */
-final class OidcLogoutService
+final readonly class OidcLogoutService
 {
     public function __construct(
-        private readonly OidcProviderConfiguration $configuration,
-        private readonly OpenIdConnectClientInterface $client,
+        private OidcProviderConfiguration $configuration,
+        private OpenIdConnectClientInterface $client,
     ) {}
 
     public function providerLogoutUrl(?string $idTokenHint): ?string

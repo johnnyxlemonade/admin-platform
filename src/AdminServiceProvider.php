@@ -25,8 +25,6 @@ use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
-use Lemonade\Framework\Database\Migration\MigrationDirectoryRegistrar;
-use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Http\Middleware\MiddlewareStack;
 use Lemonade\Framework\Localization\TranslationOverrideProviderInterface;
 use Lemonade\Framework\Routing\RouteRegistrarInterface;
@@ -34,10 +32,10 @@ use Lemonade\Framework\Routing\RouteRegistrarInterface;
 /**
  * Registruje sdilenou infrastrukturu, kterou potrebuji vsechny admin capability
  */
-final class AdminServiceProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class AdminServiceProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
-     * Zapisuje cross-module registry, lokalizaci, vstupni middleware a migrace
+     * Zapisuje cross-module registry, lokalizaci a vstupni middleware
      */
     public function register(ContainerBuilderInterface $container): void
     {
@@ -71,10 +69,5 @@ final class AdminServiceProvider implements ServiceProviderInterface, BootableSe
             $container->get(MiddlewareStack::class)->prepend(AdminAuthorizationRequestCacheMiddleware::class);
         }
 
-        (new MigrationDirectoryRegistrar())->registerDirectory(
-            $container->get(MigrationRegistry::class),
-            __DIR__ . '/Migrations',
-            'Lemonade\\Admin\\Migrations',
-        );
     }
 }

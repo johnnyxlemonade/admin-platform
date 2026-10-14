@@ -9,7 +9,7 @@ use RuntimeException;
 /**
  * Doplnuje povinne zavislosti opravneni
  */
-final class PermissionDependencyResolver
+final readonly class PermissionDependencyResolver
 {
     public function __construct(private readonly PermissionCatalogRegistry $catalog) {}
 

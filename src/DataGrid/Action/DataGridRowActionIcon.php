@@ -9,7 +9,7 @@ use Lemonade\Admin\Icon\AdminIcon;
 /**
  * Prirazuje sdilene klice akci k ikonam administrace
  */
-final class DataGridRowActionIcon
+final readonly class DataGridRowActionIcon
 {
     /**
      * Vrati ikonu odpovidajici sdilenemu klici akce
@@ -21,9 +21,7 @@ final class DataGridRowActionIcon
             'enable', 'activate' => AdminIcon::CheckCircle,
             'disable', 'deactivate' => AdminIcon::PauseCircle,
             'delete', 'remove' => AdminIcon::Trash3,
-            'restore' => AdminIcon::ArrowCounterclockwise,
-            'mfa-reset' => AdminIcon::ArrowCounterclockwise,
-            'reset-display' => AdminIcon::ArrowCounterclockwise,
+            'restore', 'reset-display', 'mfa-reset' => AdminIcon::ArrowCounterclockwise,
             'set-default' => AdminIcon::Star,
             'open', 'detail' => AdminIcon::BoxArrowUpRight,
             'view' => AdminIcon::Eye,

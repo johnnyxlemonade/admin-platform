@@ -26,20 +26,20 @@ use RuntimeException;
 /**
  * Ridi autorizovane mutace roli, jejich permission set a ochranu proti eskalaci
  */
-final class RoleService
+final readonly class RoleService
 {
     /**
      * Nastavuje persistenci, authorization, delegaci a auditovanou transakci mutaci
      */
     public function __construct(
-        private readonly RoleModel $roles,
-        private readonly AuthorizationService $authorization,
-        private readonly AuthorizationDelegationPolicy $delegation,
-        private readonly CurrentPrincipalProviderInterface $principals,
-        private readonly PermissionCatalogRegistry $catalog,
-        private readonly PermissionDependencyResolver $dependencies,
-        private readonly TransactionalEventProcessor $events,
-        private readonly LocalActorGuard $actors,
+        private RoleModel $roles,
+        private AuthorizationService $authorization,
+        private AuthorizationDelegationPolicy $delegation,
+        private CurrentPrincipalProviderInterface $principals,
+        private PermissionCatalogRegistry $catalog,
+        private PermissionDependencyResolver $dependencies,
+        private TransactionalEventProcessor $events,
+        private LocalActorGuard $actors,
     ) {}
 
     /**

@@ -19,7 +19,7 @@ use Lemonade\Admin\System\Users\Models\UserModel;
 /**
  * Poskytuje dashboard widget s poctem aktivnich uzivatelu
  */
-final class UsersDashboardWidgetProvider implements DashboardWidgetProviderInterface
+final readonly class UsersDashboardWidgetProvider implements DashboardWidgetProviderInterface
 {
     /**
      * Nastavi persistence zdroj poctu aktivnich uzivatelu

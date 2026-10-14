@@ -13,15 +13,15 @@ use RuntimeException;
 /**
  * Publikuje hotovou Admin distribuci do public rootu host aplikace
  */
-final class AdminAssetPublisher
+final readonly class AdminAssetPublisher
 {
     /**
      * Nastavuje host public root a package distribuci urcenou k publikaci
      */
     public function __construct(
-        private readonly ApplicationContext $context,
-        private readonly AdminAssetConfiguration $configuration,
-        private readonly ?string $distributionPath = null,
+        private ApplicationContext $context,
+        private AdminAssetConfiguration $configuration,
+        private ?string $distributionPath = null,
     ) {}
 
     /**

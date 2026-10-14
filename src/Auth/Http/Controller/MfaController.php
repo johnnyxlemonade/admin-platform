@@ -33,31 +33,31 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Obsluhuje anonymni challenge i self-service local TOTP lifecycle
  */
-final class MfaController
+final readonly class MfaController
 {
     /**
      * Nastavuje MFA workflow, aktualni identitu a auth presentation zavislosti
      */
     public function __construct(
-        private readonly AdminMfaConfiguration $configuration,
-        private readonly MfaAuthenticationService $mfa,
-        private readonly TotpCredentialService $credentials,
-        private readonly MfaLoginChallengeStore $challenges,
-        private readonly MfaRecentPrimaryAuthenticationStore $recentPrimary,
-        private readonly AuthenticationService $authentication,
-        private readonly AuthenticationThrottler $throttler,
-        private readonly CurrentUserProvider $currentUser,
-        private readonly TotpProvisioningUriFactory $provisioningUris,
-        private readonly AdminUiLocale $uiLocale,
-        private readonly ClientTranslationVersion $translationVersion,
-        private readonly AdminBranding $branding,
-        private readonly AdminRoutingConfiguration $routing,
-        private readonly AuthPageRenderer $pages,
-        private readonly TranslatorInterface $translator,
-        private readonly Responses $responses,
-        private readonly CsrfViewHelper $csrf,
-        private readonly HttpRequestInspector $requests,
-        private readonly ViewRendererInterface $views,
+        private AdminMfaConfiguration $configuration,
+        private MfaAuthenticationService $mfa,
+        private TotpCredentialService $credentials,
+        private MfaLoginChallengeStore $challenges,
+        private MfaRecentPrimaryAuthenticationStore $recentPrimary,
+        private AuthenticationService $authentication,
+        private AuthenticationThrottler $throttler,
+        private CurrentUserProvider $currentUser,
+        private TotpProvisioningUriFactory $provisioningUris,
+        private AdminUiLocale $uiLocale,
+        private ClientTranslationVersion $translationVersion,
+        private AdminBranding $branding,
+        private AdminRoutingConfiguration $routing,
+        private AuthPageRenderer $pages,
+        private TranslatorInterface $translator,
+        private Responses $responses,
+        private CsrfViewHelper $csrf,
+        private HttpRequestInspector $requests,
+        private ViewRendererInterface $views,
     ) {}
 
     /**

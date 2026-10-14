@@ -19,14 +19,14 @@ use RuntimeException;
 /**
  * Prevadi obnoveni soft-deleted uzivatele do action transportu
  */
-final class UsersRestoreAction implements ModuleActionHandlerInterface
+final readonly class UsersRestoreAction implements ModuleActionHandlerInterface
 {
     /**
      * Nastavuje sluzby pro lokalni actor guard a obnoveni uzivatele
      */
     public function __construct(
-        private readonly UserService $users,
-        private readonly LocalActorGuard $actors,
+        private UserService $users,
+        private LocalActorGuard $actors,
     ) {}
 
     /**

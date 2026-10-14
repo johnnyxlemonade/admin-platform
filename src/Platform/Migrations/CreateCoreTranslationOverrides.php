@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Vytvari explicitni translation overrides a jejich cache revision store
  */
-final class CreateCoreTranslationOverrides implements MigrationInterface
+final readonly class CreateCoreTranslationOverrides implements MigrationInterface
 {
     /**
      * Vraci stabilni identifikator migrace

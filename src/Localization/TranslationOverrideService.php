@@ -18,14 +18,14 @@ use RuntimeException;
 /**
  * Ridi auditovane mutace explicitnich translation overrides nad package source
  */
-final class TranslationOverrideService
+final readonly class TranslationOverrideService
 {
     public function __construct(
-        private readonly TranslationOverrideModel $overrides,
-        private readonly TranslationSourceCatalogInterface $sources,
-        private readonly LocalizationConfig $config,
-        private readonly TransactionalEventProcessor $events,
-        private readonly LocalActorGuard $actors,
+        private TranslationOverrideModel $overrides,
+        private TranslationSourceCatalogInterface $sources,
+        private LocalizationConfig $config,
+        private TransactionalEventProcessor $events,
+        private LocalActorGuard $actors,
     ) {}
 
     /**

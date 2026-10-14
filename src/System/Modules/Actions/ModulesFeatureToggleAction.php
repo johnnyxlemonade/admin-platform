@@ -19,15 +19,15 @@ use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 /**
  * Predava zmenu configured stavu volitelne feature canonical runtime service
  */
-final class ModulesFeatureToggleAction implements ModuleActionHandlerInterface
+final readonly class ModulesFeatureToggleAction implements ModuleActionHandlerInterface
 {
     /**
      * Nastavuje resolver stavu, canonical feature lifecycle a lokalniho aktora
      */
     public function __construct(
-        private readonly ModuleStateResolver $states,
-        private readonly ModuleFeatureLifecycleService $features,
-        private readonly LocalActorGuard $actors,
+        private ModuleStateResolver $states,
+        private ModuleFeatureLifecycleService $features,
+        private LocalActorGuard $actors,
     ) {}
 
     /**

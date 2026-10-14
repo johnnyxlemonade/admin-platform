@@ -10,7 +10,7 @@ use Lemonade\Framework\Validation\ValidationSchema;
 /**
  * Sestavuje vstupni validaci create a update editoru roli
  */
-final class RolesEditorValidationSchema
+final readonly class RolesEditorValidationSchema
 {
     /**
      * Nastavuje preklady validacnich zprav editoru

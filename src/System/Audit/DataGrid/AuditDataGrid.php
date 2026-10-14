@@ -21,11 +21,11 @@ use Lemonade\Admin\System\Audit\Models\AuditLogModel;
 /**
  * Poskytuje read-only DataGrid nad historii systemoveho auditu
  */
-final class AuditDataGrid implements DataGridProviderInterface
+final readonly class AuditDataGrid implements DataGridProviderInterface
 {
     public function __construct(
-        private readonly AuditLogModel $audit,
-        private readonly AuditEventPresenter $presenter,
+        private AuditLogModel $audit,
+        private AuditEventPresenter $presenter,
     ) {}
 
     /**

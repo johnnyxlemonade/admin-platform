@@ -11,7 +11,7 @@ use Lemonade\Framework\Database\Schema\Schema;
 /**
  * Zapisuje systemovy modul roli do katalogu modulu
  */
-final class RegisterRolesModule implements MigrationInterface
+final readonly class RegisterRolesModule implements MigrationInterface
 {
     /**
      * Nastavuje databazovy pristup pro registracni migraci

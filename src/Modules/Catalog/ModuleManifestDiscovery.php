@@ -16,7 +16,7 @@ use RuntimeException;
 /**
  * Sestavuje katalog Composer modulu dostupnych aplikaci
  */
-final class ModuleManifestDiscovery
+final readonly class ModuleManifestDiscovery
 {
     /**
      * Nastavuje cesty aplikace pro Composer discovery a diagnosticky snapshot

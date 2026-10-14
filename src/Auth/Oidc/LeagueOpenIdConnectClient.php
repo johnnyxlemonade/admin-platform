@@ -11,15 +11,15 @@ use Lemonade\Admin\Auth\Oidc\Contract\OpenIdConnectClientInterface;
 /**
  * Zpracovava overenou identitu uzivatele
  */
-final class LeagueOpenIdConnectClient implements OpenIdConnectClientInterface
+final readonly class LeagueOpenIdConnectClient implements OpenIdConnectClientInterface
 {
     /**
      * Nastavuje data potrebna pro overeni identity
      */
     public function __construct(
-        private readonly OidcMetadataDiscovery $discovery,
-        private readonly OidcIdTokenVerifier $idTokens,
-        private readonly GuzzleClientInterface $http,
+        private OidcMetadataDiscovery $discovery,
+        private OidcIdTokenVerifier $idTokens,
+        private GuzzleClientInterface $http,
     ) {}
 
     /**

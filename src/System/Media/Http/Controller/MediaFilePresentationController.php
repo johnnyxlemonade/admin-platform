@@ -21,20 +21,20 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Upravuje presentation metadata libovolne existujici file identity z Media katalogu
  */
-final class MediaFilePresentationController
+final readonly class MediaFilePresentationController
 {
     /**
      * Nastavuje Media authorization, shared file mutation, modal definition a JSON odpovedi
      */
     public function __construct(
-        private readonly AuthorizationService $authorization,
-        private readonly AdminResponseFactory $adminResponses,
-        private readonly AdminFileModel $files,
-        private readonly AdminFileMutationService $mutations,
-        private readonly AdminFileRenameModalDefinitionFactory $modal,
-        private readonly Responses $responses,
-        private readonly TranslatorInterface $translator,
-        private readonly ViewRendererInterface $views,
+        private AuthorizationService $authorization,
+        private AdminResponseFactory $adminResponses,
+        private AdminFileModel $files,
+        private AdminFileMutationService $mutations,
+        private AdminFileRenameModalDefinitionFactory $modal,
+        private Responses $responses,
+        private TranslatorInterface $translator,
+        private ViewRendererInterface $views,
     ) {}
 
     /**

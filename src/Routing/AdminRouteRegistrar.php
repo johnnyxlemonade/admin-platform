@@ -13,7 +13,7 @@ use Lemonade\Framework\Routing\Router;
 /**
  * Registruje spolecne routy lokalizacnich zdroju administrace
  */
-final class AdminRouteRegistrar implements AdminRouteRegistrarInterface
+final readonly class AdminRouteRegistrar implements AdminRouteRegistrarInterface
 {
     /**
      * Vrati stabilni identifikator registrace rout

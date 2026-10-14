@@ -21,7 +21,7 @@ use Lemonade\Framework\Core\ServiceProviderInterface;
 /**
  * Registruje katalog, stav a lifecycle modulu aplikace
  */
-final class CoreModuleServiceProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class CoreModuleServiceProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Zapisuje registry, persistence, lifecycle sluzby a CLI commandy modulu

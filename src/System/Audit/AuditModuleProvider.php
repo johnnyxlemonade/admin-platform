@@ -27,7 +27,7 @@ use Lemonade\Framework\View\ViewResourceRegistry;
 /**
  * Registruje read-only auditni modul, jeho DataGrid a dashboardove widgety
  */
-final class AuditModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
+final readonly class AuditModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
      * Registruje sluzby, grid a widgety modulu auditu

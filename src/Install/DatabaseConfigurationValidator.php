@@ -9,7 +9,7 @@ use Lemonade\Framework\Database\Connection\DatabaseConfig;
 /**
  * Overuje nastaveni databaze pred instalaci
  */
-final class DatabaseConfigurationValidator
+final readonly class DatabaseConfigurationValidator
 {
     public function errorCode(DatabaseConfig $config): ?string
     {
