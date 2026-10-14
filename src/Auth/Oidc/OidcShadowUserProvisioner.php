@@ -72,6 +72,20 @@ final readonly class OidcShadowUserProvisioner
     }
 
     /**
+     * Overi existujici vazbu identity bez provisioningu nebo profilove mutace
+     */
+    public function linkedLocalUserId(VerifiedExternalIdentity $identity): ?int
+    {
+        $linked = $this->identities->find($identity->issuer(), $identity->subject());
+        if ($linked === null || $linked->providerKey() !== $identity->provider()) {
+            return null;
+        }
+        $this->assertAvailable($linked->userId());
+
+        return $linked->userId();
+    }
+
+    /**
      * Odmita inactive nebo smazany linked ucet
      */
     private function assertAvailable(int $userId): void

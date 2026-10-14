@@ -59,6 +59,9 @@ export class HttpHelper {
 
             if (!response.ok) {
                 this.redirectForUnauthenticatedResponse(response, payload);
+                if (response.status === 423 && payload?.error?.code === "session_locked") {
+                    window.dispatchEvent(new CustomEvent("lemonade:session:locked"));
+                }
                 throw new HttpError("HTTP request failed.", response.status, payload);
             }
 

@@ -33,6 +33,16 @@ final readonly class OidcAuthorizationTransactionStore
         return $transaction;
     }
 
+    /** Vytvori jednorazovou OIDC transakci pro uzamcenou relaci */
+    public function beginSessionUnlock(string $providerKey, int $userId, string $issuer, string $subject): OidcAuthorizationTransaction
+    {
+        $transaction = new OidcAuthorizationTransaction($providerKey, $this->randomValue(), $this->randomValue(), $this->randomValue(), time(), null, $userId, $issuer, $subject);
+        $transactions = $this->transactions();
+        $transactions[$providerKey] = $transaction->toArray();
+        $this->session->set(self::SESSION_KEY, $transactions);
+        return $transaction;
+    }
+
     public function consume(string $providerKey, string $state, ?int $now = null): OidcAuthorizationTransaction
     {
         $transactions = $this->transactions();

@@ -16,6 +16,8 @@ enum AdminErrorCode: string
     case LOCK_CONFLICT = 'lock_conflict';
     case UNSUPPORTED_ACTION = 'unsupported_action';
     case UNAUTHENTICATED = 'unauthenticated';
+    case SESSION_LOCKED = 'session_locked';
+    case SESSION_UNLOCK_INVALID = 'session_unlock_invalid';
     case FORBIDDEN = 'forbidden';
     case MODULE_NOT_FOUND = 'module_not_found';
     case MODULE_NOT_AVAILABLE = 'module_not_available';

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Auth\Http\Controller;
 
+use Lemonade\Admin\Auth\AdminSessionState;
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Http\Middleware\AdminAuthenticationMiddleware;
 use Lemonade\Framework\Http\HttpStatus;
@@ -29,6 +30,10 @@ final readonly class SessionHeartbeatController
     public function heartbeat(): ResponseInterface
     {
         if (!$this->authentication->heartbeat()) {
+            if ($this->authentication->sessionState() === AdminSessionState::LOCKED) {
+                return AdminAuthenticationMiddleware::lockedApiResponse($this->responses);
+            }
+
             return AdminAuthenticationMiddleware::unauthenticatedApiResponse($this->responses);
         }
 

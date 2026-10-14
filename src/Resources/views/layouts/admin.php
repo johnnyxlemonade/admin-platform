@@ -39,6 +39,19 @@ $vendorStyles = $adminAssets->styles('vendor');
 $adminStyles = $adminAssets->styles('admin');
 $adminScript = $adminAssets->script('admin');
 $adminMarkUrl = $adminAssets->staticUrl('images/branding/admin-mark.svg');
+$sessionIdentityName = '';
+$sessionIdentityInitials = '';
+if ($currentUser !== null) {
+    $sessionIdentityName = trim(($currentUser->firstName() ?? '') . ' ' . ($currentUser->lastName() ?? ''));
+    if ($sessionIdentityName === '') {
+        $sessionIdentityName = $currentUser->email();
+    }
+
+    $sessionIdentityInitials = mb_strtoupper(
+        mb_substr($currentUser->firstName() ?? $currentUser->email(), 0, 1)
+        . mb_substr($currentUser->lastName() ?? '', 0, 1),
+    );
+}
 ?>
 <!doctype html>
 <html class="no-js" lang="<?= e($locale) ?>" data-bs-theme="light" data-lemonade-sidebar-storage-key="<?= e($sidebarStorageKey) ?>">
@@ -62,7 +75,9 @@ $adminMarkUrl = $adminAssets->staticUrl('images/branding/admin-mark.svg');
         <div hidden data-lemonade-message data-lemonade-message-type="<?= e((string) $authorizationMessage['type']) ?>" data-lemonade-message-key="<?= e((string) $authorizationMessage['key']) ?>" data-lemonade-message-text="<?= e($helpers->lang((string) $authorizationMessage['key'], $authorizationParams)) ?>"<?= $authorizationParams === [] ? '' : ' data-lemonade-message-params="' . e(json_encode($authorizationParams, JSON_THROW_ON_ERROR)) . '"' ?>></div>
         <noscript><div class="alert alert-warning" role="alert"><?= e($helpers->lang((string) $authorizationMessage['key'], $authorizationParams)) ?></div></noscript>
     <?php endif; ?>
-    <div class="admin-shell" data-lemonade-admin-shell data-lemonade-admin-base-path="<?= e($helpers->url('admin.dashboard')) ?>" data-lemonade-session-heartbeat-url="<?= e($helpers->url('admin.session.heartbeat')) ?>" data-lemonade-admin-login-url="<?= e($helpers->url('admin.login')) ?>" data-lemonade-locale="<?= e($locale) ?>" data-lemonade-i18n-resource-map-source="<?= e($helpers->url('admin.resources.i18n.index')) ?>" data-lemonade-i18n-namespace="admin" data-lemonade-i18n-namespace-source="<?= e($helpers->url('admin.resources.i18n', ['group' => 'admin'])) ?>?locale={locale}&amp;v={version}" data-lemonade-i18n-namespace-versions="<?= e(json_encode($clientTranslationVersion->versions('admin'), JSON_THROW_ON_ERROR)) ?>" data-lemonade-navigation-source="<?= e($helpers->url('admin.resources.i18n', ['group' => 'navigation'])) ?>?locale={locale}">
+    <div class="admin-shell" data-lemonade-admin-shell data-lemonade-admin-base-path="<?= e($helpers->url('admin.dashboard')) ?>" data-lemonade-session-heartbeat-url="<?= e($helpers->url('admin.session.heartbeat')) ?>" data-lemonade-session-status-url="<?= e($helpers->url('admin.session.status')) ?>" data-lemonade-session-unlock-url="<?= e($helpers->url('admin.session.unlock')) ?>" data-lemonade-session-oidc-unlock-url="<?= e($helpers->url('admin.session.oidc-unlock')) ?>" data-lemonade-logout-url="<?= e($helpers->url('admin.logout')) ?>" data-lemonade-admin-login-url="<?= e($helpers->url('admin.login')) ?>" data-lemonade-locale="<?= e($locale) ?>" data-lemonade-i18n-resource-map-source="<?= e($helpers->url('admin.resources.i18n.index')) ?>" data-lemonade-i18n-namespace="admin" data-lemonade-i18n-namespace-source="<?= e($helpers->url('admin.resources.i18n', ['group' => 'admin'])) ?>?locale={locale}&amp;v={version}" data-lemonade-i18n-namespace-versions="<?= e(json_encode($clientTranslationVersion->versions('admin'), JSON_THROW_ON_ERROR)) ?>" data-lemonade-navigation-source="<?= e($helpers->url('admin.resources.i18n', ['group' => 'navigation'])) ?>?locale={locale}">
+        <span hidden data-lemonade-i18n-namespace="auth" data-lemonade-i18n-namespace-source="<?= e($helpers->url('admin.resources.i18n', ['group' => 'auth'])) ?>?locale={locale}&amp;v={version}" data-lemonade-i18n-namespace-versions="<?= e(json_encode($clientTranslationVersion->versions('auth'), JSON_THROW_ON_ERROR)) ?>"></span>
+        <?php if ($currentUser !== null): ?><span hidden data-lemonade-session-identity data-name="<?= e($sessionIdentityName) ?>" data-initials="<?= e($sessionIdentityInitials) ?>"></span><?php endif; ?>
         <aside class="sidebar" aria-label="<?= e($helpers->lang('admin.sidebar.mainNavigation')) ?>" data-lemonade-i18n-aria-label="admin.sidebar.mainNavigation" data-lemonade-sidebar data-lemonade-storage-key="<?= e($sidebarStorageKey) ?>">
             <a class="brand" href="<?= e($helpers->url('admin.dashboard')) ?>"><img class="brand-mark" src="<?= e($adminMarkUrl) ?>" alt="" aria-hidden="true"><span class="brand-copy"><span class="brand-title"><?= e($branding->applicationName) ?></span><span class="brand-subtitle" data-lemonade-i18n="admin.brand.subtitle"><?= e($helpers->lang('admin.brand.subtitle')) ?></span></span></a>
             <?= $this->partial('admin::navigation.sidebar', ['navigation' => $navigation, 'activeAdminModule' => $activeAdminModule ?? null]) ?>

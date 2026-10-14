@@ -62,6 +62,17 @@ final class OidcAuthorizationTransactionStoreTest extends TestCase
         $store->consume('provider-a', $transaction->state(), 1002);
     }
 
+    public function testItMarksSessionUnlockTransactionsSeparatelyFromNormalLogin(): void
+    {
+        $store = new OidcAuthorizationTransactionStore($this->session());
+        $normal = $store->begin('provider-a');
+        self::assertFalse($normal->isSessionUnlock());
+
+        $unlock = $store->beginSessionUnlock('provider-a', 42, 'https://issuer.example.test', 'subject-42');
+        self::assertTrue($unlock->isSessionUnlock());
+        self::assertSame(['userId' => 42, 'issuer' => 'https://issuer.example.test', 'subject' => 'subject-42'], $unlock->unlockIdentity());
+    }
+
     public function testItRejectsStateMismatchAndExpiredTransactions(): void
     {
         $session = $this->session();

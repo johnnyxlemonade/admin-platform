@@ -8,7 +8,9 @@ use Lemonade\Admin\Auth\Http\Controller\ForgotPasswordController;
 use Lemonade\Admin\Auth\Http\Controller\LoginController;
 use Lemonade\Admin\Auth\Http\Controller\MfaController;
 use Lemonade\Admin\Auth\Http\Controller\SessionHeartbeatController;
+use Lemonade\Admin\Auth\Http\Controller\SessionLockController;
 use Lemonade\Admin\Auth\Http\Middleware\AdminAnonymousMiddleware;
+use Lemonade\Admin\Auth\Http\Middleware\AdminSessionIdentityMiddleware;
 use Lemonade\Admin\Http\Middleware\AdminAuthenticationMiddleware;
 use Lemonade\Admin\Http\Middleware\AdminLoginAjaxCsrfMiddleware;
 use Lemonade\Admin\Routing\AdminRouteRegistrarInterface;
@@ -33,6 +35,11 @@ final readonly class AdminAuthRouteRegistrar implements AdminRouteRegistrarInter
 
     public function registerRoutes(Router $router): void
     {
+        $router->getNamed(name: 'admin.session.status', path: '/api/session/status', action: ControllerAction::for(controllerClass: SessionLockController::class, method: 'status'))->middleware(AdminSessionIdentityMiddleware::class);
+        $router->getNamed(name: 'admin.session.lock', path: '/session/lock', action: ControllerAction::for(controllerClass: SessionLockController::class, method: 'screen'))->middleware(AdminSessionIdentityMiddleware::class);
+        $router->postNamed(name: 'admin.session.unlock', path: '/api/session/unlock', action: ControllerAction::for(controllerClass: SessionLockController::class, method: 'unlock'))->middleware(AdminSessionIdentityMiddleware::class, CsrfMiddleware::class);
+        $router->getNamed(name: 'admin.session.oidc-unlock', path: '/api/session/oidc-unlock', action: ControllerAction::for(controllerClass: SessionLockController::class, method: 'oidcUnlock'))->middleware(AdminSessionIdentityMiddleware::class);
+
         $router->postNamed(
             name: 'admin.session.heartbeat',
             path: '/api/session/heartbeat',
@@ -41,7 +48,7 @@ final readonly class AdminAuthRouteRegistrar implements AdminRouteRegistrarInter
                 method: 'heartbeat',
             ),
         )->middleware(
-            AdminAuthenticationMiddleware::class,
+            AdminSessionIdentityMiddleware::class,
             CsrfMiddleware::class,
         );
 
@@ -134,7 +141,7 @@ final readonly class AdminAuthRouteRegistrar implements AdminRouteRegistrarInter
                 method: 'logout',
             ),
         )->middleware(
-            AdminAuthenticationMiddleware::class,
+            AdminSessionIdentityMiddleware::class,
             CsrfMiddleware::class,
         );
     }

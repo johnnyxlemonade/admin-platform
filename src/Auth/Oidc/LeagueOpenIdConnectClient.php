@@ -33,7 +33,7 @@ final readonly class LeagueOpenIdConnectClient implements OpenIdConnectClientInt
     /**
      * Vraci nebo zpracovava hodnotu createauthorizationrequest pro overeni identity
      */
-    public function createAuthorizationRequest(OidcProviderConfiguration $configuration, OidcProviderMetadata $metadata, string $state, string $nonce, string $codeVerifier): string
+    public function createAuthorizationRequest(OidcProviderConfiguration $configuration, OidcProviderMetadata $metadata, string $state, string $nonce, string $codeVerifier, bool $forceReauthentication = false): string
     {
         if (!$configuration->isEnabled()) {
             throw new OidcProtocolException('provider_disabled');
@@ -42,7 +42,7 @@ final readonly class LeagueOpenIdConnectClient implements OpenIdConnectClientInt
             throw new OidcProtocolException('pkce_s256_unsupported');
         }
 
-        return $metadata->authorizationEndpoint() . '?' . http_build_query([
+        $parameters = [
             'response_type' => 'code',
             'client_id' => $configuration->clientId(),
             'redirect_uri' => $configuration->redirectUri(),
@@ -51,7 +51,12 @@ final readonly class LeagueOpenIdConnectClient implements OpenIdConnectClientInt
             'nonce' => $nonce,
             'code_challenge' => self::codeChallenge($codeVerifier),
             'code_challenge_method' => 'S256',
-        ], '', '&', PHP_QUERY_RFC3986);
+        ];
+        if ($forceReauthentication) {
+            $parameters['prompt'] = 'login';
+            $parameters['max_age'] = '0';
+        }
+        return $metadata->authorizationEndpoint() . '?' . http_build_query($parameters, '', '&', PHP_QUERY_RFC3986);
     }
 
     /**

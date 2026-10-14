@@ -26,6 +26,7 @@ use Lemonade\Framework\Http\Response\Responses;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Security\Csrf\CsrfViewHelper;
 use Lemonade\Framework\Session\Contract\SessionInterface;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -55,6 +56,7 @@ final readonly class LoginController
         private AuthPageRenderer $pages,
         private Responses $responses,
         private HttpRequestInspector $requests,
+        private Psr17Factory $psr17,
     ) {}
 
     /**
@@ -177,10 +179,32 @@ final readonly class LoginController
     public function keycloakCallback(ServerRequestInterface $request): ResponseInterface
     {
         try {
-            return $this->responses->redirect($this->oidc->complete(OidcAuthorizationCallback::fromQuery((new RequestData($request))->queryAll())));
+            $destination = $this->oidc->complete(OidcAuthorizationCallback::fromQuery((new RequestData($request))->queryAll()));
+            if ($destination === OidcAuthenticationService::SESSION_UNLOCK_CALLBACK) {
+                return $this->popupResult(true);
+            }
+
+            return $this->responses->redirect($destination);
         } catch (OidcProtocolException) {
+            if ($this->authentication->sessionState()->value === 'locked' && $this->authentication->oidcLogoutContext() !== null) {
+                return $this->popupResult(false);
+            }
+
             return $this->loginPage($request, 'auth.errors.invalid', '', HttpStatusCode::FORBIDDEN->value);
         }
+    }
+
+    /**
+     * Vrati minimalni same-origin odpoved pro OIDC unlock popup
+     */
+    private function popupResult(bool $success): ResponseInterface
+    {
+        $payload = json_encode(['type' => 'lemonade:session:oidc-unlock', 'success' => $success], JSON_THROW_ON_ERROR);
+        $body = '<!doctype html><script>window.opener?.postMessage(' . $payload . ',window.location.origin);window.close();</script>';
+
+        return $this->psr17->createResponse()
+            ->withHeader('Content-Type', 'text/html; charset=utf-8')
+            ->withBody($this->psr17->createStream($body));
     }
 
     /**

@@ -38,12 +38,30 @@ final class AdminSessionLifetimeTest extends TestCase
         self::assertTrue($this->authentication($session, 1_700_001_199)->hasActiveSession());
     }
 
-    public function testIdleDeadlineExpiresTheSession(): void
+    public function testIdleDeadlineLocksTheSessionWithoutRemovingItsIdentity(): void
     {
         $session = $this->activeSession(authenticatedAt: 1_700_000_000, lastActivityAt: 1_700_000_000);
 
         self::assertFalse($this->authentication($session, 1_700_001_200)->hasActiveSession());
-        self::assertNull($session->get('admin.auth.user_id'));
+        self::assertSame(42, $session->get('admin.auth.user_id'));
+        self::assertSame(1_700_000_000, $session->get('admin.auth.last_activity_at'));
+    }
+
+    public function testHeartbeatDoesNotExtendALockedSession(): void
+    {
+        $session = $this->activeSession(authenticatedAt: 1_700_000_000, lastActivityAt: 1_700_000_000);
+
+        self::assertFalse($this->authentication($session, 1_700_001_200)->heartbeat());
+        self::assertSame(1_700_000_000, $session->get('admin.auth.last_activity_at'));
+    }
+
+    public function testUnlockMovesOnlyTheIdleActivityTimestamp(): void
+    {
+        $session = $this->activeSession(authenticatedAt: 1_700_000_000, lastActivityAt: 1_700_000_000);
+
+        self::assertTrue($this->authentication($session, 1_700_001_200)->unlock());
+        self::assertSame(1_700_000_000, $session->get('admin.auth.authenticated_at'));
+        self::assertSame(1_700_001_200, $session->get('admin.auth.last_activity_at'));
     }
 
     public function testHeartbeatMovesOnlyTheIdleActivityTimestamp(): void

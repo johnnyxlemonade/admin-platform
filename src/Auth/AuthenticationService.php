@@ -24,6 +24,7 @@ final readonly class AuthenticationService
     private const string SESSION_LAST_ACTIVITY_AT = 'admin.auth.last_activity_at';
     private const string SESSION_OIDC_LOGOUT_CONTEXT = 'admin.auth.external_principal';
     private const string SESSION_OIDC_LOGOUT_ID_TOKEN = 'admin.auth.oidc.logout_id_token';
+    private const string SESSION_OIDC_IDENTITY = 'admin.auth.oidc.identity';
     private const int IDLE_TIMEOUT_SECONDS = 1200;
     private const int ABSOLUTE_LIFETIME_SECONDS = 172800;
 
@@ -83,7 +84,7 @@ final readonly class AuthenticationService
     /**
      * Zalozi OIDC relaci uzivatele a zapise audit prihlaseni
      */
-    public function loginOidc(int $userId, string $providerKey, string $idToken): void
+    public function loginOidc(int $userId, string $providerKey, string $idToken, string $issuer = '', string $subject = ''): void
     {
         $this->session->start();
         $this->session->regenerate(true);
@@ -94,6 +95,9 @@ final readonly class AuthenticationService
             'kind' => 'external_oidc', 'providerKey' => $providerKey,
         ]);
         $this->session->set(self::SESSION_OIDC_LOGOUT_ID_TOKEN, $idToken);
+        if ($issuer !== '' && $subject !== '') {
+            $this->session->set(self::SESSION_OIDC_IDENTITY, ['providerKey' => $providerKey, 'issuer' => $issuer, 'subject' => $subject]);
+        }
         $this->database->statement(
             'UPDATE system_user SET last_login_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL',
             [date('Y-m-d H:i:s'), date('Y-m-d H:i:s'), $userId],
@@ -145,8 +149,16 @@ final readonly class AuthenticationService
      */
     public function hasActiveSession(): bool
     {
+        return $this->sessionState() === AdminSessionState::ACTIVE;
+    }
+
+    /**
+     * Vraci aktualni odvozeny stav administracni relace
+     */
+    public function sessionState(): AdminSessionState
+    {
         if ($this->sessionUserId() === null) {
-            return false;
+            return AdminSessionState::UNAUTHENTICATED;
         }
 
         $authenticatedAt = $this->session->get(self::SESSION_AUTHENTICATED_AT);
@@ -154,18 +166,21 @@ final readonly class AuthenticationService
         if (!is_int($authenticatedAt) || !is_int($lastActivityAt)) {
             $this->clearAuthenticatedSession();
 
-            return false;
+            return AdminSessionState::UNAUTHENTICATED;
         }
 
         $now = $this->nowTimestamp();
-        if ($now - $lastActivityAt >= self::IDLE_TIMEOUT_SECONDS
-            || $now - $authenticatedAt >= self::ABSOLUTE_LIFETIME_SECONDS) {
+        if ($now - $authenticatedAt >= self::ABSOLUTE_LIFETIME_SECONDS) {
             $this->clearAuthenticatedSession();
 
-            return false;
+            return AdminSessionState::EXPIRED;
         }
 
-        return true;
+        if ($now - $lastActivityAt >= self::IDLE_TIMEOUT_SECONDS) {
+            return AdminSessionState::LOCKED;
+        }
+
+        return AdminSessionState::ACTIVE;
     }
 
     /**
@@ -173,7 +188,21 @@ final readonly class AuthenticationService
      */
     public function heartbeat(): bool
     {
-        if (!$this->hasActiveSession()) {
+        if ($this->sessionState() !== AdminSessionState::ACTIVE) {
+            return false;
+        }
+
+        $this->session->set(self::SESSION_LAST_ACTIVITY_AT, $this->nowTimestamp());
+
+        return true;
+    }
+
+    /**
+     * Obnovi pouze idle aktivitu uspesne znovu overene uzamcene relace
+     */
+    public function unlock(): bool
+    {
+        if ($this->sessionState() !== AdminSessionState::LOCKED) {
             return false;
         }
 
@@ -213,6 +242,29 @@ final readonly class AuthenticationService
     }
 
     /**
+     * Vraci identitu, kterou musi OIDC reautentizace potvrdit
+     *
+     * @return array{providerKey:string,issuer:string,subject:string}|null
+     */
+    public function oidcIdentity(): ?array
+    {
+        $value = $this->session->get(self::SESSION_OIDC_IDENTITY);
+        if (!is_array($value) || !is_string($value['providerKey'] ?? null) || !is_string($value['issuer'] ?? null) || !is_string($value['subject'] ?? null)) {
+            return null;
+        }
+
+        return ['providerKey' => $value['providerKey'], 'issuer' => $value['issuer'], 'subject' => $value['subject']];
+    }
+
+    /**
+     * Aktualizuje token pouzivany pouze pro nasledne OIDC odhlaseni
+     */
+    public function replaceOidcLogoutIdToken(string $idToken): void
+    {
+        $this->session->set(self::SESSION_OIDC_LOGOUT_ID_TOKEN, $idToken);
+    }
+
+    /**
      * Nastavuje shodny login cas pro absolutni i idle lifetime nove relace
      */
     private function establishSessionLifetime(): void
@@ -232,6 +284,7 @@ final readonly class AuthenticationService
         $this->session->remove(self::SESSION_LAST_ACTIVITY_AT);
         $this->session->remove(self::SESSION_OIDC_LOGOUT_CONTEXT);
         $this->session->remove(self::SESSION_OIDC_LOGOUT_ID_TOKEN);
+        $this->session->remove(self::SESSION_OIDC_IDENTITY);
     }
 
     /**

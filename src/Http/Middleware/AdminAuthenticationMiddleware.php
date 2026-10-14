@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Http\Middleware;
 
+use Lemonade\Admin\Auth\AdminSessionState;
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\InternalAdminDestination;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
@@ -40,12 +41,20 @@ final readonly class AdminAuthenticationMiddleware implements MiddlewareInterfac
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $path = $request->getUri()->getPath();
-        if ($this->authentication->hasActiveSession() && $this->currentPrincipal->currentUser() !== null) {
+        $sessionState = $this->authentication->sessionState();
+        if ($sessionState === AdminSessionState::ACTIVE && $this->currentPrincipal->currentUser() !== null) {
             return $handler->handle($request);
         }
 
-        if ($this->isApiPath($path)) {
+        if ($sessionState === AdminSessionState::LOCKED && $this->currentPrincipal->currentUser() !== null) {
+            if (self::isApiRequest($request, $this->routing)) {
+                return self::lockedApiResponse($this->responses);
+            }
+
+            return $this->responses->createResponse(302)->withHeader('Location', $this->routing->path('/session/lock') . '?return=' . rawurlencode($this->requestedPath($request)));
+        }
+
+        if (self::isApiRequest($request, $this->routing)) {
             return self::unauthenticatedApiResponse($this->responses);
         }
 
@@ -55,15 +64,43 @@ final readonly class AdminAuthenticationMiddleware implements MiddlewareInterfac
     }
 
     /**
-     * Rozhoduje, zda plati podminka isapipath
+     * Rozpoznava pozadavek, ktery vyzaduje JSON auth kontrakt
      */
-    private function isApiPath(string $path): bool
+    public static function isApiRequest(ServerRequestInterface $request, AdminRoutingConfiguration $routing): bool
     {
-        $basePath = preg_quote($this->routing->basePath, '#');
+        return self::isApiPath($request->getUri()->getPath(), $routing) || self::isJsonRequest($request);
+    }
 
-        return $path === $this->routing->path('/api')
-            || str_starts_with($path, $this->routing->path('/api/'))
+    /**
+     * Rozpoznava canonical API nebo AJAX cestu administrace
+     */
+    private static function isApiPath(string $path, AdminRoutingConfiguration $routing): bool
+    {
+        $basePath = preg_quote($routing->basePath, '#');
+
+        return $path === $routing->path('/api')
+            || str_starts_with($path, $routing->path('/api/'))
             || preg_match('#^' . $basePath . '/[^/]+/ajax(?:/|$)#D', $path) === 1;
+    }
+
+    /**
+     * Rozpoznava JSON transport mimo canonical API cestu
+     */
+    private static function isJsonRequest(ServerRequestInterface $request): bool
+    {
+        return str_contains($request->getHeaderLine('Accept'), 'application/json')
+            || str_contains($request->getHeaderLine('X-Requested-With'), 'XMLHttpRequest');
+    }
+
+    /**
+     * Vraci bezpecnou cestu puvodniho Admin document requestu
+     */
+    private function requestedPath(ServerRequestInterface $request): string
+    {
+        $path = $request->getUri()->getPath();
+        $query = $request->getUri()->getQuery();
+
+        return $query === '' ? $path : $path . '?' . $query;
     }
 
     /**
@@ -71,9 +108,7 @@ final readonly class AdminAuthenticationMiddleware implements MiddlewareInterfac
      */
     private function storeIntendedPath(ServerRequestInterface $request): void
     {
-        $path = $request->getUri()->getPath();
-        $query = $request->getUri()->getQuery();
-        $destination = $query === '' ? $path : $path . '?' . $query;
+        $destination = $this->requestedPath($request);
         if (InternalAdminDestination::isSafe($destination, $this->routing)) {
             $this->session->set(self::INTENDED_PATH, $destination);
         }
@@ -101,6 +136,21 @@ final readonly class AdminAuthenticationMiddleware implements MiddlewareInterfac
                 'error' => [
                     'code' => AdminErrorCode::UNAUTHENTICATED->value,
                     'message' => 'Authentication required.',
+                ],
+            ], JSON_THROW_ON_ERROR)));
+    }
+
+    /**
+     * Vytvari JSON odpoved pro serverem uzamcenou administracni relaci
+     */
+    public static function lockedApiResponse(Psr17Factory $responses): ResponseInterface
+    {
+        return $responses->createResponse(423)
+            ->withHeader('Content-Type', 'application/json; charset=utf-8')
+            ->withBody($responses->createStream(json_encode([
+                'error' => [
+                    'code' => AdminErrorCode::SESSION_LOCKED->value,
+                    'message' => 'Session is locked.',
                 ],
             ], JSON_THROW_ON_ERROR)));
     }

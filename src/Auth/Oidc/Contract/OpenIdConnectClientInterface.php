@@ -28,6 +28,7 @@ interface OpenIdConnectClientInterface
         string $state,
         string $nonce,
         string $codeVerifier,
+        bool $forceReauthentication = false,
     ): string;
 
     /**

@@ -81,7 +81,7 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
         );
     }
 
-    public function testItExpiresAnIdleSessionBeforeResolvingTheCurrentUser(): void
+    public function testItLocksAnIdleSessionBeforeResolvingTheCurrentUser(): void
     {
         $session = $this->session();
         $session->set('admin.auth.user_id', 42);
@@ -93,8 +93,25 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
             $this->createMock(RequestHandlerInterface::class),
         );
 
-        self::assertSame(401, $response->getStatusCode());
-        self::assertNull($session->get('admin.auth.user_id'));
+        self::assertSame(423, $response->getStatusCode());
+        self::assertSame(42, $session->get('admin.auth.user_id'));
+    }
+
+    public function testItRedirectsALockedHtmlRequestToTheDedicatedLockScreen(): void
+    {
+        $session = $this->session();
+        $session->set('admin.auth.user_id', 42);
+        $session->set('admin.auth.authenticated_at', time() - 1200);
+        $session->set('admin.auth.last_activity_at', time() - 1200);
+
+        $response = $this->middleware($session, new AuthenticatedUser(42, 'admin@example.test'))->process(
+            new ServerRequest('GET', '/admin/?filter=active'),
+            $this->createMock(RequestHandlerInterface::class),
+        );
+
+        self::assertSame(302, $response->getStatusCode());
+        self::assertSame('/admin/session/lock?return=%2Fadmin%2F%3Ffilter%3Dactive', $response->getHeaderLine('Location'));
+        self::assertSame('', $response->getHeaderLine('Content-Type'));
     }
 
     private function middleware(SessionInterface $session, ?AuthenticatedUser $user = null): AdminAuthenticationMiddleware

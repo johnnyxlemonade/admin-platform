@@ -11,6 +11,7 @@
 import { Clock } from "./components/lemonade-clock.js";
 import { Dropdown } from "./components/lemonade-dropdown.js";
 import { I18n } from "./core/lemonade-i18n.js";
+import { SessionUnlockHelper } from "./core/lemonade-session-unlock-helper.js";
 import { Message } from "./components/lemonade-message.js";
 import { MfaQr } from "./components/lemonade-mfa-qr.js";
 import { PasswordToggle } from "./components/lemonade-password-toggle.js";
@@ -178,6 +179,21 @@ async function initializeAuth() {
         PasswordToggle.initAll();
         MfaQr.initAll();
         AuthLogin.initAll();
+        document.querySelectorAll("[data-lemonade-session-lock-screen]").forEach(function (screen) {
+            const error = screen.querySelector("[data-lemonade-session-lock-error]");
+            const showError = (key) => { error.textContent = I18n.t(key); error.hidden = false; };
+            const redirectAfterUnlock = () => window.location.assign(screen.dataset.lemonadeSessionReturnUrl || "/");
+            screen.querySelector("[data-lemonade-session-local-unlock]")?.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const response = await window.fetch(screen.dataset.lemonadeSessionUnlockUrl, { method: "POST", headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || "", "Content-Type": "application/json" }, body: JSON.stringify({ password: new FormData(event.currentTarget).get("password") }), credentials: "same-origin" });
+                if (response.ok) redirectAfterUnlock(); else showError("auth.session_lock.invalid");
+            });
+            screen.querySelector("[data-lemonade-session-oidc-unlock]")?.addEventListener("click", () => {
+                SessionUnlockHelper.openOidcPopup(screen.dataset.lemonadeSessionOidcUnlockUrl, async () => {
+                    if (await SessionUnlockHelper.isActive(screen.dataset.lemonadeSessionStatusUrl)) redirectAfterUnlock(); else showError("auth.session_lock.oidc_failed");
+                }, (reason) => showError(`auth.session_lock.${reason}`));
+            });
+        });
 }
 
 function startAuth() {
