@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Auth\Http\Controller;
 
+use Lemonade\Admin\Audit\AuditActor;
+use Lemonade\Admin\Audit\AuditLogWriterInterface;
+use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\AuthenticationThrottler;
 use Lemonade\Admin\Auth\AuthPageRenderer;
@@ -14,6 +17,7 @@ use Lemonade\Admin\Auth\Mfa\MfaAuthenticationService;
 use Lemonade\Admin\Auth\Mfa\MfaLoginChallengeStore;
 use Lemonade\Admin\Auth\Mfa\MfaRecentPrimaryAuthenticationStore;
 use Lemonade\Admin\Auth\Mfa\TotpCredentialService;
+use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Admin\Presentation\AdminBranding;
@@ -46,6 +50,7 @@ final readonly class MfaController
         private MfaRecentPrimaryAuthenticationStore $recentPrimary,
         private AuthenticationService $authentication,
         private AuthenticationThrottler $throttler,
+        private AuditLogWriterInterface $audit,
         private CurrentUserProvider $currentUser,
         private TotpProvisioningUriFactory $provisioningUris,
         private AdminUiLocale $uiLocale,
@@ -96,14 +101,22 @@ final readonly class MfaController
 
         $code = (string) (new RequestData($request))->post('code', '');
         $user = $this->mfa->eligibleUser($challenge['userId']);
-        if ($user === null || !$this->credentials->verifyAndConsume($challenge['userId'], $code)) {
+        if ($user === null) {
+            $this->challenges->clear();
+
+            return $this->redirect($request, $this->routing->path('/login'));
+        }
+
+        if (!$this->credentials->verifyAndConsume($challenge['userId'], $code)) {
             $limit = $this->throttler->failedMfa($request, $challenge['userId']);
             if (!$limit->allowed()) {
                 $this->challenges->clear();
-                $this->mfa->challengeFailed($challenge['userId']);
+                $this->auditFailure('system.authentication.mfa_throttled', 'auth.mfa.throttled', 'rate_limited');
 
                 return $this->throttledChallenge($request, $limit->retryAfterSeconds());
             }
+
+            $this->auditFailure('system.authentication.mfa_failed', 'auth.mfa.failed', 'invalid_code');
 
             return $this->failedChallenge($request);
         }
@@ -162,10 +175,12 @@ final readonly class MfaController
             $limit = $this->throttler->failedMfa($request, $challenge['userId']);
             if (!$limit->allowed()) {
                 $this->challenges->clear();
-                $this->mfa->challengeFailed($challenge['userId']);
+                $this->auditFailure('system.authentication.mfa_throttled', 'auth.mfa.throttled', 'rate_limited');
 
                 return $this->throttledEnrollment($request, $challenge['userId'], $limit->retryAfterSeconds());
             }
+
+            $this->auditFailure('system.authentication.mfa_failed', 'auth.mfa.failed', 'invalid_code');
 
             return $this->renderEnrollment($request, $challenge['userId'], false, false, 'auth.mfa.errors.invalid', 422);
         }
@@ -387,6 +402,27 @@ final readonly class MfaController
         }
 
         return $this->translator->get($key . '_minutes', ['minutes' => (int) ceil($retryAfterSeconds / 60)]);
+    }
+
+    /**
+     * Zapise anonymni MFA failure bez identifikatoru nebo TOTP hodnoty
+     */
+    private function auditFailure(string $eventCode, string $operation, string $reason): void
+    {
+        $this->audit->record(
+            new DomainEvent(
+                $eventCode,
+                'system.authentication',
+                'authentication',
+                'totp',
+                ['method' => 'totp', 'reason' => $reason],
+            ),
+            new AuditOperation(
+                'system.authentication',
+                $operation,
+                AuditActor::anonymous('admin-auth'),
+            ),
+        );
     }
 
     /**

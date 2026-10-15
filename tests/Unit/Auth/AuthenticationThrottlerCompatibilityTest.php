@@ -73,7 +73,7 @@ final class AuthenticationThrottlerCompatibilityTest extends TestCase
     {
         $throttler = new AuthenticationThrottler(
             limiter: null,
-            configuration: new AdminAuthenticationThrottleConfiguration(enabled: false),
+            configuration: AdminAuthenticationThrottleConfiguration::disabled(),
             requests: new HttpRequestInspector(),
             database: null,
         );
@@ -110,6 +110,29 @@ final class AuthenticationThrottlerCompatibilityTest extends TestCase
         self::assertTrue($throttler->mfaStatus($request, 42)->allowed());
         self::assertTrue($throttler->failedMfa($request, 42)->allowed());
         $throttler->clearMfaUser(42);
+    }
+
+    public function testFailedAttemptsUseOnlyTheirExplicitSafeScopes(): void
+    {
+        $scopes = [];
+        $limiter = $this->createMock(RateLimiterInterface::class);
+        $limiter->expects(self::exactly(4))
+            ->method('hit')
+            ->willReturnCallback(static function (string $key, string $scope, RateLimitPolicy $policy) use (&$scopes): RateLimitResult {
+                unset($key, $policy);
+                $scopes[] = $scope;
+
+                return new RateLimitResult(true, 4, 0);
+            });
+        $throttler = $this->throttler($limiter);
+        $request = new ServerRequest('POST', '/admin/login');
+
+        $throttler->failedLogin($request, 'root@example.test');
+        self::assertSame(['admin-auth.login.ip', 'admin-auth.login.identity'], $scopes);
+
+        $throttler->failedMfa($request, 42);
+
+        self::assertSame(['admin-auth.login.ip', 'admin-auth.login.identity', 'admin-auth.mfa.ip', 'admin-auth.mfa.user'], $scopes);
     }
 
     /**
@@ -179,16 +202,10 @@ final class AuthenticationThrottlerCompatibilityTest extends TestCase
     }
 
     /**
-     * Vytvari policy odpovidajici hostem deklarovane vychozi konfiguraci
+     * Vytvari canonical Admin policy pro limiter testy
      */
     private function configuration(): AdminAuthenticationThrottleConfiguration
     {
-        return new AdminAuthenticationThrottleConfiguration(
-            enabled: true,
-            loginIp: new RateLimitPolicy(20, 900),
-            loginIdentity: new RateLimitPolicy(5, 900),
-            mfaIp: new RateLimitPolicy(20, 900),
-            mfaIdentity: new RateLimitPolicy(5, 900),
-        );
+        return AdminAuthenticationThrottleConfiguration::defaults();
     }
 }

@@ -20,6 +20,9 @@ final class AuthenticationAuditPresentationRegistrarTest extends TestCase
         self::assertSame('auth.audit.module.name', $registry->modulePresentation('system.authentication')?->nameKey());
         self::assertSame('auth.audit.events.login', $registry->presentation('system.authentication.login')?->translationKey());
         self::assertSame('auth.audit.events.logout', $registry->presentation('system.authentication.logout')?->translationKey());
+        foreach (['login_failed', 'login_throttled', 'mfa_failed', 'mfa_throttled', 'session_unlock_failed', 'session_unlock_throttled'] as $event) {
+            self::assertSame('auth.audit.events.' . $event, $registry->presentation('system.authentication.' . $event)?->translationKey());
+        }
     }
 
     public function testAuthenticationAuditTranslationKeysExistInBothLocales(): void
@@ -30,6 +33,10 @@ final class AuthenticationAuditPresentationRegistrarTest extends TestCase
             self::assertSame($expected[0], $catalog['audit']['module']['name']);
             self::assertSame($expected[1], $catalog['audit']['events']['login']);
             self::assertSame($expected[2], $catalog['audit']['events']['logout']);
+            foreach (['login_failed', 'login_throttled', 'mfa_failed', 'mfa_throttled', 'session_unlock_failed', 'session_unlock_throttled'] as $event) {
+                self::assertIsString($catalog['audit']['events'][$event] ?? null);
+                self::assertNotSame('', $catalog['audit']['events'][$event]);
+            }
         }
     }
 
@@ -51,5 +58,32 @@ final class AuthenticationAuditPresentationRegistrarTest extends TestCase
         self::assertSame('Login', $presenter->description('system.authentication.login', []));
         self::assertSame('Logout', $presenter->description('system.authentication.logout', []));
         self::assertSame('Authentication', $presenter->moduleLabel('system.authentication'));
+    }
+
+    public function testAuditListPresenterUsesAnonymousVisitorLabel(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->expects(self::once())
+            ->method('get')
+            ->with('audit.actor.anonymous')
+            ->willReturn('Anonymous visitor');
+        $presenter = new AuditEventPresenter(new AuditEventPresentationRegistry(), $translator);
+
+        self::assertSame('Anonymous visitor', $presenter->actor([
+            'actor_type' => 'anonymous',
+            'actor_email' => null,
+            'actor_first_name' => null,
+            'actor_last_name' => null,
+            'actor_user_id' => null,
+        ]));
+    }
+
+    public function testAnonymousAuditActorHasDedicatedTypeAndKey(): void
+    {
+        $actor = \Lemonade\Admin\Audit\AuditActor::anonymous('admin-auth');
+
+        self::assertSame(\Lemonade\Admin\Audit\AuditActorType::Anonymous, $actor->type());
+        self::assertSame('admin-auth', $actor->key());
+        self::assertNull($actor->userId());
     }
 }

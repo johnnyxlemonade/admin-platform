@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 final class AdminAuthConfigDefinitionTest extends TestCase
 {
     /**
-     * Overuje, ze vypnuty throttling nevyzaduje bucket policy
+     * Overuje, ze vypnuty throttling nevyzaduje limiter policy
      */
     public function testDisabledThrottlingDoesNotRequireBucketPolicies(): void
     {
@@ -26,24 +26,21 @@ final class AdminAuthConfigDefinitionTest extends TestCase
     }
 
     /**
-     * Overuje, ze throttling je bez explicitni hodnoty zapnuty
+     * Overuje canonical policy bez hostem deklarovanych limiter cisel
      */
     public function testThrottlingDefaultsToEnabled(): void
     {
-        $configuration = AdminAuthConfigDefinition::fromArrayData([
-            'throttling' => [
-                'login' => [
-                    'ip' => ['attempts' => 20, 'window_seconds' => 900],
-                    'identity' => ['attempts' => 5, 'window_seconds' => 900],
-                ],
-                'mfa' => [
-                    'ip' => ['attempts' => 20, 'window_seconds' => 900],
-                    'identity' => ['attempts' => 5, 'window_seconds' => 900],
-                ],
-            ],
-        ])->throttlingConfiguration();
+        $configuration = AdminAuthConfigDefinition::create()->throttlingConfiguration();
 
         self::assertTrue($configuration->enabled());
+        self::assertSame(20, $configuration->loginIp()->attempts());
+        self::assertSame(900, $configuration->loginIp()->windowSeconds());
+        self::assertSame(5, $configuration->loginIdentity()->attempts());
+        self::assertSame(900, $configuration->loginIdentity()->windowSeconds());
+        self::assertSame(20, $configuration->mfaIp()->attempts());
+        self::assertSame(900, $configuration->mfaIp()->windowSeconds());
+        self::assertSame(5, $configuration->mfaIdentity()->attempts());
+        self::assertSame(900, $configuration->mfaIdentity()->windowSeconds());
     }
 
     /**

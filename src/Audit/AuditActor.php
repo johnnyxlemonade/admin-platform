@@ -34,6 +34,11 @@ final readonly class AuditActor
         return self::technical(AuditActorType::External, $key);
     }
 
+    public static function anonymous(string $key): self
+    {
+        return self::technical(AuditActorType::Anonymous, $key);
+    }
+
     public static function system(string $key): self
     {
         return self::technical(AuditActorType::System, $key);

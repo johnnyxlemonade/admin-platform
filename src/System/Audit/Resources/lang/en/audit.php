@@ -27,6 +27,7 @@ return [
     'actor' => [
         'system' => 'System',
         'external' => 'External identity',
+        'anonymous' => 'Anonymous visitor',
         'unknown' => 'Unknown user #{id}',
     ],
     'permissions' => [

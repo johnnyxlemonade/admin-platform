@@ -27,9 +27,10 @@ final readonly class CreateFrameworkRateLimitTable implements MigrationInterface
     public function up(Schema $schema): void
     {
         $schema->create('framework_rate_limit', static function (TableBlueprint $table): void {
-            $table->binary('key_hash', 32)->primary();
-            $table->unsignedInteger('attempts');
-            $table->datetime('expires_at');
+            $table->string('scope', 100)->comment('Bezpecna diagnosticka klasifikace bucketu bez identifikatoru');
+            $table->binary('key_hash', 32)->primary()->comment('HMAC identita opaque limiter key');
+            $table->unsignedInteger('attempts')->comment('Pocet zaznamenanych pokusu v aktualnim fixed window');
+            $table->datetime('expires_at')->comment('UTC cas konce aktualniho fixed window');
             $table->index('expires_at', 'idx_framework_rate_limit_expires_at');
             $table->engine('InnoDB');
             $table->comment('Lemonade Framework / HMAC fixed-window rate limit buckets');

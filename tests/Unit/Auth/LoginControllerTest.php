@@ -29,7 +29,6 @@ use Lemonade\Framework\Localization\Config\LocalizationConfig;
 use Lemonade\Framework\Localization\Config\LocalizationUrlConfig;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\RateLimit\RateLimiterInterface;
-use Lemonade\Framework\RateLimit\RateLimitPolicy;
 use Lemonade\Framework\RateLimit\RateLimitResult;
 use Lemonade\Framework\Security\Csrf\CsrfTokenManager;
 use Lemonade\Framework\Security\Csrf\CsrfViewHelper;
@@ -167,13 +166,7 @@ final class LoginControllerTest extends TestCase
 
         return new AuthenticationThrottler(
             limiter: $limiter,
-            configuration: new AdminAuthenticationThrottleConfiguration(
-                enabled: true,
-                loginIp: new RateLimitPolicy(20, 900),
-                loginIdentity: new RateLimitPolicy(5, 900),
-                mfaIp: new RateLimitPolicy(20, 900),
-                mfaIdentity: new RateLimitPolicy(5, 900),
-            ),
+            configuration: AdminAuthenticationThrottleConfiguration::defaults(),
             requests: new HttpRequestInspector(),
             database: new Database($this->createMock(ConnectionInterface::class), $driver),
         );

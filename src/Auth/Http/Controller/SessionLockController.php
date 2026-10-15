@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Auth\Http\Controller;
 
+use Lemonade\Admin\Audit\AuditActor;
+use Lemonade\Admin\Audit\AuditLogWriterInterface;
+use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AdminSessionState;
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\AuthenticationThrottler;
@@ -11,6 +14,7 @@ use Lemonade\Admin\Auth\AuthPageRenderer;
 use Lemonade\Admin\Auth\CurrentUserProvider;
 use Lemonade\Admin\Auth\Oidc\OidcAuthenticationService;
 use Lemonade\Admin\Auth\Oidc\OidcProtocolException;
+use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Http\AdminErrorCode;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
@@ -28,10 +32,14 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 final readonly class SessionLockController
 {
+    /**
+     * Nastavuje zavislosti pro stav zamcene relace a jeji povolene odemknuti
+     */
     public function __construct(
         private AuthenticationService $authentication,
         private CurrentUserProvider $currentUser,
         private AuthenticationThrottler $throttler,
+        private AuditLogWriterInterface $audit,
         private Responses $responses,
         private Psr17Factory $psr17,
         private OidcAuthenticationService $oidc,
@@ -42,6 +50,9 @@ final readonly class SessionLockController
         private AdminRoutingConfiguration $routing,
     ) {}
 
+    /**
+     * Vraci stav zamcene relace a pozadovany zpusob jejiho odemknuti
+     */
     public function status(): ResponseInterface
     {
         if ($this->authentication->sessionState() === AdminSessionState::LOCKED) {
@@ -74,6 +85,9 @@ final readonly class SessionLockController
         ]);
     }
 
+    /**
+     * Overi localni heslo pro zamcenou relaci a zachova limiter i failure audit hranice
+     */
     public function unlock(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->authentication->oidcLogoutContext() !== null) {
@@ -92,9 +106,21 @@ final readonly class SessionLockController
         }
 
         $password = (string) (new RequestData($request))->input('password', '');
-        if ($this->authentication->authenticateLocal($user->email(), $password)->user()?->id() !== $user->id() || !$this->authentication->unlock()) {
-            $this->throttler->failedLogin($request, $user->email());
+        if ($this->authentication->authenticateLocal($user->email(), $password)->user()?->id() !== $user->id()) {
+            $limit = $this->throttler->failedLogin($request, $user->email());
+            if (!$limit->allowed()) {
+                $this->auditFailure('system.authentication.session_unlock_throttled', 'auth.session_unlock.throttled', 'rate_limited');
 
+                return $this->responses->json(['error' => ['code' => 'throttled']], HttpStatus::TOO_MANY_REQUESTS->value)
+                    ->withHeader('Retry-After', (string) $limit->retryAfterSeconds());
+            }
+
+            $this->auditFailure('system.authentication.session_unlock_failed', 'auth.session_unlock.failed', 'invalid_credentials');
+
+            return $this->responses->json(['error' => ['code' => AdminErrorCode::SESSION_UNLOCK_INVALID->value]], HttpStatus::UNPROCESSABLE_ENTITY->value);
+        }
+
+        if (!$this->authentication->unlock()) {
             return $this->responses->json(['error' => ['code' => AdminErrorCode::SESSION_UNLOCK_INVALID->value]], HttpStatus::UNPROCESSABLE_ENTITY->value);
         }
 
@@ -113,5 +139,26 @@ final readonly class SessionLockController
         } catch (OidcProtocolException) {
             return $this->responses->json(['error' => ['code' => AdminErrorCode::SESSION_UNLOCK_INVALID->value]], HttpStatus::UNPROCESSABLE_ENTITY->value);
         }
+    }
+
+    /**
+     * Zapise anonymni local session unlock failure bez identifikatoru nebo hesla
+     */
+    private function auditFailure(string $eventCode, string $operation, string $reason): void
+    {
+        $this->audit->record(
+            new DomainEvent(
+                $eventCode,
+                'system.authentication',
+                'authentication',
+                'local',
+                ['method' => 'local', 'reason' => $reason],
+            ),
+            new AuditOperation(
+                'system.authentication',
+                $operation,
+                AuditActor::anonymous('admin-auth'),
+            ),
+        );
     }
 }

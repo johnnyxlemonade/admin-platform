@@ -17,6 +17,11 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 final readonly class AuthenticationThrottler
 {
+    private const string LOGIN_IP_SCOPE = 'admin-auth.login.ip';
+    private const string LOGIN_IDENTITY_SCOPE = 'admin-auth.login.identity';
+    private const string MFA_IP_SCOPE = 'admin-auth.mfa.ip';
+    private const string MFA_USER_SCOPE = 'admin-auth.mfa.user';
+
     /**
      * Uchovava jednou zjistenou dostupnost limiter tabulky pri zapnutem throttlingu
      */
@@ -31,7 +36,7 @@ final readonly class AuthenticationThrottler
         private HttpRequestInspector                     $requests,
         ?Database                                        $database,
     ) {
-        if (!$this->configuration->enabled()) {
+        if (!$this->configuration->hasEnabledBuckets()) {
             $this->rateLimitTableExists = false;
 
             return;
@@ -49,7 +54,7 @@ final readonly class AuthenticationThrottler
      */
     public function loginStatus(ServerRequestInterface $request, string $identifier): RateLimitResult
     {
-        if (!$this->configuration->enabled()) {
+        if (!$this->configuration->hasEnabledBuckets()) {
             return $this->compatibilityBypassResult();
         }
 
@@ -57,10 +62,7 @@ final readonly class AuthenticationThrottler
             return $this->compatibilityBypassResult($this->configuration->loginIp(), $this->configuration->loginIdentity());
         }
 
-        return $this->decision([
-            $this->limiter()->status($this->loginIpKey($request), $this->configuration->loginIp()),
-            $this->limiter()->status($this->loginIdentityKey($identifier), $this->configuration->loginIdentity()),
-        ]);
+        return $this->decision($this->loginResults($request, $identifier, false));
     }
 
     /**
@@ -68,7 +70,7 @@ final readonly class AuthenticationThrottler
      */
     public function failedLogin(ServerRequestInterface $request, string $identifier): RateLimitResult
     {
-        if (!$this->configuration->enabled()) {
+        if (!$this->configuration->hasEnabledBuckets()) {
             return $this->compatibilityBypassResult();
         }
 
@@ -76,10 +78,7 @@ final readonly class AuthenticationThrottler
             return $this->compatibilityBypassResult($this->configuration->loginIp(), $this->configuration->loginIdentity());
         }
 
-        return $this->decision([
-            $this->limiter()->hit($this->loginIpKey($request), $this->configuration->loginIp()),
-            $this->limiter()->hit($this->loginIdentityKey($identifier), $this->configuration->loginIdentity()),
-        ]);
+        return $this->decision($this->loginResults($request, $identifier, true));
     }
 
     /**
@@ -87,7 +86,7 @@ final readonly class AuthenticationThrottler
      */
     public function clearLoginIdentity(string $identifier): void
     {
-        if ($this->configuration->enabled() && $this->rateLimitTableExists) {
+        if ($this->configuration->loginIdentityEnabled() && $this->rateLimitTableExists) {
             $this->limiter()->clear($this->loginIdentityKey($identifier));
         }
     }
@@ -97,7 +96,7 @@ final readonly class AuthenticationThrottler
      */
     public function mfaStatus(ServerRequestInterface $request, int $userId): RateLimitResult
     {
-        if (!$this->configuration->enabled()) {
+        if (!$this->configuration->hasEnabledBuckets()) {
             return $this->compatibilityBypassResult();
         }
 
@@ -105,10 +104,7 @@ final readonly class AuthenticationThrottler
             return $this->compatibilityBypassResult($this->configuration->mfaIp(), $this->configuration->mfaIdentity());
         }
 
-        return $this->decision([
-            $this->limiter()->status($this->mfaIpKey($request), $this->configuration->mfaIp()),
-            $this->limiter()->status($this->mfaUserKey($userId), $this->configuration->mfaIdentity()),
-        ]);
+        return $this->decision($this->mfaResults($request, $userId, false));
     }
 
     /**
@@ -116,7 +112,7 @@ final readonly class AuthenticationThrottler
      */
     public function failedMfa(ServerRequestInterface $request, int $userId): RateLimitResult
     {
-        if (!$this->configuration->enabled()) {
+        if (!$this->configuration->hasEnabledBuckets()) {
             return $this->compatibilityBypassResult();
         }
 
@@ -124,10 +120,7 @@ final readonly class AuthenticationThrottler
             return $this->compatibilityBypassResult($this->configuration->mfaIp(), $this->configuration->mfaIdentity());
         }
 
-        return $this->decision([
-            $this->limiter()->hit($this->mfaIpKey($request), $this->configuration->mfaIp()),
-            $this->limiter()->hit($this->mfaUserKey($userId), $this->configuration->mfaIdentity()),
-        ]);
+        return $this->decision($this->mfaResults($request, $userId, true));
     }
 
     /**
@@ -135,7 +128,7 @@ final readonly class AuthenticationThrottler
      */
     public function clearMfaUser(int $userId): void
     {
-        if ($this->configuration->enabled() && $this->rateLimitTableExists) {
+        if ($this->configuration->mfaIdentityEnabled() && $this->rateLimitTableExists) {
             $this->limiter()->clear($this->mfaUserKey($userId));
         }
     }
@@ -156,6 +149,50 @@ final readonly class AuthenticationThrottler
             remaining: $remaining === PHP_INT_MAX ? 0 : $remaining,
             retryAfterSeconds: 0,
         );
+    }
+
+    /**
+     * Vrati status nebo hit pouze pro zapnute login buckety
+     *
+     * @return list<RateLimitResult>
+     */
+    private function loginResults(ServerRequestInterface $request, string $identifier, bool $hit): array
+    {
+        $results = [];
+        if ($this->configuration->loginIpEnabled()) {
+            $results[] = $hit
+                ? $this->limiter()->hit($this->loginIpKey($request), self::LOGIN_IP_SCOPE, $this->configuration->loginIp())
+                : $this->limiter()->status($this->loginIpKey($request), self::LOGIN_IP_SCOPE, $this->configuration->loginIp());
+        }
+        if ($this->configuration->loginIdentityEnabled()) {
+            $results[] = $hit
+                ? $this->limiter()->hit($this->loginIdentityKey($identifier), self::LOGIN_IDENTITY_SCOPE, $this->configuration->loginIdentity())
+                : $this->limiter()->status($this->loginIdentityKey($identifier), self::LOGIN_IDENTITY_SCOPE, $this->configuration->loginIdentity());
+        }
+
+        return $results;
+    }
+
+    /**
+     * Vrati status nebo hit pouze pro zapnute MFA buckety
+     *
+     * @return list<RateLimitResult>
+     */
+    private function mfaResults(ServerRequestInterface $request, int $userId, bool $hit): array
+    {
+        $results = [];
+        if ($this->configuration->mfaIpEnabled()) {
+            $results[] = $hit
+                ? $this->limiter()->hit($this->mfaIpKey($request), self::MFA_IP_SCOPE, $this->configuration->mfaIp())
+                : $this->limiter()->status($this->mfaIpKey($request), self::MFA_IP_SCOPE, $this->configuration->mfaIp());
+        }
+        if ($this->configuration->mfaIdentityEnabled()) {
+            $results[] = $hit
+                ? $this->limiter()->hit($this->mfaUserKey($userId), self::MFA_USER_SCOPE, $this->configuration->mfaIdentity())
+                : $this->limiter()->status($this->mfaUserKey($userId), self::MFA_USER_SCOPE, $this->configuration->mfaIdentity());
+        }
+
+        return $results;
     }
 
     /**

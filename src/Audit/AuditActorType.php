@@ -11,6 +11,7 @@ enum AuditActorType: string
 {
     case User = 'user';
     case External = 'external';
+    case Anonymous = 'anonymous';
     case System = 'system';
     case Cron = 'cron';
     case Migration = 'migration';

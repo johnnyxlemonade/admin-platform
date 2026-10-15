@@ -44,6 +44,9 @@ final readonly class AuditEventPresenter
     public function actor(array $event): string
     {
         if (($event['actor_type'] ?? '') !== 'user') {
+            if (($event['actor_type'] ?? '') === 'anonymous') {
+                return $this->translator->get('audit.actor.anonymous');
+            }
             if (($event['actor_type'] ?? '') === 'external') {
                 return $this->translator->get('audit.actor.external');
             }

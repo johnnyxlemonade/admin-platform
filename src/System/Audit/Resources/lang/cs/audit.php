@@ -27,6 +27,7 @@ return [
     'actor' => [
         'system' => 'Systém',
         'external' => 'Externí identita',
+        'anonymous' => 'Anonymní návštěvník',
         'unknown' => 'Neznámý uživatel #{id}',
     ],
     'permissions' => [

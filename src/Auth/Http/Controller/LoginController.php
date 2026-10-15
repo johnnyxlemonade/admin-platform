@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Auth\Http\Controller;
 
+use Lemonade\Admin\Audit\AuditActor;
+use Lemonade\Admin\Audit\AuditLogWriterInterface;
+use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\AuthenticationThrottler;
 use Lemonade\Admin\Auth\AuthPageRenderer;
+use Lemonade\Admin\Auth\LocalAuthenticationProvider;
 use Lemonade\Admin\Auth\Mfa\MfaAuthenticationService;
 use Lemonade\Admin\Auth\Mfa\MfaLoginChallengeStore;
 use Lemonade\Admin\Auth\Oidc\OidcAuthenticationService;
@@ -14,6 +18,7 @@ use Lemonade\Admin\Auth\Oidc\OidcAuthorizationCallback;
 use Lemonade\Admin\Auth\Oidc\OidcLogoutService;
 use Lemonade\Admin\Auth\Oidc\OidcProtocolException;
 use Lemonade\Admin\Auth\Oidc\OidcProviderConfiguration;
+use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Http\Middleware\AdminAuthenticationMiddleware;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
@@ -40,6 +45,7 @@ final readonly class LoginController
      */
     public function __construct(
         private AuthenticationService $authentication,
+        private AuditLogWriterInterface $audit,
         private AuthenticationThrottler $throttler,
         private MfaAuthenticationService $mfa,
         private MfaLoginChallengeStore $mfaChallenges,
@@ -101,10 +107,14 @@ final readonly class LoginController
         $attempt = $this->authentication->authenticateLocal($email, $password);
         $user = $attempt->user();
         if ($user === null) {
+            $normalizedEmail = LocalAuthenticationProvider::normalizeEmail($email);
             $limit = $this->throttler->failedLogin($request, $email);
             if (!$limit->allowed()) {
+                $this->auditFailure('system.authentication.login_throttled', 'auth.login.throttled', 'rate_limited', $normalizedEmail);
                 return $this->throttledLogin($request, $email, $limit->retryAfterSeconds());
             }
+
+            $this->auditFailure('system.authentication.login_failed', 'auth.login.failed', 'invalid_credentials', $normalizedEmail);
 
             $errorKey = $attempt->isInactive() ? 'auth.errors.disabled' : 'auth.errors.invalid';
 
@@ -288,5 +298,22 @@ final readonly class LoginController
         }
 
         return $this->translator->get($key . '_minutes', ['minutes' => (int) ceil($retryAfterSeconds / 60)]);
+    }
+
+    /**
+     * Zapise anonymni local login failure pouze s bezpecne normalizovanym e-mailem
+     */
+    private function auditFailure(string $eventCode, string $operation, string $reason, string $email): void
+    {
+        $payload = ['method' => 'local', 'reason' => $reason];
+        $email = LocalAuthenticationProvider::normalizeEmail($email);
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) !== false) {
+            $payload['email'] = $email;
+        }
+
+        $this->audit->record(
+            new DomainEvent($eventCode, 'system.authentication', 'authentication', 'local', $payload),
+            new AuditOperation('system.authentication', $operation, AuditActor::anonymous('admin-auth')),
+        );
     }
 }

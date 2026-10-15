@@ -45,10 +45,10 @@ final readonly class AdminAuthRuntimeServiceProvider implements ServiceProviderI
             $configuration = $container->get(AdminAuthenticationThrottleConfiguration::class);
 
             return new AuthenticationThrottler(
-                limiter: $configuration->enabled() ? $container->get(RateLimiterInterface::class) : null,
+                limiter: $configuration->hasEnabledBuckets() ? $container->get(RateLimiterInterface::class) : null,
                 configuration: $configuration,
                 requests: $container->get(HttpRequestInspector::class),
-                database: $configuration->enabled() ? $container->get(Database::class) : null,
+                database: $configuration->hasEnabledBuckets() ? $container->get(Database::class) : null,
             );
         });
         $container->transient(AdminMfaConfiguration::class, fn(ContainerInterface $container): AdminMfaConfiguration => $this->mfaConfiguration($container));
