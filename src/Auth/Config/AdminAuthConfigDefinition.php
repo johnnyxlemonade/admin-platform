@@ -4,20 +4,28 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Auth\Config;
 
+use InvalidArgumentException;
 use Lemonade\Admin\Auth\Mfa\AdminMfaConfiguration;
 use Lemonade\Admin\Auth\Oidc\OidcProviderConfiguration;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 use Lemonade\Framework\Core\Config\Definition\AbstractConfigDefinition;
+use Lemonade\Framework\Session\Config\SessionConfig;
+use Lemonade\Framework\Session\Config\SessionConfigDefinition;
 
 /**
- * Prevadi deklarovanou host konfiguraci na OIDC runtime administrace
+ * Prevadi deklarovanou host konfiguraci na runtime autentizace administrace
  *
  * Host ji mapuje ve svem ConfigMap na YAML modul admin_auth. Nactenou definici
- * vyuzije AdminAuthRuntimeServiceProvider; callback a logout URL odvozuje z
- * AdminRoutingConfiguration, pokud je host explicitne nenastavi.
+ * vyuzije AdminAuthRuntimeServiceProvider; bezpecnostni session policy zustava
+ * canonical soucasti Admin Platform a host ji muze pouze zprisnit.
  */
 final class AdminAuthConfigDefinition extends AbstractConfigDefinition
 {
+    public const int MAXIMUM_SESSION_LIFETIME_SECONDS = 172800;
+
+    private const string SESSION_COOKIE_NAME = 'LEMONADE_ADMIN_SESSION';
+    private const string SESSION_STORAGE_PATH = 'sessions/admin';
+
     /**
      * Vytvori vypnutou vychozi konfiguraci OIDC pro lokalni prihlaseni
      */
@@ -32,6 +40,26 @@ final class AdminAuthConfigDefinition extends AbstractConfigDefinition
     public static function moduleKey(): string
     {
         return 'admin_auth';
+    }
+
+    /**
+     * Odvozuje izolovanou Admin session z backendu zvoleneho host aplikaci
+     */
+    public function sessionConfiguration(SessionConfig $hostConfiguration): SessionConfig
+    {
+        $session = $this->sessionValues();
+
+        return SessionConfigDefinition::create()
+            ->cookieName($this->sessionString($session, 'cookie_name', self::SESSION_COOKIE_NAME))
+            ->lifetime($this->sessionLifetime($session))
+            ->nativePath($this->sessionString($session, 'storage_path', self::SESSION_STORAGE_PATH))
+            ->filePath($this->sessionString($session, 'storage_path', self::SESSION_STORAGE_PATH))
+            ->redisPrefix($this->sessionString(
+                $session,
+                'redis_prefix',
+                $hostConfiguration->redis()->prefix() . 'admin:',
+            ))
+            ->applyTo($hostConfiguration);
     }
 
     /**
@@ -118,6 +146,58 @@ final class AdminAuthConfigDefinition extends AbstractConfigDefinition
 
         /** @var array<string,mixed> $oidc */
         return $oidc;
+    }
+
+    /**
+     * Vrati mapovani transportni konfigurace Admin session
+     *
+     * @return array<string,mixed>
+     */
+    private function sessionValues(): array
+    {
+        $session = $this->toArray()['session'] ?? [];
+        if (!is_array($session)) {
+            throw new InvalidArgumentException('Admin auth session configuration must be a mapping.');
+        }
+
+        /** @var array<string,mixed> $session */
+        return $session;
+    }
+
+    /**
+     * Vrati kladny Admin lifetime nepresahujici canonical absolutni maximum
+     *
+     * @param array<string,mixed> $session
+     */
+    private function sessionLifetime(array $session): int
+    {
+        $lifetime = $session['lifetime'] ?? self::MAXIMUM_SESSION_LIFETIME_SECONDS;
+        if (!is_int($lifetime) || $lifetime < 1 || $lifetime > self::MAXIMUM_SESSION_LIFETIME_SECONDS) {
+            throw new InvalidArgumentException(sprintf(
+                'Admin session lifetime must be between 1 and %d seconds.',
+                self::MAXIMUM_SESSION_LIFETIME_SECONDS,
+            ));
+        }
+
+        return $lifetime;
+    }
+
+    /**
+     * Vrati neprazdnou textovou hodnotu transportni konfigurace Admin session
+     *
+     * @param array<string,mixed> $session
+     */
+    private function sessionString(array $session, string $key, string $default): string
+    {
+        $value = $session[$key] ?? $default;
+        if (!is_string($value) || trim($value) === '') {
+            throw new InvalidArgumentException(sprintf(
+                'Admin session configuration value "%s" must be a non-empty string.',
+                $key,
+            ));
+        }
+
+        return trim($value);
     }
 
     /**

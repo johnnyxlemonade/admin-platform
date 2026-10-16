@@ -7,6 +7,7 @@ namespace Lemonade\Admin\Auth;
 use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
 use Lemonade\Admin\Audit\AuditOperation;
+use Lemonade\Admin\Auth\Config\AdminAuthConfigDefinition;
 use Lemonade\Admin\Editor\Lock\EditorLockOwnerReleaserInterface;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Framework\Clock\ClockInterface;
@@ -26,7 +27,6 @@ final readonly class AuthenticationService
     private const string SESSION_OIDC_LOGOUT_ID_TOKEN = 'admin.auth.oidc.logout_id_token';
     private const string SESSION_OIDC_IDENTITY = 'admin.auth.oidc.identity';
     private const int IDLE_TIMEOUT_SECONDS = 1200;
-    private const int ABSOLUTE_LIFETIME_SECONDS = 172800;
 
     /**
      * Nastavi zavislosti pro prihlaseni, odhlaseni a audit
@@ -170,7 +170,7 @@ final readonly class AuthenticationService
         }
 
         $now = $this->nowTimestamp();
-        if ($now - $authenticatedAt >= self::ABSOLUTE_LIFETIME_SECONDS) {
+        if ($now - $authenticatedAt >= AdminAuthConfigDefinition::MAXIMUM_SESSION_LIFETIME_SECONDS) {
             $this->clearAuthenticatedSession();
 
             return AdminSessionState::EXPIRED;

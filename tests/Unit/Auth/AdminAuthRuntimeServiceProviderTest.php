@@ -43,6 +43,7 @@ final class AdminAuthRuntimeServiceProviderTest extends TestCase
         self::assertTrue($container->isBound(OidcJwksProviderInterface::class));
         self::assertTrue($container->isBound(OpenIdConnectClientInterface::class));
         self::assertTrue($container->isBound(OidcProviderConfiguration::class));
+        self::assertTrue($container->isBound(AdminAuthConfigDefinition::class));
         self::assertSame(ServiceLifetime::Scoped, $container->compile()->definition(AuthenticationThrottler::class)?->lifetime);
         self::assertSame('host-provider', $container->get(OidcProviderConfiguration::class)->provider());
         self::assertFalse($container->get(OidcProviderConfiguration::class)->isEnabled());

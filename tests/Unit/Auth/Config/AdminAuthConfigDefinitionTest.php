@@ -6,6 +6,7 @@ namespace Lemonade\Admin\Tests\Unit\Auth\Config;
 
 use Lemonade\Admin\Auth\Config\AdminAuthConfigDefinition;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
+use Lemonade\Framework\Session\Config\SessionConfigDefinition;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,6 +14,66 @@ use PHPUnit\Framework\TestCase;
  */
 final class AdminAuthConfigDefinitionTest extends TestCase
 {
+    /**
+     * Overuje canonical Admin transport oddeleny od host session
+     */
+    public function testSessionConfigurationUsesCanonicalAdminIdentityAndMaximumLifetime(): void
+    {
+        $host = SessionConfigDefinition::create()
+            ->lifetime(7200)
+            ->cookieName('LEMONADE_SESSION')
+            ->nativePath('sessions/host')
+            ->filePath('sessions/host')
+            ->redisPrefix('portal:')
+            ->applyTo(SessionConfigDefinition::resolvedDefaults());
+
+        $admin = AdminAuthConfigDefinition::create()->sessionConfiguration($host);
+
+        self::assertSame('LEMONADE_ADMIN_SESSION', $admin->cookie()->name());
+        self::assertSame(172800, $admin->lifetime());
+        self::assertSame('sessions/admin', $admin->native()->path());
+        self::assertSame('sessions/admin', $admin->file()->path());
+        self::assertSame('portal:admin:', $admin->redis()->prefix());
+        self::assertSame($host->driver(), $admin->driver());
+        self::assertSame($host->cookie()->sameSite(), $admin->cookie()->sameSite());
+        self::assertSame(7200, $host->lifetime());
+        self::assertSame('LEMONADE_SESSION', $host->cookie()->name());
+    }
+
+    /**
+     * Overuje volitelne zprisneni Admin session host aplikaci
+     */
+    public function testSessionConfigurationAcceptsAHostOverrideBelowTheMaximum(): void
+    {
+        $admin = AdminAuthConfigDefinition::fromArrayData([
+            'session' => [
+                'cookie_name' => 'CUSTOM_ADMIN_SESSION',
+                'lifetime' => 3600,
+                'storage_path' => 'sessions/custom-admin',
+                'redis_prefix' => 'custom-admin:',
+            ],
+        ])->sessionConfiguration(SessionConfigDefinition::resolvedDefaults());
+
+        self::assertSame('CUSTOM_ADMIN_SESSION', $admin->cookie()->name());
+        self::assertSame(3600, $admin->lifetime());
+        self::assertSame('sessions/custom-admin', $admin->native()->path());
+        self::assertSame('sessions/custom-admin', $admin->file()->path());
+        self::assertSame('custom-admin:', $admin->redis()->prefix());
+    }
+
+    /**
+     * Overuje odmitnuti Admin session delsi nez absolutni limit identity
+     */
+    public function testSessionConfigurationRejectsLifetimeAboveTheMaximum(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('172800');
+
+        AdminAuthConfigDefinition::fromArrayData([
+            'session' => ['lifetime' => 1987200],
+        ])->sessionConfiguration(SessionConfigDefinition::resolvedDefaults());
+    }
+
     /**
      * Overuje, ze vypnuty throttling nevyzaduje limiter policy
      */

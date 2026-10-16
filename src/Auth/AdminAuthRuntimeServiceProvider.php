@@ -39,6 +39,7 @@ final readonly class AdminAuthRuntimeServiceProvider implements ServiceProviderI
      */
     public function register(ContainerBuilderInterface $container): void
     {
+        $container->singleton(AdminAuthConfigDefinition::class, fn(ContainerInterface $container): AdminAuthConfigDefinition => $this->configurationDefinition($container));
         $container->singleton(OidcProviderConfiguration::class, fn(ContainerInterface $container): OidcProviderConfiguration => $this->oidcConfiguration($container));
         $container->singleton(AdminAuthenticationThrottleConfiguration::class, fn(ContainerInterface $container): AdminAuthenticationThrottleConfiguration => $this->throttlingConfiguration($container));
         $container->scoped(AuthenticationThrottler::class, static function (ContainerInterface $container): AuthenticationThrottler {
@@ -74,7 +75,7 @@ final readonly class AdminAuthRuntimeServiceProvider implements ServiceProviderI
      */
     private function oidcConfiguration(ContainerInterface $container): OidcProviderConfiguration
     {
-        return $this->configurationDefinition($container)->oidcConfiguration($container->get(AdminRoutingConfiguration::class));
+        return $container->get(AdminAuthConfigDefinition::class)->oidcConfiguration($container->get(AdminRoutingConfiguration::class));
     }
 
     /**
@@ -82,7 +83,7 @@ final readonly class AdminAuthRuntimeServiceProvider implements ServiceProviderI
      */
     private function mfaConfiguration(ContainerInterface $container): AdminMfaConfiguration
     {
-        return $this->configurationDefinition($container)->mfaConfiguration();
+        return $container->get(AdminAuthConfigDefinition::class)->mfaConfiguration();
     }
 
     /**
@@ -90,7 +91,7 @@ final readonly class AdminAuthRuntimeServiceProvider implements ServiceProviderI
      */
     private function throttlingConfiguration(ContainerInterface $container): AdminAuthenticationThrottleConfiguration
     {
-        return $this->configurationDefinition($container)->throttlingConfiguration();
+        return $container->get(AdminAuthConfigDefinition::class)->throttlingConfiguration();
     }
 
     /**
