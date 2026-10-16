@@ -6,7 +6,7 @@ namespace Lemonade\Admin\System\Users;
 
 use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
-use Lemonade\Admin\Dashboard\Contract\DashboardWidgetProviderInterface;
+use Lemonade\Admin\Dashboard\DashboardWidgetRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Editor\EditorRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
@@ -43,9 +43,8 @@ final readonly class UsersModuleProvider implements ServiceProviderInterface, Bo
      */
     public function register(ContainerBuilderInterface $container): void
     {
-        $container->transient(UsersDashboardWidgetProvider::class, UsersDashboardWidgetProvider::class);
-        $container->tag(UsersDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
         $container->scoped(UsersProfileController::class, UsersProfileController::class);
+        $container->singleton(UsersActionRegistrar::class, UsersActionRegistrar::class);
     }
 
     /**
@@ -59,16 +58,11 @@ final readonly class UsersModuleProvider implements ServiceProviderInterface, Bo
         $container->get(ClientTranslationGroupRegistry::class)->register('users');
         $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
-        $container->get(DataGridRegistry::class)->register($definition->code(), $container->get(UsersDataGrid::class));
-        $container->get(EditorRegistry::class)->register($definition->code(), $container->get(UsersEditor::class));
-        $container->get(ModulePageRegistry::class)->registerIndexFactory(
-            $definition->code(),
-            static fn(): UsersModulePageProvider => $container->get(UsersModulePageProvider::class),
-        );
-        $container->get(ModulePageRegistry::class)->registerEditorFactory(
-            $definition->code(),
-            static fn(): UsersModulePageProvider => $container->get(UsersModulePageProvider::class),
-        );
+        $container->get(DataGridRegistry::class)->register($definition->code(), UsersDataGrid::class);
+        $container->get(EditorRegistry::class)->register($definition->code(), UsersEditor::class);
+        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), UsersModulePageProvider::class);
+        $container->get(ModulePageRegistry::class)->registerEditor($definition->code(), UsersModulePageProvider::class);
+        $container->get(DashboardWidgetRegistry::class)->registerProvider(UsersDashboardWidgetProvider::class);
         $container->get(UsersActionRegistrar::class)->register();
         $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(RuleRegistry::class)->addRule('system_users_unique_email', UniqueUserEmailRule::class);

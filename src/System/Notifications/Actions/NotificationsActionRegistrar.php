@@ -7,30 +7,20 @@ namespace Lemonade\Admin\System\Notifications\Actions;
 use Lemonade\Admin\Action\ModuleActionDefinition;
 use Lemonade\Admin\Action\ModuleActionRegistry;
 use Lemonade\Admin\Action\Presentation\ConfirmationDefinition;
-use Lemonade\Admin\Action\StandardEditorAction;
-use Lemonade\Admin\Editor\EditorDispatcher;
 
 /**
  * Registruje management action transport pro editor a lifecycle oznameni
  */
 final readonly class NotificationsActionRegistrar
 {
+    public const string CREATE_HANDLER = 'admin.system.notifications.action.create';
+    public const string SAVE_HANDLER = 'admin.system.notifications.action.save';
+
     /**
      * Nastavuje registry a handlery management action
      */
     public function __construct(
         private ModuleActionRegistry $actions,
-        private EditorDispatcher $editors,
-        private NotificationsActivateAction $activate,
-        private NotificationsDeactivateAction $deactivate,
-        private NotificationsDeleteAction $delete,
-        private NotificationsRestoreAction $restore,
-        private NotificationsResetDisplayAction $resetDisplay,
-        private NotificationsBulkDeactivateAction $bulkDeactivate,
-        private NotificationsBulkDeleteAction $bulkDelete,
-        private NotificationsBulkActivateAction $bulkActivate,
-        private NotificationsBulkResetDisplayAction $bulkResetDisplay,
-        private NotificationsBulkRestoreAction $bulkRestore,
     ) {}
 
     /**
@@ -48,10 +38,7 @@ final readonly class NotificationsActionRegistrar
                 labelKey: 'notifications.actions.publish',
                 refreshGrid: true,
             ),
-            handler: StandardEditorAction::create(
-                editors: $this->editors,
-                module: $moduleCode,
-            ),
+            handlerServiceId: self::CREATE_HANDLER,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -61,10 +48,7 @@ final readonly class NotificationsActionRegistrar
                 labelKey: 'admin.common.save',
                 refreshGrid: true,
             ),
-            handler: StandardEditorAction::save(
-                editors: $this->editors,
-                module: $moduleCode,
-            ),
+            handlerServiceId: self::SAVE_HANDLER,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -75,7 +59,7 @@ final readonly class NotificationsActionRegistrar
                 confirmation: new ConfirmationDefinition('notifications.confirm.activate'),
                 refreshGrid: true,
             ),
-            handler: $this->activate,
+            handlerServiceId: NotificationsActivateAction::class,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -86,7 +70,7 @@ final readonly class NotificationsActionRegistrar
                 confirmation: new ConfirmationDefinition('notifications.confirm.deactivate'),
                 refreshGrid: true,
             ),
-            handler: $this->deactivate,
+            handlerServiceId: NotificationsDeactivateAction::class,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -97,7 +81,7 @@ final readonly class NotificationsActionRegistrar
                 confirmation: new ConfirmationDefinition('notifications.confirm.delete'),
                 refreshGrid: true,
             ),
-            handler: $this->delete,
+            handlerServiceId: NotificationsDeleteAction::class,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -108,7 +92,7 @@ final readonly class NotificationsActionRegistrar
                 confirmation: new ConfirmationDefinition('notifications.confirm.restore'),
                 refreshGrid: true,
             ),
-            handler: $this->restore,
+            handlerServiceId: NotificationsRestoreAction::class,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -119,7 +103,7 @@ final readonly class NotificationsActionRegistrar
                 confirmation: new ConfirmationDefinition('notifications.confirm.reset_display'),
                 refreshGrid: true,
             ),
-            handler: $this->resetDisplay,
+            handlerServiceId: NotificationsResetDisplayAction::class,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -130,7 +114,7 @@ final readonly class NotificationsActionRegistrar
                 confirmation: new ConfirmationDefinition('notifications.confirm.deactivate'),
                 refreshGrid: true,
             ),
-            handler: $this->bulkDeactivate,
+            handlerServiceId: NotificationsBulkDeactivateAction::class,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -141,7 +125,7 @@ final readonly class NotificationsActionRegistrar
                 confirmation: new ConfirmationDefinition('notifications.confirm.delete'),
                 refreshGrid: true,
             ),
-            handler: $this->bulkDelete,
+            handlerServiceId: NotificationsBulkDeleteAction::class,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -152,7 +136,7 @@ final readonly class NotificationsActionRegistrar
                 confirmation: new ConfirmationDefinition('notifications.confirm.activate'),
                 refreshGrid: true,
             ),
-            handler: $this->bulkActivate,
+            handlerServiceId: NotificationsBulkActivateAction::class,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -163,7 +147,7 @@ final readonly class NotificationsActionRegistrar
                 confirmation: new ConfirmationDefinition('notifications.confirm.reset_display'),
                 refreshGrid: true,
             ),
-            handler: $this->bulkResetDisplay,
+            handlerServiceId: NotificationsBulkResetDisplayAction::class,
         );
         $this->actions->register(
             moduleCode: $moduleCode,
@@ -174,7 +158,7 @@ final readonly class NotificationsActionRegistrar
                 confirmation: new ConfirmationDefinition('notifications.confirm.restore_inactive'),
                 refreshGrid: true,
             ),
-            handler: $this->bulkRestore,
+            handlerServiceId: NotificationsBulkRestoreAction::class,
         );
     }
 }

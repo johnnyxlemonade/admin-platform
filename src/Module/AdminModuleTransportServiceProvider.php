@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Module;
 
 use Lemonade\Admin\Action\Http\Controller\ModuleActionController;
+use Lemonade\Admin\Action\ModuleActionDispatcher;
 use Lemonade\Admin\Action\ModuleActionRegistry;
+use Lemonade\Admin\Action\Presentation\ModuleActionPresentationFactory;
 use Lemonade\Admin\AdminServiceProvider;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Http\Controller\DataGridController;
@@ -42,6 +44,9 @@ final readonly class AdminModuleTransportServiceProvider implements ServiceProvi
         $container->singleton(DataGridRegistry::class, DataGridRegistry::class);
         $container->singleton(ModuleActionRegistry::class, ModuleActionRegistry::class);
         $container->singleton(ModulePageRegistry::class, ModulePageRegistry::class);
+        $container->scoped(ModuleProviderResolver::class, ModuleProviderResolver::class);
+        $container->scoped(ModuleActionDispatcher::class, ModuleActionDispatcher::class);
+        $container->scoped(ModuleActionPresentationFactory::class, ModuleActionPresentationFactory::class);
         $container->scoped(ModuleController::class, ModuleController::class);
         $container->scoped(DataGridController::class, DataGridController::class);
         $container->scoped(ModuleActionController::class, ModuleActionController::class);

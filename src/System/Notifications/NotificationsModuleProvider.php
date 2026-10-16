@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Notifications;
 
-use Lemonade\Admin\Action\ModuleActionRegistry;
+use Lemonade\Admin\Action\StandardEditorAction;
 use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
@@ -16,16 +16,6 @@ use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Notifications\Actions\NotificationsActionRegistrar;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsActivateAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsBulkActivateAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsBulkDeactivateAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsBulkDeleteAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsBulkResetDisplayAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsBulkRestoreAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsDeactivateAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsDeleteAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsResetDisplayAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsRestoreAction;
 use Lemonade\Admin\System\Notifications\DataGrid\NotificationsDataGrid;
 use Lemonade\Admin\System\Notifications\Editor\NotificationsEditor;
 use Lemonade\Admin\System\Notifications\Http\Controller\NotificationsAudienceOptionsController;
@@ -52,20 +42,9 @@ final readonly class NotificationsModuleProvider implements ServiceProviderInter
     {
         $container->scoped(NotificationsAudienceOptionsController::class, NotificationsAudienceOptionsController::class);
         $container->scoped(NotificationsExportController::class, NotificationsExportController::class);
-        $container->singleton(NotificationsActionRegistrar::class, static fn(ContainerInterface $container): NotificationsActionRegistrar => new NotificationsActionRegistrar(
-            $container->get(ModuleActionRegistry::class),
-            $container->get(EditorDispatcher::class),
-            $container->get(NotificationsActivateAction::class),
-            $container->get(NotificationsDeactivateAction::class),
-            $container->get(NotificationsDeleteAction::class),
-            $container->get(NotificationsRestoreAction::class),
-            $container->get(NotificationsResetDisplayAction::class),
-            $container->get(NotificationsBulkDeactivateAction::class),
-            $container->get(NotificationsBulkDeleteAction::class),
-            $container->get(NotificationsBulkActivateAction::class),
-            $container->get(NotificationsBulkResetDisplayAction::class),
-            $container->get(NotificationsBulkRestoreAction::class),
-        ));
+        $container->scoped(NotificationsActionRegistrar::CREATE_HANDLER, static fn(ContainerInterface $container): StandardEditorAction => StandardEditorAction::create($container->get(EditorDispatcher::class), 'system.notifications'));
+        $container->scoped(NotificationsActionRegistrar::SAVE_HANDLER, static fn(ContainerInterface $container): StandardEditorAction => StandardEditorAction::save($container->get(EditorDispatcher::class), 'system.notifications'));
+        $container->singleton(NotificationsActionRegistrar::class, NotificationsActionRegistrar::class);
     }
 
     /**
@@ -79,10 +58,10 @@ final readonly class NotificationsModuleProvider implements ServiceProviderInter
         $container->get(ClientTranslationGroupRegistry::class)->register('notifications');
         $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
-        $container->get(DataGridRegistry::class)->register($definition->code(), $container->get(NotificationsDataGrid::class));
-        $container->get(EditorRegistry::class)->register($definition->code(), $container->get(NotificationsEditor::class));
-        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), $container->get(NotificationsModulePageProvider::class));
-        $container->get(ModulePageRegistry::class)->registerModalEditor($definition->code(), $container->get(NotificationsModulePageProvider::class));
+        $container->get(DataGridRegistry::class)->register($definition->code(), NotificationsDataGrid::class);
+        $container->get(EditorRegistry::class)->register($definition->code(), NotificationsEditor::class);
+        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), NotificationsModulePageProvider::class);
+        $container->get(ModulePageRegistry::class)->registerModalEditor($definition->code(), NotificationsModulePageProvider::class);
         $container->get(NotificationsActionRegistrar::class)->register();
         $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());

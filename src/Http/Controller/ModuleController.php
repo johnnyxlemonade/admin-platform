@@ -17,9 +17,9 @@ use Lemonade\Admin\Http\AdminResponseFactory;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
+use Lemonade\Admin\Module\ModuleProviderResolver;
 use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Admin\Page\ModulePage;
-use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Presentation\AdminPageRenderer;
 use Lemonade\Framework\Core\Http\RequestData;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
@@ -41,7 +41,7 @@ final readonly class ModuleController
         private AdminModuleRouteResolver $routes,
         private AdminModuleAccessPolicy $moduleAccess,
         private ModuleManager $modules,
-        private ModulePageRegistry $pageRegistry,
+        private ModuleProviderResolver $providers,
         private EditorDispatcher $editors,
         private EditorLockManager $locks,
         private AuthorizationService $authorization,
@@ -64,10 +64,10 @@ final readonly class ModuleController
         if (!$allowed) {
             return $this->responses->authorizationDenied($request);
         }
-        if (!$this->pageRegistry->hasIndex($code)) {
+        if (!$this->providers->hasIndex($code)) {
             return $this->responses->notFound($request);
         }
-        $provider = $this->pageRegistry->index($code);
+        $provider = $this->providers->index($code);
         if (!$this->authorization->hasPermission($provider->indexPermission())) {
             return $this->responses->authorizationDenied($request);
         }
@@ -129,7 +129,7 @@ final readonly class ModuleController
         $id = (int) ($outcome->result()->data()['id'] ?? 0);
         $editUrl = $outcome->result()->data()['editUrl'] ?? null;
 
-        return $this->responses->redirect($id > 0 && $this->pageRegistry->hasEditor($code)
+        return $this->responses->redirect($id > 0 && $this->providers->hasEditorPage($code)
             ? (is_string($editUrl) ? $editUrl : $this->urls->route($this->routeName($module, 'edit'), ['module' => $module, 'id' => $id]))
             : $this->urls->route($this->routeName($module, 'index'), ['module' => $module]));
     }
@@ -195,13 +195,13 @@ final readonly class ModuleController
     {
         $status ??= HttpStatusCode::OK->value;
         [$code, $locale, $allowed] = $this->module($module, $request);
-        if ($code === null || !$this->pageRegistry->hasEditor($code)) {
+        if ($code === null || !$this->providers->hasEditorPage($code)) {
             return $this->responses->notFound($request);
         }
         if (!$allowed) {
             return $this->responses->authorizationDenied($request);
         }
-        $pageProvider = $this->pageRegistry->editor($code);
+        $pageProvider = $this->providers->editorPage($code);
         try {
             $editor = $this->editors->updateData($code, $id);
         } catch (EditorEntityNotFoundException) {
@@ -247,7 +247,7 @@ final readonly class ModuleController
     {
         $status ??= HttpStatusCode::OK->value;
         [$code, $locale, $allowed] = $this->module($module, $request);
-        if ($code === null || !$this->pageRegistry->hasEditor($code)) {
+        if ($code === null || !$this->providers->hasEditorPage($code)) {
             return $this->responses->notFound($request);
         }
         if (!$allowed) {
@@ -262,7 +262,7 @@ final readonly class ModuleController
         }
 
         try {
-            $page = $this->pageRegistry->editor($code)->create($editor, $errors, $input, $locale, $request->getQueryParams());
+            $page = $this->providers->editorPage($code)->create($editor, $errors, $input, $locale, $request->getQueryParams());
         } catch (EditorEntityNotFoundException) {
             return $this->responses->notFound($request);
         }

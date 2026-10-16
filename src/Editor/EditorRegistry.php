@@ -4,33 +4,20 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Editor;
 
-use Closure;
-use Lemonade\Admin\Editor\Contract\EditorProviderInterface;
-
 /**
- * Uchovava registry provideru editoru podle kodu modulu
+ * Registruje service ID provideru editoru podle kodu modulu
  */
 final class EditorRegistry
 {
-    /** @var array<string, EditorProviderInterface|Closure():EditorProviderInterface> */
+    /** @var array<string, string> */
     private array $providers = [];
 
     /**
-     * Registruje provider pod kodem modulu
+     * Registruje service ID provideru pod kodem modulu
      */
-    public function register(string $moduleCode, EditorProviderInterface $provider): void
+    public function register(string $moduleCode, string $providerServiceId): void
     {
-        $this->providers[$moduleCode] = $provider;
-    }
-
-    /**
-     * Registruje lazy factory editoru pro optional modul
-     *
-     * @param Closure():EditorProviderInterface $provider
-     */
-    public function registerFactory(string $moduleCode, Closure $provider): void
-    {
-        $this->providers[$moduleCode] = $provider;
+        $this->providers[$moduleCode] = $providerServiceId;
     }
 
     /**
@@ -42,17 +29,11 @@ final class EditorRegistry
     }
 
     /**
-     * Vraci registrovany provider pro kod modulu
+     * Vraci registrovane service ID provideru pro kod modulu
      */
-    public function provider(string $moduleCode): EditorProviderInterface
+    public function providerServiceId(string $moduleCode): string
     {
-        $provider = $this->providers[$moduleCode];
-        if ($provider instanceof Closure) {
-            $provider = $provider();
-            $this->providers[$moduleCode] = $provider;
-        }
-
-        return $provider;
+        return $this->providers[$moduleCode];
     }
 
     /**

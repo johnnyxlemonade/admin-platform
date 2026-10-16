@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Translations;
 
+use Lemonade\Admin\Action\StandardEditorAction;
 use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
+use Lemonade\Admin\Editor\EditorDispatcher;
 use Lemonade\Admin\Editor\EditorRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
@@ -32,7 +34,11 @@ final readonly class TranslationsModuleProvider implements ServiceProviderInterf
     /**
      * Pripojuje modulove registry a resources pred container freeze boundary
      */
-    public function register(ContainerBuilderInterface $container): void {}
+    public function register(ContainerBuilderInterface $container): void
+    {
+        $container->scoped(TranslationsActionRegistrar::SAVE_HANDLER, static fn(ContainerInterface $container): StandardEditorAction => StandardEditorAction::save($container->get(EditorDispatcher::class), 'system.translations'));
+        $container->singleton(TranslationsActionRegistrar::class, TranslationsActionRegistrar::class);
+    }
 
     /**
      * Pripoji Translations resources a registry contributions po container freeze
@@ -46,10 +52,10 @@ final readonly class TranslationsModuleProvider implements ServiceProviderInterf
         $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
-        $container->get(DataGridRegistry::class)->register($definition->code(), $container->get(TranslationsDataGrid::class));
-        $container->get(EditorRegistry::class)->register($definition->code(), $container->get(TranslationsEditor::class));
-        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), $container->get(TranslationsModulePageProvider::class));
-        $container->get(ModulePageRegistry::class)->registerModalEditor($definition->code(), $container->get(TranslationsModulePageProvider::class));
+        $container->get(DataGridRegistry::class)->register($definition->code(), TranslationsDataGrid::class);
+        $container->get(EditorRegistry::class)->register($definition->code(), TranslationsEditor::class);
+        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), TranslationsModulePageProvider::class);
+        $container->get(ModulePageRegistry::class)->registerModalEditor($definition->code(), TranslationsModulePageProvider::class);
         $container->get(TranslationsActionRegistrar::class)->register();
         $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(MigrationRegistry::class)->register(RegisterTranslationsModule::class);

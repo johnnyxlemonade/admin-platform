@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\System\Audit;
 
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
-use Lemonade\Admin\Dashboard\Contract\DashboardWidgetProviderInterface;
+use Lemonade\Admin\Dashboard\DashboardWidgetRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
@@ -35,10 +35,6 @@ final readonly class AuditModuleProvider implements ServiceProviderInterface, Bo
     public function register(ContainerBuilderInterface $container): void
     {
         $container->singleton(PersonalLoginAuditReaderInterface::class, static fn(ContainerInterface $container): AuditLogModel => $container->get(AuditLogModel::class));
-        $container->transient(AuditDashboardWidgetProvider::class, AuditDashboardWidgetProvider::class);
-        $container->tag(AuditDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
-        $container->transient(MyLoginsDashboardWidgetProvider::class, MyLoginsDashboardWidgetProvider::class);
-        $container->tag(MyLoginsDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
     }
 
     /**
@@ -52,8 +48,10 @@ final readonly class AuditModuleProvider implements ServiceProviderInterface, Bo
         $container->get(ClientTranslationGroupRegistry::class)->register('audit');
         $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
-        $container->get(DataGridRegistry::class)->register($definition->code(), $container->get(AuditDataGrid::class));
-        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), $container->get(AuditModulePageProvider::class));
+        $container->get(DataGridRegistry::class)->register($definition->code(), AuditDataGrid::class);
+        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), AuditModulePageProvider::class);
+        $container->get(DashboardWidgetRegistry::class)->registerProvider(AuditDashboardWidgetProvider::class);
+        $container->get(DashboardWidgetRegistry::class)->registerProvider(MyLoginsDashboardWidgetProvider::class);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(MigrationRegistry::class)->register(RegisterAuditModule::class);
     }

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Roles;
 
+use Lemonade\Admin\Action\StandardEditorAction;
 use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
+use Lemonade\Admin\Editor\EditorDispatcher;
 use Lemonade\Admin\Editor\EditorRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
@@ -34,7 +36,12 @@ final readonly class RolesModuleProvider implements ServiceProviderInterface, Bo
     /**
      * Pripoji sluzby, presentation registry, zdroje a migraci modulu roli
      */
-    public function register(ContainerBuilderInterface $container): void {}
+    public function register(ContainerBuilderInterface $container): void
+    {
+        $container->scoped(RolesActionRegistrar::SAVE_HANDLER, static fn(ContainerInterface $container): StandardEditorAction => StandardEditorAction::save($container->get(EditorDispatcher::class), 'system.roles'));
+        $container->scoped(RolesActionRegistrar::CREATE_HANDLER, static fn(ContainerInterface $container): StandardEditorAction => StandardEditorAction::create($container->get(EditorDispatcher::class), 'system.roles'));
+        $container->singleton(RolesActionRegistrar::class, RolesActionRegistrar::class);
+    }
 
     /**
      * Pripoji Roles resources a registry contributions po container freeze
@@ -48,10 +55,10 @@ final readonly class RolesModuleProvider implements ServiceProviderInterface, Bo
         $container->get(ModuleRegistry::class)->register($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(AdminModuleRegistry::class)->register($definition);
-        $container->get(DataGridRegistry::class)->register($definition->code(), $container->get(RolesDataGrid::class));
-        $container->get(EditorRegistry::class)->register($definition->code(), $container->get(RolesEditor::class));
-        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), $container->get(RolesModulePageProvider::class));
-        $container->get(ModulePageRegistry::class)->registerEditor($definition->code(), $container->get(RolesModulePageProvider::class));
+        $container->get(DataGridRegistry::class)->register($definition->code(), RolesDataGrid::class);
+        $container->get(EditorRegistry::class)->register($definition->code(), RolesEditor::class);
+        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), RolesModulePageProvider::class);
+        $container->get(ModulePageRegistry::class)->registerEditor($definition->code(), RolesModulePageProvider::class);
         $container->get(RolesActionRegistrar::class)->register();
         $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(RuleRegistry::class)->addRule('system_roles_permissions', RolePermissionsRule::class);

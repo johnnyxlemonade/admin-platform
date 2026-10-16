@@ -18,14 +18,6 @@ use Lemonade\Admin\DataGrid\DataGridRowDefinition;
 use Lemonade\Admin\Presentation\AdminThumbnailComponent;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
 use Lemonade\Admin\System\Users\Actions\UsersActionRegistrar;
-use Lemonade\Admin\System\Users\Actions\UsersActivateAction;
-use Lemonade\Admin\System\Users\Actions\UsersDeactivateAction;
-use Lemonade\Admin\System\Users\Actions\UsersDeleteAction;
-use Lemonade\Admin\System\Users\Actions\UsersEditorCreateAction;
-use Lemonade\Admin\System\Users\Actions\UsersEditorSaveAction;
-use Lemonade\Admin\System\Users\Actions\UsersMfaResetAction;
-use Lemonade\Admin\System\Users\Actions\UsersPermissionPreviewAction;
-use Lemonade\Admin\System\Users\Actions\UsersRestoreAction;
 use Lemonade\Admin\System\Users\DataGrid\UsersDataGrid;
 use Lemonade\Admin\System\Users\DataGrid\UsersDataGridQuery;
 use Lemonade\Admin\System\Users\Models\UserModel;
@@ -99,14 +91,6 @@ final class UsersMfaDataGridPresentationTest extends TestCase
         $registry = new ModuleActionRegistry();
         (new UsersActionRegistrar(
             actions: $registry,
-            save: $this->uninitialized(UsersEditorSaveAction::class),
-            create: $this->uninitialized(UsersEditorCreateAction::class),
-            permissionsPreview: $this->uninitialized(UsersPermissionPreviewAction::class),
-            activate: $this->uninitialized(UsersActivateAction::class),
-            deactivate: $this->uninitialized(UsersDeactivateAction::class),
-            delete: $this->uninitialized(UsersDeleteAction::class),
-            restore: $this->uninitialized(UsersRestoreAction::class),
-            mfaReset: $this->uninitialized(UsersMfaResetAction::class),
         ))->register();
         $definition = $registry->action('system.users', 'mfa-reset')['definition'];
         $czech = require dirname(__DIR__, 4) . '/src/System/Users/Resources/lang/cs/users.php';

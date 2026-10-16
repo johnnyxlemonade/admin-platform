@@ -4,33 +4,20 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\DataGrid;
 
-use Closure;
-use Lemonade\Admin\DataGrid\Contract\DataGridProviderInterface;
-
 /**
- * Registruje poskytovatele datovych tabulek
+ * Registruje service ID poskytovatelu datovych tabulek
  */
 final class DataGridRegistry
 {
-    /** @var array<string, DataGridProviderInterface|Closure():DataGridProviderInterface> */
+    /** @var array<string, string> */
     private array $providers = [];
 
     /**
-     * Zaregistruje poskytovatele gridu pro modul
+     * Zaregistruje service ID poskytovatele gridu pro modul
      */
-    public function register(string $moduleCode, DataGridProviderInterface $provider): void
+    public function register(string $moduleCode, string $providerServiceId): void
     {
-        $this->providers[$moduleCode] = $provider;
-    }
-
-    /**
-     * Registruje factory pro provider, ktery se muze vytvorit az pri pouziti modulu
-     *
-     * @param Closure():DataGridProviderInterface $provider
-     */
-    public function registerFactory(string $moduleCode, Closure $provider): void
-    {
-        $this->providers[$moduleCode] = $provider;
+        $this->providers[$moduleCode] = $providerServiceId;
     }
 
     /**
@@ -42,17 +29,11 @@ final class DataGridRegistry
     }
 
     /**
-     * Vrati poskytovatele gridu modulu
+     * Vrati service ID poskytovatele gridu modulu
      */
-    public function provider(string $moduleCode): DataGridProviderInterface
+    public function providerServiceId(string $moduleCode): string
     {
-        $provider = $this->providers[$moduleCode];
-        if ($provider instanceof Closure) {
-            $provider = $provider();
-            $this->providers[$moduleCode] = $provider;
-        }
-
-        return $provider;
+        return $this->providers[$moduleCode];
     }
 
     /**

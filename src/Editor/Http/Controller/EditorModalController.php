@@ -14,9 +14,9 @@ use Lemonade\Admin\Http\AdminAuthorizationResponseHandler;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
+use Lemonade\Admin\Module\ModuleProviderResolver;
 use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Admin\Page\ModulePage;
-use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Framework\Core\Http\RequestData;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Http\Response\Responses;
@@ -36,7 +36,7 @@ final readonly class EditorModalController
         private AdminModuleRouteResolver $routes,
         private AdminModuleAccessPolicy $moduleAccess,
         private ModuleManager $modules,
-        private ModulePageRegistry $pages,
+        private ModuleProviderResolver $providers,
         private ModuleActionRegistry $actions,
         private EditorDispatcher $editors,
         private EditorModalLoader $modalLoader,
@@ -65,7 +65,7 @@ final readonly class EditorModalController
             return $this->capabilityResponse($exception);
         }
 
-        return $this->modalResponse($this->pages->modalEditor($moduleCode)->modalCreate($editor, $locale));
+        return $this->modalResponse($this->providers->modalEditor($moduleCode)->modalCreate($editor, $locale));
     }
 
     /**
@@ -91,7 +91,7 @@ final readonly class EditorModalController
             return $this->capabilityResponse($exception);
         }
 
-        return $this->modalResponse($this->pages->modalEditor($moduleCode)->modalEdit($editor, $locale));
+        return $this->modalResponse($this->providers->modalEditor($moduleCode)->modalEdit($editor, $locale));
     }
 
     /**
@@ -108,7 +108,7 @@ final readonly class EditorModalController
         }
 
         $moduleCode = $definition->code();
-        if (!$this->modules->enabled($moduleCode) || !$this->pages->hasModalEditor($moduleCode)) {
+        if (!$this->modules->enabled($moduleCode) || !$this->providers->hasModalEditor($moduleCode)) {
             return [null, '', false];
         }
         if (!$this->moduleAccess->canAccess($definition)) {

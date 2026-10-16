@@ -18,14 +18,6 @@ final readonly class UsersActionRegistrar
      */
     public function __construct(
         private ModuleActionRegistry $actions,
-        private UsersEditorSaveAction $save,
-        private UsersEditorCreateAction $create,
-        private UsersPermissionPreviewAction $permissionsPreview,
-        private UsersActivateAction $activate,
-        private UsersDeactivateAction $deactivate,
-        private UsersDeleteAction $delete,
-        private UsersRestoreAction $restore,
-        private UsersMfaResetAction $mfaReset,
     ) {}
 
     /**
@@ -34,13 +26,13 @@ final readonly class UsersActionRegistrar
     public function register(): void
     {
         $moduleCode = 'system.users';
-        $this->actions->register($moduleCode, new ModuleActionDefinition('save', 'system.users.edit', 'admin.common.save'), $this->save);
-        $this->actions->register($moduleCode, new ModuleActionDefinition('create', 'system.users.create', 'users.actions.create'), $this->create);
-        $this->actions->register($moduleCode, new ModuleActionDefinition('permissions-preview', 'system.users.manage_permissions', 'users.editor.tabs.permissions'), $this->permissionsPreview);
-        $this->actions->register($moduleCode, new ModuleActionDefinition('activate', 'system.users.edit', 'users.actions.activate', new ConfirmationDefinition('users.confirm.activate'), true), $this->activate);
-        $this->actions->register($moduleCode, new ModuleActionDefinition('deactivate', 'system.users.disable', 'users.actions.deactivate', new ConfirmationDefinition('users.confirm.deactivate'), true), $this->deactivate);
-        $this->actions->register($moduleCode, new ModuleActionDefinition('delete', 'system.users.delete', 'users.actions.delete', new ConfirmationDefinition('users.confirm.delete'), true), $this->delete);
-        $this->actions->register($moduleCode, new ModuleActionDefinition('restore', 'system.users.restore', 'users.actions.restore', new ConfirmationDefinition('users.confirm.restore'), true), $this->restore);
-        $this->actions->register($moduleCode, new ModuleActionDefinition('mfa-reset', 'system.users.mfa_reset', 'users.actions.mfa_reset', new ConfirmationDefinition('users.confirm.mfa_reset'), true), $this->mfaReset);
+        $this->actions->register($moduleCode, new ModuleActionDefinition('save', 'system.users.edit', 'admin.common.save'), UsersEditorSaveAction::class);
+        $this->actions->register($moduleCode, new ModuleActionDefinition('create', 'system.users.create', 'users.actions.create'), UsersEditorCreateAction::class);
+        $this->actions->register($moduleCode, new ModuleActionDefinition('permissions-preview', 'system.users.manage_permissions', 'users.editor.tabs.permissions'), UsersPermissionPreviewAction::class);
+        $this->actions->register($moduleCode, new ModuleActionDefinition('activate', 'system.users.edit', 'users.actions.activate', new ConfirmationDefinition('users.confirm.activate'), true), UsersActivateAction::class);
+        $this->actions->register($moduleCode, new ModuleActionDefinition('deactivate', 'system.users.disable', 'users.actions.deactivate', new ConfirmationDefinition('users.confirm.deactivate'), true), UsersDeactivateAction::class);
+        $this->actions->register($moduleCode, new ModuleActionDefinition('delete', 'system.users.delete', 'users.actions.delete', new ConfirmationDefinition('users.confirm.delete'), true), UsersDeleteAction::class);
+        $this->actions->register($moduleCode, new ModuleActionDefinition('restore', 'system.users.restore', 'users.actions.restore', new ConfirmationDefinition('users.confirm.restore'), true), UsersRestoreAction::class);
+        $this->actions->register($moduleCode, new ModuleActionDefinition('mfa-reset', 'system.users.mfa_reset', 'users.actions.mfa_reset', new ConfirmationDefinition('users.confirm.mfa_reset'), true), UsersMfaResetAction::class);
     }
 }

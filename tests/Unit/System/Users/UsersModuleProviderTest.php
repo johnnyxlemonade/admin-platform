@@ -9,10 +9,8 @@ use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Auth\Mfa\MfaAuthenticationService;
 use Lemonade\Admin\Auth\Mfa\TotpCredentialService;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
-use Lemonade\Admin\Dashboard\Contract\DashboardWidgetProviderInterface;
-use Lemonade\Admin\DataGrid\Contract\DataGridProviderInterface;
+use Lemonade\Admin\Dashboard\DashboardWidgetRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
-use Lemonade\Admin\Editor\Contract\EditorProviderInterface;
 use Lemonade\Admin\Editor\EditorRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
@@ -22,7 +20,6 @@ use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
-use Lemonade\Admin\System\Users\Actions\UsersActionRegistrar;
 use Lemonade\Admin\System\Users\Dashboard\UsersDashboardWidgetProvider;
 use Lemonade\Admin\System\Users\DataGrid\UsersDataGrid;
 use Lemonade\Admin\System\Users\Editor\UsersEditor;
@@ -52,17 +49,15 @@ use ReflectionProperty;
  */
 final class UsersModuleProviderTest extends TestCase
 {
-    public function testRegisterUsesTheBuilderOnlyForTheTaggedDashboardContribution(): void
+    public function testRegisterDefinesOnlyExplicitHttpAndActionComposition(): void
     {
         $builder = new ContainerBuilder();
 
         (new UsersModuleProvider())->register($builder);
 
-        self::assertTrue($builder->isBound(UsersDashboardWidgetProvider::class));
-        self::assertSame(
-            [UsersDashboardWidgetProvider::class],
-            $builder->compile()->taggedServiceIds(DashboardWidgetProviderInterface::class),
-        );
+        self::assertFalse($builder->isBound(UsersDashboardWidgetProvider::class));
+        self::assertFalse($builder->isBound(UsersDataGrid::class));
+        self::assertFalse($builder->isBound(UsersEditor::class));
         self::assertFalse($builder->isBound(UserService::class));
     }
 
@@ -84,9 +79,6 @@ final class UsersModuleProviderTest extends TestCase
         $secondUserService = $this->resolveConcrete($container, UserService::class);
         self::assertNotSame($firstUserService, $secondUserService);
 
-        $container->instance(UsersDataGrid::class, $this->createMock(DataGridProviderInterface::class));
-        $container->instance(UsersEditor::class, $this->createMock(EditorProviderInterface::class));
-        $this->resolveConcrete($container, UsersActionRegistrar::class);
         $container->freeze();
 
         $moduleBootstrap->boot($container);
@@ -100,9 +92,9 @@ final class UsersModuleProviderTest extends TestCase
         self::assertTrue($registries['modules']->has('system.users'));
         self::assertTrue($registries['adminModules']->has('system.users'));
         self::assertTrue($registries['dataGrids']->has('system.users'));
-        self::assertInstanceOf(DataGridProviderInterface::class, $registries['dataGrids']->provider('system.users'));
+        self::assertSame(UsersDataGrid::class, $registries['dataGrids']->providerServiceId('system.users'));
         self::assertTrue($registries['editors']->has('system.users'));
-        self::assertInstanceOf(EditorProviderInterface::class, $registries['editors']->provider('system.users'));
+        self::assertSame(UsersEditor::class, $registries['editors']->providerServiceId('system.users'));
         self::assertTrue($registries['pages']->hasIndex('system.users'));
         self::assertTrue($registries['pages']->hasEditor('system.users'));
 
@@ -122,9 +114,7 @@ final class UsersModuleProviderTest extends TestCase
         self::assertSame('image', $registries['fileUsage']->require('system.users', 'thumbnail')->kind());
         self::assertContains(RegisterUsersModule::identifier(), $registries['migrations']->identifiers());
 
-        $dashboardProviders = array_values(iterator_to_array($container->tagged(DashboardWidgetProviderInterface::class)));
-        self::assertCount(1, $dashboardProviders);
-        self::assertInstanceOf(UsersDashboardWidgetProvider::class, $dashboardProviders[0]);
+        self::assertSame([UsersDashboardWidgetProvider::class], $registries['dashboard']->providerServiceIds());
     }
 
     /**
@@ -153,6 +143,7 @@ final class UsersModuleProviderTest extends TestCase
      *     editors: EditorRegistry,
      *     pages: ModulePageRegistry,
      *     actions: ModuleActionRegistry,
+     *     dashboard: DashboardWidgetRegistry,
      *     audit: AuditEventPresentationRegistry,
      *     rules: RuleRegistry,
      *     permissions: PermissionCatalogRegistry,
@@ -172,6 +163,7 @@ final class UsersModuleProviderTest extends TestCase
             'editors' => new EditorRegistry(),
             'pages' => new ModulePageRegistry(),
             'actions' => new ModuleActionRegistry(),
+            'dashboard' => new DashboardWidgetRegistry(),
             'audit' => new AuditEventPresentationRegistry(),
             'rules' => new RuleRegistry(),
             'permissions' => new PermissionCatalogRegistry(),
@@ -188,6 +180,7 @@ final class UsersModuleProviderTest extends TestCase
         $container->instance(EditorRegistry::class, $registries['editors']);
         $container->instance(ModulePageRegistry::class, $registries['pages']);
         $container->instance(ModuleActionRegistry::class, $registries['actions']);
+        $container->instance(DashboardWidgetRegistry::class, $registries['dashboard']);
         $container->instance(AuditEventPresentationRegistry::class, $registries['audit']);
         $container->instance(RuleRegistry::class, $registries['rules']);
         $container->instance(PermissionCatalogRegistry::class, $registries['permissions']);

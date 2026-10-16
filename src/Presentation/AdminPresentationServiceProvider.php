@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Presentation;
 
 use Lemonade\Admin\AdminServiceProvider;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldRenderer;
 use Lemonade\Admin\Http\AdminResponseFactory;
 use Lemonade\Admin\Http\Controller\AdminErrorController;
 use Lemonade\Admin\Http\Controller\TranslationResourceController;
@@ -21,7 +20,7 @@ use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
-use Lemonade\Framework\View\View;
+use Lemonade\Framework\View\ViewRendererInterface;
 use Lemonade\Framework\View\ViewResourceRegistry;
 use Lemonade\Image\Contract\ImageAssetResolverInterface;
 
@@ -53,6 +52,19 @@ final readonly class AdminPresentationServiceProvider implements ServiceProvider
         $container->scoped(NavigationTranslationController::class, NavigationTranslationController::class);
         $container->scoped(TranslationResourceController::class, TranslationResourceController::class);
         $container->scoped(AdminFileUploadController::class, AdminFileUploadController::class);
+        $container->decorate(
+            ViewRendererInterface::class,
+            static function (ContainerInterface $container, mixed $inner): AdminEditorViewRenderer {
+                if (!$inner instanceof ViewRendererInterface) {
+                    throw new \RuntimeException(sprintf('Decorated view service must implement %s.', ViewRendererInterface::class));
+                }
+
+                return new AdminEditorViewRenderer(
+                    inner: $inner,
+                    fields: $container->get(\Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldRenderer::class),
+                );
+            },
+        );
     }
 
     /**
@@ -66,6 +78,5 @@ final readonly class AdminPresentationServiceProvider implements ServiceProvider
         $container->get(AdminFileAuditPresentationRegistrar::class)->register();
         $container->get(TranslationResourceRegistry::class)->register(dirname(__DIR__) . '/Resources/lang', 'admin');
         $container->get(ViewResourceRegistry::class)->register('admin', dirname(__DIR__) . '/Resources/views');
-        $container->get(View::class)->share('adminEditorFields', $container->get(AdminEditorFieldRenderer::class));
     }
 }

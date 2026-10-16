@@ -43,8 +43,9 @@ final readonly class AdminAuthServiceProvider implements ServiceProviderInterfac
      */
     public function register(ContainerBuilderInterface $container): void
     {
-        $container->singleton(CurrentUserProvider::class, CurrentUserProvider::class);
-        $container->singleton(CurrentPrincipalProviderInterface::class, static fn(ContainerInterface $container): CurrentUserProvider => $container->get(CurrentUserProvider::class));
+        $container->scoped(AuthenticationService::class, AuthenticationService::class);
+        $container->scoped(CurrentUserProvider::class, CurrentUserProvider::class);
+        $container->alias(CurrentPrincipalProviderInterface::class, CurrentUserProvider::class);
         $container->scoped(AuthPageRenderer::class, AuthPageRenderer::class);
         $container->scoped(LoginController::class, LoginController::class);
         $container->scoped(MfaController::class, MfaController::class);

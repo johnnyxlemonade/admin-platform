@@ -12,6 +12,7 @@ use Lemonade\Admin\Editor\Exception\EditorCapabilityException;
 use Lemonade\Admin\Editor\Lock\EditorLockException;
 use Lemonade\Admin\Editor\Lock\EditorLockManager;
 use Lemonade\Admin\Http\AdminErrorCode;
+use Lemonade\Admin\Module\ModuleProviderResolver;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
@@ -28,7 +29,7 @@ final readonly class EditorDispatcher
     public function __construct(
         private ModuleRegistry $modules,
         private ModuleManager $moduleManager,
-        private EditorRegistry $editors,
+        private ModuleProviderResolver $providers,
         private AuthorizationService $authorization,
         private FormValidation $validation,
         private EditorLockManager $locks,
@@ -128,7 +129,7 @@ final readonly class EditorDispatcher
             );
         }
 
-        if (!$this->editors->has($module)) {
+        if (!$this->providers->hasEditor($module)) {
             throw new EditorCapabilityException(
                 HttpStatusCode::NOT_FOUND,
                 AdminErrorCode::UNSUPPORTED_ACTION,
@@ -136,7 +137,7 @@ final readonly class EditorDispatcher
             );
         }
 
-        $provider = $this->editors->provider($module);
+        $provider = $this->providers->editor($module);
         $definition = $provider->editorDefinition();
         $permission = $creating
             ? $definition->createPermission()

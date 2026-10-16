@@ -18,10 +18,6 @@ final readonly class ModulesActionRegistrar
      */
     public function __construct(
         private ModuleActionRegistry $actions,
-        private ModulesInstallAction $install,
-        private ModulesEnableAction $enable,
-        private ModulesDisableAction $disable,
-        private ModulesFeatureToggleAction $featureToggle,
     ) {}
 
     /**
@@ -29,9 +25,9 @@ final readonly class ModulesActionRegistrar
      */
     public function register(): void
     {
-        $this->actions->register('system.modules', new ModuleActionDefinition('install', 'system.modules.install', 'modules.actions.install', new ConfirmationDefinition('modules.confirm.install'), true), $this->install);
-        $this->actions->register('system.modules', new ModuleActionDefinition('enable', 'system.modules.enable', 'modules.actions.enable', new ConfirmationDefinition('modules.confirm.enable'), true), $this->enable);
-        $this->actions->register('system.modules', new ModuleActionDefinition('disable', 'system.modules.disable', 'modules.actions.disable', new ConfirmationDefinition('modules.confirm.disable'), true), $this->disable);
-        $this->actions->register('system.modules', new ModuleActionDefinition('feature-toggle', 'system.modules.manage_features', 'modules.features.actions.toggle'), $this->featureToggle);
+        $this->actions->register('system.modules', new ModuleActionDefinition('install', 'system.modules.install', 'modules.actions.install', new ConfirmationDefinition('modules.confirm.install'), true), ModulesInstallAction::class);
+        $this->actions->register('system.modules', new ModuleActionDefinition('enable', 'system.modules.enable', 'modules.actions.enable', new ConfirmationDefinition('modules.confirm.enable'), true), ModulesEnableAction::class);
+        $this->actions->register('system.modules', new ModuleActionDefinition('disable', 'system.modules.disable', 'modules.actions.disable', new ConfirmationDefinition('modules.confirm.disable'), true), ModulesDisableAction::class);
+        $this->actions->register('system.modules', new ModuleActionDefinition('feature-toggle', 'system.modules.manage_features', 'modules.features.actions.toggle'), ModulesFeatureToggleAction::class);
     }
 }

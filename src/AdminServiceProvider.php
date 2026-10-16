@@ -10,6 +10,7 @@ use Lemonade\Admin\Cms\Routing\PublicModuleRuntimeCacheInvalidator;
 use Lemonade\Admin\Event\DomainEventDispatcher;
 use Lemonade\Admin\Http\Middleware\AdminAuthorizationRequestCacheMiddleware;
 use Lemonade\Admin\Http\Middleware\AdminInstallationGuard;
+use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Admin\Localization\DatabaseTranslationOverrideProvider;
@@ -46,6 +47,7 @@ final readonly class AdminServiceProvider implements ServiceProviderInterface, B
         $container->singleton(TranslationOverrideCache::class, TranslationOverrideCache::class);
         $container->transient(TranslationOverrideProviderInterface::class, DatabaseTranslationOverrideProvider::class);
         $container->singleton(ClientTranslationVersion::class, ClientTranslationVersion::class);
+        $container->scoped(AdminUiLocale::class, AdminUiLocale::class);
         $container->singleton(AdminNavigationGroupRegistry::class, AdminNavigationGroupRegistry::class);
         $container->singleton(AdminModuleRegistry::class, AdminModuleRegistry::class);
         $container->singleton(AuditEventPresentationRegistry::class, AuditEventPresentationRegistry::class);

@@ -8,7 +8,7 @@ use Lemonade\Admin\Audit\AuditEventPresentation;
 use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Audit\AuditModulePresentation;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
-use Lemonade\Admin\Dashboard\Contract\DashboardWidgetProviderInterface;
+use Lemonade\Admin\Dashboard\DashboardWidgetRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
@@ -41,8 +41,7 @@ final readonly class ModulesModuleProvider implements ServiceProviderInterface, 
     public function register(ContainerBuilderInterface $container): void
     {
         $container->scoped(ModulesFeaturesController::class, ModulesFeaturesController::class);
-        $container->transient(ModulesDashboardWidgetProvider::class, ModulesDashboardWidgetProvider::class);
-        $container->tag(ModulesDashboardWidgetProvider::class, DashboardWidgetProviderInterface::class);
+        $container->singleton(ModulesActionRegistrar::class, ModulesActionRegistrar::class);
     }
 
     /**
@@ -62,8 +61,9 @@ final readonly class ModulesModuleProvider implements ServiceProviderInterface, 
             $audit->register(new AuditEventPresentation('system.module_' . $event, 'modules.audit.' . $event, AdminIcon::Boxes));
         }
         $container->get(AdminModuleRegistry::class)->register($definition);
-        $container->get(DataGridRegistry::class)->register($definition->code(), $container->get(ModulesDataGrid::class));
-        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), $container->get(ModulesModulePageProvider::class));
+        $container->get(DataGridRegistry::class)->register($definition->code(), ModulesDataGrid::class);
+        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), ModulesModulePageProvider::class);
+        $container->get(DashboardWidgetRegistry::class)->registerProvider(ModulesDashboardWidgetProvider::class);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(ModulesActionRegistrar::class)->register();
         $container->get(MigrationRegistry::class)->register(RegisterModulesModule::class);

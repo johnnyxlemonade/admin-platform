@@ -148,5 +148,10 @@ final class AdminSessionLifetimeMemorySession implements SessionInterface
         $this->values = [];
     }
 
+    public function destroy(): void
+    {
+        $this->clear();
+    }
+
     public function regenerate(bool $deleteOldSession = true): void {}
 }

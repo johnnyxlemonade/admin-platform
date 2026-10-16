@@ -5,20 +5,8 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\System\Notifications;
 
 use Lemonade\Admin\Action\ModuleActionRegistry;
-use Lemonade\Admin\Editor\EditorDispatcher;
 use Lemonade\Admin\System\Notifications\Actions\NotificationsActionRegistrar;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsActivateAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsBulkActivateAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsBulkDeactivateAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsBulkDeleteAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsBulkResetDisplayAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsBulkRestoreAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsDeactivateAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsDeleteAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsResetDisplayAction;
-use Lemonade\Admin\System\Notifications\Actions\NotificationsRestoreAction;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 
 final class NotificationsActionRegistrarTest extends TestCase
 {
@@ -28,17 +16,6 @@ final class NotificationsActionRegistrarTest extends TestCase
 
         (new NotificationsActionRegistrar(
             actions: $actions,
-            editors: $this->withoutConstructor(EditorDispatcher::class),
-            activate: $this->withoutConstructor(NotificationsActivateAction::class),
-            deactivate: $this->withoutConstructor(NotificationsDeactivateAction::class),
-            delete: $this->withoutConstructor(NotificationsDeleteAction::class),
-            restore: $this->withoutConstructor(NotificationsRestoreAction::class),
-            resetDisplay: $this->withoutConstructor(NotificationsResetDisplayAction::class),
-            bulkDeactivate: $this->withoutConstructor(NotificationsBulkDeactivateAction::class),
-            bulkDelete: $this->withoutConstructor(NotificationsBulkDeleteAction::class),
-            bulkActivate: $this->withoutConstructor(NotificationsBulkActivateAction::class),
-            bulkResetDisplay: $this->withoutConstructor(NotificationsBulkResetDisplayAction::class),
-            bulkRestore: $this->withoutConstructor(NotificationsBulkRestoreAction::class),
         ))->register();
 
         self::assertSame([
@@ -95,7 +72,7 @@ final class NotificationsActionRegistrarTest extends TestCase
     /**
      * Vrati verejne dohledatelne akce registrovane pro modul notifikaci
      *
-     * @return list<array{definition:\Lemonade\Admin\Action\ModuleActionDefinition,handler:\Lemonade\Admin\Action\Contract\ModuleActionHandlerInterface}>
+     * @return list<array{definition:\Lemonade\Admin\Action\ModuleActionDefinition,handlerServiceId:string}>
      */
     private function registeredActions(ModuleActionRegistry $actions): array
     {
@@ -116,14 +93,5 @@ final class NotificationsActionRegistrarTest extends TestCase
                 'bulk-restore',
             ],
         );
-    }
-
-    /** @template T of object
-     * @param class-string<T> $class
-     * @return T
-     */
-    private function withoutConstructor(string $class): object
-    {
-        return (new ReflectionClass($class))->newInstanceWithoutConstructor();
     }
 }

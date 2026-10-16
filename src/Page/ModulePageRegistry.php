@@ -4,41 +4,26 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Page;
 
-use Closure;
-use Lemonade\Admin\Page\Contract\ModuleEditorPageProviderInterface;
-use Lemonade\Admin\Page\Contract\ModuleIndexPageProviderInterface;
-use Lemonade\Admin\Page\Contract\ModuleModalEditorPageProviderInterface;
-
 /**
  * Registruje indexove a full-page editorove capability admin modulu
  */
 final class ModulePageRegistry
 {
-    /** @var array<string, ModuleIndexPageProviderInterface|Closure():ModuleIndexPageProviderInterface> */
+    /** @var array<string, string> */
     private array $indexProviders = [];
 
-    /** @var array<string, ModuleEditorPageProviderInterface|Closure():ModuleEditorPageProviderInterface> */
+    /** @var array<string, string> */
     private array $editorProviders = [];
 
-    /** @var array<string, ModuleModalEditorPageProviderInterface|Closure():ModuleModalEditorPageProviderInterface> */
+    /** @var array<string, string> */
     private array $modalEditorProviders = [];
 
     /**
-     * Registruje indexovou stranku pod kodem modulu
+     * Registruje service ID indexove stranky pod kodem modulu
      */
-    public function registerIndex(string $moduleCode, ModuleIndexPageProviderInterface $provider): void
+    public function registerIndex(string $moduleCode, string $providerServiceId): void
     {
-        $this->indexProviders[$moduleCode] = $provider;
-    }
-
-    /**
-     * Registruje lazy factory indexove stranky pro optional modul
-     *
-     * @param Closure():ModuleIndexPageProviderInterface $provider
-     */
-    public function registerIndexFactory(string $moduleCode, Closure $provider): void
-    {
-        $this->indexProviders[$moduleCode] = $provider;
+        $this->indexProviders[$moduleCode] = $providerServiceId;
     }
 
     /**
@@ -50,35 +35,19 @@ final class ModulePageRegistry
     }
 
     /**
-     * Vraci indexovou stranku zaregistrovanou pod kodem modulu
+     * Vraci service ID indexove stranky zaregistrovane pod kodem modulu
      */
-    public function index(string $moduleCode): ModuleIndexPageProviderInterface
+    public function indexProviderServiceId(string $moduleCode): string
     {
-        $provider = $this->indexProviders[$moduleCode];
-        if ($provider instanceof Closure) {
-            $provider = $provider();
-            $this->indexProviders[$moduleCode] = $provider;
-        }
-
-        return $provider;
+        return $this->indexProviders[$moduleCode];
     }
 
     /**
-     * Registruje full-page editor pod kodem modulu
+     * Registruje service ID full-page editoru pod kodem modulu
      */
-    public function registerEditor(string $moduleCode, ModuleEditorPageProviderInterface $provider): void
+    public function registerEditor(string $moduleCode, string $providerServiceId): void
     {
-        $this->editorProviders[$moduleCode] = $provider;
-    }
-
-    /**
-     * Registruje lazy factory full-page editoru pro optional modul
-     *
-     * @param Closure():ModuleEditorPageProviderInterface $provider
-     */
-    public function registerEditorFactory(string $moduleCode, Closure $provider): void
-    {
-        $this->editorProviders[$moduleCode] = $provider;
+        $this->editorProviders[$moduleCode] = $providerServiceId;
     }
 
     /**
@@ -90,35 +59,19 @@ final class ModulePageRegistry
     }
 
     /**
-     * Vraci full-page editor zaregistrovany pod kodem modulu
+     * Vraci service ID full-page editoru zaregistrovaneho pod kodem modulu
      */
-    public function editor(string $moduleCode): ModuleEditorPageProviderInterface
+    public function editorProviderServiceId(string $moduleCode): string
     {
-        $provider = $this->editorProviders[$moduleCode];
-        if ($provider instanceof Closure) {
-            $provider = $provider();
-            $this->editorProviders[$moduleCode] = $provider;
-        }
-
-        return $provider;
+        return $this->editorProviders[$moduleCode];
     }
 
     /**
-     * Registruje modalni editor pod kodem modulu
+     * Registruje service ID modalniho editoru pod kodem modulu
      */
-    public function registerModalEditor(string $moduleCode, ModuleModalEditorPageProviderInterface $provider): void
+    public function registerModalEditor(string $moduleCode, string $providerServiceId): void
     {
-        $this->modalEditorProviders[$moduleCode] = $provider;
-    }
-
-    /**
-     * Registruje lazy factory modalniho editoru pro optional modul
-     *
-     * @param Closure():ModuleModalEditorPageProviderInterface $provider
-     */
-    public function registerModalEditorFactory(string $moduleCode, Closure $provider): void
-    {
-        $this->modalEditorProviders[$moduleCode] = $provider;
+        $this->modalEditorProviders[$moduleCode] = $providerServiceId;
     }
 
     /**
@@ -130,16 +83,10 @@ final class ModulePageRegistry
     }
 
     /**
-     * Vraci modalni editor zaregistrovany pod kodem modulu
+     * Vraci service ID modalniho editoru zaregistrovaneho pod kodem modulu
      */
-    public function modalEditor(string $moduleCode): ModuleModalEditorPageProviderInterface
+    public function modalEditorProviderServiceId(string $moduleCode): string
     {
-        $provider = $this->modalEditorProviders[$moduleCode];
-        if ($provider instanceof Closure) {
-            $provider = $provider();
-            $this->modalEditorProviders[$moduleCode] = $provider;
-        }
-
-        return $provider;
+        return $this->modalEditorProviders[$moduleCode];
     }
 }

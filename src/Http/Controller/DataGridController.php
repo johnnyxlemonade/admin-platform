@@ -6,13 +6,13 @@ namespace Lemonade\Admin\Http\Controller;
 
 use InvalidArgumentException;
 use Lemonade\Admin\Authorization\AuthorizationService;
-use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\DataGrid\Query\DataGridQueryValidator;
 use Lemonade\Admin\Http\AdminAuthorizationResponseHandler;
 use Lemonade\Admin\Http\AdminErrorCode;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
+use Lemonade\Admin\Module\ModuleProviderResolver;
 use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Framework\Core\Http\RequestData;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
@@ -32,7 +32,7 @@ final readonly class DataGridController
         private AdminModuleRouteResolver $routes,
         private AdminModuleAccessPolicy $moduleAccess,
         private ModuleManager $moduleManager,
-        private DataGridRegistry $grids,
+        private ModuleProviderResolver $providers,
         private DataGridQueryValidator $queries,
         private AuthorizationService $authorization,
         private AdminAuthorizationResponseHandler $authorizationResponses,
@@ -60,11 +60,11 @@ final readonly class DataGridController
             return $this->responses->json($this->authorizationResponses->forbiddenPayload(), HttpStatusCode::FORBIDDEN->value);
         }
 
-        if (!$this->grids->has($moduleCode)) {
+        if (!$this->providers->hasDataGrid($moduleCode)) {
             return $this->notFound(AdminErrorCode::DATAGRID_NOT_SUPPORTED, 'Module does not provide a DataGrid.');
         }
 
-        $grid = $this->grids->provider($moduleCode);
+        $grid = $this->providers->dataGrid($moduleCode);
         if (!$this->authorization->hasPermission($grid->permission())) {
             return $this->responses->json($this->authorizationResponses->forbiddenPayload(), HttpStatusCode::FORBIDDEN->value);
         }

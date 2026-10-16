@@ -12,6 +12,7 @@ use Lemonade\Admin\Editor\Lock\EditorLockManager;
 use Lemonade\Admin\Http\AdminErrorCode;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
+use Lemonade\Admin\Module\ModuleProviderResolver;
 use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
@@ -29,7 +30,7 @@ final readonly class ModuleActionDispatcher
         private AdminModuleRouteResolver $routes,
         private AdminModuleAccessPolicy $moduleAccess,
         private ModuleManager $modules,
-        private ModuleActionRegistry $actions,
+        private ModuleProviderResolver $providers,
         private AuthorizationService $authorization,
         private EditorLockManager $locks,
         private ModulePageRegistry $pages,
@@ -66,14 +67,14 @@ final readonly class ModuleActionDispatcher
             );
         }
         $action = $request['action'] ?? null;
-        if (!is_string($action) || !$this->actions->has($module->code(), $action)) {
+        if (!is_string($action) || !$this->providers->hasAction($module->code(), $action)) {
             throw new ModuleActionException(
                 HttpStatusCode::NOT_FOUND,
                 AdminErrorCode::UNSUPPORTED_ACTION,
                 'Module action not found.',
             );
         }
-        $registered = $this->actions->action($module->code(), $action);
+        $registered = $this->providers->action($module->code(), $action);
         $decision = $registered['handler'] instanceof ModuleActionAccessPolicyInterface
             ? $registered['handler']->accessDecision($id)
             : null;

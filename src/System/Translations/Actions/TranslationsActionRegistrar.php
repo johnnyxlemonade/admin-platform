@@ -7,22 +7,19 @@ namespace Lemonade\Admin\System\Translations\Actions;
 use Lemonade\Admin\Action\ModuleActionDefinition;
 use Lemonade\Admin\Action\ModuleActionRegistry;
 use Lemonade\Admin\Action\Presentation\ConfirmationDefinition;
-use Lemonade\Admin\Action\StandardEditorAction;
-use Lemonade\Admin\Editor\EditorDispatcher;
 
 /**
  * Registruje save override a reset na package source bez dalsi auditni vrstvy
  */
 final readonly class TranslationsActionRegistrar
 {
+    public const string SAVE_HANDLER = 'admin.system.translations.action.save';
+
     /**
      * Nastavuje shared action registry, editor transport a reset handler
      */
     public function __construct(
         private ModuleActionRegistry $actions,
-        private EditorDispatcher $editors,
-        private TranslationsResetAction $reset,
-        private TranslationsBulkResetAction $bulkReset,
     ) {}
 
     /**
@@ -39,7 +36,7 @@ final readonly class TranslationsActionRegistrar
                 null,
                 true,
             ),
-            StandardEditorAction::save($this->editors, 'system.translations'),
+            self::SAVE_HANDLER,
         );
         $this->actions->register(
             'system.translations',
@@ -50,7 +47,7 @@ final readonly class TranslationsActionRegistrar
                 new ConfirmationDefinition('translations.confirm.reset'),
                 true,
             ),
-            $this->reset,
+            TranslationsResetAction::class,
         );
         $this->actions->register(
             'system.translations',
@@ -61,7 +58,7 @@ final readonly class TranslationsActionRegistrar
                 new ConfirmationDefinition('translations.confirm.bulk_reset'),
                 true,
             ),
-            $this->bulkReset,
+            TranslationsBulkResetAction::class,
         );
     }
 }

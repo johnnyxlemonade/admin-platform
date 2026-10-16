@@ -48,8 +48,8 @@ final readonly class MediaModuleProvider implements ServiceProviderInterface, Bo
         $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
-        $container->get(DataGridRegistry::class)->register($definition->code(), $container->get(MediaDataGrid::class));
-        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), $container->get(MediaModulePageProvider::class));
+        $container->get(DataGridRegistry::class)->register($definition->code(), MediaDataGrid::class);
+        $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), MediaModulePageProvider::class);
         $container->get(MigrationRegistry::class)->register(RegisterMediaModule::class);
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(MediaRouteRegistrar::class));
     }

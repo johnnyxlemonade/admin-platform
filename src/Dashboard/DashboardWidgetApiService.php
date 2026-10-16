@@ -20,7 +20,7 @@ final readonly class DashboardWidgetApiService
      * Nastavi sluzby pro dashboardove API
      */
     public function __construct(
-        private DashboardWidgetRegistry $widgets,
+        private DashboardWidgetResolver $widgets,
         private DashboardWidgetAccessPolicy $access,
         private DashboardLayoutService $layout,
         private TranslatorInterface $translator,

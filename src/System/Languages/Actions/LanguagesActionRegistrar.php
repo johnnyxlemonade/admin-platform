@@ -7,20 +7,19 @@ namespace Lemonade\Admin\System\Languages\Actions;
 use Lemonade\Admin\Action\ModuleActionDefinition;
 use Lemonade\Admin\Action\ModuleActionRegistry;
 use Lemonade\Admin\Action\Presentation\ConfirmationDefinition;
-use Lemonade\Admin\Action\StandardEditorAction;
-use Lemonade\Admin\Editor\EditorDispatcher;
 
 /**
  * Registruje editorove a stavove akce systemovych jazyku
  */
 final readonly class LanguagesActionRegistrar
 {
+    public const string SAVE_HANDLER = 'admin.system.languages.action.save';
+    public const string CREATE_HANDLER = 'admin.system.languages.action.create';
+    public const string ENABLE_HANDLER = 'admin.system.languages.action.enable';
+    public const string DISABLE_HANDLER = 'admin.system.languages.action.disable';
+
     public function __construct(
         private ModuleActionRegistry $actions,
-        private EditorDispatcher $editors,
-        private LanguagesSetEnabledAction $enable,
-        private LanguagesSetEnabledAction $disable,
-        private LanguagesSetDefaultAction $setDefault,
     ) {}
 
     /**
@@ -36,10 +35,7 @@ final readonly class LanguagesActionRegistrar
                 labelKey: 'admin.common.save',
                 refreshGrid: true,
             ),
-            handler: StandardEditorAction::save(
-                editors: $this->editors,
-                module: 'system.languages',
-            ),
+            handlerServiceId: self::SAVE_HANDLER,
         );
         $this->actions->register(
             moduleCode: 'system.languages',
@@ -50,10 +46,7 @@ final readonly class LanguagesActionRegistrar
                 confirmation: null,
                 refreshGrid: true,
             ),
-            handler: StandardEditorAction::create(
-                editors: $this->editors,
-                module: 'system.languages',
-            ),
+            handlerServiceId: self::CREATE_HANDLER,
         );
         $this->actions->register(
             moduleCode: 'system.languages',
@@ -67,7 +60,7 @@ final readonly class LanguagesActionRegistrar
                 ),
                 refreshGrid: true,
             ),
-            handler: $this->enable,
+            handlerServiceId: self::ENABLE_HANDLER,
         );
         $this->actions->register(
             moduleCode: 'system.languages',
@@ -81,7 +74,7 @@ final readonly class LanguagesActionRegistrar
                 ),
                 refreshGrid: true,
             ),
-            handler: $this->disable,
+            handlerServiceId: self::DISABLE_HANDLER,
         );
         $this->actions->register(
             moduleCode: 'system.languages',
@@ -94,7 +87,7 @@ final readonly class LanguagesActionRegistrar
                 ),
                 refreshGrid: true,
             ),
-            handler: $this->setDefault,
+            handlerServiceId: LanguagesSetDefaultAction::class,
         );
     }
 }

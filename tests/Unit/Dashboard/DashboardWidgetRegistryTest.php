@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Dashboard;
 
-use InvalidArgumentException;
 use Lemonade\Admin\Dashboard\Contract\DashboardWidgetProviderInterface;
 use Lemonade\Admin\Dashboard\DashboardWidgetAccess;
 use Lemonade\Admin\Dashboard\DashboardWidgetContent;
@@ -12,89 +11,85 @@ use Lemonade\Admin\Dashboard\DashboardWidgetContext;
 use Lemonade\Admin\Dashboard\DashboardWidgetDefinition;
 use Lemonade\Admin\Dashboard\DashboardWidgetLayout;
 use Lemonade\Admin\Dashboard\DashboardWidgetPresentation;
-use Lemonade\Admin\Dashboard\DashboardWidgetRegistration;
 use Lemonade\Admin\Dashboard\DashboardWidgetRegistry;
+use Lemonade\Admin\Dashboard\DashboardWidgetResolver;
 use Lemonade\Admin\Dashboard\DashboardWidgetSize;
 use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Framework\Container\Container;
+use Lemonade\Framework\Container\ScopeKind;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Overuje root-safe katalog dashboard provideru
+ */
 final class DashboardWidgetRegistryTest extends TestCase
 {
-    public function testRegistryOrdersDefinitionsByDefaultOrderThenWidgetCode(): void
+    /**
+     * Overuje registraci service ID bez runtime instance a duplicit
+     */
+    public function testRegistryKeepsOnlyUniqueProviderServiceIds(): void
     {
-        $provider = $this->provider(
-            $this->definition('system.users.zeta', 100),
-            $this->definition('system.users.alpha', 100),
-            $this->definition('system.users.first', 10),
+        $registry = new DashboardWidgetRegistry();
+        $registry->registerProvider('dashboard.users');
+        $registry->registerProvider('dashboard.audit');
+        $registry->registerProvider('dashboard.users');
+
+        self::assertSame(['dashboard.users', 'dashboard.audit'], $registry->providerServiceIds());
+    }
+
+    /**
+     * Overuje materializaci widget provideru s authorization stavem aktualniho requestu
+     */
+    public function testResolverUsesCurrentRequestProviderGraph(): void
+    {
+        $registry = new DashboardWidgetRegistry();
+        $registry->registerProvider(ScopedDashboardProviderStub::class);
+        $container = new Container();
+        $container->instance(DashboardWidgetRegistry::class, $registry);
+        $container->scoped(DashboardWidgetResolver::class, DashboardWidgetResolver::class);
+        $container->freeze();
+
+        $firstScope = $container->beginScope(ScopeKind::Request);
+        $secondScope = $container->beginScope(ScopeKind::Request);
+        $firstProvider = $firstScope->get(DashboardWidgetResolver::class)->registration('test.module.widget')?->provider();
+        $secondProvider = $secondScope->get(DashboardWidgetResolver::class)->registration('test.module.widget')?->provider();
+
+        self::assertInstanceOf(ScopedDashboardProviderStub::class, $firstProvider);
+        self::assertInstanceOf(ScopedDashboardProviderStub::class, $secondProvider);
+        self::assertNotSame($firstProvider, $secondProvider);
+        self::assertNotSame($firstProvider->authorization, $secondProvider->authorization);
+        self::assertSame([ScopedDashboardProviderStub::class], $registry->providerServiceIds());
+
+        $firstScope->close();
+        $secondScope->close();
+    }
+}
+
+/**
+ * Predstavuje requestovy authorization stav dashboardu
+ */
+final class DashboardAuthorizationMarker {}
+
+/**
+ * Poskytuje widget zavisly na authorization stavu aktualniho requestu
+ */
+final readonly class ScopedDashboardProviderStub implements DashboardWidgetProviderInterface
+{
+    public function __construct(public DashboardAuthorizationMarker $authorization) {}
+
+    public function definitions(): iterable
+    {
+        yield new DashboardWidgetDefinition(
+            code: 'test.module.widget',
+            moduleCode: 'test.module',
+            presentation: new DashboardWidgetPresentation('test', 'test.title', null, AdminIcon::People, 'test::widget'),
+            layout: new DashboardWidgetLayout(10, DashboardWidgetSize::Small, [DashboardWidgetSize::Small]),
+            access: DashboardWidgetAccess::permission('test.view'),
         );
-
-        $registry = new DashboardWidgetRegistry([$provider]);
-
-        self::assertSame(
-            ['system.users.first', 'system.users.alpha', 'system.users.zeta'],
-            array_map(static fn(DashboardWidgetRegistration $registration): string => $registration->definition()->code(), $registry->all()),
-        );
     }
 
-    public function testRegistryRejectsDuplicateWidgetCodesAcrossProviders(): void
+    public function load(DashboardWidgetContext $context, DashboardWidgetDefinition $definition): DashboardWidgetContent
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('system.users.total');
-
-        new DashboardWidgetRegistry([
-            $this->provider($this->definition('system.users.total', 10)),
-            $this->provider($this->definition('system.users.total', 20)),
-        ]);
-    }
-
-    public function testRegistryKeepsTheOwningProviderForAWidgetDefinition(): void
-    {
-        $provider = $this->provider($this->definition('system.users.total', 10));
-        $registry = new DashboardWidgetRegistry([$provider]);
-        $registration = $registry->registration('system.users.total');
-
-        self::assertNotNull($registration);
-        self::assertSame($provider, $registration->provider());
-    }
-
-    private function definition(string $code, int $defaultOrder): DashboardWidgetDefinition
-    {
-        return new DashboardWidgetDefinition(
-            code: $code,
-            moduleCode: 'system.users',
-            presentation: new DashboardWidgetPresentation(
-                translationGroup: 'users',
-                titleKey: 'users.widgets.title',
-                descriptionKey: null,
-                icon: AdminIcon::People,
-                contentView: 'users::widgets/total',
-            ),
-            layout: new DashboardWidgetLayout(
-                defaultOrder: $defaultOrder,
-                defaultSize: DashboardWidgetSize::Small,
-                supportedSizes: [DashboardWidgetSize::Small, DashboardWidgetSize::Medium],
-            ),
-            access: DashboardWidgetAccess::permission('system.users.view'),
-        );
-    }
-
-    private function provider(DashboardWidgetDefinition ...$definitions): DashboardWidgetProviderInterface
-    {
-        return new class (array_values($definitions)) implements DashboardWidgetProviderInterface {
-            /** @param list<DashboardWidgetDefinition> $definitions */
-            public function __construct(private readonly array $definitions) {}
-
-            public function definitions(): iterable
-            {
-                return $this->definitions;
-            }
-
-            public function load(
-                DashboardWidgetContext $context,
-                DashboardWidgetDefinition $definition,
-            ): DashboardWidgetContent {
-                return DashboardWidgetContent::empty();
-            }
-        };
+        return DashboardWidgetContent::empty();
     }
 }

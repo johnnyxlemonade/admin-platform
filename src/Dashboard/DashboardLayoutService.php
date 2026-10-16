@@ -21,7 +21,7 @@ final readonly class DashboardLayoutService
      * Nastavi sluzby pro osobni rozlozeni dashboardu
      */
     public function __construct(
-        private DashboardWidgetRegistry $widgets,
+        private DashboardWidgetResolver $widgets,
         private DashboardWidgetAccessPolicy $access,
         private DashboardWidgetPreferenceModel $preferences,
         private TransactionalEventProcessor $events,
