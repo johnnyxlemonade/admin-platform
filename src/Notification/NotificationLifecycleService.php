@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Notification;
 
 use Lemonade\Admin\Audit\AuditActor;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\TransactionalEventCollector;
 use Lemonade\Admin\Event\TransactionalEventProcessor;
@@ -53,7 +52,7 @@ final readonly class NotificationLifecycleService
             return;
         }
         $actor = $this->actor();
-        $this->events->execute(new AuditOperation('system.notifications', 'notifications.delete', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $state): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($id, $state): void {
             if (!$this->notifications->softDeleteNotification($id)) {
                 throw new RuntimeException('notifications.validation.lifecycle_changed');
             }
@@ -71,7 +70,7 @@ final readonly class NotificationLifecycleService
             return;
         }
         $actor = $this->actor();
-        $this->events->execute(new AuditOperation('system.notifications', 'notifications.restore', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $state): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($id, $state): void {
             if (!$this->notifications->restoreNotification($id)) {
                 throw new RuntimeException('notifications.validation.lifecycle_changed');
             }
@@ -89,7 +88,7 @@ final readonly class NotificationLifecycleService
             throw new RuntimeException('notifications.validation.deleted_cannot_reset_display');
         }
         $actor = $this->actor();
-        $this->events->execute(new AuditOperation('system.notifications', 'notifications.reset_display', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($id): void {
             $this->notifications->resetDisplayState($id);
             $events->record(new DomainEvent('system.notifications.display_reset', 'system.notifications', 'notification', (string) $id));
         });
@@ -101,7 +100,7 @@ final readonly class NotificationLifecycleService
      */
     public function deactivateBatch(array $ids): void
     {
-        $this->events->execute(new AuditOperation('system.notifications', 'notifications.deactivate', AuditActor::user($this->actor()->id())), function (TransactionalEventCollector $events) use ($ids): void {
+        $this->events->execute(AuditActor::user($this->actor()->id()), function (TransactionalEventCollector $events) use ($ids): void {
             $this->statesForBatch($ids, static fn(array $state): bool => $state['deleted_at'] === null && (int) $state['active'] === 1);
             foreach ($ids as $id) {
                 if (!$this->notifications->setActiveFromState($id, true, false)) {
@@ -118,7 +117,7 @@ final readonly class NotificationLifecycleService
      */
     public function deleteBatch(array $ids): void
     {
-        $this->events->execute(new AuditOperation('system.notifications', 'notifications.delete', AuditActor::user($this->actor()->id())), function (TransactionalEventCollector $events) use ($ids): void {
+        $this->events->execute(AuditActor::user($this->actor()->id()), function (TransactionalEventCollector $events) use ($ids): void {
             $states = $this->statesForBatch($ids, static fn(array $state): bool => $state['deleted_at'] === null);
 
             foreach ($ids as $id) {
@@ -137,7 +136,7 @@ final readonly class NotificationLifecycleService
      */
     public function activateAndResetDisplayBatch(array $ids): void
     {
-        $this->events->execute(new AuditOperation('system.notifications', 'notifications.activate', AuditActor::user($this->actor()->id())), function (TransactionalEventCollector $events) use ($ids): void {
+        $this->events->execute(AuditActor::user($this->actor()->id()), function (TransactionalEventCollector $events) use ($ids): void {
             $this->statesForBatch($ids, static fn(array $state): bool => $state['deleted_at'] === null && (int) $state['active'] === 0);
             foreach ($ids as $id) {
                 if (!$this->notifications->setActiveFromState($id, false, true)) {
@@ -156,7 +155,7 @@ final readonly class NotificationLifecycleService
      */
     public function resetDisplayBatch(array $ids): void
     {
-        $this->events->execute(new AuditOperation('system.notifications', 'notifications.reset_display', AuditActor::user($this->actor()->id())), function (TransactionalEventCollector $events) use ($ids): void {
+        $this->events->execute(AuditActor::user($this->actor()->id()), function (TransactionalEventCollector $events) use ($ids): void {
             $this->statesForBatch($ids, static fn(array $state): bool => $state['deleted_at'] === null && (int) $state['active'] === 1);
             foreach ($ids as $id) {
                 $this->notifications->resetDisplayState($id);
@@ -171,7 +170,7 @@ final readonly class NotificationLifecycleService
      */
     public function restoreAsInactiveBatch(array $ids): void
     {
-        $this->events->execute(new AuditOperation('system.notifications', 'notifications.restore', AuditActor::user($this->actor()->id())), function (TransactionalEventCollector $events) use ($ids): void {
+        $this->events->execute(AuditActor::user($this->actor()->id()), function (TransactionalEventCollector $events) use ($ids): void {
             $states = $this->statesForBatch($ids, static fn(array $state): bool => $state['deleted_at'] !== null);
             foreach ($ids as $id) {
                 if (!$this->notifications->restoreNotification($id)) {
@@ -208,8 +207,7 @@ final readonly class NotificationLifecycleService
         }
         $actor = $this->actor();
         $eventCode = $active ? 'system.notifications.activated' : 'system.notifications.deactivated';
-        $operation = $active ? 'notifications.activate' : 'notifications.deactivate';
-        $this->events->execute(new AuditOperation('system.notifications', $operation, AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $active, $eventCode): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($id, $active, $eventCode): void {
             if (!$this->notifications->setActive($id, $active)) {
                 throw new RuntimeException('notifications.validation.lifecycle_changed');
             }

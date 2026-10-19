@@ -138,13 +138,15 @@ class AdminFileUploadCollection {
         this.input = element.querySelector("[data-lemonade-file-upload-input]");
         this.error = element.querySelector("[data-lemonade-file-upload-error]");
         this.items = element.querySelector("[data-lemonade-file-upload-items]");
-        this.dropzone = element.querySelector(".lm-file-upload-dropzone");
+        this.dropzone = element.querySelector("[data-lemonade-file-upload-drop-target], .lm-file-upload-dropzone");
         this.single = element.dataset.lemonadeFileUploadSingle === "true";
-        this.avatar = element.dataset.lemonadeFileUploadPresentation === "avatar";
+        this.editable = element.dataset.lemonadeFileUploadEditable !== "false";
         this.avatarPresentation = element.hasAttribute("data-lemonade-file-upload-avatar");
         this.avatarProgress = element.querySelector("[data-lemonade-file-upload-avatar-progress]");
         this.avatarProgressRing = this.avatarProgress?.querySelector("[data-lemonade-file-upload-avatar-progress-ring]");
+        this.singleSurface = element.querySelector("[data-lemonade-file-upload-single-surface]");
         this.singlePreview = element.querySelector("[data-lemonade-file-upload-single-preview]");
+        this.singleEmptyTemplate = element.querySelector("[data-lemonade-file-upload-single-empty-template]");
         this.avatarRemove = element.querySelector("[data-lemonade-file-upload-avatar-remove]");
         this.activeUploads = new Map();
         this.failedUploads = new Map();
@@ -287,14 +289,14 @@ class AdminFileUploadCollection {
             this.input?.click();
             return;
         }
+        const select = event.target.closest("[data-lemonade-file-upload-select]");
+        if (select && this.element.contains(select)) {
+            this.input?.click();
+            return;
+        }
         const avatarRemove = event.target.closest("[data-lemonade-file-upload-avatar-remove]");
         if (avatarRemove && this.element.contains(avatarRemove)) {
             await this.removeAvatar(avatarRemove, event.target);
-            return;
-        }
-        const tab = event.target.closest("[data-lemonade-file-upload-tab]");
-        if (tab && this.element.contains(tab)) {
-            this.selectTab(tab.dataset.lemonadeFileUploadTab);
             return;
         }
         const item = event.target.closest("[data-lemonade-file-upload-item]");
@@ -459,10 +461,15 @@ class AdminFileUploadCollection {
             return;
         }
         if (this.single) {
-            this.singlePreview?.replaceChildren(...(files.length > 0 ? [this.fileItem(files[0])] : []));
+            const file = files[0] || null;
+            const state = file
+                ? this.fileItem(file)
+                : this.singleEmptyTemplate?.content.cloneNode(true);
+            this.singlePreview?.replaceChildren(...(state ? [state] : []));
             this.items?.replaceChildren();
-            this.selectTab(this.avatar || files.length > 0 ? "preview" : "upload");
-            this.publishSingleState(files[0] || null);
+            this.singleSurface?.classList.toggle("has-file", file !== null);
+            this.singleSurface?.classList.toggle("is-empty", file === null);
+            this.publishSingleState(file);
             return;
         }
         if (!this.items) {
@@ -600,7 +607,7 @@ class AdminFileUploadCollection {
             const image = document.createElement("img");
             image.className = "lm-file-upload-single-image";
             image.src = file.preview_url;
-            image.alt = "";
+            image.alt = this.element.dataset.lemonadeFileUploadAlt || "";
             item.append(image);
         }
 
@@ -613,36 +620,46 @@ class AdminFileUploadCollection {
         details.append(name, metadata);
         item.append(details);
 
-        const actions = document.createElement("span");
-        actions.className = "lm-file-upload-item-actions";
-        const renameUrl = this.url("lemonadeFileUploadRenameModalUrl", file.id);
-        if (renameUrl) {
-            const edit = this.iconButton("pencil-square", this.translate("admin.file_upload.edit", null, this.element.dataset.lemonadeFileUploadEditLabel));
-            edit.dataset.lemonadeModalFormUrl = renameUrl;
-            edit.dataset.lemonadeModalSize = "medium";
-            actions.append(edit);
+        if (this.editable) {
+            const actions = document.createElement("span");
+            actions.className = "lm-file-upload-item-actions";
+            const renameUrl = this.url("lemonadeFileUploadRenameModalUrl", file.id);
+            if (renameUrl) {
+                const edit = this.iconButton("pencil-square", this.translate("admin.file_upload.edit_metadata", null, this.element.dataset.lemonadeFileUploadEditMetadataLabel || "Edit metadata"));
+                edit.dataset.lemonadeModalFormUrl = renameUrl;
+                edit.dataset.lemonadeModalSize = "medium";
+                actions.append(edit);
+            }
+            const remove = this.iconButton("trash3", this.translate(this.element.dataset.lemonadeFileUploadRemoveKey || "admin.file_upload.remove", null, this.element.dataset.lemonadeFileUploadRemoveLabel || "Remove"));
+            remove.classList.add("is-danger");
+            remove.dataset.lemonadeFileUploadRemove = "";
+            actions.append(remove);
+            item.append(actions);
+
+            const change = document.createElement("button");
+            change.type = "button";
+            change.className = "btn btn-light btn-sm lm-file-upload-single-change";
+            change.dataset.lemonadeFileUploadSelect = "";
+            const changeIcon = document.createElement("i");
+            BootstrapIcons.set(changeIcon, "arrow-clockwise");
+            changeIcon.setAttribute("aria-hidden", "true");
+            const changeLabel = document.createElement("span");
+            changeLabel.textContent = this.translate("admin.file_upload.change", null, this.element.dataset.lemonadeFileUploadChangeLabel || "Change image");
+            change.append(changeIcon, changeLabel);
+            item.append(change);
         }
-        const remove = this.iconButton("trash3", this.translate(this.element.dataset.lemonadeFileUploadRemoveKey || "admin.file_upload.remove", null, this.element.dataset.lemonadeFileUploadRemoveLabel || "Remove"));
-        remove.classList.add("is-danger");
-        remove.dataset.lemonadeFileUploadRemove = "";
-        actions.append(remove);
-        item.append(actions);
+        const replaceOverlay = document.createElement("span");
+        replaceOverlay.className = "lm-file-upload-replace-overlay";
+        replaceOverlay.setAttribute("aria-hidden", "true");
+        const replaceIcon = document.createElement("i");
+        BootstrapIcons.set(replaceIcon, "upload");
+        replaceIcon.setAttribute("aria-hidden", "true");
+        const replaceLabel = document.createElement("strong");
+        replaceLabel.textContent = this.translate("admin.file_upload.drop_to_replace", null, this.element.dataset.lemonadeFileUploadDropToReplaceLabel || "Drop the image to replace it");
+        replaceOverlay.append(replaceIcon, replaceLabel);
+        item.append(replaceOverlay);
 
         return item;
-    }
-
-    selectTab(name) {
-        if (!this.single || !["preview", "upload"].includes(name)) {
-            return;
-        }
-        this.element.querySelectorAll("[data-lemonade-file-upload-tab]").forEach((tab) => {
-            const active = tab.dataset.lemonadeFileUploadTab === name;
-            tab.classList.toggle("is-active", active);
-            tab.setAttribute("aria-selected", active ? "true" : "false");
-        });
-        this.element.querySelectorAll("[data-lemonade-file-upload-panel]").forEach((panel) => {
-            panel.hidden = panel.dataset.lemonadeFileUploadPanel !== name;
-        });
     }
 
     iconButton(icon, label) {

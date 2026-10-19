@@ -8,7 +8,6 @@ use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Media\DataGrid\MediaDataGrid;
@@ -45,7 +44,6 @@ final readonly class MediaModuleProvider implements ServiceProviderInterface, Bo
         $definition = new MediaModuleDefinition();
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.media');
         $container->get(ClientTranslationGroupRegistry::class)->register('media');
-        $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(DataGridRegistry::class)->register($definition->code(), MediaDataGrid::class);

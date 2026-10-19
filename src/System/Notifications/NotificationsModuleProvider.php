@@ -12,7 +12,6 @@ use Lemonade\Admin\Editor\EditorDispatcher;
 use Lemonade\Admin\Editor\EditorRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Notifications\Actions\NotificationsActionRegistrar;
@@ -56,7 +55,6 @@ final readonly class NotificationsModuleProvider implements ServiceProviderInter
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.notifications');
         $container->get(ViewResourceRegistry::class)->register('notifications', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('notifications');
-        $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(DataGridRegistry::class)->register($definition->code(), NotificationsDataGrid::class);
         $container->get(EditorRegistry::class)->register($definition->code(), NotificationsEditor::class);

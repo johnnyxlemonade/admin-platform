@@ -10,7 +10,7 @@ use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\DataGrid\DataGridIndexViewModel;
 use Lemonade\Admin\DataGrid\DataGridPrimaryAction;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderContext;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
 use Lemonade\Admin\Editor\EditorLoaded;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Notification\Models\NotificationModel;
@@ -122,13 +122,14 @@ final readonly class NotificationsModulePageProvider implements ModuleIndexPageP
         $descriptionKey = $editing ? 'notifications.editor.modal_edit_description' : 'notifications.editor.modal_create_description';
 
         return new ModulePage(
-            view: 'notifications::modal-editor',
+            view: 'admin::components.admin-editor-modal',
             title: $this->translator->get($titleKey),
             data: [
                 'title' => $this->translator->get($titleKey),
                 'titleKey' => $titleKey,
                 'description' => $this->translator->get($descriptionKey),
                 'descriptionKey' => $descriptionKey,
+                'modalId' => 'notifications-modal-editor',
                 'submitKey' => $editing ? 'admin.common.save' : 'notifications.actions.publish',
                 'adminEditor' => $this->modalDefinition($editor, $editing),
                 'adminEditorContext' => new AdminEditorRenderContext(

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\System\Roles\Services;
 
 use Lemonade\Admin\Audit\AuditActor;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Authorization\AuthorizationDelegationPolicy;
 use Lemonade\Admin\Authorization\AuthorizationService;
@@ -85,7 +84,7 @@ final readonly class RoleService
         $permissions = $this->validatedPermissions($permissions);
         $this->assertPermissionsDelegable($actor, $permissions);
 
-        $id = $this->events->execute(new AuditOperation('system.roles', 'roles.editor.create', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($code, $name, $description, $permissions): int {
+        $id = $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($code, $name, $description, $permissions): int {
             $id = $this->roles->createRole($code, $name, $description);
             $this->roles->replacePermissions($id, $permissions);
             $events->record(new DomainEvent('system.roles.created', 'system.roles', 'role', (string) $id, ['code' => $code, 'name' => $name]));
@@ -143,7 +142,7 @@ final readonly class RoleService
             return;
         }
 
-        $this->events->execute(new AuditOperation('system.roles', 'roles.editor.save', AuditActor::user($actor->id())), function (TransactionalEventCollector $collector) use ($id, $name, $description, $permissions, $events): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $collector) use ($id, $name, $description, $permissions, $events): void {
             if ($this->roles->findRoleForUpdate($id) === null) {
                 throw new RoleNotFoundException('Role not found.');
             }
@@ -170,7 +169,7 @@ final readonly class RoleService
         if ((int) $role['is_system'] === 1 || (int) $role['is_super_admin'] === 1) {
             throw new RuntimeException('roles.validation.system_protected');
         }
-        $this->events->execute(new AuditOperation('system.roles', 'roles.delete', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $role): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($id, $role): void {
             if (!$this->roles->softDelete($id)) {
                 throw new RuntimeException('Role soft delete failed.');
             }
@@ -195,7 +194,7 @@ final readonly class RoleService
         if ((int) $role['is_system'] === 1 || (int) $role['is_super_admin'] === 1) {
             throw new RuntimeException('roles.validation.system_protected');
         }
-        $this->events->execute(new AuditOperation('system.roles', 'roles.restore', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $role): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($id, $role): void {
             if (!$this->roles->restoreRole($id)) {
                 throw new RuntimeException('Role restore failed.');
             }

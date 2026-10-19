@@ -6,7 +6,6 @@ namespace Lemonade\Admin\Tests\Unit\Modules;
 
 use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Cms\Routing\PublicModuleRuntimeCacheInvalidator;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\DomainEventDispatcher;
@@ -82,9 +81,9 @@ final class ModuleStateResolverTest extends TestCase
         $audits = new class implements AuditLogWriterInterface {
             /** @var list<string> */ public array $events = [];
 
-            public function record(DomainEvent $event, AuditOperation $operation): void
+            public function record(DomainEvent $event, AuditActor $actor): void
             {
-                $this->events[] = $event->code() . ':' . $operation->code();
+                $this->events[] = $event->code();
             }
         };
         try {
@@ -108,7 +107,7 @@ final class ModuleStateResolverTest extends TestCase
             $resolver->forgetCachedDatabaseStates();
 
             $service->enable('test.optional', AuditActor::system('test'));
-            self::assertSame(['system.module_enabled:modules.enable'], $audits->events);
+            self::assertSame(['system.module_enabled'], $audits->events);
         } finally {
             $cleanup();
         }
@@ -143,9 +142,9 @@ final class ModuleStateResolverTest extends TestCase
         $audits = new class implements AuditLogWriterInterface {
             /** @var list<string> */ public array $events = [];
 
-            public function record(DomainEvent $event, AuditOperation $operation): void
+            public function record(DomainEvent $event, AuditActor $actor): void
             {
-                $this->events[] = $event->code() . ':' . $operation->code();
+                $this->events[] = $event->code();
             }
         };
         try {
@@ -156,7 +155,7 @@ final class ModuleStateResolverTest extends TestCase
 
             self::assertTrue($service->enable('test.optional', AuditActor::system('test'))->enabled());
             self::assertTrue($connection->states['test.optional']);
-            self::assertSame(['system.module_enabled:modules.enable'], $audits->events);
+            self::assertSame(['system.module_enabled'], $audits->events);
             $this->expectException(ModuleLifecycleException::class);
             $service->disable('system.test', AuditActor::system('test'));
         } finally {
@@ -169,7 +168,7 @@ final class ModuleStateResolverTest extends TestCase
         [$catalog, $cleanup] = $this->catalog();
         $connection = new ModuleStateConnection(['test.optional' => true]);
         $failingAudit = new class implements AuditLogWriterInterface {
-            public function record(DomainEvent $event, AuditOperation $operation): void
+            public function record(DomainEvent $event, AuditActor $actor): void
             {
                 throw new \RuntimeException('Audit writer failed.');
             }

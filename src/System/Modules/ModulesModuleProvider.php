@@ -13,7 +13,6 @@ use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Modules\Actions\ModulesActionRegistrar;
 use Lemonade\Admin\System\Modules\Dashboard\ModulesDashboardWidgetProvider;
@@ -49,7 +48,6 @@ final readonly class ModulesModuleProvider implements ServiceProviderInterface, 
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.modules');
         $container->get(ViewResourceRegistry::class)->register('modules', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('modules');
-        $container->get(ModuleRegistry::class)->register($definition);
         $audit = $container->get(AuditEventPresentationRegistry::class);
         $audit->registerModule(new AuditModulePresentation('system.modules', 'modules.module.name', AdminIcon::Boxes));
         foreach (['installed', 'enabled', 'disabled'] as $event) {

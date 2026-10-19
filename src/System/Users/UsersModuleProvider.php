@@ -11,7 +11,6 @@ use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Editor\EditorRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Users\Actions\UsersActionRegistrar;
@@ -56,7 +55,6 @@ final readonly class UsersModuleProvider implements ServiceProviderInterface, Bo
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.users');
         $container->get(ViewResourceRegistry::class)->register('users', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('users');
-        $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(DataGridRegistry::class)->register($definition->code(), UsersDataGrid::class);
         $container->get(EditorRegistry::class)->register($definition->code(), UsersEditor::class);

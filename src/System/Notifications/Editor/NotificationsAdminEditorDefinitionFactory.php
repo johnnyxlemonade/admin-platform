@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Notifications\Editor;
 
+use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorBuilder;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFormDefinition;
-use Lemonade\Admin\Editor\AdminEditor\CustomViewBlock;
-use Lemonade\Admin\Editor\AdminEditor\FieldColumn;
-use Lemonade\Admin\Editor\AdminEditor\FieldGroupBlock;
+use Lemonade\Admin\Editor\AdminEditor\Field\Field;
+use Lemonade\Admin\Editor\AdminEditor\Layout\CustomViewBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldColumn;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldGroupBlock;
 use Lemonade\Admin\Notification\NotificationType;
 use Lemonade\Framework\Routing\UrlGenerator;
 
@@ -42,7 +42,7 @@ final readonly class NotificationsAdminEditorDefinitionFactory
             : $this->urls->route(name: 'admin.system.module.ajax.create', params: ['module' => 'notifications']);
 
         return AdminEditorBuilder::create('system.notifications.modal')
-            ->form(new AdminEditorFormDefinition(
+            ->form(new AdminActionFormDefinition(
                 id: 'notifications-modal-editor-form',
                 action: $formAction,
                 actionUrl: $actionUrl,
@@ -51,7 +51,7 @@ final readonly class NotificationsAdminEditorDefinitionFactory
             ))
             ->block(new FieldGroupBlock([
                 new FieldColumn(
-                    field: AdminEditorFieldDefinition::select(name: 'type', labelKey: 'notifications.fields.type')
+                    field: Field::select(name: 'type', labelKey: 'notifications.fields.type')
                             ->options($this->typeOptions())
                             ->optionLabelKeys($this->typeLabelKeys())
                             ->attributes(['data-lemonade-option-source' => 'static'])
@@ -59,14 +59,14 @@ final readonly class NotificationsAdminEditorDefinitionFactory
                     md: 4,
                 ),
                 new FieldColumn(
-                    field: AdminEditorFieldDefinition::text(name: 'title', labelKey: 'notifications.fields.title')
+                    field: Field::text(name: 'title', labelKey: 'notifications.fields.title')
                             ->attributes(['maxlength' => '180'])
                             ->required(),
                     md: 8,
                 ),
             ]))
             ->block(
-                AdminEditorFieldDefinition::textarea(name: 'message', labelKey: 'notifications.fields.message')
+                Field::textarea(name: 'message', labelKey: 'notifications.fields.message')
                     ->attributes(['maxlength' => '1000'])
                     ->required(),
             )

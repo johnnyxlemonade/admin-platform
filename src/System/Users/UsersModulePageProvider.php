@@ -7,7 +7,7 @@ namespace Lemonade\Admin\System\Users;
 use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\DataGrid\DataGridIndexViewModel;
 use Lemonade\Admin\DataGrid\DataGridPrimaryAction;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderContext;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
 use Lemonade\Admin\Editor\EditorLoaded;
 use Lemonade\Admin\Editor\Lock\EditorLockConflictMessage;
 use Lemonade\Admin\Editor\Lock\EditorLockConflictMessageProviderInterface;

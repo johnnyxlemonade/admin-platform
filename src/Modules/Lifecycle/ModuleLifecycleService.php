@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Modules\Lifecycle;
 
 use Lemonade\Admin\Audit\AuditActor;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Authorization\PermissionSyncService;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\TransactionalEventCollector;
@@ -63,7 +62,7 @@ final class ModuleLifecycleService
             throw new ModuleLifecycleException('Module migration runner is not available.');
         }
         $this->migrations->migrate($manifest);
-        $this->events->execute(new AuditOperation($code, 'modules.install', $actor), function (TransactionalEventCollector $events) use ($code): void {
+        $this->events->execute($actor, function (TransactionalEventCollector $events) use ($code): void {
             $this->permissions?->syncModule($code);
             $this->modules->install($code);
             $events->record(new DomainEvent('system.module_installed', $code, 'system.module', $code));
@@ -114,9 +113,8 @@ final class ModuleLifecycleService
             return $state;
         }
 
-        $operation = new AuditOperation($code, $enabled ? 'modules.enable' : 'modules.disable', $actor);
         $eventCode = $enabled ? 'system.module_enabled' : 'system.module_disabled';
-        $this->events->execute($operation, function (TransactionalEventCollector $events) use ($code, $enabled, $eventCode): void {
+        $this->events->execute($actor, function (TransactionalEventCollector $events) use ($code, $enabled, $eventCode): void {
             $this->modules->setEnabled($code, $enabled);
             $events->record(new DomainEvent($eventCode, $code, 'system_module', $code, ['enabled' => $enabled]));
         });

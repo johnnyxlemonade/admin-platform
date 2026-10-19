@@ -12,7 +12,6 @@ use Lemonade\Admin\Editor\EditorDispatcher;
 use Lemonade\Admin\Editor\EditorRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Translations\Actions\TranslationsActionRegistrar;
 use Lemonade\Admin\System\Translations\DataGrid\TranslationsDataGrid;
@@ -49,7 +48,6 @@ final readonly class TranslationsModuleProvider implements ServiceProviderInterf
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.translations');
         $container->get(ViewResourceRegistry::class)->register('translations', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('translations');
-        $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(DataGridRegistry::class)->register($definition->code(), TranslationsDataGrid::class);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\System\Notifications;
 
-use Lemonade\Admin\Editor\AdminEditor\CustomViewBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\CustomViewBlock;
 use Lemonade\Admin\System\Notifications\Editor\NotificationsAdminEditorDefinitionFactory;
 use Lemonade\Framework\Routing\ControllerAction;
 use Lemonade\Framework\Routing\Router;

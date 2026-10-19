@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\Presentation;
 
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition;
-use Lemonade\Admin\Editor\AdminEditor\SectionBlock;
+use Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Field\TextareaField;
+use Lemonade\Admin\Editor\AdminEditor\Field\TextInputField;
+use Lemonade\Admin\Editor\AdminEditor\Layout\SectionBlock;
 use Lemonade\Admin\Presentation\AdminFileRenameModalDefinitionFactory;
 use Lemonade\Framework\Routing\ControllerAction;
 use Lemonade\Framework\Routing\Router;
@@ -24,14 +26,16 @@ final class AdminFileRenameModalDefinitionFactoryTest extends TestCase
             self::assertSame('admin.file.presentation', $editor->id());
             self::assertSame('/admin/files/cms.news/' . $usage . '/7/14/rename', $editor->form()->action());
             self::assertSame('edit', $editor->form()->actionKey());
-            self::assertSame('text', $fields['display_name']->type());
-            self::assertTrue($fields['display_name']->isRequired());
-            self::assertSame(['maxlength' => '255'], $fields['display_name']->inputAttributes());
-            self::assertSame('textarea', $fields['caption']->type());
-            self::assertFalse($fields['caption']->isRequired());
-            self::assertSame('admin.file_upload.caption', $fields['caption']->labelKey());
-            self::assertSame('admin.file_upload.caption_optional', $fields['caption']->helpKey());
-            self::assertSame(['maxlength' => '500', 'rows' => '3'], $fields['caption']->inputAttributes());
+            $displayName = $fields['display_name'];
+            $caption = $fields['caption'];
+            self::assertInstanceOf(TextInputField::class, $displayName);
+            self::assertTrue($displayName->isRequired());
+            self::assertSame(['maxlength' => '255'], $displayName->inputAttributes());
+            self::assertInstanceOf(TextareaField::class, $caption);
+            self::assertFalse($caption->isRequired());
+            self::assertSame('admin.file_upload.caption', $caption->labelTranslationKey());
+            self::assertSame('admin.file_upload.caption_optional', $caption->helpTranslationKey());
+            self::assertSame(['maxlength' => '500', 'rows' => '3'], $caption->inputAttributes());
         }
     }
 

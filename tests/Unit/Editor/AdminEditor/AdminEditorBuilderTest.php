@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\Editor\AdminEditor;
 
 use InvalidArgumentException;
+use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorBuilder;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFormDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorTab;
-use Lemonade\Admin\Editor\AdminEditor\CustomViewBlock;
-use Lemonade\Admin\Editor\AdminEditor\SectionBlock;
+use Lemonade\Admin\Editor\AdminEditor\Field\Field;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorTab;
+use Lemonade\Admin\Editor\AdminEditor\Layout\CustomViewBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\SectionBlock;
 use PHPUnit\Framework\TestCase;
 
 final class AdminEditorBuilderTest extends TestCase
 {
     public function testItBuildsSimpleEditorWithoutTabs(): void
     {
-        $section = new SectionBlock('details', [AdminEditorFieldDefinition::text('name', 'Name')], 'Details');
+        $section = new SectionBlock('details', [Field::text('name', 'Name')], 'Details');
         $editor = AdminEditorBuilder::create('system.languages')->form($this->form())->section($section)->build();
 
         self::assertSame('system.languages', $editor->id());
@@ -59,7 +59,7 @@ final class AdminEditorBuilderTest extends TestCase
         AdminEditorBuilder::create('cms.news')
             ->form($this->form())
             ->tab(new AdminEditorTab('content', 'Content', [$section], default: true))
-            ->sidebar(new \Lemonade\Admin\Editor\AdminEditor\AdminEditorSidebarDefinition([
+            ->sidebar(new \Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorSidebarDefinition([
                 new SectionBlock('publication', [], 'Publication'),
             ]))
             ->build();
@@ -67,7 +67,7 @@ final class AdminEditorBuilderTest extends TestCase
 
     public function testSectionHoldsFieldAndCustomViewKeepsExplicitContext(): void
     {
-        $field = AdminEditorFieldDefinition::text('title', 'Title');
+        $field = Field::text('title', 'Title');
         $custom = new CustomViewBlock('news::editor.content', ['articleId' => 42]);
         $section = new SectionBlock('content', [$field, $custom], 'Content');
 
@@ -76,8 +76,8 @@ final class AdminEditorBuilderTest extends TestCase
         self::assertSame(['articleId' => 42], $custom->context());
     }
 
-    private function form(): AdminEditorFormDefinition
+    private function form(): AdminActionFormDefinition
     {
-        return new AdminEditorFormDefinition('editor-form', '/admin/example', csrf: false);
+        return new AdminActionFormDefinition('editor-form', '/admin/example', csrf: false);
     }
 }

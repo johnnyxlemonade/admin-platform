@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\System\Languages;
 
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorStatusVariant;
-use Lemonade\Admin\Editor\AdminEditor\FieldGroupBlock;
+use Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorStatusVariant;
+use Lemonade\Admin\Editor\AdminEditor\Field\NativeInputType;
+use Lemonade\Admin\Editor\AdminEditor\Field\SelectField;
+use Lemonade\Admin\Editor\AdminEditor\Field\StatusDisplayField;
+use Lemonade\Admin\Editor\AdminEditor\Field\TextInputField;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldGroupBlock;
 use Lemonade\Admin\System\Languages\Editor\LanguagesAdminEditorDefinitionFactory;
 use Lemonade\Admin\System\Languages\Models\LanguageRecord;
 use Lemonade\Framework\Routing\ControllerAction;
@@ -26,11 +30,13 @@ final class LanguagesAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame('create', $editor->form()->actionKey());
         self::assertTrue($editor->form()->novalidate());
         self::assertSame([], $editor->tabs());
-        self::assertSame('select', $fields['preset']->type());
+        self::assertInstanceOf(SelectField::class, $fields['preset']);
         self::assertSame('Czech — čeština', $fields['preset']->selectOptions()['cs']);
-        self::assertSame('text', $fields['code']->type());
+        self::assertInstanceOf(TextInputField::class, $fields['code']);
+        self::assertSame(NativeInputType::Text, $fields['code']->inputType());
         self::assertTrue($fields['code']->isRequired());
-        self::assertSame('number', $fields['sort_order']->type());
+        self::assertInstanceOf(TextInputField::class, $fields['sort_order']);
+        self::assertSame(NativeInputType::Number, $fields['sort_order']->inputType());
         self::assertSame([
             ['preset' => 12],
             ['name' => 12],
@@ -46,7 +52,7 @@ final class LanguagesAdminEditorDefinitionFactoryTest extends TestCase
         self::assertArrayNotHasKey('native_name', $fields);
         self::assertArrayNotHasKey('enabled', $fields);
         self::assertArrayHasKey('preset', $fields);
-        self::assertSame('text', $fields['code']->type());
+        self::assertInstanceOf(TextInputField::class, $fields['code']);
         self::assertTrue($fields['code']->isRequired());
     }
 
@@ -61,10 +67,11 @@ final class LanguagesAdminEditorDefinitionFactoryTest extends TestCase
             ['code' => 6, 'enabled' => 6],
             ['sort_order' => 4],
         ], $this->modalLayoutRows($editor));
+        self::assertInstanceOf(TextInputField::class, $fields['code']);
         self::assertTrue($fields['code']->isReadonly());
-        self::assertSame('status_display', $fields['enabled']->type());
-        self::assertSame('languages.list.disabled', $fields['enabled']->configuredDisplayValueKey());
-        self::assertSame(AdminEditorStatusVariant::Muted, $fields['enabled']->displayStatusVariant());
+        self::assertInstanceOf(StatusDisplayField::class, $fields['enabled']);
+        self::assertSame('languages.list.disabled', $fields['enabled']->displayTranslationKey());
+        self::assertSame(AdminEditorStatusVariant::Muted, $fields['enabled']->variant());
     }
 
     public function testModalDefinitionUsesTheStandardEditActionTransport(): void
@@ -78,7 +85,7 @@ final class LanguagesAdminEditorDefinitionFactoryTest extends TestCase
         self::assertCount(3, $editor->blocks());
     }
 
-    /** @return array<string, \Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition> */
+    /** @return array<string, \Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition> */
     private function modalFields(AdminEditorDefinition $editor): array
     {
         $fields = [];

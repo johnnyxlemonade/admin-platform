@@ -6,7 +6,6 @@ namespace Lemonade\Admin\Auth\Http\Controller;
 
 use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\AuthenticationThrottler;
 use Lemonade\Admin\Auth\AuthPageRenderer;
@@ -111,12 +110,12 @@ final readonly class MfaController
             $limit = $this->throttler->failedMfa($request, $challenge['userId']);
             if (!$limit->allowed()) {
                 $this->challenges->clear();
-                $this->auditFailure('system.authentication.mfa_throttled', 'auth.mfa.throttled', 'rate_limited');
+                $this->auditFailure('system.authentication.mfa_throttled', 'rate_limited');
 
                 return $this->throttledChallenge($request, $limit->retryAfterSeconds());
             }
 
-            $this->auditFailure('system.authentication.mfa_failed', 'auth.mfa.failed', 'invalid_code');
+            $this->auditFailure('system.authentication.mfa_failed', 'invalid_code');
 
             return $this->failedChallenge($request);
         }
@@ -175,12 +174,12 @@ final readonly class MfaController
             $limit = $this->throttler->failedMfa($request, $challenge['userId']);
             if (!$limit->allowed()) {
                 $this->challenges->clear();
-                $this->auditFailure('system.authentication.mfa_throttled', 'auth.mfa.throttled', 'rate_limited');
+                $this->auditFailure('system.authentication.mfa_throttled', 'rate_limited');
 
                 return $this->throttledEnrollment($request, $challenge['userId'], $limit->retryAfterSeconds());
             }
 
-            $this->auditFailure('system.authentication.mfa_failed', 'auth.mfa.failed', 'invalid_code');
+            $this->auditFailure('system.authentication.mfa_failed', 'invalid_code');
 
             return $this->renderEnrollment($request, $challenge['userId'], false, false, 'auth.mfa.errors.invalid', 422);
         }
@@ -407,7 +406,7 @@ final readonly class MfaController
     /**
      * Zapise anonymni MFA failure bez identifikatoru nebo TOTP hodnoty
      */
-    private function auditFailure(string $eventCode, string $operation, string $reason): void
+    private function auditFailure(string $eventCode, string $reason): void
     {
         $this->audit->record(
             new DomainEvent(
@@ -417,11 +416,7 @@ final readonly class MfaController
                 'totp',
                 ['method' => 'totp', 'reason' => $reason],
             ),
-            new AuditOperation(
-                'system.authentication',
-                $operation,
-                AuditActor::anonymous('admin-auth'),
-            ),
+            AuditActor::anonymous('admin-auth'),
         );
     }
 

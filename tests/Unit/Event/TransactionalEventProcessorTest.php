@@ -7,7 +7,6 @@ namespace Lemonade\Admin\Tests\Unit\Event;
 use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogService;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\DomainEventDispatcher;
 use Lemonade\Admin\Event\DomainEventListenerInterface;
@@ -43,7 +42,7 @@ final class TransactionalEventProcessorTest extends TestCase
         $dispatcher->listen($listener);
         $processor = $this->processor($connection, $dispatcher);
 
-        $result = $processor->execute($this->operation(), function (TransactionalEventCollector $events) use ($connection): int {
+        $result = $processor->execute($this->actor(), function (TransactionalEventCollector $events) use ($connection): int {
             $connection->steps[] = 'mutation';
             $events->record(new DomainEvent('system.users.updated', 'system.users', 'user', '2'));
 
@@ -76,7 +75,7 @@ final class TransactionalEventProcessorTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         try {
-            $processor->execute($this->operation(), function (TransactionalEventCollector $events) use ($connection): void {
+            $processor->execute($this->actor(), function (TransactionalEventCollector $events) use ($connection): void {
                 $connection->steps[] = 'mutation';
                 $events->record(new DomainEvent('system.users.updated', 'system.users', 'user', '2'));
             });
@@ -99,7 +98,7 @@ final class TransactionalEventProcessorTest extends TestCase
             }
         });
         $writer = new class implements AuditLogWriterInterface {
-            public function record(DomainEvent $event, AuditOperation $operation): void
+            public function record(DomainEvent $event, AuditActor $actor): void
             {
                 throw new RuntimeException('Audit writer unavailable.');
             }
@@ -108,7 +107,7 @@ final class TransactionalEventProcessorTest extends TestCase
 
         $this->expectExceptionMessage('Audit writer unavailable.');
         try {
-            $processor->execute($this->operation(), function (TransactionalEventCollector $events) use ($connection): void {
+            $processor->execute($this->actor(), function (TransactionalEventCollector $events) use ($connection): void {
                 $connection->steps[] = 'mutation';
                 $events->record(new DomainEvent('system.users.updated', 'system.users', 'user', '2'));
             });
@@ -131,7 +130,7 @@ final class TransactionalEventProcessorTest extends TestCase
         });
         $processor = $this->processor($connection, $dispatcher);
 
-        $result = $processor->execute($this->operation(), function (TransactionalEventCollector $events) use ($connection): string {
+        $result = $processor->execute($this->actor(), function (TransactionalEventCollector $events) use ($connection): string {
             $connection->steps[] = 'mutation';
             $events->record(new DomainEvent('system.users.updated', 'system.users', 'user', '2'));
 
@@ -149,12 +148,26 @@ final class TransactionalEventProcessorTest extends TestCase
 
         $this->expectException(MissingAuditEventException::class);
         try {
-            $processor->execute($this->operation(), function () use ($connection): void {
+            $processor->execute($this->actor(), function () use ($connection): void {
                 $connection->steps[] = 'mutation';
             });
         } finally {
             self::assertSame(['mutation', 'rollback'], $connection->steps);
         }
+    }
+
+    public function testExplicitNoOpCommitsWithoutAuditOrDispatch(): void
+    {
+        $connection = new TransactionConnection(false);
+        $dispatcher = new DomainEventDispatcher($this->createMock(LoggerInterface::class));
+        $processor = $this->processor($connection, $dispatcher);
+
+        $processor->execute($this->actor(), function (TransactionalEventCollector $events) use ($connection): void {
+            $connection->steps[] = 'checked';
+            $events->noOp();
+        });
+
+        self::assertSame(['checked', 'commit'], $connection->steps);
     }
 
     private function processor(TransactionConnection $connection, DomainEventDispatcher $dispatcher, AuditLogWriterInterface|null $writer = null): TransactionalEventProcessor
@@ -164,9 +177,9 @@ final class TransactionalEventProcessorTest extends TestCase
         return new TransactionalEventProcessor($database, $writer ?? new AuditLogService($database), $dispatcher);
     }
 
-    private function operation(): AuditOperation
+    private function actor(): AuditActor
     {
-        return new AuditOperation('system.users', 'users.test', AuditActor::user(1));
+        return AuditActor::user(1);
     }
 }
 

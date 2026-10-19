@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\DataGrid;
 
 use InvalidArgumentException;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFormDefinition;
+use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
 use Lemonade\Admin\Icon\AdminIcon;
 
 /**
@@ -22,7 +22,7 @@ final readonly class DataGridPrimaryAction
         private ?string $href = null,
         private ?string $modalUrl = null,
         private ?string $modalSize = null,
-        private ?AdminEditorFormDefinition $actionForm = null,
+        private ?AdminActionFormDefinition $actionForm = null,
     ) {
         if ($actionForm !== null) {
             if ($href !== null || $modalUrl !== null || $modalSize !== null) {
@@ -44,7 +44,7 @@ final readonly class DataGridPrimaryAction
     /**
      * Vytvori hlavni akci nad existujicim standardnim editor action formularem
      */
-    public static function action(string $translationKey, AdminIcon $icon, AdminEditorFormDefinition $form): self
+    public static function action(string $translationKey, AdminIcon $icon, AdminActionFormDefinition $form): self
     {
         return new self(
             translationKey: $translationKey,
@@ -96,7 +96,7 @@ final readonly class DataGridPrimaryAction
     /**
      * Vraci standardni editor action formular, pokud akce neni odkazem
      */
-    public function actionForm(): ?AdminEditorFormDefinition
+    public function actionForm(): ?AdminActionFormDefinition
     {
         return $this->actionForm;
     }

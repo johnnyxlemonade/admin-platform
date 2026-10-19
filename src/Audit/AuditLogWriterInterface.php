@@ -14,5 +14,5 @@ interface AuditLogWriterInterface
     /**
      * Zapise auditni udalost
      */
-    public function record(DomainEvent $event, AuditOperation $operation): void;
+    public function record(DomainEvent $event, AuditActor $actor): void;
 }

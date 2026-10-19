@@ -11,7 +11,6 @@ use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
 use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use PHPUnit\Framework\TestCase;
 
@@ -33,15 +32,13 @@ final class AdminModuleRegistryTest extends TestCase
         self::assertNotContains('destinationParameters', $methods);
     }
 
-    public function testItResolvesAnExplicitAdminRouteSegmentToTheCoreModule(): void
+    public function testItResolvesAnExplicitAdminRouteSegment(): void
     {
         $definition = $this->definition('system.users', 'users');
-        $core = new ModuleRegistry();
         $admin = $this->adminRegistry();
-        $core->register($definition);
         $admin->register($definition);
 
-        self::assertSame($definition, (new AdminModuleRouteResolver($admin, $core))->resolve('users'));
+        self::assertSame($definition, (new AdminModuleRouteResolver($admin))->resolve('users'));
     }
 
     public function testItRejectsDuplicateRouteSegments(): void
@@ -58,18 +55,16 @@ final class AdminModuleRegistryTest extends TestCase
      */
     public function testItResolvesManagementRouteNamesFromMetadataNavigationGroup(): void
     {
-        $core = new ModuleRegistry();
         $admin = $this->adminRegistry();
         foreach ([
             $this->definition('custom.users', 'users', AdminNavigationGroup::System),
             $this->definition('custom.news', 'news', AdminNavigationGroup::Content),
             $this->definition('custom.settings', 'settings', AdminNavigationGroup::Settings),
         ] as $definition) {
-            $core->register($definition);
             $admin->register($definition);
         }
 
-        $routes = new AdminModuleRouteResolver($admin, $core);
+        $routes = new AdminModuleRouteResolver($admin);
 
         self::assertSame('admin.system.module.index', $routes->managementRouteName('users', 'index'));
         self::assertSame('admin.content.module.edit', $routes->managementRouteName('news', 'edit'));

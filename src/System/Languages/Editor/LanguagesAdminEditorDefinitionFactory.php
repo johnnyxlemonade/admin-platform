@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Languages\Editor;
 
+use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorBuilder;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFormDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorStatusVariant;
-use Lemonade\Admin\Editor\AdminEditor\FieldColumn;
-use Lemonade\Admin\Editor\AdminEditor\FieldGroupBlock;
+use Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorStatusVariant;
+use Lemonade\Admin\Editor\AdminEditor\Field\Field;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldColumn;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldGroupBlock;
 use Lemonade\Admin\System\Languages\LanguagePresetCatalog;
 use Lemonade\Admin\System\Languages\Models\LanguageRecord;
 use Lemonade\Framework\Routing\UrlGenerator;
@@ -31,7 +31,7 @@ final readonly class LanguagesAdminEditorDefinitionFactory
         $actionUrl = $this->urls->route(name: 'admin.system.module.ajax.create', params: ['module' => 'languages']);
 
         return AdminEditorBuilder::create('system.languages.modal-create')
-            ->form(new AdminEditorFormDefinition(
+            ->form(new AdminActionFormDefinition(
                 id: 'languages-modal-create-form',
                 action: $formAction,
                 actionUrl: $actionUrl,
@@ -40,7 +40,7 @@ final readonly class LanguagesAdminEditorDefinitionFactory
             ))
             ->block(new FieldGroupBlock([
                 new FieldColumn(
-                    AdminEditorFieldDefinition::select('preset', labelKey: 'languages.fields.preset')
+                    Field::select('preset', labelKey: 'languages.fields.preset')
                         ->options(LanguagePresetCatalog::selectOptions())
                         ->help('', 'languages.editor.preset_help')
                         ->attributes([
@@ -56,7 +56,7 @@ final readonly class LanguagesAdminEditorDefinitionFactory
             ]))
             ->block(new FieldGroupBlock([
                 new FieldColumn(
-                    AdminEditorFieldDefinition::text('name', labelKey: 'languages.fields.name')
+                    Field::text('name', labelKey: 'languages.fields.name')
                         ->required()
                         ->attributes(['maxlength' => '100']),
                     md: 12,
@@ -64,13 +64,13 @@ final readonly class LanguagesAdminEditorDefinitionFactory
             ]))
             ->block(new FieldGroupBlock([
                 new FieldColumn(
-                    AdminEditorFieldDefinition::text('code', labelKey: 'languages.fields.code')
+                    Field::text('code', labelKey: 'languages.fields.code')
                         ->required()
                         ->attributes(['maxlength' => '35']),
                     md: 6,
                 ),
                 new FieldColumn(
-                    AdminEditorFieldDefinition::number('sort_order', labelKey: 'languages.fields.sort_order')
+                    Field::number('sort_order', labelKey: 'languages.fields.sort_order')
                         ->required()
                         ->attributes(['step' => '1']),
                     md: 6,
@@ -95,7 +95,7 @@ final readonly class LanguagesAdminEditorDefinitionFactory
         $isEnabled = $language->enabled();
 
         return AdminEditorBuilder::create('system.languages.modal')
-            ->form(new AdminEditorFormDefinition(
+            ->form(new AdminActionFormDefinition(
                 id: 'languages-modal-editor-form',
                 action: $formAction,
                 actionUrl: $actionUrl,
@@ -104,7 +104,7 @@ final readonly class LanguagesAdminEditorDefinitionFactory
             ))
             ->block(new FieldGroupBlock([
                 new FieldColumn(
-                    AdminEditorFieldDefinition::text('name', labelKey: 'languages.fields.name')
+                    Field::text('name', labelKey: 'languages.fields.name')
                         ->required()
                         ->attributes(['maxlength' => '100']),
                     md: 12,
@@ -112,13 +112,13 @@ final readonly class LanguagesAdminEditorDefinitionFactory
             ]))
             ->block(new FieldGroupBlock([
                 new FieldColumn(
-                    AdminEditorFieldDefinition::text('code', labelKey: 'languages.fields.code')
+                    Field::text('code', labelKey: 'languages.fields.code')
                         ->readonly()
                         ->help('', 'languages.editor.code_read_only'),
                     md: 6,
                 ),
                 new FieldColumn(
-                    AdminEditorFieldDefinition::statusDisplay(
+                    Field::statusDisplay(
                         name: 'enabled',
                         labelKey: 'languages.fields.enabled',
                         variant: $isEnabled ? AdminEditorStatusVariant::Success : AdminEditorStatusVariant::Muted,
@@ -130,7 +130,7 @@ final readonly class LanguagesAdminEditorDefinitionFactory
             ]))
             ->block(new FieldGroupBlock([
                 new FieldColumn(
-                    AdminEditorFieldDefinition::number('sort_order', labelKey: 'languages.fields.sort_order')
+                    Field::number('sort_order', labelKey: 'languages.fields.sort_order')
                         ->required()
                         ->attributes(['step' => '1']),
                     md: 4,

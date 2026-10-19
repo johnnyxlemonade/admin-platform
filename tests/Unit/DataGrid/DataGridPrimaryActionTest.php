@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\DataGrid;
 
+use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
 use Lemonade\Admin\DataGrid\DataGridPrimaryAction;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFormDefinition;
 use Lemonade\Admin\Icon\AdminIcon;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +19,7 @@ final class DataGridPrimaryActionTest extends TestCase
      */
     public function testActionUsesExistingEditorFormDefinition(): void
     {
-        $form = new AdminEditorFormDefinition(
+        $form = new AdminActionFormDefinition(
             id: 'news-create-draft-form',
             action: '/admin/content/news/create',
             actionUrl: '/admin/content/news/ajax',

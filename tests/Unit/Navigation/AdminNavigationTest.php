@@ -20,7 +20,6 @@ use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Definition\ModuleKind;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestDefinition;
 use Lemonade\Admin\Modules\Persistence\ModuleModel;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Admin\Modules\State\ModuleStateResolver;
 use Lemonade\Admin\Navigation\AdminNavigation;
@@ -173,7 +172,7 @@ final class AdminNavigationTest extends TestCase
         ] as $definition) {
             $registry = new AdminModuleRegistry($this->navigationGroups());
             $registry->register($definition);
-            $metadata = (new AdminModuleRouteResolver($registry, new ModuleRegistry()))
+            $metadata = (new AdminModuleRouteResolver($registry))
                 ->metadata($definition->adminMetadata()->routeSegment());
             $item = new AdminNavigationItem(
                 key: 'module:' . $definition->code(),
@@ -224,7 +223,7 @@ final class AdminNavigationTest extends TestCase
             new ModuleManager($this->states($definitions, $database)),
             $authorization,
             $adminModules,
-            new AdminModuleRouteResolver($adminModules, new ModuleRegistry()),
+            new AdminModuleRouteResolver($adminModules),
             new AdminModuleAccessPolicy($authorization, $principal),
             $groups,
             new class implements TranslatorInterface {

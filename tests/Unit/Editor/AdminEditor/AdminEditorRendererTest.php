@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Editor\AdminEditor;
 
+use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
+use Lemonade\Admin\Editor\AdminEditor\AdminEditorBlock;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorBuilder;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFormDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderContext;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderer;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorTab;
-use Lemonade\Admin\Editor\AdminEditor\FieldColumn;
-use Lemonade\Admin\Editor\AdminEditor\SectionBlock;
+use Lemonade\Admin\Editor\AdminEditor\Field\Field;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorTab;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldColumn;
+use Lemonade\Admin\Editor\AdminEditor\Layout\SectionBlock;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderer;
 use PHPUnit\Framework\TestCase;
 
 final class AdminEditorRendererTest extends TestCase
@@ -19,8 +20,8 @@ final class AdminEditorRendererTest extends TestCase
     public function testItRendersFormLevelValidationError(): void
     {
         $editor = AdminEditorBuilder::create('example-editor')
-            ->form(new AdminEditorFormDefinition('example-form', '/admin/example', csrf: false))
-            ->section(new SectionBlock('details', [AdminEditorFieldDefinition::text('name', 'Name')], 'Details'))
+            ->form(new AdminActionFormDefinition('example-form', '/admin/example', csrf: false))
+            ->section(new SectionBlock('details', [Field::text('name', 'Name')], 'Details'))
             ->build();
 
         $html = (new AdminEditorRenderer())->render($editor, new AdminEditorRenderContext(errors: ['_form' => 'Unable to save']));
@@ -31,8 +32,8 @@ final class AdminEditorRendererTest extends TestCase
     public function testUntitledSectionDoesNotReferenceMissingHeading(): void
     {
         $editor = AdminEditorBuilder::create('example-editor')
-            ->form(new AdminEditorFormDefinition('example-form', '/admin/example', csrf: false))
-            ->section(new SectionBlock('details', [AdminEditorFieldDefinition::text('name', 'Name')]))
+            ->form(new AdminActionFormDefinition('example-form', '/admin/example', csrf: false))
+            ->section(new SectionBlock('details', [Field::text('name', 'Name')]))
             ->build();
 
         $html = (new AdminEditorRenderer())->render($editor, new AdminEditorRenderContext());
@@ -43,9 +44,9 @@ final class AdminEditorRendererTest extends TestCase
     public function testTabsUseUniqueIdsAndSemanticControlRelationships(): void
     {
         $editor = AdminEditorBuilder::create('example-editor')
-            ->form(new AdminEditorFormDefinition('example-form', '/admin/example', csrf: false))
+            ->form(new AdminActionFormDefinition('example-form', '/admin/example', csrf: false))
             ->tab(new AdminEditorTab('details', 'Details', [
-                new SectionBlock('details', [AdminEditorFieldDefinition::text('name', 'Name')], 'Details'),
+                new SectionBlock('details', [Field::text('name', 'Name')], 'Details'),
             ], default: true))
             ->build();
 
@@ -62,8 +63,25 @@ final class AdminEditorRendererTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         new FieldColumn(
-            field: AdminEditorFieldDefinition::text('name', 'Name'),
+            field: Field::text('name', 'Name'),
             md: 13,
         );
+    }
+
+    /**
+     * Overi explicitni selhani pro neznamy block kontrakt
+     */
+    public function testUnknownBlockIsNotSilentlyIgnored(): void
+    {
+        $block = new readonly class implements AdminEditorBlock {};
+        $editor = AdminEditorBuilder::create('example-editor')
+            ->form(new AdminActionFormDefinition('example-form', '/admin/example', csrf: false))
+            ->block($block)
+            ->build();
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Unsupported AdminEditor block');
+
+        (new AdminEditorRenderer())->render($editor, new AdminEditorRenderContext());
     }
 }

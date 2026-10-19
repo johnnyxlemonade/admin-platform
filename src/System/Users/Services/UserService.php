@@ -6,7 +6,6 @@ namespace Lemonade\Admin\System\Users\Services;
 
 use InvalidArgumentException;
 use Lemonade\Admin\Audit\AuditActor;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Auth\CurrentUserProvider;
 use Lemonade\Admin\Auth\LocalAuthenticationProvider;
@@ -230,7 +229,7 @@ final class UserService
             return;
         }
 
-        $this->events->execute(new AuditOperation('system.users', 'users.editor.save', AuditActor::user($actor->id())), function (TransactionalEventCollector $collector) use ($id, $input, $localPassword, $roleId, $roleChanged, $normalizedOverrides, $events): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $collector) use ($id, $input, $localPassword, $roleId, $roleChanged, $normalizedOverrides, $events): void {
             if (!$this->users->updateEditorVersioned($id, $input->version(), $input)) {
                 throw new UserRecordConflictException('User record version no longer matches.');
             }
@@ -277,7 +276,7 @@ final class UserService
             'last_name' => $input->lastName(),
             'email' => $input->email(),
         ]);
-        $this->events->execute(new AuditOperation('system.users', 'users.editor.create', AuditActor::user($actor->id())), function (TransactionalEventCollector $collector) use ($input, &$id, $localPassword, $roleId, $displayName): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $collector) use ($input, &$id, $localPassword, $roleId, $displayName): void {
             $id = $this->users->createUser(
                 $input->firstName(),
                 $input->lastName(),
@@ -320,7 +319,7 @@ final class UserService
         }
 
         $id = $this->events->execute(
-            new AuditOperation('system.users', 'users.installer.create', AuditActor::system('installer')),
+            AuditActor::system('installer'),
             function (TransactionalEventCollector $events) use ($email, $password): int {
                 $roleId = $this->roles->ensureRootRole();
                 $id = $this->users->createUser(
@@ -360,7 +359,7 @@ final class UserService
         }
 
         $event = $this->event($active ? 'system.users.activated' : 'system.users.deactivated', $id, ['user' => $this->displayName($existing)]);
-        $this->events->execute(new AuditOperation('system.users', $active ? 'users.activate' : 'users.deactivate', AuditActor::user($actorId)), function (TransactionalEventCollector $collector) use ($active, $id, $event): void {
+        $this->events->execute(AuditActor::user($actorId), function (TransactionalEventCollector $collector) use ($active, $id, $event): void {
             $this->users->updateActive($id, $active);
             $collector->record($event);
         });
@@ -386,7 +385,7 @@ final class UserService
         }
 
         $event = $this->event('system.users.deleted', $id, ['user' => $this->displayName($existing)]);
-        $this->events->execute(new AuditOperation('system.users', 'users.delete', AuditActor::user($actorId)), function (TransactionalEventCollector $collector) use ($id, $event): void {
+        $this->events->execute(AuditActor::user($actorId), function (TransactionalEventCollector $collector) use ($id, $event): void {
             if (!$this->users->softDelete($id)) {
                 throw new RuntimeException('User soft delete failed.');
             }
@@ -411,7 +410,7 @@ final class UserService
         }
 
         $event = $this->event('system.users.restored', $id, ['user' => $this->displayName($existing)]);
-        $this->events->execute(new AuditOperation('system.users', 'users.restore', AuditActor::user($actorId)), function (TransactionalEventCollector $collector) use ($id, $event): void {
+        $this->events->execute(AuditActor::user($actorId), function (TransactionalEventCollector $collector) use ($id, $event): void {
             if (!$this->users->restoreUser($id)) {
                 throw new RuntimeException('User restore failed.');
             }

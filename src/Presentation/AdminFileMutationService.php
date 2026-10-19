@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Presentation;
 
 use Lemonade\Admin\Audit\AuditActor;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\TransactionalEventCollector;
 use Lemonade\Admin\Event\TransactionalEventProcessor;
@@ -69,11 +68,10 @@ final readonly class AdminFileMutationService
         $actor = $this->actors->requireLocalUser();
         $replacement = $existing !== null;
         $oldSourceVersion = $existing === null ? null : $this->sourceVersion($existing);
-        $operation = $replacement ? 'files.replace' : 'files.upload';
         $eventCode = $replacement ? 'system.files.replaced' : 'system.files.uploaded';
 
         return $this->events->execute(
-            new AuditOperation($module, $operation, AuditActor::user($actor->id())),
+            AuditActor::user($actor->id()),
             function (TransactionalEventCollector $events) use ($module, $entityId, $usage, $assetId, $sourceVersion, $metadata, $replacement, $existing, $oldSourceVersion, $eventCode): int {
                 $fileId = $replacement
                     ? (int) $existing['id']
@@ -121,7 +119,7 @@ final readonly class AdminFileMutationService
 
         try {
             return $this->events->execute(
-                new AuditOperation($module, 'files.upload', AuditActor::user($actor->id())),
+                AuditActor::user($actor->id()),
                 function (TransactionalEventCollector $events) use ($module, $entityId, $usage, $originalFilename, $extension, $uploaded, $existing): int {
                     if ($existing !== null) {
                         if ($existing['kind'] !== 'file') {
@@ -189,7 +187,7 @@ final readonly class AdminFileMutationService
         $actor = $this->actors->requireLocalUser();
 
         return $this->events->execute(
-            new AuditOperation($module, 'files.upload', AuditActor::user($actor->id())),
+            AuditActor::user($actor->id()),
             function (TransactionalEventCollector $events) use ($module, $entityId, $usage, $assetId, $sourceVersion, $metadata): int {
                 $fileId = $this->files->createIdentity($module, $entityId, $usage, 'image');
                 $this->files->updateImageSource($fileId, $assetId, $sourceVersion, $metadata);
@@ -234,7 +232,8 @@ final readonly class AdminFileMutationService
         $actor = $this->actors->requireLocalUser();
         $this->removeOne(
             $file,
-            new AuditOperation('system.media', 'files.remove', AuditActor::user($actor->id())),
+            AuditActor::user($actor->id()),
+            'system.media',
         );
     }
 
@@ -249,7 +248,7 @@ final readonly class AdminFileMutationService
         }
 
         $actor = $this->actors->requireLocalUser();
-        $this->removeOne($file, new AuditOperation($module, 'files.remove', AuditActor::user($actor->id())));
+        $this->removeOne($file, AuditActor::user($actor->id()), $module);
     }
 
     /**
@@ -269,7 +268,7 @@ final readonly class AdminFileMutationService
 
         $actor = $this->actors->requireLocalUser();
         $this->events->execute(
-            new AuditOperation($module, 'files.rename', AuditActor::user($actor->id())),
+            AuditActor::user($actor->id()),
             function (TransactionalEventCollector $events) use ($module, $entityId, $usage, $fileId, $displayName, $caption): void {
                 $this->files->updatePresentation($fileId, $displayName, $caption);
                 $events->record(new DomainEvent('system.files.renamed', $module, 'system_file', (string) $fileId, [
@@ -309,7 +308,7 @@ final readonly class AdminFileMutationService
 
         $actor = $this->actors->requireLocalUser();
         $this->events->execute(
-            new AuditOperation($module, 'files.reorder', AuditActor::user($actor->id())),
+            AuditActor::user($actor->id()),
             function (TransactionalEventCollector $events) use ($module, $entityId, $usage, $fileIds): void {
                 $this->files->reorder($module, $entityId, $usage, $fileIds);
                 $events->record(new DomainEvent('system.files.reordered', $module, 'system_file', (string) $entityId, [
@@ -338,7 +337,7 @@ final readonly class AdminFileMutationService
         $actor = $this->actors->requireLocalUser();
 
         return $this->events->execute(
-            new AuditOperation('system.media', 'files.remove', AuditActor::user($actor->id())),
+            AuditActor::user($actor->id()),
             function (TransactionalEventCollector $events) use ($fileIds, $files): int {
                 $changed = 0;
                 foreach ($fileIds as $fileId) {
@@ -452,17 +451,17 @@ final readonly class AdminFileMutationService
      *
      * @param array<string,mixed> $file
      */
-    private function removeOne(array $file, AuditOperation $operation): void
+    private function removeOne(array $file, AuditActor $actor, string $moduleCode): void
     {
         $this->events->execute(
-            $operation,
-            function (TransactionalEventCollector $events) use ($file, $operation): void {
+            $actor,
+            function (TransactionalEventCollector $events) use ($file, $moduleCode): void {
                 $fileId = (int) $file['id'];
                 if (!$this->files->removeForManagement($fileId)) {
                     throw new \RuntimeException('File delete failed.');
                 }
                 $this->afterCommitDelete($file);
-                $events->record($this->removedEvent($file, $operation->moduleCode()));
+                $events->record($this->removedEvent($file, $moduleCode));
             },
         );
     }

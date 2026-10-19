@@ -6,7 +6,6 @@ namespace Lemonade\Admin\Auth;
 
 use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\Config\AdminAuthConfigDefinition;
 use Lemonade\Admin\Editor\Lock\EditorLockOwnerReleaserInterface;
 use Lemonade\Admin\Event\DomainEvent;
@@ -77,7 +76,7 @@ final readonly class AuthenticationService
         );
         $this->audit->record(
             new DomainEvent('system.authentication.login', 'system.authentication', 'user', (string) $user->id(), $mfa ? ['method' => 'local', 'mfa' => 'totp'] : ['method' => 'local']),
-            new AuditOperation('system.authentication', 'auth.login', AuditActor::user($user->id())),
+            AuditActor::user($user->id()),
         );
     }
 
@@ -107,7 +106,7 @@ final readonly class AuthenticationService
                 'method' => 'oidc',
                 'provider' => $providerKey,
             ]),
-            new AuditOperation('system.authentication', 'auth.login', AuditActor::user($userId)),
+            AuditActor::user($userId),
         );
     }
 
@@ -126,7 +125,7 @@ final readonly class AuthenticationService
                 : ['method' => 'oidc', 'provider' => $oidcLogoutContext['providerKey']];
             $this->audit->record(
                 new DomainEvent('system.authentication.logout', 'system.authentication', 'user', (string) $userId, $payload),
-                new AuditOperation('system.authentication', 'auth.logout', AuditActor::user($userId)),
+                AuditActor::user($userId),
             );
         }
         $this->session->remove(self::SESSION_USER_ID);

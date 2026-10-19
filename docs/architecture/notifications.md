@@ -12,7 +12,7 @@
 
 `NotificationPublicationService::publish()` ověří aktéra, permission, platnost a delegovatelnost zvolených rolí či cílových uživatelů, potom v jedné transakci uloží oznámení, snapshot publika a recipienty. `::update()` odmítne smazaný záznam, uloží text, nahradí publikum a resetuje display state před vytvořením aktuálních recipientů.
 
-`NotificationLifecycleService` provádí activate, deactivate, soft-delete, restore a reset display. Reset zobrazení odmítá smazané oznámení a mění pouze recipient state, ne obsah. Každá skutečná mutace má `AuditOperation` a domain event. `NotificationsResetDisplayAction` je chráněná `system.notifications.reset_display`; její DataGrid akce má potvrzení.
+`NotificationLifecycleService` provádí activate, deactivate, soft-delete, restore a reset display. Reset zobrazení odmítá smazané oznámení a mění pouze recipient state, ne obsah. Každá skutečná mutace předá `TransactionalEventProcessor` auditního actora a vytvoří explicitní domain event. `NotificationsResetDisplayAction` je chráněná `system.notifications.reset_display`; její DataGrid akce má potvrzení.
 
 ## Typický tok úpravy
 

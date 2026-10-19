@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\Auth;
 
 use DateTimeImmutable;
+use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Auth\Mfa\AdminMfaConfiguration;
 use Lemonade\Admin\Auth\Mfa\MfaAuthenticationService;
@@ -71,8 +71,8 @@ final class MfaAuthenticationServiceTest extends TestCase
         $events = [];
         $audit = $this->createMock(AuditLogWriterInterface::class);
         $audit->expects(self::exactly(4))->method('record')->willReturnCallback(
-            static function (DomainEvent $event, AuditOperation $operation) use (&$events): void {
-                $events[$event->code()] = [$event->payload(), $operation->actor()->userId()];
+            static function (DomainEvent $event, AuditActor $actor) use (&$events): void {
+                $events[$event->code()] = [$event->payload(), $actor->userId()];
             },
         );
         $connection = $this->createMock(ConnectionInterface::class);

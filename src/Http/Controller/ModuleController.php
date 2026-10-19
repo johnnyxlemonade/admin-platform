@@ -14,6 +14,7 @@ use Lemonade\Admin\Editor\Lock\EditorLockConflictMessageProviderInterface;
 use Lemonade\Admin\Editor\Lock\EditorLockException;
 use Lemonade\Admin\Editor\Lock\EditorLockManager;
 use Lemonade\Admin\Http\AdminResponseFactory;
+use Lemonade\Admin\Identity\LocalActorRequiredException;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
@@ -116,6 +117,8 @@ final readonly class ModuleController
                 $this->safeInput($request),
                 HttpStatusCode::UNPROCESSABLE_ENTITY->value,
             );
+        } catch (LocalActorRequiredException) {
+            return $this->responses->authorizationDenied($request);
         }
         if (!$outcome->isSaved()) {
             return $this->createPage(
@@ -167,6 +170,8 @@ final readonly class ModuleController
             return $exception->statusCode() === HttpStatusCode::FORBIDDEN
                 ? $this->responses->authorizationDenied($request)
                 : $this->responses->notFound($request);
+        } catch (LocalActorRequiredException) {
+            return $this->responses->authorizationDenied($request);
         }
         if (!$outcome->isSaved()) {
             return $this->editorPage(

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Notification;
 
 use Lemonade\Admin\Audit\AuditActor;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Authorization\AuthorizationDelegationPolicy;
 use Lemonade\Admin\Authorization\AuthorizationService;
@@ -35,7 +34,7 @@ final readonly class NotificationPublicationService
     {
         [$roles, $users] = $this->audience($actor, $roleIds, $userIds);
 
-        return $this->events->execute(new AuditOperation('system.notifications', 'notifications.publish', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($actor, $type, $title, $message, $roles, $users): int {
+        return $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($actor, $type, $title, $message, $roles, $users): int {
             $id = $this->notifications->createNotification($type, $title, $message, $actor->id());
             foreach ($roles as $role) {
                 $this->notifications->addRoleAudience($id, $role);
@@ -70,7 +69,7 @@ final readonly class NotificationPublicationService
             return;
         }
 
-        $this->events->execute(new AuditOperation('system.notifications', 'notifications.update', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $type, $title, $message, $roles, $users): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($id, $type, $title, $message, $roles, $users): void {
             if (!$this->notifications->updateNotification($id, $type, $title, $message)) {
                 throw new RuntimeException('notifications.validation.lifecycle_changed');
             }

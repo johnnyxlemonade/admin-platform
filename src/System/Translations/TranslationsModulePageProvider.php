@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\System\Translations;
 
 use Lemonade\Admin\DataGrid\DataGridIndexViewModel;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderContext;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
 use Lemonade\Admin\Editor\EditorLoaded;
 use Lemonade\Admin\Page\Contract\ModuleIndexPageProviderInterface;
 use Lemonade\Admin\Page\Contract\ModuleModalEditorPageProviderInterface;
@@ -79,13 +79,14 @@ final readonly class TranslationsModulePageProvider implements ModuleIndexPagePr
 
         /** @var array{id:int,locale:string,owner:string,group:string,key:string,source:string,effective:string,overrideValue:string|null,overridden:bool,missingSource:bool} $translation */
         return new ModulePage(
-            view: 'translations::modal-editor',
+            view: 'admin::components.admin-editor-modal',
             title: $this->translator->get('translations.editor.title'),
             data: [
                 'title' => $this->translator->get('translations.editor.title'),
                 'titleKey' => 'translations.editor.title',
                 'description' => $this->translator->get('translations.editor.description'),
                 'descriptionKey' => 'translations.editor.description',
+                'modalId' => 'translations-modal-editor',
                 'adminEditor' => $this->editorDefinitions->modal($translation),
                 'adminEditorContext' => new AdminEditorRenderContext(
                     values: $translation + ['value' => $translation['overrideValue'] ?? ''],

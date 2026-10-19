@@ -367,6 +367,11 @@ import { EventHelper } from "../core/lemonade-event-helper.js";
 
         static handleActionSuccess(event) {
             const instance = this.instanceFor(event.detail && event.detail.form);
+            if (event.target?.hasAttribute("data-lemonade-dirty-state-preserve")) {
+                instance?.updateDirty();
+
+                return;
+            }
             if (instance) {
                 instance.resetBaseline();
             }

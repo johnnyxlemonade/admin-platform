@@ -6,7 +6,6 @@ namespace Lemonade\Admin\Auth\Mfa;
 
 use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Framework\Database\Database;
@@ -63,7 +62,7 @@ final readonly class MfaAuthenticationService
      */
     public function enrolled(int $userId): void
     {
-        $this->event('system.authentication.mfa_enrolled', 'auth.mfa.enrolled', $userId);
+        $this->event('system.authentication.mfa_enrolled', $userId);
     }
 
     /**
@@ -71,7 +70,7 @@ final readonly class MfaAuthenticationService
      */
     public function disabled(int $userId): void
     {
-        $this->event('system.authentication.mfa_disabled', 'auth.mfa.disabled', $userId);
+        $this->event('system.authentication.mfa_disabled', $userId);
     }
 
     /**
@@ -81,7 +80,7 @@ final readonly class MfaAuthenticationService
     {
         $this->audit->record(
             new DomainEvent('system.authentication.mfa_reset', 'system.authentication', 'user', (string) $targetUserId, []),
-            new AuditOperation('system.authentication', 'auth.mfa.reset', AuditActor::user($actorUserId)),
+            AuditActor::user($actorUserId),
         );
     }
 
@@ -90,17 +89,17 @@ final readonly class MfaAuthenticationService
      */
     public function challengeFailed(int $userId): void
     {
-        $this->event('system.authentication.mfa_challenge_failed', 'auth.mfa.challenge_failed', $userId);
+        $this->event('system.authentication.mfa_challenge_failed', $userId);
     }
 
     /**
      * Zapise self-service MFA udalost se stejnym actorem i cilem
      */
-    private function event(string $code, string $operation, int $userId): void
+    private function event(string $code, int $userId): void
     {
         $this->audit->record(
             new DomainEvent($code, 'system.authentication', 'user', (string) $userId, []),
-            new AuditOperation('system.authentication', $operation, AuditActor::user($userId)),
+            AuditActor::user($userId),
         );
     }
 }

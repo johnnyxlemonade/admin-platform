@@ -9,16 +9,16 @@ use Lemonade\Framework\Validation\ValidationResult;
 /**
  * Zpracovava data potrebna pro administracni editor
  */
-final class EditorSaveOutcome
+final readonly class EditorSaveOutcome
 {
     /**
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
      * @param array<string, mixed> $input
      */
     private function __construct(
-        private readonly ?EditorSaveResult $result,
-        private readonly ?ValidationResult $validation,
-        private readonly array $input,
+        private ?EditorSaveResult $result,
+        private ?ValidationResult $validation,
+        private array $input,
     ) {}
 
     /**

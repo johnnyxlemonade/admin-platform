@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\System\Languages\Services;
 
 use Lemonade\Admin\Audit\AuditActor;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\TransactionalEventCollector;
@@ -55,7 +54,7 @@ final readonly class LanguageService
         }
 
         try {
-            return $this->events->execute(new AuditOperation('system.languages', 'languages.editor.create', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($code, $name, $enabled, $sortOrder): int {
+            return $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($code, $name, $enabled, $sortOrder): int {
                 $id = $this->languages->createLanguage($code, $name, $enabled, $sortOrder);
                 $this->assertEnabledDefaultExists();
                 $events->record(new DomainEvent('system.languages.created', 'system.languages', 'language', (string) $id, ['code' => $code, 'name' => $name]));
@@ -89,7 +88,7 @@ final readonly class LanguageService
             return;
         }
 
-        $this->events->execute(new AuditOperation('system.languages', 'languages.editor.save', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $name, $sortOrder, $changes, $language): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($id, $name, $sortOrder, $changes, $language): void {
             $this->languages->updateLanguage($id, $name, $sortOrder);
             $this->assertEnabledDefaultExists();
             $events->record(new DomainEvent(
@@ -117,8 +116,7 @@ final readonly class LanguageService
             throw new RuntimeException('languages.validation.default_cannot_be_disabled');
         }
         $eventCode = $enabled ? 'system.languages.enabled' : 'system.languages.disabled';
-        $operation = $enabled ? 'languages.enable' : 'languages.disable';
-        $this->events->execute(new AuditOperation('system.languages', $operation, AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $enabled, $eventCode, $language): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($id, $enabled, $eventCode, $language): void {
             $this->languages->updateEnabled($id, $enabled);
             $this->assertEnabledDefaultExists();
             $events->record(new DomainEvent(
@@ -144,7 +142,7 @@ final readonly class LanguageService
         if ($language->isDefault() && $this->languages->enabledDefaultCount() === 1) {
             return;
         }
-        $this->events->execute(new AuditOperation('system.languages', 'languages.set_default', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($id, $language): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($id, $language): void {
             $this->languages->clearDefaults();
             $this->languages->setDefault($id);
             $this->assertEnabledDefaultExists();

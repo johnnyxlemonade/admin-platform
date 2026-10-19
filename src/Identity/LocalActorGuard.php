@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Identity;
 
+use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 
@@ -21,5 +22,13 @@ final readonly class LocalActorGuard
         }
 
         return $user;
+    }
+
+    /**
+     * Vrati canonical auditni identitu lokalniho Admin uzivatele
+     */
+    public function requireAuditActor(): AuditActor
+    {
+        return AuditActor::user($this->requireLocalUser()->id());
     }
 }

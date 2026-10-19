@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Event;
 
+use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Framework\Database\Database;
 
 /**
@@ -27,28 +27,25 @@ final readonly class TransactionalEventProcessor
      * @param callable(TransactionalEventCollector):T $mutation
      * @return T
      */
-    public function execute(AuditOperation $operation, callable $mutation): mixed
+    public function execute(AuditActor $actor, callable $mutation): mixed
     {
-        /** @var array{result:T,events:non-empty-list<DomainEvent>} $outcome */
-        $outcome = $this->database->transaction(function () use ($operation, $mutation): array {
+        /** @var array{result:T,events:list<DomainEvent>} $outcome */
+        $outcome = $this->database->transaction(function () use ($actor, $mutation): array {
             $events = new TransactionalEventCollector();
             $result = $mutation($events);
 
-            if ($events->events() === []) {
+            if ($events->events() === [] && !$events->isNoOp()) {
                 throw new MissingAuditEventException('An audited operation must record at least one event.');
             }
             foreach ($events->events() as $event) {
-                if ($event->moduleCode() !== $operation->moduleCode()) {
-                    throw new \LogicException('An audit event module must match its operation.');
-                }
-                $this->audit->record($event, $operation);
+                $this->audit->record($event, $actor);
             }
 
             return ['result' => $result, 'events' => $events->events()];
         });
 
         foreach ($outcome['events'] as $event) {
-            $this->dispatcher->dispatch($event->withAuditActor($operation->actor()));
+            $this->dispatcher->dispatch($event->withAuditActor($actor));
         }
 
         return $outcome['result'];

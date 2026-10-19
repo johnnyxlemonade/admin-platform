@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Localization;
 
 use Lemonade\Admin\Audit\AuditActor;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\TransactionalEventCollector;
@@ -47,9 +46,8 @@ final readonly class TranslationOverrideService
         }
 
         $actor = $this->actor();
-        $operation = $existing === null ? 'translations.override.create' : 'translations.override.update';
         $event = $existing === null ? 'system.translations.override_created' : 'system.translations.override_updated';
-        $this->events->execute(new AuditOperation('system.translations', $operation, AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($locale, $group, $key, $value, $existing, $event): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($locale, $group, $key, $value, $existing, $event): void {
             if (!$this->overrides->saveValue($locale, $group, $key, $value)) {
                 throw new RuntimeException('translations.validation.override_not_saved');
             }
@@ -122,7 +120,7 @@ final readonly class TranslationOverrideService
         }
 
         $actor = $this->actor();
-        $this->events->execute(new AuditOperation('system.translations', 'translations.override.remove', AuditActor::user($actor->id())), function (TransactionalEventCollector $events) use ($existing, $revisionGroups): void {
+        $this->events->execute(AuditActor::user($actor->id()), function (TransactionalEventCollector $events) use ($existing, $revisionGroups): void {
             foreach ($existing as $identity) {
                 if (!$this->overrides->remove($identity['locale'], $identity['group'], $identity['key'])) {
                     throw new RuntimeException('translations.validation.override_not_removed');

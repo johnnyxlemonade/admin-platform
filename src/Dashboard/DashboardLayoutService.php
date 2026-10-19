@@ -6,7 +6,6 @@ namespace Lemonade\Admin\Dashboard;
 
 use InvalidArgumentException;
 use Lemonade\Admin\Audit\AuditActor;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Dashboard\Models\DashboardWidgetPreferenceModel;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\TransactionalEventCollector;
@@ -69,7 +68,7 @@ final readonly class DashboardLayoutService
             throw new InvalidArgumentException('Dashboard widget is not available.');
         }
 
-        $this->events->execute($this->operation($context, 'dashboard.preference.pin'), function (TransactionalEventCollector $events) use ($context, $widgetCode, $position, $registration): void {
+        $this->events->execute($this->actor($context), function (TransactionalEventCollector $events) use ($context, $widgetCode, $position, $registration): void {
             $layout = $registration->definition()->layout();
             $id = $this->preferences->restoreOrCreatePersonalPin($context->ownerKey(), $context->localUser()->id(), $widgetCode, $position, $layout->defaultSize());
             $existing = $this->preferences->findByOwnerKey($context->ownerKey(), $widgetCode);
@@ -89,7 +88,7 @@ final readonly class DashboardLayoutService
             return;
         }
 
-        $this->events->execute($this->operation($context, 'dashboard.preference.unpin'), function (TransactionalEventCollector $events) use ($preference, $widgetCode): void {
+        $this->events->execute($this->actor($context), function (TransactionalEventCollector $events) use ($preference, $widgetCode): void {
             $this->preferences->delete((int) $preference['id']);
             $events->record($this->event('system.dashboard.preference_unpinned', (string) $preference['id'], ['widgetCode' => $widgetCode]));
         });
@@ -108,7 +107,7 @@ final readonly class DashboardLayoutService
             if ($widget->registration()->definition()->code() !== $widgetCode) {
                 continue;
             }
-            $this->events->execute($this->operation($context, 'dashboard.preference.size'), function (TransactionalEventCollector $events) use ($context, $widgetCode, $widget, $size): void {
+            $this->events->execute($this->actor($context), function (TransactionalEventCollector $events) use ($context, $widgetCode, $widget, $size): void {
                 $id = $this->preferences->restoreOrCreateLayoutPreference($context->ownerKey(), $context->localUser()->id(), $widgetCode, $widget->position(), $size);
                 $events->record($this->event('system.dashboard.preference_size_changed', (string) $id, ['widgetCode' => $widgetCode, 'size' => $size->value]));
             });
@@ -136,7 +135,7 @@ final readonly class DashboardLayoutService
         foreach ($resolved as $widget) {
             $byCode[$widget->registration()->definition()->code()] = $widget;
         }
-        $this->events->execute($this->operation($context, 'dashboard.preference.reorder'), function (TransactionalEventCollector $events) use ($context, $widgetCodes, $byCode): void {
+        $this->events->execute($this->actor($context), function (TransactionalEventCollector $events) use ($context, $widgetCodes, $byCode): void {
             foreach ($widgetCodes as $position => $widgetCode) {
                 $widget = $byCode[$widgetCode];
                 $this->preferences->restoreOrCreateLayoutPreference($context->ownerKey(), $context->localUser()->id(), $widgetCode, $position, $widget->size());
@@ -160,11 +159,11 @@ final readonly class DashboardLayoutService
     }
 
     /**
-     * Vytvori auditni operaci pro zmenu rozlozeni
+     * Vytvori auditniho actora pro zmenu rozlozeni
      */
-    private function operation(DashboardWidgetContext $context, string $operation): AuditOperation
+    private function actor(DashboardWidgetContext $context): AuditActor
     {
-        return new AuditOperation('system.dashboard', $operation, AuditActor::user($context->localUser()->id()));
+        return AuditActor::user($context->localUser()->id());
     }
 
     /**

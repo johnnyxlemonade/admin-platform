@@ -12,7 +12,6 @@ use Lemonade\Admin\Editor\EditorDispatcher;
 use Lemonade\Admin\Editor\EditorRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Roles\Actions\RolesActionRegistrar;
 use Lemonade\Admin\System\Roles\DataGrid\RolesDataGrid;
@@ -52,7 +51,6 @@ final readonly class RolesModuleProvider implements ServiceProviderInterface, Bo
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.roles');
         $container->get(ViewResourceRegistry::class)->register('roles', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('roles');
-        $container->get(ModuleRegistry::class)->register($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(DataGridRegistry::class)->register($definition->code(), RolesDataGrid::class);

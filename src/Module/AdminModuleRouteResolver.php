@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Module;
 
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
-use RuntimeException;
 
 /**
  * Vyhledava administracni modul podle URL segmentu
@@ -16,23 +14,16 @@ final readonly class AdminModuleRouteResolver
     /**
      * Nastavuje zavislosti potrebne pro praci s administracnimi moduly
      */
-    public function __construct(
-        private AdminModuleRegistry $adminModules,
-        private ModuleRegistry $modules,
-    ) {}
+    public function __construct(private AdminModuleRegistry $adminModules) {}
 
     /**
      * Vraci modul dostupny pro pozadovany URL segment
      */
     public function resolve(string $segment): AdminModuleDefinitionInterface
     {
-        $moduleCode = $this->adminModules->moduleCodeByRouteSegment($segment);
-
-        if (!$this->modules->has($moduleCode)) {
-            throw new RuntimeException(sprintf('Admin module "%s" is not registered in Core.', $moduleCode));
-        }
-
-        return $this->adminModules->definition($moduleCode);
+        return $this->adminModules->definition(
+            $this->adminModules->moduleCodeByRouteSegment($segment),
+        );
     }
 
     /**

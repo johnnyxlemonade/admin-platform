@@ -8,7 +8,7 @@ use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\DataGrid\DataGridIndexViewModel;
 use Lemonade\Admin\DataGrid\DataGridPrimaryAction;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderContext;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
 use Lemonade\Admin\Editor\EditorLoaded;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Page\Contract\ModuleIndexPageProviderInterface;
@@ -121,13 +121,14 @@ final readonly class LanguagesModulePageProvider implements ModuleIndexPageProvi
     private function modalPage(string $titleKey, string $descriptionKey, AdminEditorDefinition $adminEditor, array $values, string $locale, bool $editing): ModulePage
     {
         return new ModulePage(
-            view: 'languages::modal-editor',
+            view: 'admin::components.admin-editor-modal',
             title: $this->translator->get($titleKey),
             data: [
                 'title' => $this->translator->get($titleKey),
                 'titleKey' => $titleKey,
                 'description' => $this->translator->get($descriptionKey),
                 'descriptionKey' => $descriptionKey,
+                'modalId' => 'languages-modal-editor',
                 'adminEditor' => $adminEditor,
                 'adminEditorContext' => new AdminEditorRenderContext(
                     values: $values,

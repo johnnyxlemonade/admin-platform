@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Editor;
 
 use Lemonade\Admin\AdminServiceProvider;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldRenderer;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorFieldRenderer;
 use Lemonade\Admin\Editor\Http\Controller\EditorModalController;
 use Lemonade\Admin\Editor\Lock\EditorLockController;
 use Lemonade\Admin\Editor\Lock\EditorLockOwnerReleaser;
@@ -14,6 +14,7 @@ use Lemonade\Admin\Editor\Lock\EditorLockRouteRegistrar;
 use Lemonade\Admin\Editor\Routing\EditorModalRouteRegistrar;
 use Lemonade\Admin\Module\AdminModuleTransportServiceProvider;
 use Lemonade\Admin\Presentation\AdminFileUploadComponent;
+use Lemonade\Admin\Presentation\AdminPresentationServiceProvider;
 use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
@@ -21,6 +22,7 @@ use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\View\ViewHelpers;
+use Lemonade\Framework\View\ViewRendererInterface;
 
 /**
  * Registruje sdileny editor protocol, zamky a jejich HTTP endpointy
@@ -37,6 +39,7 @@ final readonly class AdminEditorServiceProvider implements ServiceProviderInterf
         return [
             AdminServiceProvider::class,
             AdminModuleTransportServiceProvider::class,
+            AdminPresentationServiceProvider::class,
         ];
     }
 
@@ -51,6 +54,19 @@ final readonly class AdminEditorServiceProvider implements ServiceProviderInterf
             helpers: $container->get(ViewHelpers::class),
             files: $container->get(AdminFileUploadComponent::class),
         ));
+        $container->decorate(
+            ViewRendererInterface::class,
+            static function (ContainerInterface $container, mixed $inner): AdminEditorViewRenderer {
+                if (!$inner instanceof ViewRendererInterface) {
+                    throw new \RuntimeException(sprintf('Decorated view service must implement %s.', ViewRendererInterface::class));
+                }
+
+                return new AdminEditorViewRenderer(
+                    inner: $inner,
+                    fields: $container->get(AdminEditorFieldRenderer::class),
+                );
+            },
+        );
         $container->transient(EditorLockOwnerReleaserInterface::class, EditorLockOwnerReleaser::class);
         $container->scoped(EditorLockController::class, EditorLockController::class);
         $container->scoped(EditorModalController::class, EditorModalController::class);

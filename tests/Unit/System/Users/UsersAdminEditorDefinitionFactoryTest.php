@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\System\Users;
 
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\CustomViewBlock;
-use Lemonade\Admin\Editor\AdminEditor\FieldGroupBlock;
-use Lemonade\Admin\Editor\AdminEditor\SectionBlock;
+use Lemonade\Admin\Editor\AdminEditor\Field\HiddenField;
+use Lemonade\Admin\Editor\AdminEditor\Field\SelectField;
+use Lemonade\Admin\Editor\AdminEditor\Field\TextInputField;
+use Lemonade\Admin\Editor\AdminEditor\Layout\CustomViewBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldGroupBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\SectionBlock;
 use Lemonade\Admin\Presentation\AdminFilePresentation;
 use Lemonade\Admin\Presentation\AdminFileUploadCollection;
 use Lemonade\Admin\Presentation\AdminFileUploadProfilePresentation;
@@ -46,11 +49,10 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame('admin.common.discard', $editor->saveBar()->secondaryAction()?->labelKey());
         self::assertSame(['basic', 'security'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
         self::assertNull($editor->sidebar());
-        self::assertSame('email', $profileFields['email']->type());
-        self::assertSame('tel', $profileFields['phone']->type());
+        self::assertInstanceOf(TextInputField::class, $profileFields['email']);
+        self::assertInstanceOf(TextInputField::class, $profileFields['phone']);
         $roleField = $this->card($editor, 'access')->blocks()[0];
-        self::assertInstanceOf(\Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition::class, $roleField);
-        self::assertSame('select', $roleField->type());
+        self::assertInstanceOf(SelectField::class, $roleField);
         self::assertSame('users::editor.active', $this->customBlock($editor, 'profile', 1)->view());
         self::assertSame('users::editor.password', $this->customBlock($editor, 'password', 0)->view());
         self::assertArrayNotHasKey('version', $profileFields);
@@ -108,7 +110,7 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame(['basic', 'permissions', 'security'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
         self::assertSame([], $editor->header()?->metadata());
         self::assertNotNull($editor->saveBar());
-        self::assertSame('hidden', $profileFields['version']->type());
+        self::assertInstanceOf(HiddenField::class, $profileFields['version']);
         self::assertInstanceOf(CustomViewBlock::class, $permissionBlock);
         self::assertSame('users::editor.permissions', $permissionBlock->view());
         $sidebar = $editor->sidebar();
@@ -163,10 +165,12 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         $fields = $this->profileFields($editor);
 
         foreach (['first_name', 'last_name', 'email'] as $name) {
+            self::assertInstanceOf(TextInputField::class, $fields[$name]);
             self::assertTrue($fields[$name]->isReadonly());
             self::assertSame('off', $fields[$name]->autocompleteValue());
             self::assertFalse($fields[$name]->isDisabled());
         }
+        self::assertInstanceOf(TextInputField::class, $fields['phone']);
         self::assertFalse($fields['phone']->isReadonly());
         self::assertNull($fields['phone']->autocompleteValue());
     }
@@ -188,9 +192,11 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         $fields = $this->profileFields($editor);
 
         foreach (['first_name', 'last_name'] as $name) {
+            self::assertInstanceOf(TextInputField::class, $fields[$name]);
             self::assertFalse($fields[$name]->isReadonly());
             self::assertNull($fields[$name]->autocompleteValue());
         }
+        self::assertInstanceOf(TextInputField::class, $fields['email']);
         self::assertFalse($fields['email']->isReadonly());
         self::assertSame('username', $fields['email']->autocompleteValue());
     }
@@ -249,8 +255,8 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame('/admin', $header->actions()[0]->href());
         $profileBreadcrumb = $header->breadcrumbs()[0];
         self::assertSame('admin.account.profile', $profileBreadcrumb['labelKey'] ?? null);
-        self::assertSame('hidden', $profileFields['version']->type());
-        self::assertSame('hidden', $profileFields['active']->type());
+        self::assertInstanceOf(HiddenField::class, $profileFields['version']);
+        self::assertInstanceOf(HiddenField::class, $profileFields['active']);
         self::assertSame(['profile'], $this->sectionIds($editor->tabs()[0]->blocks()));
         self::assertSame('users::editor.access-info', $this->customBlock($editor, 'mfa', 0)->view());
         self::assertTrue($this->customBlock($editor, 'mfa', 0)->context()['isSelf']);
@@ -293,13 +299,13 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertFalse($this->customBlock($withoutCredential, 'mfa', 0)->context()['mfaActive']);
     }
 
-    /** @return array<string, \Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition> */
+    /** @return array<string, \Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition> */
     private function profileFields(AdminEditorDefinition $editor): array
     {
         $card = $this->card($editor, 'profile');
         $fields = [];
         foreach ($card->blocks() as $block) {
-            if ($block instanceof \Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition) {
+            if ($block instanceof \Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition) {
                 $fields[$block->name()] = $block;
                 continue;
             }

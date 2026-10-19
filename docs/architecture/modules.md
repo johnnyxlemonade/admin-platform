@@ -12,9 +12,13 @@
 
 `ModuleCatalog` při běžném bootstrapu jednou načte Composerem vygenerované `vendor/composer/installed.json` a z `extra.lemonade.modules` sestaví dostupné manifesty. Discovery pouze čte Composer metadata: neprochází filesystem, nezapisuje do databáze a nespouští migration ani synchronizaci oprávnění. Katalog určuje, který modulový kód je v aplikaci dostupný; není to runtime registry bootnutých modulů ani databázový lifecycle stav.
 
-### Runtime registry
+### Admin metadata a runtime capability
 
-`ModuleRegistry` obsahuje definice typu `ModuleDefinitionInterface` aktivně zaregistrované providerem během bootování aplikace. Je určen pro runtime capability lookup. Registrace v `ModuleRegistry` tedy znamená, že provider modulu pro aktuální běh zaregistroval svou definici; sama o sobě neurčuje, zda optional modul má lifecycle řádek v databázi.
+`AdminModuleRegistry` obsahuje pouze administracni metadata aktivne bootnutych
+modulu a overuje jedinecnost jejich kodu a URL segmentu. Dostupnost kodu urcuje
+`ModuleCatalog`, databazovy lifecycle `ModuleStateResolver` a konkretni
+DataGrid, editor, page nebo action capability maji vlastni existujici registry.
+Paralelni obecna module registry se neudrzuje.
 
 ### Lifecycle a databázový stav
 
@@ -50,7 +54,17 @@ Samostatně instalovaný Composer package deklaruje manifest class ve svém `com
 
 ## Provider a capability
 
-Provider modulu se registruje přes `ModuleBootstrapServiceProvider`. Například `LanguagesModuleProvider` registruje `LanguagesModuleDefinition` do `ModuleRegistry` a `AdminModuleRegistry`, `LanguagesDataGrid` do `DataGridRegistry`, `LanguagesEditor` do `EditorRegistry`, index page provider, action registrar, překlady, views, permission definitions a registrační migraci.
+Provider modulu se registruje pres `ModuleBootstrapServiceProvider`. Manifest,
+ktery implementuje `AdminModuleDefinitionInterface`, je canonical deklaraci kodu,
+Admin metadat, permissions a auditnich prezentaci; bootstrap je z nej registruje
+automaticky. Implementuje-li take `AdminModuleFileCapabilitiesInterface`, stejny
+bootstrap rozvine jeho file usages. Provider explicitne registruje jen konkretni
+capability, napriklad `DataGridRegistry`, `EditorRegistry`, page providery, actions,
+resources a verejny routing.
+
+Systemove moduly mohou nadale pouzivat samostatnou `*ModuleDefinition`, pokud jejich
+builtin manifest tuto Admin deklaraci nevlastni. I tyto definice se registruji pouze
+do `AdminModuleRegistry`; dostupnost jejich kodu stale pochazi z manifest catalogu.
 
 Sdilene Admin registry pripravuji capability providery pred `ModuleBootstrapServiceProvider`: `AdminModuleTransportServiceProvider` vlastni DataGrid, action a page registry, `AdminEditorServiceProvider` editor registry a `AdminNotificationServiceProvider` globalni notifikacni sluzby pouzivane systemovym modulem Notifications. Root `AdminServiceProvider` drzi pouze cross-module infrastrukturu. `ModuleBootstrapServiceProvider::requires()` tyto providery uvadi explicitne, protoze module providery do jejich registru zapisuji uz behem bootstrapu.
 
@@ -58,11 +72,16 @@ Sdilene Admin registry pripravuji capability providery pred `ModuleBootstrapServ
 
 ## Oprávnění a audity
 
-`*ModuleDefinition::permissionDefinitions()` poskytuje runtime katalog `PermissionDefinition`. Provider jej předá `PermissionCatalogRegistry`. Mutační service, například `LanguageService`, vlastní `AuditOperation` a provede změnu přes `TransactionalEventProcessor`; DataGrid ani editor auditní metadata nenesou.
+`AdminModuleDefinitionInterface::permissionDefinitions()` poskytuje runtime katalog
+`PermissionDefinition`. U Admin manifestu jej do `PermissionCatalogRegistry`
+preda bootstrap. Mutacni service provede zmenu pres
+`TransactionalEventProcessor`, kteremu preda pouze `AuditActor`; explicitni
+`DomainEvent` nese kod modulu a auditni udalosti. Audit se zapisuje ve stejne
+transakci a sekundarni eventy se dispatchuji az po commitu.
 
 ## Typický tok registrace
 
-1. Manifest určí kód, druh a runtime provider.
-2. Bootstrap načte katalog a zavolá runtime provider kazdeho jeho manifestu.
+1. Manifest určí kód, druh, runtime provider a případné Admin metadata.
+2. Bootstrap načte katalog, registruje deklarované základní Admin contributions a zavolá runtime provider každého manifestu.
 3. Provider zaregistruje konkrétní capability do shared registrů.
 4. Generic admin routes najdou capability podle kódu modulu; nevytvářejí vlastní route sadu pro každý standardní index, editor nebo action.

@@ -7,13 +7,17 @@ namespace Lemonade\Admin\Module\Contract;
 use Lemonade\Admin\Audit\AuditEventDefinition;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Module\AdminModuleMetadata;
-use Lemonade\Admin\Modules\Definition\ModuleDefinitionInterface;
 
 /**
  * Urcuje kontrakt pro administracni modul
  */
-interface AdminModuleDefinitionInterface extends ModuleDefinitionInterface
+interface AdminModuleDefinitionInterface
 {
+    /**
+     * Vraci stabilni kod administracniho modulu
+     */
+    public function code(): string;
+
     /**
      * Vraci navigacni a routovaci metadata modulu
      */

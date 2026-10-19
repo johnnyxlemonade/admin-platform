@@ -12,8 +12,8 @@ use Lemonade\Admin\Editor\Exception\EditorCapabilityException;
 use Lemonade\Admin\Editor\Lock\EditorLockException;
 use Lemonade\Admin\Editor\Lock\EditorLockManager;
 use Lemonade\Admin\Http\AdminErrorCode;
+use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\ModuleProviderResolver;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Validation\FormValidation;
@@ -27,7 +27,7 @@ final readonly class EditorDispatcher
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
      */
     public function __construct(
-        private ModuleRegistry $modules,
+        private AdminModuleRegistry $modules,
         private ModuleManager $moduleManager,
         private ModuleProviderResolver $providers,
         private AuthorizationService $authorization,

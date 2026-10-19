@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Presentation\Http\Controller;
 
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderContext;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
 use Lemonade\Admin\Editor\EditorDispatcher;
 use Lemonade\Admin\Editor\Exception\EditorCapabilityException;
 use Lemonade\Admin\Editor\Exception\EditorEntityNotFoundException;
@@ -274,7 +274,9 @@ final readonly class AdminFileUploadController
 
         return $this->responses->json([
             'success' => true,
-            'modalHtml' => $this->views->content('admin::components.file-rename-modal', [
+            'modalHtml' => $this->views->content('admin::components.admin-editor-modal', [
+                'modalId' => 'admin-file-presentation',
+                'titleKey' => 'admin.file_upload.edit_title',
                 'adminEditor' => $this->renameModal->modal($module, $usage, $entity, $file),
                 'adminEditorContext' => new AdminEditorRenderContext(
                     values: [

@@ -5,19 +5,24 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Editor\AdminEditor;
 
 use InvalidArgumentException;
+use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Action\AdminEditorSaveBarDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Header\AdminEditorHeaderDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorSidebarDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorTab;
+use Lemonade\Admin\Editor\AdminEditor\Layout\SectionBlock;
 
 /**
  * Sestavuje definici administracniho editoru po jednotlivych krocich
  */
 final class AdminEditorBuilder
 {
-    private ?AdminEditorFormDefinition $form = null;
+    private ?AdminActionFormDefinition $form = null;
     private ?AdminEditorHeaderDefinition $header = null;
     /** @var list<AdminEditorBlock> */ private array $blocks = [];
     /** @var list<AdminEditorTab> */ private array $tabs = [];
     private ?AdminEditorSidebarDefinition $sidebar = null;
     private ?AdminEditorSaveBarDefinition $saveBar = null;
-    /** @var array<string, scalar|bool|null> */ private array $renderMetadata = [];
 
     /**
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
@@ -40,7 +45,7 @@ final class AdminEditorBuilder
     /**
      * Zpracovava hodnotu form v konfiguraci editoru
      */
-    public function form(AdminEditorFormDefinition $form): self
+    public function form(AdminActionFormDefinition $form): self
     {
         $this->form = $form;
         return $this;
@@ -100,16 +105,6 @@ final class AdminEditorBuilder
     }
 
     /**
-     * Pripravuje vystup editoru pro rendermetadata
-     * @param array<string, scalar|bool|null> $metadata
-     */
-    public function renderMetadata(array $metadata): self
-    {
-        $this->renderMetadata = $metadata;
-        return $this;
-    }
-
-    /**
      * Sestavuje konecnou definici editoru z nasbiranych casti
      */
     public function build(): AdminEditorDefinition
@@ -118,6 +113,6 @@ final class AdminEditorBuilder
             throw new InvalidArgumentException('Admin editor requires a form definition.');
         }
 
-        return new AdminEditorDefinition($this->id, $this->form, $this->header, $this->blocks, $this->tabs, $this->sidebar, $this->saveBar, $this->renderMetadata);
+        return new AdminEditorDefinition($this->id, $this->form, $this->header, $this->blocks, $this->tabs, $this->sidebar, $this->saveBar);
     }
 }

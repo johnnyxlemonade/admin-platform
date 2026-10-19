@@ -9,7 +9,6 @@ use Lemonade\Admin\Dashboard\DashboardWidgetRegistry;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Audit\Dashboard\AuditDashboardWidgetProvider;
 use Lemonade\Admin\System\Audit\Dashboard\MyLoginsDashboardWidgetProvider;
@@ -46,7 +45,6 @@ final readonly class AuditModuleProvider implements ServiceProviderInterface, Bo
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.audit');
         $container->get(ViewResourceRegistry::class)->register('audit', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('audit');
-        $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(DataGridRegistry::class)->register($definition->code(), AuditDataGrid::class);
         $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), AuditModulePageProvider::class);

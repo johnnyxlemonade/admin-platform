@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\System\Roles;
 
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorTab;
-use Lemonade\Admin\Editor\AdminEditor\CustomViewBlock;
-use Lemonade\Admin\Editor\AdminEditor\FieldGroupBlock;
-use Lemonade\Admin\Editor\AdminEditor\SectionBlock;
+use Lemonade\Admin\Editor\AdminEditor\Field\ReadonlyDisplayField;
+use Lemonade\Admin\Editor\AdminEditor\Field\TextareaField;
+use Lemonade\Admin\Editor\AdminEditor\Field\TextInputField;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorTab;
+use Lemonade\Admin\Editor\AdminEditor\Layout\CustomViewBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldGroupBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\SectionBlock;
 use Lemonade\Admin\System\Roles\Editor\RolesAdminEditorDefinitionFactory;
 use Lemonade\Framework\Routing\ControllerAction;
 use Lemonade\Framework\Routing\Router;
@@ -32,7 +35,7 @@ final class RolesAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame('create', $editor->form()->actionKey());
         self::assertTrue($editor->form()->navigateToEditAfterCreate());
         self::assertTrue($editor->form()->novalidate());
-        self::assertSame('text', $fields['code']->type());
+        self::assertInstanceOf(TextInputField::class, $fields['code']);
         self::assertTrue($fields['code']->isRequired());
         self::assertSame(['code' => 4, 'name' => 8], $this->basicColumnWidths($editor));
         self::assertSame(['basic', 'permissions'], array_map(static fn(AdminEditorTab $tab): string => $tab->id(), $editor->tabs()));
@@ -57,9 +60,9 @@ final class RolesAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame('/admin/system/roles/ajax/7', $editor->form()->actionUrl());
         self::assertSame('save', $editor->form()->actionKey());
         self::assertFalse($editor->form()->navigateToEditAfterCreate());
-        self::assertSame('readonly_display', $fields['code']->type());
+        self::assertInstanceOf(ReadonlyDisplayField::class, $fields['code']);
         self::assertTrue($fields['code']->displaysAsCode());
-        self::assertSame('roles.editor.code_read_only', $fields['code']->helpKey());
+        self::assertSame('roles.editor.code_read_only', $fields['code']->helpTranslationKey());
         self::assertNotNull($editor->saveBar());
         self::assertSame('roles::editor.permissions', $custom->view());
         self::assertSame([
@@ -81,6 +84,8 @@ final class RolesAdminEditorDefinitionFactoryTest extends TestCase
         $fields = $this->basicFields($editor);
         $header = $editor->header();
 
+        self::assertInstanceOf(TextInputField::class, $fields['name']);
+        self::assertInstanceOf(TextareaField::class, $fields['description']);
         self::assertTrue($fields['name']->isReadonly());
         self::assertTrue($fields['description']->isReadonly());
         self::assertNotNull($header);
@@ -89,7 +94,7 @@ final class RolesAdminEditorDefinitionFactoryTest extends TestCase
         self::assertNull($editor->saveBar());
     }
 
-    /** @return array<string, \Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition> */
+    /** @return array<string, \Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition> */
     private function basicFields(AdminEditorDefinition $editor): array
     {
         $tab = $editor->tabs()[0];
@@ -98,7 +103,7 @@ final class RolesAdminEditorDefinitionFactoryTest extends TestCase
 
         $fields = [];
         foreach ($card->blocks() as $block) {
-            if ($block instanceof \Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition) {
+            if ($block instanceof \Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition) {
                 $fields[$block->name()] = $block;
                 continue;
             }

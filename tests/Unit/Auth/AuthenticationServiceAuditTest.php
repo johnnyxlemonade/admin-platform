@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Auth;
 
+use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\LocalAuthenticationProvider;
@@ -25,14 +25,13 @@ final class AuthenticationServiceAuditTest extends TestCase
         $session = new AuthenticationAuditMemorySession();
         $audit = $this->createMock(AuditLogWriterInterface::class);
         $audit->expects(self::once())->method('record')->willReturnCallback(
-            function (DomainEvent $event, AuditOperation $operation) use ($session): void {
+            function (DomainEvent $event, AuditActor $actor) use ($session): void {
                 self::assertSame(42, $session->get('admin.auth.user_id'));
                 self::assertSame('system.authentication.login', $event->code());
                 self::assertSame('user', $event->entityType());
                 self::assertSame('42', $event->entityKey());
                 self::assertSame(['method' => 'local'], $event->payload());
-                self::assertSame('auth.login', $operation->code());
-                self::assertSame(42, $operation->actor()->userId());
+                self::assertSame(42, $actor->userId());
             },
         );
 
@@ -68,13 +67,12 @@ final class AuthenticationServiceAuditTest extends TestCase
         $session->set('admin.auth.user_id', 42);
         $audit = $this->createMock(AuditLogWriterInterface::class);
         $audit->expects(self::once())->method('record')->willReturnCallback(
-            function (DomainEvent $event, AuditOperation $operation) use ($session): void {
+            function (DomainEvent $event, AuditActor $actor) use ($session): void {
                 self::assertSame(42, $session->get('admin.auth.user_id'));
                 self::assertSame('system.authentication.logout', $event->code());
                 self::assertSame('42', $event->entityKey());
                 self::assertSame(['method' => 'local'], $event->payload());
-                self::assertSame('auth.logout', $operation->code());
-                self::assertSame(42, $operation->actor()->userId());
+                self::assertSame(42, $actor->userId());
             },
         );
 
@@ -91,13 +89,12 @@ final class AuthenticationServiceAuditTest extends TestCase
         $session = new AuthenticationAuditMemorySession();
         $audit = $this->createMock(AuditLogWriterInterface::class);
         $audit->expects(self::once())->method('record')->willReturnCallback(
-            function (DomainEvent $event, AuditOperation $operation) use ($session): void {
-                self::assertSame('user', $operation->actor()->type()->value);
+            function (DomainEvent $event, AuditActor $actor) use ($session): void {
+                self::assertSame('user', $actor->type()->value);
                 self::assertSame('system.authentication.login', $event->code());
                 self::assertSame('user', $event->entityType());
                 self::assertSame(['method' => 'oidc', 'provider' => 'provider-a'], $event->payload());
                 self::assertSame('42', $event->entityKey());
-                self::assertSame('auth.login', $operation->code());
                 self::assertSame(42, $session->get('admin.auth.user_id'));
             },
         );
@@ -115,13 +112,12 @@ final class AuthenticationServiceAuditTest extends TestCase
         ]);
         $audit = $this->createMock(AuditLogWriterInterface::class);
         $audit->expects(self::once())->method('record')->willReturnCallback(
-            function (DomainEvent $event, AuditOperation $operation) use ($session): void {
+            function (DomainEvent $event, AuditActor $actor) use ($session): void {
                 self::assertNotNull($session->get('admin.auth.external_principal'));
-                self::assertSame('user', $operation->actor()->type()->value);
-                self::assertSame(42, $operation->actor()->userId());
+                self::assertSame('user', $actor->type()->value);
+                self::assertSame(42, $actor->userId());
                 self::assertSame('system.authentication.logout', $event->code());
                 self::assertSame(['method' => 'oidc', 'provider' => 'provider-a'], $event->payload());
-                self::assertSame('auth.logout', $operation->code());
             },
         );
 

@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Roles\Editor;
 
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorActionDefinition;
+use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Action\AdminEditorActionDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Action\AdminEditorSaveBarDefinition;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorBuilder;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFormDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorHeaderDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorSaveBarDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorTab;
-use Lemonade\Admin\Editor\AdminEditor\CustomViewBlock;
-use Lemonade\Admin\Editor\AdminEditor\FieldColumn;
-use Lemonade\Admin\Editor\AdminEditor\FieldGroupBlock;
-use Lemonade\Admin\Editor\AdminEditor\SectionBlock;
+use Lemonade\Admin\Editor\AdminEditor\Field\Field;
+use Lemonade\Admin\Editor\AdminEditor\Header\AdminEditorHeaderDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorTab;
+use Lemonade\Admin\Editor\AdminEditor\Layout\CustomViewBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldColumn;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldGroupBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\SectionBlock;
 use Lemonade\Framework\Routing\UrlGenerator;
 
 /**
@@ -53,12 +53,12 @@ final readonly class RolesAdminEditorDefinitionFactory
         }
 
         $code = $isCreate
-            ? AdminEditorFieldDefinition::text(
+            ? Field::text(
                 name: 'code',
                 labelKey: 'roles.fields.code',
             )
                 ->required()
-            : AdminEditorFieldDefinition::readonlyDisplay(
+            : Field::readonlyDisplay(
                 name: 'code',
                 labelKey: 'roles.fields.code',
             )
@@ -66,7 +66,7 @@ final readonly class RolesAdminEditorDefinitionFactory
                 ->help('', 'roles.editor.code_read_only');
 
         $builder = AdminEditorBuilder::create('system.roles')
-            ->form(new AdminEditorFormDefinition(
+            ->form(new AdminActionFormDefinition(
                 id: 'roles-editor-form',
                 action: $formAction,
                 actionUrl: $actionUrl,
@@ -98,7 +98,7 @@ final readonly class RolesAdminEditorDefinitionFactory
                                     md: 4,
                                 ),
                                 new FieldColumn(
-                                    field: AdminEditorFieldDefinition::text(
+                                    field: Field::text(
                                         name: 'name',
                                         labelKey: 'roles.fields.name',
                                     )
@@ -107,7 +107,7 @@ final readonly class RolesAdminEditorDefinitionFactory
                                     md: 8,
                                 ),
                             ]),
-                            AdminEditorFieldDefinition::textarea(
+                            Field::textarea(
                                 name: 'description',
                                 labelKey: 'roles.fields.description',
                             )

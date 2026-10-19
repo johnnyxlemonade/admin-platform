@@ -13,6 +13,7 @@ use Lemonade\Admin\Editor\Exception\EditorEntityNotFoundException;
 use Lemonade\Admin\Editor\Exception\EditorValidationException;
 use Lemonade\Admin\Editor\Lock\EditorLockException;
 use Lemonade\Admin\Http\AdminErrorCode;
+use Lemonade\Admin\Identity\LocalActorRequiredException;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use RuntimeException;
 
@@ -85,6 +86,12 @@ final readonly class StandardEditorAction implements ModuleActionHandlerInterfac
             );
         } catch (EditorValidationException $exception) {
             return ModuleActionResult::invalid(['_form' => $exception->messageKey()]);
+        } catch (LocalActorRequiredException $exception) {
+            throw new ModuleActionException(
+                HttpStatusCode::FORBIDDEN,
+                AdminErrorCode::LOCAL_ACTOR_REQUIRED,
+                $exception->getMessage(),
+            );
         }
 
         return $this->result($outcome);
@@ -123,6 +130,12 @@ final readonly class StandardEditorAction implements ModuleActionHandlerInterfac
             );
         } catch (EditorValidationException $exception) {
             return ModuleActionResult::invalid(['_form' => $exception->messageKey()]);
+        } catch (LocalActorRequiredException $exception) {
+            throw new ModuleActionException(
+                HttpStatusCode::FORBIDDEN,
+                AdminErrorCode::LOCAL_ACTOR_REQUIRED,
+                $exception->getMessage(),
+            );
         }
 
         return $this->result($outcome);

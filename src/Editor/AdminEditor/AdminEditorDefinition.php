@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Editor\AdminEditor;
 
 use InvalidArgumentException;
+use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Action\AdminEditorSaveBarDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Header\AdminEditorHeaderDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorSidebarDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorTab;
+use Lemonade\Admin\Editor\AdminEditor\Layout\SectionBlock;
 
 /**
  * Popisuje nemennou konfiguraci admineditor
@@ -15,17 +21,15 @@ final readonly class AdminEditorDefinition
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
      * @param list<AdminEditorBlock> $blocks
      * @param list<AdminEditorTab> $tabs
-     * @param array<string, scalar|bool|null> $renderMetadata
      */
     public function __construct(
         private string $id,
-        private AdminEditorFormDefinition $form,
+        private AdminActionFormDefinition $form,
         private ?AdminEditorHeaderDefinition $header,
         private array $blocks,
         private array $tabs = [],
         private ?AdminEditorSidebarDefinition $sidebar = null,
         private ?AdminEditorSaveBarDefinition $saveBar = null,
-        private array $renderMetadata = [],
     ) {
         if (trim($id) === '') {
             throw new InvalidArgumentException('Admin editor ID must not be empty.');
@@ -76,7 +80,7 @@ final readonly class AdminEditorDefinition
     /**
      * Zpracovava hodnotu form v konfiguraci editoru
      */
-    public function form(): AdminEditorFormDefinition
+    public function form(): AdminActionFormDefinition
     {
         return $this->form;
     }
@@ -121,15 +125,6 @@ final readonly class AdminEditorDefinition
     public function saveBar(): ?AdminEditorSaveBarDefinition
     {
         return $this->saveBar;
-    }
-
-    /**
-     * Pripravuje vystup editoru pro rendermetadata
-     * @return array<string, scalar|bool|null>
-     */
-    public function renderMetadata(): array
-    {
-        return $this->renderMetadata;
     }
 
     /**

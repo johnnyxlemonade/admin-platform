@@ -12,7 +12,6 @@ use Lemonade\Admin\Editor\EditorDispatcher;
 use Lemonade\Admin\Editor\EditorRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Languages\Actions\LanguagesActionRegistrar;
 use Lemonade\Admin\System\Languages\Actions\LanguagesSetEnabledAction;
@@ -54,7 +53,6 @@ final readonly class LanguagesModuleProvider implements ServiceProviderInterface
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.languages');
         $container->get(ViewResourceRegistry::class)->register('languages', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('languages');
-        $container->get(ModuleRegistry::class)->register($definition);
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(DataGridRegistry::class)->register($definition->code(), LanguagesDataGrid::class);
         $container->get(EditorRegistry::class)->register($definition->code(), LanguagesEditor::class);

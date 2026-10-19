@@ -14,12 +14,15 @@ final readonly class AuditLogService implements AuditLogWriterInterface
 {
     public function __construct(private readonly Database $database) {}
 
-    public function record(DomainEvent $event, AuditOperation $operation): void
+    /**
+     * Zapise udalost a explicitniho actora ve stejne databazove transakci
+     */
+    public function record(DomainEvent $event, AuditActor $actor): void
     {
         $payload = json_encode($event->payload(), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $this->database->statement(
             'INSERT INTO system_audit_log(event_code, module_code, entity_type, entity_key, actor_type, actor_key, actor_user_id, payload, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [$event->code(), $event->moduleCode(), $event->entityType(), $event->entityKey(), $operation->actor()->type()->value, $operation->actor()->key(), $operation->actor()->userId(), $payload, date('Y-m-d H:i:s')],
+            [$event->code(), $event->moduleCode(), $event->entityType(), $event->entityKey(), $actor->type()->value, $actor->key(), $actor->userId(), $payload, date('Y-m-d H:i:s')],
         );
     }
 }

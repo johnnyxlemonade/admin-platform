@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Users\Editor;
 
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorActionDefinition;
+use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Action\AdminEditorActionDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Action\AdminEditorSaveBarDefinition;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorBuilder;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFormDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorHeaderDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorSaveBarDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorSidebarDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorTab;
-use Lemonade\Admin\Editor\AdminEditor\CustomViewBlock;
-use Lemonade\Admin\Editor\AdminEditor\FieldColumn;
-use Lemonade\Admin\Editor\AdminEditor\FieldGroupBlock;
-use Lemonade\Admin\Editor\AdminEditor\SectionBlock;
+use Lemonade\Admin\Editor\AdminEditor\Field\Field;
+use Lemonade\Admin\Editor\AdminEditor\Header\AdminEditorHeaderDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorSidebarDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorTab;
+use Lemonade\Admin\Editor\AdminEditor\Layout\CustomViewBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldColumn;
+use Lemonade\Admin\Editor\AdminEditor\Layout\FieldGroupBlock;
+use Lemonade\Admin\Editor\AdminEditor\Layout\SectionBlock;
 use Lemonade\Admin\Presentation\AdminFileUploadCollection;
 use Lemonade\Framework\Routing\UrlGenerator;
 
@@ -77,7 +77,7 @@ final readonly class UsersAdminEditorDefinitionFactory
 
         $roleFields = [];
         if ($isCreate || $roleEditable) {
-            $roleFields[] = AdminEditorFieldDefinition::select(
+            $roleFields[] = Field::select(
                 name: 'role',
                 labelKey: 'users.fields.role',
             )
@@ -96,28 +96,28 @@ final readonly class UsersAdminEditorDefinitionFactory
             )] : []),
             new FieldGroupBlock([
                 new FieldColumn(
-                    field: AdminEditorFieldDefinition::text(
+                    field: Field::text(
                         name: 'first_name',
                         labelKey: 'users.fields.first_name',
                     )->required()->readonly($hasExternalIdentity)->autocomplete($hasExternalIdentity ? 'off' : null),
                     md: 6,
                 ),
                 new FieldColumn(
-                    field: AdminEditorFieldDefinition::text(
+                    field: Field::text(
                         name: 'last_name',
                         labelKey: 'users.fields.last_name',
                     )->required()->readonly($hasExternalIdentity)->autocomplete($hasExternalIdentity ? 'off' : null),
                     md: 6,
                 ),
                 new FieldColumn(
-                    field: AdminEditorFieldDefinition::email(
+                    field: Field::email(
                         name: 'email',
                         labelKey: 'users.fields.email',
                     )->required()->readonly($hasExternalIdentity)->autocomplete($hasExternalIdentity ? 'off' : 'username'),
                     md: 6,
                 ),
                 new FieldColumn(
-                    field: AdminEditorFieldDefinition::tel(
+                    field: Field::tel(
                         name: 'phone',
                         labelKey: 'users.fields.phone',
                     ),
@@ -133,14 +133,14 @@ final readonly class UsersAdminEditorDefinitionFactory
             )]),
         ];
         if (!$isCreate) {
-            array_unshift($profileBlocks, AdminEditorFieldDefinition::hidden('version')
+            array_unshift($profileBlocks, Field::hidden('version')
                 ->attributes([
                     'data-lemonade-editor-version' => true,
                     'data-lemonade-editor-version-value' => (string) ((int) ($user['version'] ?? 1)),
                 ]));
         }
         if ($profileContext) {
-            $profileBlocks[] = AdminEditorFieldDefinition::hidden('active')->defaultValue('1');
+            $profileBlocks[] = Field::hidden('active')->defaultValue('1');
         }
 
         $basicBlocks = [
@@ -198,7 +198,7 @@ final readonly class UsersAdminEditorDefinitionFactory
         }
 
         $builder = AdminEditorBuilder::create('system.users')
-            ->form(new AdminEditorFormDefinition(
+            ->form(new AdminActionFormDefinition(
                 id: 'users-editor-form',
                 action: $formAction,
                 actionUrl: $actionUrl,

@@ -4,11 +4,24 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Modules;
 
+use Lemonade\Admin\Audit\AuditEventDefinition;
+use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
+use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
+use Lemonade\Admin\Authorization\PermissionDefinition;
+use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Admin\Module\AdminModuleMetadata;
+use Lemonade\Admin\Module\AdminModuleRegistry;
+use Lemonade\Admin\Module\AdminNavigationGroup;
+use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
+use Lemonade\Admin\Module\Contract\AdminModuleFileCapabilitiesInterface;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Definition\ModuleKind;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestDefinition;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestInterface;
 use Lemonade\Admin\Modules\ModuleBootstrapServiceProvider;
+use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
+use Lemonade\Admin\Presentation\AdminFileCapabilities;
+use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
 use Lemonade\Framework\Container\Container;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
@@ -80,6 +93,32 @@ final class ModuleBootstrapServiceProviderTest extends TestCase
     }
 
     /**
+     * Registruje zakladni Admin contributions primo z canonical manifestu
+     */
+    public function testAdminManifestContributesMetadataPermissionsAuditAndFiles(): void
+    {
+        $container = new Container();
+        $adminModules = new AdminModuleRegistry(new AdminNavigationGroupRegistry());
+        $permissions = new PermissionCatalogRegistry();
+        $audit = new AuditEventPresentationRegistry();
+        $fileUsages = new AdminFileUsageRegistry();
+        $container->instance(AdminModuleRegistry::class, $adminModules);
+        $container->instance(PermissionCatalogRegistry::class, $permissions);
+        $container->instance(AuditEventPresentationRegistry::class, $audit);
+        $container->instance(AdminFileUsageRegistry::class, $fileUsages);
+        $provider = new ModuleBootstrapServiceProvider($this->catalog(new AdminManifestFixture()));
+
+        $provider->register($container);
+        $container->freeze();
+        $provider->boot($container);
+
+        self::assertSame('test.admin', $adminModules->definition('test.admin')->code());
+        self::assertNotNull($permissions->definition('test.admin.view'));
+        self::assertNotNull($audit->presentation('test.admin.updated'));
+        self::assertTrue($fileUsages->require('test.admin', 'gallery')->sortable());
+    }
+
+    /**
      * Vytvori katalog s presne zadanymi manifesty bez Composer discovery
      */
     private function catalog(ModuleManifestInterface ...$manifests): ModuleCatalog
@@ -115,6 +154,58 @@ final class ModuleLifecycleManifest extends ModuleManifestDefinition
     public function __construct(string $code, string $provider)
     {
         parent::__construct($code, ModuleKind::System, $provider);
+    }
+}
+
+/**
+ * Deklaruje vsechny automaticke Admin contributions bootstrap testu
+ */
+final class AdminManifestFixture extends ModuleManifestDefinition implements AdminModuleDefinitionInterface, AdminModuleFileCapabilitiesInterface
+{
+    /**
+     * Nastavuje canonical identitu a prazdny runtime provider
+     */
+    public function __construct()
+    {
+        parent::__construct('test.admin', ModuleKind::System, NonBootableManifestProvider::class);
+    }
+
+    /**
+     * Vraci Admin metadata fixture modulu
+     */
+    public function adminMetadata(): AdminModuleMetadata
+    {
+        return new AdminModuleMetadata(
+            'test.admin.name',
+            AdminIcon::JournalText,
+            AdminNavigationGroup::Content,
+            1,
+            'test-admin',
+        );
+    }
+
+    /**
+     * Vraci jedine view opravneni fixture modulu
+     */
+    public function permissionDefinitions(): array
+    {
+        return [new PermissionDefinition('test.admin.view', 'test.admin', 'test.admin.permissions.view')];
+    }
+
+    /**
+     * Vraci jednu auditni prezentaci fixture modulu
+     */
+    public function auditEventDefinitions(): array
+    {
+        return [new AuditEventDefinition('updated', 'test.admin.audit.updated')];
+    }
+
+    /**
+     * Zapina pouze realne testovanou gallery capability
+     */
+    public function fileCapabilities(): AdminFileCapabilities
+    {
+        return new AdminFileCapabilities(gallery: true);
     }
 }
 

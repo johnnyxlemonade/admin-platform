@@ -7,7 +7,7 @@ namespace Lemonade\Admin\System\Roles;
 use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\DataGrid\DataGridIndexViewModel;
 use Lemonade\Admin\DataGrid\DataGridPrimaryAction;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderContext;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
 use Lemonade\Admin\Editor\EditorLoaded;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Page\Contract\ModuleEditorPageProviderInterface;
@@ -125,7 +125,6 @@ final readonly class RolesModulePageProvider implements ModuleIndexPageProviderI
                     oldInput: $input,
                     errors: $errors,
                     mode: $mode,
-                    uiFlags: ['rootProtected' => $rootProtected],
                 ),
                 'locale' => $locale,
             ],

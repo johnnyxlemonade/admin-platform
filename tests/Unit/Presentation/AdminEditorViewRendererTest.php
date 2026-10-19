@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Presentation;
 
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldRenderer;
-use Lemonade\Admin\Presentation\AdminEditorViewRenderer;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorFieldRenderer;
+use Lemonade\Admin\Editor\AdminEditorViewRenderer;
 use Lemonade\Framework\View\ViewRendererInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;

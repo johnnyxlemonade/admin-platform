@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Modules;
 
 use Lemonade\Admin\AdminServiceProvider;
+use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
 use Lemonade\Admin\Audit\CoreAuditEventServiceProvider;
 use Lemonade\Admin\Authorization\CoreAuthorizationServiceProvider;
+use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\Editor\AdminEditorServiceProvider;
 use Lemonade\Admin\Identity\CoreIdentityServiceProvider;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminModuleTransportServiceProvider;
+use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\Module\Contract\AdminModuleFileCapabilitiesInterface;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestInterface;
@@ -72,11 +75,29 @@ final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderI
      */
     public function boot(ContainerInterface $container): void
     {
+        $this->registerManifestAdminContributions($container);
+
         foreach ($this->bootableProviders as $provider) {
             $provider->boot($container);
         }
 
         $this->registerModuleFileCapabilities($container);
+    }
+
+    /**
+     * Zapise zakladni Admin metadata deklarovana primo objevenymi manifesty
+     */
+    private function registerManifestAdminContributions(ContainerInterface $container): void
+    {
+        foreach ($this->catalog->load() as $manifest) {
+            if (!$manifest instanceof AdminModuleDefinitionInterface) {
+                continue;
+            }
+
+            $container->get(AdminModuleRegistry::class)->register($manifest);
+            $container->get(PermissionCatalogRegistry::class)->register(...$manifest->permissionDefinitions());
+            $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($manifest);
+        }
     }
 
     /**

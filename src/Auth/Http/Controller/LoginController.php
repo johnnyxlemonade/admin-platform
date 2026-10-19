@@ -6,7 +6,6 @@ namespace Lemonade\Admin\Auth\Http\Controller;
 
 use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\AuthenticationThrottler;
 use Lemonade\Admin\Auth\AuthPageRenderer;
@@ -110,11 +109,11 @@ final readonly class LoginController
             $normalizedEmail = LocalAuthenticationProvider::normalizeEmail($email);
             $limit = $this->throttler->failedLogin($request, $email);
             if (!$limit->allowed()) {
-                $this->auditFailure('system.authentication.login_throttled', 'auth.login.throttled', 'rate_limited', $normalizedEmail);
+                $this->auditFailure('system.authentication.login_throttled', 'rate_limited', $normalizedEmail);
                 return $this->throttledLogin($request, $email, $limit->retryAfterSeconds());
             }
 
-            $this->auditFailure('system.authentication.login_failed', 'auth.login.failed', 'invalid_credentials', $normalizedEmail);
+            $this->auditFailure('system.authentication.login_failed', 'invalid_credentials', $normalizedEmail);
 
             $errorKey = $attempt->isInactive() ? 'auth.errors.disabled' : 'auth.errors.invalid';
 
@@ -303,7 +302,7 @@ final readonly class LoginController
     /**
      * Zapise anonymni local login failure pouze s bezpecne normalizovanym e-mailem
      */
-    private function auditFailure(string $eventCode, string $operation, string $reason, string $email): void
+    private function auditFailure(string $eventCode, string $reason, string $email): void
     {
         $payload = ['method' => 'local', 'reason' => $reason];
         $email = LocalAuthenticationProvider::normalizeEmail($email);
@@ -313,7 +312,7 @@ final readonly class LoginController
 
         $this->audit->record(
             new DomainEvent($eventCode, 'system.authentication', 'authentication', 'local', $payload),
-            new AuditOperation('system.authentication', $operation, AuditActor::anonymous('admin-auth')),
+            AuditActor::anonymous('admin-auth'),
         );
     }
 }

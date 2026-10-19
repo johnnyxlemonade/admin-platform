@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorDefinition;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldRenderer;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderContext;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderer;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorFieldRenderer;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderer;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Framework\View\View;
 use Lemonade\Framework\View\ViewHelpers;

@@ -6,7 +6,6 @@ namespace Lemonade\Admin\Auth\Http\Controller;
 
 use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
-use Lemonade\Admin\Audit\AuditOperation;
 use Lemonade\Admin\Auth\AdminSessionState;
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\AuthenticationThrottler;
@@ -109,13 +108,13 @@ final readonly class SessionLockController
         if ($this->authentication->authenticateLocal($user->email(), $password)->user()?->id() !== $user->id()) {
             $limit = $this->throttler->failedLogin($request, $user->email());
             if (!$limit->allowed()) {
-                $this->auditFailure('system.authentication.session_unlock_throttled', 'auth.session_unlock.throttled', 'rate_limited');
+                $this->auditFailure('system.authentication.session_unlock_throttled', 'rate_limited');
 
                 return $this->responses->json(['error' => ['code' => 'throttled']], HttpStatus::TOO_MANY_REQUESTS->value)
                     ->withHeader('Retry-After', (string) $limit->retryAfterSeconds());
             }
 
-            $this->auditFailure('system.authentication.session_unlock_failed', 'auth.session_unlock.failed', 'invalid_credentials');
+            $this->auditFailure('system.authentication.session_unlock_failed', 'invalid_credentials');
 
             return $this->responses->json(['error' => ['code' => AdminErrorCode::SESSION_UNLOCK_INVALID->value]], HttpStatus::UNPROCESSABLE_ENTITY->value);
         }
@@ -144,7 +143,7 @@ final readonly class SessionLockController
     /**
      * Zapise anonymni local session unlock failure bez identifikatoru nebo hesla
      */
-    private function auditFailure(string $eventCode, string $operation, string $reason): void
+    private function auditFailure(string $eventCode, string $reason): void
     {
         $this->audit->record(
             new DomainEvent(
@@ -154,11 +153,7 @@ final readonly class SessionLockController
                 'local',
                 ['method' => 'local', 'reason' => $reason],
             ),
-            new AuditOperation(
-                'system.authentication',
-                $operation,
-                AuditActor::anonymous('admin-auth'),
-            ),
+            AuditActor::anonymous('admin-auth'),
         );
     }
 }

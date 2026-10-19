@@ -20,7 +20,6 @@ use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
-use Lemonade\Framework\View\ViewRendererInterface;
 use Lemonade\Framework\View\ViewResourceRegistry;
 use Lemonade\Image\Contract\ImageAssetResolverInterface;
 
@@ -52,19 +51,6 @@ final readonly class AdminPresentationServiceProvider implements ServiceProvider
         $container->scoped(NavigationTranslationController::class, NavigationTranslationController::class);
         $container->scoped(TranslationResourceController::class, TranslationResourceController::class);
         $container->scoped(AdminFileUploadController::class, AdminFileUploadController::class);
-        $container->decorate(
-            ViewRendererInterface::class,
-            static function (ContainerInterface $container, mixed $inner): AdminEditorViewRenderer {
-                if (!$inner instanceof ViewRendererInterface) {
-                    throw new \RuntimeException(sprintf('Decorated view service must implement %s.', ViewRendererInterface::class));
-                }
-
-                return new AdminEditorViewRenderer(
-                    inner: $inner,
-                    fields: $container->get(\Lemonade\Admin\Editor\AdminEditor\AdminEditorFieldRenderer::class),
-                );
-            },
-        );
     }
 
     /**

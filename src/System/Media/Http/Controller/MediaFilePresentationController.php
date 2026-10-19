@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\System\Media\Http\Controller;
 
 use Lemonade\Admin\Authorization\AuthorizationService;
-use Lemonade\Admin\Editor\AdminEditor\AdminEditorRenderContext;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
 use Lemonade\Admin\Http\AdminResponseFactory;
 use Lemonade\Admin\Presentation\AdminFileMutationService;
 use Lemonade\Admin\Presentation\AdminFileRenameModalDefinitionFactory;
@@ -53,7 +53,9 @@ final readonly class MediaFilePresentationController
 
         return $this->responses->json([
             'success' => true,
-            'modalHtml' => $this->views->content('admin::components.file-rename-modal', [
+            'modalHtml' => $this->views->content('admin::components.admin-editor-modal', [
+                'modalId' => 'admin-file-presentation',
+                'titleKey' => 'admin.file_upload.edit_title',
                 'adminEditor' => $this->modal->mediaModal($file),
                 'adminEditorContext' => new AdminEditorRenderContext(
                     values: [

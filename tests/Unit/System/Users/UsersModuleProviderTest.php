@@ -16,7 +16,6 @@ use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\ModuleBootstrapServiceProvider;
-use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
@@ -89,7 +88,6 @@ final class UsersModuleProviderTest extends TestCase
             $registries['views']->resolve('users', 'editor'),
         );
         self::assertTrue($registries['clientTranslations']->has('users'));
-        self::assertTrue($registries['modules']->has('system.users'));
         self::assertTrue($registries['adminModules']->has('system.users'));
         self::assertTrue($registries['dataGrids']->has('system.users'));
         self::assertSame(UsersDataGrid::class, $registries['dataGrids']->providerServiceId('system.users'));
@@ -137,7 +135,6 @@ final class UsersModuleProviderTest extends TestCase
      *     translations: TranslationResourceRegistry,
      *     views: ViewResourceRegistry,
      *     clientTranslations: ClientTranslationGroupRegistry,
-     *     modules: ModuleRegistry,
      *     adminModules: AdminModuleRegistry,
      *     dataGrids: DataGridRegistry,
      *     editors: EditorRegistry,
@@ -157,7 +154,6 @@ final class UsersModuleProviderTest extends TestCase
             'translations' => new TranslationResourceRegistry(),
             'views' => new ViewResourceRegistry(),
             'clientTranslations' => new ClientTranslationGroupRegistry(),
-            'modules' => new ModuleRegistry(),
             'adminModules' => new AdminModuleRegistry(new AdminNavigationGroupRegistry()),
             'dataGrids' => new DataGridRegistry(),
             'editors' => new EditorRegistry(),
@@ -174,7 +170,6 @@ final class UsersModuleProviderTest extends TestCase
         $container->instance(TranslationResourceRegistry::class, $registries['translations']);
         $container->instance(ViewResourceRegistry::class, $registries['views']);
         $container->instance(ClientTranslationGroupRegistry::class, $registries['clientTranslations']);
-        $container->instance(ModuleRegistry::class, $registries['modules']);
         $container->instance(AdminModuleRegistry::class, $registries['adminModules']);
         $container->instance(DataGridRegistry::class, $registries['dataGrids']);
         $container->instance(EditorRegistry::class, $registries['editors']);
