@@ -22,6 +22,8 @@ final readonly class DataGridRowActionIcon
             'disable', 'deactivate' => AdminIcon::PauseCircle,
             'delete', 'remove' => AdminIcon::Trash3,
             'restore', 'reset-display', 'mfa-reset' => AdminIcon::ArrowCounterclockwise,
+            'move-up' => AdminIcon::ArrowUp,
+            'move-down' => AdminIcon::ArrowDown,
             'set-default' => AdminIcon::Star,
             'open', 'detail' => AdminIcon::BoxArrowUpRight,
             'view' => AdminIcon::Eye,

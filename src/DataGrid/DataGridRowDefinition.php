@@ -24,6 +24,7 @@ final readonly class DataGridRowDefinition
         private int $id,
         private array $cells,
         private array $actions = [],
+        private ?DataGridTreeRowDefinition $tree = null,
     ) {
         foreach ($cells as $key => $cell) {
             if (!is_string($key) || !$cell instanceof DataGridCell) {
@@ -35,14 +36,19 @@ final readonly class DataGridRowDefinition
     /**
      * Vrati radek ve formatu DataGrid JSON transportu
      *
-     * @return array{id:int,cells:array<string, string|int|list<array{type:string,value:string,url?:string|null,download?:bool,modalUrl?:string|null,modalSize?:string|null,flag?:string,class?:string,translationKey?:string,secondary?:string,thumbnail?:array{url:string|null,alt:string,fallback:string|null,size:string,shape:string}}>>,actions:list<array{key:string,label:string,url:string,method:string,confirm:string|null,confirmTitle?:string,ariaLabel?:string,icon?:string,modalUrl?:string,modalSize?:string|null,kind?:string,placement?:string,risk?:string,refresh?:bool}>}
+     * @return array{id:int,cells:array<string, string|int|list<array{type:string,value:string,url?:string|null,download?:bool,modalUrl?:string|null,modalSize?:string|null,flag?:string,class?:string,translationKey?:string,secondary?:string,thumbnail?:array{url:string|null,alt:string,fallback:string|null,size:string,shape:string}}>>,actions:list<array{key:string,label:string,url:string,method:string,confirm:string|null,confirmTitle?:string,ariaLabel?:string,icon?:string,modalUrl?:string,modalSize?:string|null,kind?:string,placement?:string,risk?:string,refresh?:bool}>,tree?:array{parentId:int|null}}
      */
     public function toArray(): array
     {
-        return [
+        $row = [
             'id' => $this->id,
             'cells' => array_map(static fn(DataGridCell $cell): string|int|array => DataGridCellSerializer::serialize($cell), $this->cells),
             'actions' => array_map(static fn(DataGridRowActionDefinition $action): array => $action->toArray(), $this->actions),
         ];
+        if ($this->tree !== null) {
+            $row['tree'] = ['parentId' => $this->tree->parentId()];
+        }
+
+        return $row;
     }
 }

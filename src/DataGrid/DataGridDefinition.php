@@ -32,6 +32,8 @@ final readonly class DataGridDefinition
         private bool $showAllView = true,
         private ?string $viewFilterKey = 'status',
         private array $bulkActions = [],
+        private ?string $treeColumnKey = null,
+        private bool $paginationEnabled = true,
     ) {
         $sortKeys = $this->sortKeys();
         if (count($sortKeys) !== count(array_filter(
@@ -48,6 +50,12 @@ final readonly class DataGridDefinition
         }
         if (!in_array($this->defaultSortDirection, ['asc', 'desc'], true)) {
             throw new InvalidArgumentException('DataGrid default sort direction must be asc or desc.');
+        }
+        if ($this->treeColumnKey !== null && !in_array($this->treeColumnKey, array_map(
+            static fn(DataGridColumnDefinition $column): string => $column->key(),
+            $this->columns,
+        ), true)) {
+            throw new InvalidArgumentException('DataGrid tree column must be declared by a column.');
         }
     }
 
@@ -189,5 +197,21 @@ final readonly class DataGridDefinition
     public function selectionEnabled(): bool
     {
         return $this->bulkActions !== [];
+    }
+
+    /**
+     * Vrati sloupec zobrazujici hierarchii nebo null pro plochy grid
+     */
+    public function treeColumnKey(): ?string
+    {
+        return $this->treeColumnKey;
+    }
+
+    /**
+     * Urci zda grid deli vysledky na samostatne stranky
+     */
+    public function paginationEnabled(): bool
+    {
+        return $this->paginationEnabled;
     }
 }

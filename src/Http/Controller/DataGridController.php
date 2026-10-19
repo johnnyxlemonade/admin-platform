@@ -86,9 +86,12 @@ final readonly class DataGridController
                 'key' => $filter->key(), 'options' => $filter->options(), 'value' => $query->filter($filter->key()),
             ], $dataGridDefinition->filters()),
             'items' => array_map(static fn($item): array => $item->toArray(), $result->items()),
+            'tree' => $dataGridDefinition->treeColumnKey() === null
+                ? null
+                : ['columnKey' => $dataGridDefinition->treeColumnKey()],
             'sort' => ['column' => $query->sortKey(), 'direction' => $query->sortDirection()],
             'pagination' => [
-                'page' => $result->page(), 'perPage' => $result->perPage(), 'total' => $result->total(), 'pages' => $result->total() === 0 ? 0 : (int) ceil($result->total() / $result->perPage()),
+                'enabled' => $dataGridDefinition->paginationEnabled(), 'page' => $result->page(), 'perPage' => $result->perPage(), 'total' => $result->total(), 'pages' => $result->total() === 0 ? 0 : (int) ceil($result->total() / $result->perPage()),
             ],
         ]);
     }

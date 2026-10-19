@@ -286,6 +286,36 @@
     opacity: .72;
 }
 
+.admin-shell .lm-datagrid-tree-content {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding-left: calc(var(--lm-tree-depth, 0) * 24px);
+}
+
+.admin-shell .lm-datagrid-tree-toggle, .admin-shell .lm-datagrid-tree-spacer {
+    display: inline-flex;
+    flex: 0 0 24px;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-right: 6px;
+}
+
+.admin-shell .lm-datagrid-tree-toggle {
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    color: var(--lm-text-muted);
+    background: transparent;
+}
+
+.admin-shell .lm-datagrid-tree-toggle:hover, .admin-shell .lm-datagrid-tree-toggle:focus-visible {
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
 .admin-shell .lm-datagrid-type {
     display: inline-flex;
     align-items: center;

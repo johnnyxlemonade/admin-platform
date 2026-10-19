@@ -38,6 +38,7 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             this.selectedIds = new Set();
             this.pagination = null;
             this.preferences = StorageHelper.get(this.storageKey) || {};
+            this.treeCollapsed = new Set(Array.isArray(this.preferences.treeCollapsed) ? this.preferences.treeCollapsed.map(String) : []);
             this.filterOptions = {};
             this.controls = {
                 search: element.querySelector("[data-lemonade-grid-search]"),
@@ -635,7 +636,13 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             const viewElement = DomHelper.closest(event.target, "[data-lemonade-grid-view]");
             const sortElement = DomHelper.closest(event.target, "[data-lemonade-sort]");
             const pageElement = DomHelper.closest(event.target, "[data-lemonade-grid-page]");
+            const treeToggle = DomHelper.closest(event.target, "[data-lemonade-grid-tree-toggle]");
 
+            if (treeToggle) {
+                event.preventDefault();
+                this.toggleTreeRow(treeToggle);
+                return;
+            }
             if (bulkDownload) {
                 event.preventDefault();
                 this.submitBulkDownload(bulkDownload);
@@ -755,6 +762,7 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
         resetView() {
             this.cancelPendingSearch();
             this.preferences = {};
+            this.treeCollapsed.clear();
             this.state = this.cloneState(this.defaultState);
             this.resetSelection();
             this.persistPreferences();
@@ -858,6 +866,9 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             this.state.filters = this.normalizeFilters(this.state.filters);
             const preferences = this.getPersistentPreferences(this.state);
             if (!preferences.search) { delete preferences.search; }
+            if (this.treeCollapsed.size) {
+                preferences.treeCollapsed = Array.from(this.treeCollapsed);
+            }
             StorageHelper.set(this.storageKey, preferences);
         }
 
@@ -921,7 +932,7 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 throw new Error("Invalid Lemonade DataGrid response.");
             }
             if (!body) { return; }
-            this.renderRows(body, response.columns, response.items);
+            this.renderRows(body, response.columns, response.items, response.tree || null);
             this.pagination = response.pagination;
             this.state.page = Number(response.pagination.page) || this.state.page;
             this.state.pageSize = Number(response.pagination.perPage) || this.state.pageSize;
@@ -940,11 +951,29 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             this.renderState();
         }
 
-        renderRows(body, columns, items) {
+        renderRows(body, columns, items, tree) {
             const fragment = document.createDocumentFragment();
+            const treeRows = new Map();
+            const childCounts = new Map();
+            if (tree && tree.columnKey) {
+                items.forEach(function (item) {
+                    if (!item.tree || !Object.prototype.hasOwnProperty.call(item.tree, "parentId")) { return; }
+                    treeRows.set(String(item.id), item.tree.parentId === null ? null : String(item.tree.parentId));
+                    if (item.tree.parentId !== null) {
+                        const parentId = String(item.tree.parentId);
+                        childCounts.set(parentId, (childCounts.get(parentId) || 0) + 1);
+                    }
+                });
+            }
             items.forEach(function (item) {
                 const row = document.createElement("tr");
                 row.setAttribute("data-lemonade-row-id", String(item.id));
+                if (treeRows.has(String(item.id))) {
+                    const parentId = treeRows.get(String(item.id));
+                    row.setAttribute("data-lemonade-grid-tree-row", "");
+                    row.setAttribute("aria-level", String(this.treeDepth(String(item.id), treeRows) + 1));
+                    if (parentId !== null) { row.setAttribute("data-lemonade-grid-tree-parent", parentId); }
+                }
                 if (this.controls.selectAll.length) {
                     const selection = document.createElement("td");
                     selection.className = "check-col";
@@ -965,12 +994,101 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                         this.renderActions(cell, item.actions || []);
                     } else {
                         this.renderCell(cell, item.cells[column.key]);
+                        if (tree && column.key === tree.columnKey && treeRows.has(String(item.id))) {
+                            this.renderTreeCell(cell, item.id, treeRows, childCounts);
+                        }
                     }
                     row.appendChild(cell);
                 }, this);
                 fragment.appendChild(row);
             }, this);
             body.replaceChildren(fragment);
+            this.applyTreeVisibility();
+        }
+
+        renderTreeCell(cell, rowId, treeRows, childCounts) {
+            const rowKey = String(rowId);
+            const content = document.createElement("span");
+            content.className = "lm-datagrid-tree-content";
+            content.style.setProperty("--lm-tree-depth", String(this.treeDepth(rowKey, treeRows)));
+            while (cell.firstChild) { content.appendChild(cell.firstChild); }
+
+            if (childCounts.has(rowKey)) {
+                const toggle = document.createElement("button");
+                toggle.className = "lm-datagrid-tree-toggle";
+                toggle.type = "button";
+                toggle.setAttribute("data-lemonade-grid-tree-toggle", rowKey);
+                const expanded = !this.treeCollapsed.has(rowKey);
+                toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+                this.setTreeToggleLabel(toggle, expanded);
+                const icon = document.createElement("i");
+                BootstrapIcons.set(icon, expanded ? "chevron-down" : "chevron-right");
+                icon.setAttribute("aria-hidden", "true");
+                toggle.appendChild(icon);
+                content.prepend(toggle);
+            } else {
+                const spacer = document.createElement("span");
+                spacer.className = "lm-datagrid-tree-spacer";
+                spacer.setAttribute("aria-hidden", "true");
+                content.prepend(spacer);
+            }
+            cell.appendChild(content);
+        }
+
+        treeDepth(rowId, treeRows) {
+            let depth = 0;
+            let parentId = treeRows.get(rowId);
+            const visited = new Set([rowId]);
+            while (parentId !== null && treeRows.has(parentId) && !visited.has(parentId)) {
+                visited.add(parentId);
+                depth += 1;
+                parentId = treeRows.get(parentId);
+            }
+            return depth;
+        }
+
+        toggleTreeRow(toggle) {
+            const rowId = toggle.getAttribute("data-lemonade-grid-tree-toggle");
+            if (!rowId) { return; }
+            if (this.treeCollapsed.has(rowId)) {
+                this.treeCollapsed.delete(rowId);
+            } else {
+                this.treeCollapsed.add(rowId);
+            }
+            const expanded = !this.treeCollapsed.has(rowId);
+            toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+            this.setTreeToggleLabel(toggle, expanded);
+            const icon = toggle.querySelector(".bi");
+            if (icon) { BootstrapIcons.set(icon, expanded ? "chevron-down" : "chevron-right"); }
+            this.persistPreferences();
+            this.applyTreeVisibility();
+        }
+
+        setTreeToggleLabel(toggle, expanded) {
+            const label = I18n.t(expanded ? "admin.datagrid.collapseChildren" : "admin.datagrid.expandChildren");
+            toggle.setAttribute("aria-label", label);
+            toggle.setAttribute("title", label);
+        }
+
+        applyTreeVisibility() {
+            const rows = new Map();
+            DomHelper.queryAll("[data-lemonade-grid-tree-row]", this.element).forEach(function (row) {
+                rows.set(row.getAttribute("data-lemonade-row-id"), row);
+            });
+            rows.forEach(function (row) {
+                let parentId = row.getAttribute("data-lemonade-grid-tree-parent");
+                let hidden = false;
+                const visited = new Set();
+                while (parentId && rows.has(parentId) && !visited.has(parentId)) {
+                    visited.add(parentId);
+                    if (this.treeCollapsed.has(parentId)) {
+                        hidden = true;
+                        break;
+                    }
+                    parentId = rows.get(parentId).getAttribute("data-lemonade-grid-tree-parent");
+                }
+                row.hidden = hidden;
+            }, this);
         }
 
         renderCell(cell, value) {
@@ -1010,8 +1128,9 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 if (part.type === "stacked") {
                     const stacked = document.createElement("div");
                     stacked.className = "lm-datagrid-stacked";
-                    const primary = document.createElement("div");
+                    const primary = part.url ? document.createElement("a") : document.createElement("div");
                     primary.textContent = part.value || "";
+                    if (part.url) { primary.href = part.url; }
                     const secondary = document.createElement("small");
                     secondary.textContent = part.secondary || "";
                     stacked.append(primary, secondary);
@@ -1427,6 +1546,14 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
 
         renderPagination() {
             if (!this.controls.pagination || !this.pagination) { return; }
+            const navigation = this.controls.pagination.closest("nav");
+            if (navigation) {
+                navigation.hidden = this.pagination.enabled === false;
+            }
+            if (this.pagination.enabled === false) {
+                this.controls.pagination.replaceChildren();
+                return;
+            }
             const page = Number(this.pagination.page) || 1;
             const pages = Number(this.pagination.pages) || 1;
             const pageNumbers = this.getPaginationPages(page, pages);

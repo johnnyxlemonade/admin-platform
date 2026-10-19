@@ -37,6 +37,12 @@ final class DataGridCellTest extends TestCase
         yield 'translation' => [new TranslationCell('users.list.never_logged_in', 'Never'), [['type' => 'translation', 'translationKey' => 'users.list.never_logged_in', 'value' => 'Never']]];
         yield 'date time' => [new DateTimeCell('2026-09-22 10:30:00'), [['type' => 'datetime', 'value' => '2026-09-22 10:30:00']]];
         yield 'stacked text' => [new StackedCell('3.5 MB', '1920 × 1080'), [['type' => 'stacked', 'value' => '3.5 MB', 'secondary' => '1920 × 1080']]];
+        yield 'linked stacked text' => [new StackedCell('Contact', '/contact', '/admin/content/pages/edit/2'), [[
+            'type' => 'stacked',
+            'value' => 'Contact',
+            'secondary' => '/contact',
+            'url' => '/admin/content/pages/edit/2',
+        ]]];
         yield 'linked thumbnail' => [new ThumbnailCell('user@example.test', self::thumbnail(), 'Administrator', '/admin/users/edit/1'), [['type' => 'thumbnail', 'thumbnail' => self::thumbnail()->toArray(), 'value' => 'user@example.test', 'url' => '/admin/users/edit/1', 'secondary' => 'Administrator']]];
         yield 'download thumbnail' => [new ThumbnailCell('report.pdf', self::thumbnail(), 'Document', '/admin/system/media/4/download', true), [['type' => 'thumbnail', 'thumbnail' => self::thumbnail()->toArray(), 'value' => 'report.pdf', 'url' => '/admin/system/media/4/download', 'secondary' => 'Document', 'download' => true]]];
         yield 'thumbnail without link' => [new ThumbnailCell('user@example.test', self::thumbnail(), 'Administrator'), [['type' => 'thumbnail', 'thumbnail' => self::thumbnail()->toArray(), 'value' => 'user@example.test', 'url' => null, 'secondary' => 'Administrator']]];

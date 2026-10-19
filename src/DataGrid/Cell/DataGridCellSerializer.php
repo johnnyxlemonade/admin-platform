@@ -50,11 +50,16 @@ final readonly class DataGridCellSerializer
             return [['type' => 'datetime', 'value' => $cell->value()]];
         }
         if ($cell instanceof StackedCell) {
-            return [[
+            $presentation = [
                 'type' => 'stacked',
                 'value' => $cell->value(),
                 'secondary' => $cell->secondary(),
-            ]];
+            ];
+            if ($cell->url() !== null) {
+                $presentation['url'] = $cell->url();
+            }
+
+            return [$presentation];
         }
         if ($cell instanceof ThumbnailCell) {
             $presentation = [
