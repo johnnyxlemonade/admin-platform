@@ -390,10 +390,6 @@ main.lemonade-auth:has(.lemonade-install) {
     margin-top: var(--lemonade-install-gap);
 }
 
-.lemonade-auth .lemonade-install-form[data-install-preparation] {
-    gap: 26px;
-}
-
 .lemonade-auth .lemonade-install-field {
     display: flex;
     flex-direction: column;
@@ -457,18 +453,6 @@ main.lemonade-auth:has(.lemonade-install) {
 
 .lemonade-auth .lemonade-install-submit [data-install-submit-spinner][hidden] {
     display: none;
-}
-
-.lemonade-auth .lemonade-install-refresh {
-    margin-top: 10px;
-}
-
-.lemonade-auth .lemonade-install-refresh .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    border-radius: 0;
-    font-size: 11px;
 }
 
 @media (max-width: 767.98px) {

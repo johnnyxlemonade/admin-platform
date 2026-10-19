@@ -26,9 +26,7 @@ import { Message } from "../components/lemonade-message.js";
 
         const endpoint = root.getAttribute("data-install-endpoint");
         const initial = root.getAttribute("data-install-initial") === "1";
-        const steps = initial
-            ? ["discovery", "database", "modules", "permissions"]
-            : ["database", "modules", "permissions"];
+        const steps = ["database", "modules", "permissions"];
         if (initial) {
             steps.push("root");
         }

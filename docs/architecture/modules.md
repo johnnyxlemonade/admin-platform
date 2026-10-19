@@ -20,14 +20,6 @@
 
 `ModuleState` a `ModuleStateResolver` skládají deklarovaný manifest se stavem `system_module`. `ModuleLifecycleService` provádí install, enable, disable a migraci optional modulů. Tabulka `system_module` drží installed/enabled metadata; systémový manifest je vždy installed a enabled, zatímco optional modul vyžaduje objevený manifest i odpovídající lifecycle řádek.
 
-### Features
-
-`ModuleFeatureDefinition` deklaruje feature v manifestu včetně její kategorie a invariantů. `ModuleFeatureState` a `ModuleFeatureStateResolver` odvozují její configured a effective stav z deklarace a `system_module_feature`. `ModuleFeatureLifecycleService` vytváří chybějící toggle rows, synchronizuje je a provádí autorizované auditované změny. Deklarovaná feature proto není totéž co její konfigurovaná databázová hodnota; required capability zůstává pouze ke čtení.
-
-### Public route prefixy
-
-`ModulePublicRoutePrefixDefinition` a `ModulePublicRoutePrefixManifestInterface` deklarují lokalizované prefixy veřejných rout modulu. `ModuleRoutePrefixLifecycleService` je inicializuje a synchronizuje do `system_module_route_prefix`. Jde o modulovou public/CMS routing infrastrukturu, nikoli o administrativní UI nebo sidebar navigaci.
-
 ### Optional modulové migrace
 
 `ModuleMigrationManifestInterface` deklaruje migrace optional modulu. `ModuleMigrationRunner` je spouští v samostatném migration registry, ale proti společnému globálnímu migration ledgeru a s kontrolou identifier unikátnosti. Liší se tím od globálních baseline migrací Core, Admin a systémových modulů, které aplikuje běžný `database:migrate`.
@@ -50,11 +42,11 @@ Samostatně instalovaný Composer package deklaruje manifest class ve svém `com
 }
 ```
 
-`ModuleManifestDiscovery` čte deklarace z Composerem generovaného `vendor/composer/installed.json`, mezi kterými jsou i builtin manifesty aktuálního `packages/admin` balíčku. Neprochází adresář `vendor` ani nenačítá `composer.json` balíčků podle filesystemu. Composer autoload je authority pro načtení deklarované classy. Všechny deklarace procházejí stejnou validací manifestu, provideru, features a public route prefixu; duplicitní module code proto selže bez precedence zdroje. Initial installation flow zapíše seřazený snapshot do `storage/cache/modules.php`, ale runtime na něm nezávisí. Za běžného requestu `ModuleBootstrapServiceProvider` metadata načte jednou přes containerový `ModuleCatalog`; neprovádí filesystem scan ani zápis.
+`ModuleManifestDiscovery` čte deklarace výhradně z Composerem generovaného `vendor/composer/installed.json`, mezi kterými jsou i builtin manifesty aktuálního `packages/admin` balíčku. Neprochází adresář `vendor`, nenačítá jednotlivé `composer.json` balíčků podle filesystemu a nevytváří vlastní diskový katalog. Composer autoload je authority pro načtení deklarované classy. Všechny deklarace procházejí stejnou validací manifestu a runtime provideru; duplicitní module code proto selže bez precedence zdroje. `ModuleCatalog` metadata načte jednou během application bootstrapu a výsledek drží pouze v paměti. Chybějící `vendor/composer/installed.json` znamená nekompletní Composer instalaci a bootstrap skončí jasnou chybou.
 
 `ModuleStateResolver` spojuje manifest s lifecycle metadaty. Systémový manifest je vždy nainstalovaný a zapnutý. Optional modul je nejdříve discovered; po instalaci má řádek `system_module` a je disabled, dokud jej uživatel explicitně nezapne. Osiřelý databázový řádek bez manifestu zůstává zachovaný a v management UI se zobrazí jako missing; runtime jej neregistruje. CMS content modul je optional modul, který navíc vlastní obsahový model a veřejný content lifecycle; jeho rozpracované implementace nejsou součástí této dokumentace.
 
-`system_module` drží registry/lifecycle metadata. `system_module_feature` obsahuje konfigurovaný stav nepovinných toggle funkcí a `system_module_route_prefix` lokalizované veřejné prefixy. `ModuleFeatureLifecycleService` přijímá pouze funkci deklarovanou manifestem pro nainstalovaný optional modul. Required, Admin a strukturální capability jsou pouze ke čtení; vypnutý modul může změnit configured toggle, jeho effective stav ale zůstává vypnutý.
+`system_module` drží registry/lifecycle metadata. Instalace optional modulu aplikuje jeho migrace, synchronizuje permissions a vytvoří disabled lifecycle řádek. Zapnutí a vypnutí mění pouze tento lifecycle stav; veřejné routy a další capability vlastní přímo příslušný modul.
 
 ## Provider a capability
 
@@ -66,7 +58,7 @@ Sdilene Admin registry pripravuji capability providery pred `ModuleBootstrapServ
 
 ## Oprávnění a audity
 
-`*ModuleDefinition::permissionDefinitions()` poskytuje runtime katalog `PermissionDefinition`. Provider jej předá `PermissionCatalogRegistry`. Mutační service, například `LanguageService` nebo `ModuleFeatureLifecycleService`, vlastní `AuditOperation` a provede změnu přes `TransactionalEventProcessor`; DataGrid ani editor auditní metadata nenesou.
+`*ModuleDefinition::permissionDefinitions()` poskytuje runtime katalog `PermissionDefinition`. Provider jej předá `PermissionCatalogRegistry`. Mutační service, například `LanguageService`, vlastní `AuditOperation` a provede změnu přes `TransactionalEventProcessor`; DataGrid ani editor auditní metadata nenesou.
 
 ## Typický tok registrace
 

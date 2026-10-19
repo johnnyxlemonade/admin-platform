@@ -25,7 +25,7 @@ final class AuthorizationRequestCacheTest extends TestCase
         )->willReturn([['1' => 1]]);
         $authorization = new AuthorizationService($this->principal(42), $this->database($connection));
 
-        self::assertTrue($authorization->hasPermission('system.modules.manage_features'));
+        self::assertTrue($authorization->hasPermission('system.modules.install'));
     }
 
     public function testRepeatedChecksReuseSuperAdminRoleAndOverrideReads(): void

@@ -18,7 +18,6 @@ use Lemonade\Admin\Module\AdminNavigationGroup as AdminNavigationGroupCode;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Definition\ModuleKind;
-use Lemonade\Admin\Modules\Feature\FeatureProviderRegistry;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestDefinition;
 use Lemonade\Admin\Modules\Persistence\ModuleModel;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
@@ -48,9 +47,9 @@ final class AdminNavigationTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->temporaryCatalogRoots as $root) {
-            @unlink($root . '/storage/cache/modules.php');
-            @rmdir($root . '/storage/cache');
-            @rmdir($root . '/storage');
+            @unlink($root . '/vendor/composer/installed.json');
+            @rmdir($root . '/vendor/composer');
+            @rmdir($root . '/vendor');
             @rmdir($root);
         }
         $this->temporaryCatalogRoots = [];
@@ -222,7 +221,7 @@ final class AdminNavigationTest extends TestCase
         $authorization = new AuthorizationService($principal, $database);
 
         return new AdminNavigation(
-            new ModuleManager(new FeatureProviderRegistry(), $this->states($definitions, $database)),
+            new ModuleManager($this->states($definitions, $database)),
             $authorization,
             $adminModules,
             new AdminModuleRouteResolver($adminModules, new ModuleRegistry()),
@@ -298,11 +297,15 @@ final class AdminNavigationTest extends TestCase
     private function states(array $definitions, Database $database): ModuleStateResolver
     {
         $root = sys_get_temp_dir() . '/admin-navigation-modules-' . bin2hex(random_bytes(8));
-        mkdir($root . '/storage/cache', 0775, true);
+        $metadataDirectory = $root . '/vendor/composer';
+        mkdir($metadataDirectory, 0775, true);
         $this->temporaryCatalogRoots[] = $root;
         NavigationManifestFixture::configure(array_map(static fn(AdminModuleDefinitionInterface $definition): string => $definition->code(), $definitions));
         $catalog = new ModuleCatalog((new ApplicationContextFactory())->create($root, ['APP_ENV' => 'testing']));
-        file_put_contents($catalog->cachePath(), '<?php return ' . var_export(array_fill(0, count($definitions), NavigationManifestFixture::class), true) . ';');
+        file_put_contents($metadataDirectory . '/installed.json', json_encode(['packages' => [[
+            'name' => 'lemonade/navigation-test-modules',
+            'extra' => ['lemonade' => ['modules' => array_fill(0, count($definitions), NavigationManifestFixture::class)]],
+        ]]], JSON_THROW_ON_ERROR));
 
         return new ModuleStateResolver($catalog, new ModuleModel($database));
     }

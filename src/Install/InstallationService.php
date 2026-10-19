@@ -6,10 +6,7 @@ namespace Lemonade\Admin\Install;
 
 use Closure;
 use Lemonade\Admin\Assets\AdminAssetManifest;
-use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Authorization\PermissionSyncService;
-use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
-use Lemonade\Admin\Modules\Catalog\ModuleManifestDiscovery;
 use Lemonade\Admin\Modules\Lifecycle\ModuleLifecycleService;
 use Lemonade\Admin\System\Users\Models\UserRoleModel;
 use Lemonade\Admin\System\Users\Services\UserService;
@@ -43,8 +40,6 @@ final readonly class InstallationService implements InstallationStateInterface
         private ApplicationContext $context,
         private DatabaseConfig $databaseConfig,
         private DatabaseConfigurationValidator $databaseConfiguration,
-        private ModuleCatalog $catalog,
-        private ModuleManifestDiscovery $discovery,
         private MigrationRegistry $migrations,
         private Filesystem $filesystem,
         private SessionInterface $session,
@@ -83,14 +78,6 @@ final readonly class InstallationService implements InstallationStateInterface
         }
 
         return ['databaseConnected' => true, 'databaseSchema' => true, 'rootAccount' => $root !== []];
-    }
-
-    /**
-     * Zpracovava krok catalogexists v instalaci aplikace
-     */
-    public function catalogExists(): bool
-    {
-        return is_file($this->context->path('vendor/composer/installed.json'));
     }
 
     /**
@@ -197,16 +184,6 @@ final readonly class InstallationService implements InstallationStateInterface
     }
 
     /**
-     * Zpracovava krok discovercatalog v instalaci aplikace
-     */
-    public function discoverCatalog(): void
-    {
-        $this->locked(function (): void {
-            $this->discovery->writeCatalog($this->catalog);
-        });
-    }
-
-    /**
      * Zpracovava krok executestep v instalaci aplikace
      * @return array{step:InstallStep,status:InstallStepStatus,messageKey:string,nextStep:InstallStep|null,rootCreated:bool}
      */
@@ -223,14 +200,6 @@ final readonly class InstallationService implements InstallationStateInterface
 
         try {
             return $this->locked(function () use ($step, $initialInstall, $email, $password): array {
-                if ($step === InstallStep::Discovery) {
-                    $this->discovery->writeCatalog($this->catalog);
-
-                    return $this->result($step, InstallStepStatus::Success, 'install.install.result.success', InstallStep::Database);
-                }
-                if (!$this->catalogExists()) {
-                    return $this->result($step, InstallStepStatus::Error, 'install.installErrors.catalog');
-                }
                 if ($this->isCompleted($step)) {
                     return $this->result($step, InstallStepStatus::Skipped, 'install.installSteps.skipped', $this->nextStepFor($step, $initialInstall));
                 }
@@ -263,7 +232,7 @@ final readonly class InstallationService implements InstallationStateInterface
                         (new MigrationRunner($this->migrations, $this->migrationState(), $this->schema()))->migrate();
                         break;
                     case InstallStep::Modules:
-                        $this->modules()->migrateInstalled(AuditActor::migration('web-installer'));
+                        $this->modules()->migrateInstalled();
                         break;
                     case InstallStep::Permissions:
                         if ($initialInstall) {
@@ -301,31 +270,6 @@ final readonly class InstallationService implements InstallationStateInterface
         if (!$preflight['ready']) {
             return ['success' => false, 'steps' => $steps, 'rootCreated' => false];
         }
-        if (!$this->catalogExists()) {
-            $steps[] = ['key' => InstallStep::Discovery->value, 'ok' => false, 'error' => 'install.installErrors.catalog'];
-
-            return ['success' => false, 'steps' => $steps, 'rootCreated' => false];
-        }
-
-        if (!$initialInstall) {
-            $steps[] = [
-                'key' => InstallStep::Discovery->value,
-                'ok' => true,
-                'error' => 'install.installSteps.skipped',
-            ];
-        } elseif ($this->isCompleted(InstallStep::Discovery)) {
-            $steps[] = [
-                'key' => InstallStep::Discovery->value,
-                'ok' => true,
-                'error' => 'install.installSteps.skipped',
-            ];
-        } else {
-            $result = $this->executeStep(InstallStep::Discovery, $initialInstall);
-            $steps[] = $this->stepRecord($result);
-            if ($result['status'] === InstallStepStatus::Error) {
-                return ['success' => false, 'steps' => $steps, 'rootCreated' => false];
-            }
-        }
         $rootCreated = false;
         foreach ([InstallStep::Database, InstallStep::Modules, InstallStep::Permissions] as $step) {
             $result = $this->executeStep($step, $initialInstall);
@@ -359,7 +303,7 @@ final readonly class InstallationService implements InstallationStateInterface
         $completed = $this->completedSteps();
         $states = [];
         foreach (InstallStep::pipeline() as $step) {
-            if (($step === InstallStep::Discovery || $step === InstallStep::Root) && !$initialInstall) {
+            if ($step === InstallStep::Root && !$initialInstall) {
                 $status = InstallStepStatus::Skipped;
             } elseif (in_array($step, $completed, true)) {
                 $status = InstallStepStatus::Success;
@@ -412,9 +356,6 @@ final readonly class InstallationService implements InstallationStateInterface
         foreach (InstallStep::pipeline() as $candidate) {
             if ($candidate === $step) {
                 return true;
-            }
-            if ($candidate === InstallStep::Discovery && $this->catalogExists()) {
-                continue;
             }
             if (!in_array($candidate, $completed, true)) {
                 return false;

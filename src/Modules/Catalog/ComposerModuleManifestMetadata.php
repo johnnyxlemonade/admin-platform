@@ -20,7 +20,10 @@ final readonly class ComposerModuleManifestMetadata
     public static function manifestClasses(string $installedMetadataPath): array
     {
         if (!is_file($installedMetadataPath)) {
-            return [];
+            throw new RuntimeException(sprintf(
+                'Composer installed package metadata "%s" is missing. Run Composer install to complete the application installation.',
+                $installedMetadataPath,
+            ));
         }
 
         $contents = file_get_contents($installedMetadataPath);

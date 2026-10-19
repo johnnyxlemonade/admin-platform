@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Modules\Console;
 
-use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Modules\Lifecycle\ModuleLifecycleService;
 use Lemonade\Framework\Cli\CommandInterface;
 
@@ -40,7 +39,7 @@ final readonly class ModuleMigrateCommand implements CommandInterface
     public function run(array $args): int
     {
         unset($args);
-        foreach ($this->modules->migrateInstalled(AuditActor::migration('modules-migrate')) as $code => $identifiers) {
+        foreach ($this->modules->migrateInstalled() as $code => $identifiers) {
             foreach ($identifiers as $identifier) {
                 echo sprintf("Migrated %s: %s\n", $code, $identifier);
             }

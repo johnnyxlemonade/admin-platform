@@ -28,23 +28,23 @@ final class ModuleCatalogTest extends TestCase
         self::assertStringNotContainsString('development:seed', json_encode($scripts, JSON_THROW_ON_ERROR));
     }
 
-    public function testItReportsMissingComposerMetadataOnlyForDiagnosticContexts(): void
+    public function testItRejectsAnIncompleteComposerInstallation(): void
     {
         $temporary = sys_get_temp_dir() . '/lemonade-module-catalog-' . bin2hex(random_bytes(8));
-        mkdir($temporary . '/storage', 0775, true);
+        mkdir($temporary, 0775, true);
         $catalog = new ModuleCatalog((new ApplicationContextFactory())->create($temporary, ['APP_ENV' => 'testing']));
 
         try {
             $this->expectException(RuntimeException::class);
-            $this->expectExceptionMessage('Composer installed metadata');
+            $this->expectExceptionMessage('Composer installed package metadata');
+            $this->expectExceptionMessage('Run Composer install to complete the application installation.');
             $catalog->load();
         } finally {
-            @rmdir($temporary . '/storage');
             @rmdir($temporary);
         }
     }
 
-    public function testItGeneratesAndLoadsAnIsolatedDeterministicCatalog(): void
+    public function testItValidatesTheBuiltinManifestCatalogDeterministically(): void
     {
         $composer = json_decode((string) file_get_contents(dirname(__DIR__, 3) . '/composer.json'), true, 512, JSON_THROW_ON_ERROR);
         $classes = $composer['extra']['lemonade']['modules'] ?? [];
@@ -76,9 +76,9 @@ final class ModuleCatalogTest extends TestCase
     }
 
     /**
-     * Composer manifest je dostupny pri bootstrapu i bez generovaneho katalogu
+     * Composer manifest je dostupny primo z canonical package metadata
      */
-    public function testItLoadsComposerManifestWithoutGeneratedCatalog(): void
+    public function testItLoadsComposerManifestFromInstalledMetadata(): void
     {
         $temporary = sys_get_temp_dir() . '/lemonade-module-runtime-' . bin2hex(random_bytes(8));
         mkdir($temporary . '/vendor/composer', 0775, true);
@@ -91,6 +91,7 @@ final class ModuleCatalogTest extends TestCase
             $catalog = new ModuleCatalog((new ApplicationContextFactory())->create($temporary, ['APP_ENV' => 'testing']));
 
             self::assertSame(['cms.news'], array_map(static fn($manifest): string => $manifest->code(), $catalog->load()));
+            self::assertFileDoesNotExist($temporary . '/storage/cache/modules.php');
         } finally {
             @unlink($temporary . '/vendor/composer/installed.json');
             @rmdir($temporary . '/vendor/composer');

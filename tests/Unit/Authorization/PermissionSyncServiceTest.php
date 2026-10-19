@@ -24,7 +24,6 @@ final class PermissionSyncServiceTest extends TestCase
             new PermissionDefinition('system.modules.install', 'system.modules', 'modules.permissions.install'),
             new PermissionDefinition('system.modules.enable', 'system.modules', 'modules.permissions.enable'),
             new PermissionDefinition('system.modules.disable', 'system.modules', 'modules.permissions.disable'),
-            new PermissionDefinition('system.modules.manage_features', 'system.modules', 'modules.permissions.manage_features'),
         );
 
         (new PermissionSyncService($catalog, $this->database($state)))->sync();

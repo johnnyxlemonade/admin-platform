@@ -28,6 +28,5 @@ final readonly class ModulesActionRegistrar
         $this->actions->register('system.modules', new ModuleActionDefinition('install', 'system.modules.install', 'modules.actions.install', new ConfirmationDefinition('modules.confirm.install'), true), ModulesInstallAction::class);
         $this->actions->register('system.modules', new ModuleActionDefinition('enable', 'system.modules.enable', 'modules.actions.enable', new ConfirmationDefinition('modules.confirm.enable'), true), ModulesEnableAction::class);
         $this->actions->register('system.modules', new ModuleActionDefinition('disable', 'system.modules.disable', 'modules.actions.disable', new ConfirmationDefinition('modules.confirm.disable'), true), ModulesDisableAction::class);
-        $this->actions->register('system.modules', new ModuleActionDefinition('feature-toggle', 'system.modules.manage_features', 'modules.features.actions.toggle'), ModulesFeatureToggleAction::class);
     }
 }

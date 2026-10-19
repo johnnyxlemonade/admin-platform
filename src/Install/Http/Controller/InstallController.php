@@ -109,9 +109,6 @@ final readonly class InstallController
             return $this->preflightFailureResponse($request, $initial);
         }
 
-        if ($initial && (!$this->installation->catalogExists() || (string) (new RequestData($request))->input('prepare', '') === '1')) {
-            return $this->prepareCatalog($request);
-        }
         if ($initial && !$this->authorizeInitialRequest($request)) {
             return $this->requests->wantsJson($request)
                 ? $this->jsonError(null, 'install.install.errors.invalid_key', HttpStatusCode::FORBIDDEN->value)
@@ -144,7 +141,6 @@ final readonly class InstallController
             'initial' => $initial,
             'workflowEndpoint' => $this->router->url($initial ? 'admin.install.run' : 'admin.upgrade.run'),
             'state' => $state,
-            'catalogExists' => $this->installation->catalogExists(),
             'preflight' => $this->localizePreflight($this->installation->preflight()),
             'stepStates' => $this->installation->stepStates($initial),
             'errors' => $extra['errors'] ?? [],
@@ -164,27 +160,6 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok preparecatalog v instalaci aplikace
-     */
-    private function prepareCatalog(ServerRequestInterface $request): ResponseInterface
-    {
-        if (!$this->authorizeInitialRequest($request)) {
-            return $this->invalidKeyResponse($request);
-        }
-
-        try {
-            $this->installation->discoverCatalog();
-            $this->installation->authorizeInstall();
-
-            return $this->responses->redirect($this->router->url('admin.install'), 303);
-        } catch (\Throwable $exception) {
-            return $this->show($request, true, [
-                'generalError' => $this->localizeInstallerMessage($this->safeError($exception)),
-            ], HttpStatusCode::INTERNAL_SERVER_ERROR->value);
-        }
-    }
-
-    /**
      * Zpracovava krok preflightfailureresponse v instalaci aplikace
      */
     private function preflightFailureResponse(ServerRequestInterface $request, bool $initial): ResponseInterface
@@ -194,16 +169,6 @@ final readonly class InstallController
         return $this->requests->wantsJson($request)
             ? $this->jsonError(null, 'install.installErrors.preflight', HttpStatusCode::UNPROCESSABLE_ENTITY->value)
             : $this->show($request, $initial, ['generalError' => $message], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
-    }
-
-    /**
-     * Zpracovava krok invalidkeyresponse v instalaci aplikace
-     */
-    private function invalidKeyResponse(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->requests->wantsJson($request)
-            ? $this->jsonError(null, 'install.install.errors.invalid_key', HttpStatusCode::FORBIDDEN->value)
-            : $this->show($request, true, ['generalError' => $this->translator->get('install.install.errors.invalid_key')], HttpStatusCode::FORBIDDEN->value);
     }
 
     /**
@@ -243,7 +208,7 @@ final readonly class InstallController
     private function runJson(bool $initial, ServerRequestInterface $request): ResponseInterface
     {
         $step = InstallStep::tryFrom((string) (new RequestData($request))->input('step', ''));
-        if ($step === null || (!$initial && $step === InstallStep::Discovery)) {
+        if ($step === null) {
             return $this->jsonError($step, 'install.installErrors.step_invalid', HttpStatusCode::UNPROCESSABLE_ENTITY->value);
         }
 
@@ -448,7 +413,6 @@ final readonly class InstallController
                     'steps' => [
                         'title' => $translate('install.install.steps.title'),
                         'environment' => $translate('install.installSteps.environment'),
-                        'discovery' => $translate('install.install.steps.discovery'),
                         'database' => $translate('install.install.steps.database'),
                         'modules' => $translate('install.install.steps.modules'),
                         'permissions' => $translate('install.install.steps.permissions'),
@@ -487,7 +451,6 @@ final readonly class InstallController
                     ],
                     'preflight' => $translate('install.installErrors.preflight'),
                     'credentials' => $translate('install.installErrors.credentials'),
-                    'catalog' => $translate('install.installErrors.catalog'),
                     'step_order' => $translate('install.installErrors.step_order'),
                     'step_invalid' => $translate('install.installErrors.step_invalid'),
                     'operation_failed' => $translate('install.installErrors.operation_failed'),
@@ -499,8 +462,6 @@ final readonly class InstallController
                     'success' => $translate('install.installSteps.success'),
                     'error' => $translate('install.installSteps.error'),
                     'skipped' => $translate('install.installSteps.skipped'),
-                    'prepare' => $translate('install.installSteps.prepare'),
-                    'refresh_catalog' => $translate('install.installSteps.refresh_catalog'),
                 ],
                 'installPresentation' => [
                     'preflight_summary' => $translate('install.installPresentation.preflight_summary'),
@@ -587,25 +548,5 @@ final readonly class InstallController
         }
 
         return $message;
-    }
-
-    /**
-     * Zpracovava krok safeerror v instalaci aplikace
-     */
-    private function safeError(\Throwable $exception): string
-    {
-        $message = trim($exception->getMessage());
-        if ($message === '') {
-            return 'install.installErrors.operation_failed';
-        }
-        foreach (['users.validation.email_taken', 'users.validation.email_invalid', 'users.validation.password_min_length'] as $key) {
-            if (str_contains($message, $key)) {
-                return $key;
-            }
-        }
-
-        return preg_match('/(?:mysql:|pgsql:|sqlite:|dsn\s*[=:]|sqlstate\[|database connection failed)/i', $message) === 1
-            ? 'install.installErrors.database'
-            : (preg_replace('/(password|passwd|pwd|secret|token)\s*[=:]\s*[^\s,;]+/i', '$1=[redacted]', $message) ?? 'install.installErrors.operation_failed');
     }
 }

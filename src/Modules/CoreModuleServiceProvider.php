@@ -7,8 +7,6 @@ namespace Lemonade\Admin\Modules;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Console\ModuleInstallCommand;
 use Lemonade\Admin\Modules\Console\ModuleMigrateCommand;
-use Lemonade\Admin\Modules\Feature\FeatureProviderRegistry;
-use Lemonade\Admin\Modules\Feature\ModuleFeatureStateResolver;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Modules\State\ModuleStateResolver;
 use Lemonade\Framework\Cli\CommandDefinition;
@@ -31,8 +29,6 @@ final readonly class CoreModuleServiceProvider implements ServiceProviderInterfa
         $container->singleton(ModuleRegistry::class, ModuleRegistry::class);
         $container->singleton(ModuleCatalog::class, ModuleCatalog::class);
         $container->singleton(ModuleStateResolver::class, ModuleStateResolver::class);
-        $container->singleton(ModuleFeatureStateResolver::class, ModuleFeatureStateResolver::class);
-        $container->singleton(FeatureProviderRegistry::class, FeatureProviderRegistry::class);
     }
 
     /**

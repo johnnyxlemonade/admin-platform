@@ -15,13 +15,10 @@ use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Modules\Registry\ModuleRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
-use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Modules\Actions\ModulesActionRegistrar;
 use Lemonade\Admin\System\Modules\Dashboard\ModulesDashboardWidgetProvider;
 use Lemonade\Admin\System\Modules\DataGrid\ModulesDataGrid;
-use Lemonade\Admin\System\Modules\Http\Controller\ModulesFeaturesController;
 use Lemonade\Admin\System\Modules\Migrations\RegisterModulesModule;
-use Lemonade\Admin\System\Modules\Routing\ModulesRouteRegistrar;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
@@ -40,7 +37,6 @@ final readonly class ModulesModuleProvider implements ServiceProviderInterface, 
      */
     public function register(ContainerBuilderInterface $container): void
     {
-        $container->scoped(ModulesFeaturesController::class, ModulesFeaturesController::class);
         $container->singleton(ModulesActionRegistrar::class, ModulesActionRegistrar::class);
     }
 
@@ -53,11 +49,10 @@ final readonly class ModulesModuleProvider implements ServiceProviderInterface, 
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.modules');
         $container->get(ViewResourceRegistry::class)->register('modules', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('modules');
-        $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(ModulesRouteRegistrar::class));
         $container->get(ModuleRegistry::class)->register($definition);
         $audit = $container->get(AuditEventPresentationRegistry::class);
         $audit->registerModule(new AuditModulePresentation('system.modules', 'modules.module.name', AdminIcon::Boxes));
-        foreach (['installed', 'enabled', 'disabled', 'route_prefix_synchronized', 'feature_enabled', 'feature_disabled', 'feature_synchronized'] as $event) {
+        foreach (['installed', 'enabled', 'disabled'] as $event) {
             $audit->register(new AuditEventPresentation('system.module_' . $event, 'modules.audit.' . $event, AdminIcon::Boxes));
         }
         $container->get(AdminModuleRegistry::class)->register($definition);

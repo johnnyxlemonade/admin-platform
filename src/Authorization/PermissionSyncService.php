@@ -17,7 +17,6 @@ final readonly class PermissionSyncService
         'system.modules.install',
         'system.modules.enable',
         'system.modules.disable',
-        'system.modules.manage_features',
     ];
 
     public function __construct(

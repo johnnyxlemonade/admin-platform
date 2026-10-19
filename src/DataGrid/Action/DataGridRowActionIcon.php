@@ -25,7 +25,6 @@ final readonly class DataGridRowActionIcon
             'set-default' => AdminIcon::Star,
             'open', 'detail' => AdminIcon::BoxArrowUpRight,
             'view' => AdminIcon::Eye,
-            'features', 'feature-toggle' => AdminIcon::Sliders,
             'settings' => AdminIcon::Gear,
             'install' => AdminIcon::Boxes,
             default => null,

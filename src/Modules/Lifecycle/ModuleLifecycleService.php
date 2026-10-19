@@ -10,11 +10,9 @@ use Lemonade\Admin\Authorization\PermissionSyncService;
 use Lemonade\Admin\Event\DomainEvent;
 use Lemonade\Admin\Event\TransactionalEventCollector;
 use Lemonade\Admin\Event\TransactionalEventProcessor;
-use Lemonade\Admin\Modules\Feature\ModuleFeatureLifecycleService;
 use Lemonade\Admin\Modules\Migration\ModuleMigrationManifestInterface;
 use Lemonade\Admin\Modules\Migration\ModuleMigrationRunner;
 use Lemonade\Admin\Modules\Persistence\ModuleModel;
-use Lemonade\Admin\Modules\Routing\ModuleRoutePrefixLifecycleService;
 use Lemonade\Admin\Modules\State\ModuleState;
 use Lemonade\Admin\Modules\State\ModuleStateResolver;
 
@@ -28,8 +26,6 @@ final class ModuleLifecycleService
         private readonly ModuleModel $modules,
         private readonly TransactionalEventProcessor $events,
         private readonly ?ModuleMigrationRunner $migrations = null,
-        private readonly ?ModuleFeatureLifecycleService $features = null,
-        private readonly ?ModuleRoutePrefixLifecycleService $routePrefixes = null,
         private readonly ?PermissionSyncService $permissions = null,
     ) {}
 
@@ -67,23 +63,19 @@ final class ModuleLifecycleService
             throw new ModuleLifecycleException('Module migration runner is not available.');
         }
         $this->migrations->migrate($manifest);
-        $this->events->execute(new AuditOperation($code, 'modules.install', $actor), function (TransactionalEventCollector $events) use ($code, $manifest): void {
+        $this->events->execute(new AuditOperation($code, 'modules.install', $actor), function (TransactionalEventCollector $events) use ($code): void {
             $this->permissions?->syncModule($code);
             $this->modules->install($code);
-            $this->routePrefixes?->initialize($manifest, $events);
-            $this->features?->initialize($manifest, $events);
             $events->record(new DomainEvent('system.module_installed', $code, 'system.module', $code));
         });
         $this->states->refresh();
-        $this->features?->refresh();
 
         return $this->states->state($code);
     }
 
     /** @return array<string, list<string>> */
-    public function migrateInstalled(?AuditActor $actor = null): array
+    public function migrateInstalled(): array
     {
-        $actor ??= AuditActor::migration('modules-migrate');
         // The installer can enter this lifecycle after the database schema was recreated.
         // Do not let a persistent runtime snapshot mark an optional module as installed
         // when its row is absent from the current database.
@@ -101,8 +93,6 @@ final class ModuleLifecycleService
                 throw new ModuleLifecycleException('Module migration runner is not available.');
             }
             $results[$state->code()] = $this->migrations->migrate($manifest)->applied();
-            $this->routePrefixes?->synchronize($manifest, $actor);
-            $this->features?->synchronize($manifest, $actor);
         }
 
         return $results;

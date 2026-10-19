@@ -9,7 +9,7 @@ use Lemonade\Framework\Database\Schema\Blueprint\TableBlueprint;
 use Lemonade\Framework\Database\Schema\Schema;
 
 /**
- * Vytvari katalog modulu a jejich funkci
+ * Vytvari katalog modulu
  */
 final readonly class CreateCoreModuleCatalog implements MigrationInterface
 {
@@ -22,7 +22,7 @@ final readonly class CreateCoreModuleCatalog implements MigrationInterface
     }
 
     /**
-     * Vytvari katalog modulu a jejich funkci
+     * Vytvari katalog modulu
      */
     public function up(Schema $schema): void
     {
@@ -37,24 +37,6 @@ final readonly class CreateCoreModuleCatalog implements MigrationInterface
             $table->engine('InnoDB');
             $table->charset('utf8mb4');
             $table->comment('Lemonade / katalog modulu');
-        }, ifNotExists: true);
-
-        $schema->create('system_module_feature', static function (TableBlueprint $table): void {
-            $table->unsignedBigInteger('module_id')->comment('Modul, kteremu funkce patri');
-            $table->string('feature', 50)->comment('Stabilni identifikator funkce modulu');
-            $table->boolean('enabled')->default(1)->comment('Urcuje dostupnost funkce modulu');
-            $table->string('provider', 50)->nullable()->comment('Poskytovatel nebo zdroj funkce');
-            $table->timestamps();
-            $table->softDeletes();
-            $table->primary(['module_id', 'feature']);
-            $table->foreign('module_id', 'fk_feature_module')
-                ->references('id')
-                ->on('system_module')
-                ->restrictOnDelete()
-                ->restrictOnUpdate();
-            $table->engine('InnoDB');
-            $table->charset('utf8mb4');
-            $table->comment('Lemonade / nastaveni funkci modulu');
         }, ifNotExists: true);
     }
 }

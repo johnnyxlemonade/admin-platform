@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Modules\Catalog;
 
-use Lemonade\Admin\Modules\Feature\ModuleFeatureManifestInterface;
-use Lemonade\Admin\Modules\Feature\ModuleFeatureManifestValidator;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestInterface;
-use Lemonade\Admin\Modules\Routing\ModulePublicRoutePrefixManifestInterface;
-use Lemonade\Admin\Modules\Routing\ModulePublicRoutePrefixManifestValidator;
 use Lemonade\Framework\Core\Context\ApplicationContext;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use RuntimeException;
@@ -19,7 +15,7 @@ use RuntimeException;
 final readonly class ModuleManifestDiscovery
 {
     /**
-     * Nastavuje cesty aplikace pro Composer discovery a diagnosticky snapshot
+     * Nastavuje cesty aplikace pro Composer discovery
      */
     public function __construct(private readonly ApplicationContext $context) {}
 
@@ -62,13 +58,6 @@ final readonly class ModuleManifestDiscovery
             if (!class_exists($provider) || !is_subclass_of($provider, ServiceProviderInterface::class)) {
                 throw new RuntimeException(sprintf('Runtime provider "%s" for module "%s" must implement %s.', $provider, $code, ServiceProviderInterface::class));
             }
-            if ($manifest instanceof ModuleFeatureManifestInterface) {
-                ModuleFeatureManifestValidator::validate($manifest);
-            }
-            if ($manifest instanceof ModulePublicRoutePrefixManifestInterface) {
-                ModulePublicRoutePrefixManifestValidator::validate($manifest);
-            }
-
             $codes[$code] = true;
             $manifests[] = $manifest;
         }
@@ -76,25 +65,5 @@ final readonly class ModuleManifestDiscovery
         usort($manifests, static fn(ModuleManifestInterface $a, ModuleManifestInterface $b): int => $a->code() <=> $b->code());
 
         return $manifests;
-    }
-
-    /**
-     * Zapise overeny katalog manifestu pro diagnostiku nebo explicitni warmup
-     */
-    public function writeCatalog(ModuleCatalog $catalog): void
-    {
-        $classes = array_map(static fn(ModuleManifestInterface $manifest): string => $manifest::class, $this->discover());
-        $path = $catalog->cachePath();
-        $directory = dirname($path);
-        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
-            throw new RuntimeException(sprintf('Module catalog directory "%s" cannot be created.', $directory));
-        }
-
-        $contents = "<?php\n\ndeclare(strict_types=1);\n\nreturn " . var_export($classes, true) . ";\n";
-        $temporary = $path . '.' . bin2hex(random_bytes(8)) . '.tmp';
-        if (file_put_contents($temporary, $contents, LOCK_EX) === false || !rename($temporary, $path)) {
-            @unlink($temporary);
-            throw new RuntimeException(sprintf('Module catalog "%s" cannot be written.', $path));
-        }
     }
 }

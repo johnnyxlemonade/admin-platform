@@ -9,7 +9,6 @@ namespace Lemonade\Admin\Install;
  */
 enum InstallStep: string
 {
-    case Discovery = 'discovery';
     case Database = 'database';
     case Modules = 'modules';
     case Permissions = 'permissions';
@@ -21,7 +20,7 @@ enum InstallStep: string
      */
     public static function pipeline(): array
     {
-        return [self::Discovery, self::Database, self::Modules, self::Permissions, self::Root];
+        return [self::Database, self::Modules, self::Permissions, self::Root];
     }
 
     /**

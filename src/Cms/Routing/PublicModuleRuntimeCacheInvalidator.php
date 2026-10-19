@@ -15,7 +15,6 @@ final readonly class PublicModuleRuntimeCacheInvalidator implements DomainEventL
 {
     public function __construct(
         private ModuleStateResolver $modules,
-        private ModuleRoutePrefixPublicRepository $prefixes,
     ) {}
 
     /**
@@ -29,9 +28,6 @@ final readonly class PublicModuleRuntimeCacheInvalidator implements DomainEventL
             'system.module_disabled',
         ], true)) {
             $this->modules->forgetCachedDatabaseStates();
-        }
-        if ($event->code() === 'system.module_route_prefix_synchronized') {
-            $this->prefixes->forgetCachedPrefixes();
         }
     }
 }

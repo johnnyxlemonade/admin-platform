@@ -16,14 +16,11 @@ use Lemonade\Admin\DataGrid\DataGridFilterDefinition;
 use Lemonade\Admin\DataGrid\DataGridResult;
 use Lemonade\Admin\DataGrid\DataGridRowDefinition;
 use Lemonade\Admin\DataGrid\Query\DataGridQuery;
-use Lemonade\Admin\Icon\AdminIcon;
-use Lemonade\Admin\Modules\Feature\ModuleFeatureManifestInterface;
 use Lemonade\Admin\Modules\State\ModuleState;
 use Lemonade\Admin\Modules\State\ModuleStateResolver;
 use Lemonade\Admin\Select\SelectOptionDefinition;
 use Lemonade\Admin\Select\StaticSelectOptionSource;
 use Lemonade\Framework\Localization\TranslatorInterface;
-use Lemonade\Framework\Routing\UrlGenerator;
 
 /**
  * Promita sdileny runtime stav modulu do management DataGridu
@@ -37,7 +34,6 @@ final readonly class ModulesDataGrid implements DataGridProviderInterface
         private ModuleStateResolver $states,
         private TranslatorInterface $translator,
         private ModuleActionPresentationFactory $actionPresentation,
-        private UrlGenerator $urls,
     ) {}
 
     /**
@@ -225,21 +221,6 @@ final readonly class ModulesDataGrid implements DataGridProviderInterface
             if ($action !== null) {
                 $actions[] = $action;
             }
-        }
-
-        $manifest = $state->available() ? $this->states->manifest($state->code()) : null;
-        if ($state->available()
-            && $manifest instanceof ModuleFeatureManifestInterface
-            && $manifest->featureDefinitions() !== []) {
-            $actions[] = (new DataGridRowActionDefinition(
-                key: 'features',
-                label: $this->translator->get('modules.actions.features'),
-                url: $this->urls->route(
-                    name: 'admin.modules.features',
-                    params: ['module' => $state->code()],
-                ),
-                method: 'GET',
-            ))->withIcon(AdminIcon::Sliders);
         }
 
         return $actions;

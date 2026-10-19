@@ -37,7 +37,7 @@ final readonly class ModulesModuleDefinition implements AdminModuleDefinitionInt
     }
 
     /**
-     * Deklaruje oddelena management prava pro cteni, lifecycle akce a feature akce
+     * Deklaruje oddelena management prava pro cteni a lifecycle akce
      *
      * @return list<PermissionDefinition>
      */
@@ -72,14 +72,6 @@ final readonly class ModulesModuleDefinition implements AdminModuleDefinitionInt
                 code: 'system.modules.disable',
                 moduleCode: $this->code(),
                 nameKey: 'modules.permissions.disable',
-                delegation: PermissionDelegation::SuperAdminOnly,
-                requires: ['system.modules.view'],
-            ),
-            // Umoznuje menit nastavitelne feature modulu
-            new PermissionDefinition(
-                code: 'system.modules.manage_features',
-                moduleCode: $this->code(),
-                nameKey: 'modules.permissions.manage_features',
                 delegation: PermissionDelegation::SuperAdminOnly,
                 requires: ['system.modules.view'],
             ),
