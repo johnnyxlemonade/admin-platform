@@ -53,100 +53,140 @@ $sections = [
         'groups' => array_values(array_filter($groups, static fn(array $group): bool => !str_starts_with((string) $group['moduleCode'], 'system.'))),
     ],
 ];
-$previewLimit = 3;
+$allPermissions = $groups === []
+    ? []
+    : array_merge(...array_map(static fn(array $group): array => $group['permissions'], $groups));
+$selectedCount = count(array_filter($allPermissions, $isSelected));
+$totalCount = count($allPermissions);
 ?>
-<div class="lm-permission-groups" data-lemonade-permission-groups data-lemonade-permission-mode="<?= e($permissionMode) ?>" data-lemonade-permission-count-label="<?= e($countLabel) ?>" data-lemonade-permission-select-all-label="<?= e($groupAllLabel) ?>" data-lemonade-permission-select-all-label-key="<?= e((string) $groupAllLabelKey) ?>" data-lemonade-permission-show-all-key="admin.permissions.show_all" data-lemonade-permission-hide-key="admin.permissions.hide" data-lemonade-permission-system-title="<?= e($helpers->lang('admin.permissions.system.title')) ?>" data-lemonade-permission-system-description="<?= e($helpers->lang('admin.permissions.system.description')) ?>" data-lemonade-permission-modules-title="<?= e($helpers->lang('admin.permissions.modules.title')) ?>" data-lemonade-permission-modules-description="<?= e($helpers->lang('admin.permissions.modules.description')) ?>"<?php if ($isUserMode): ?> data-lemonade-permission-role-label="<?= e($helpers->lang('users.editor.permission_source_role')) ?>" data-lemonade-permission-override-label="<?= e($helpers->lang('users.editor.permission_source_override')) ?>" data-lemonade-permission-inherited-allow-label="<?= e($helpers->lang('users.editor.permission_inherited_allow')) ?>" data-lemonade-permission-inherited-deny-label="<?= e($helpers->lang('users.editor.permission_inherited_deny')) ?>" data-lemonade-permission-allow-label="<?= e($helpers->lang('users.editor.permission_allow')) ?>" data-lemonade-permission-deny-label="<?= e($helpers->lang('users.editor.permission_deny')) ?>"<?php endif; ?>>
-    <?php foreach ($sections as $section): ?>
-        <?php if ($section['groups'] === []): continue; endif; ?>
-        <?php
-        $sectionPermissions = array_merge(...array_map(static fn(array $group): array => $group['permissions'], $section['groups']));
-        $sectionSelectedCount = count(array_filter($sectionPermissions, $isSelected));
-        $sectionTotalCount = count($sectionPermissions);
-        $sectionId = 'permission-section-' . $section['scope'];
-        $sectionToggleId = $sectionId . '-all';
-        ?>
-        <section class="lm-permission-section" data-lemonade-permission-section aria-labelledby="<?= e($sectionId) ?>">
-            <header class="lm-permission-section-header">
-                <div class="lm-permission-section-heading">
-                    <span class="lm-permission-section-icon"><i class="<?= e($section['icon']->cssClass()) ?>" aria-hidden="true"></i></span>
-                    <div>
-                        <h3 id="<?= e($sectionId) ?>" data-lemonade-i18n="<?= e($section['titleKey']) ?>"><?= e($helpers->lang($section['titleKey'])) ?></h3>
-                        <p data-lemonade-i18n="<?= e($section['descriptionKey']) ?>"><?= e($helpers->lang($section['descriptionKey'])) ?></p>
-                    </div>
+<div class="lm-permission-groups" data-lemonade-permission-groups data-lemonade-permission-mode="<?= e($permissionMode) ?>" data-lemonade-permission-count-label="<?= e($countLabel) ?>" data-lemonade-permission-select-all-label="<?= e($groupAllLabel) ?>" data-lemonade-permission-select-all-label-key="<?= e((string) $groupAllLabelKey) ?>" data-lemonade-permission-system-title="<?= e($helpers->lang('admin.permissions.system.title')) ?>" data-lemonade-permission-system-description="<?= e($helpers->lang('admin.permissions.system.description')) ?>" data-lemonade-permission-modules-title="<?= e($helpers->lang('admin.permissions.modules.title')) ?>" data-lemonade-permission-modules-description="<?= e($helpers->lang('admin.permissions.modules.description')) ?>"<?php if ($isUserMode): ?> data-lemonade-permission-role-label="<?= e($helpers->lang('users.editor.permission_source_role')) ?>" data-lemonade-permission-override-label="<?= e($helpers->lang('users.editor.permission_source_override')) ?>" data-lemonade-permission-inherited-allow-label="<?= e($helpers->lang('users.editor.permission_inherited_allow')) ?>" data-lemonade-permission-inherited-deny-label="<?= e($helpers->lang('users.editor.permission_inherited_deny')) ?>" data-lemonade-permission-allow-label="<?= e($helpers->lang('users.editor.permission_allow')) ?>" data-lemonade-permission-deny-label="<?= e($helpers->lang('users.editor.permission_deny')) ?>"<?php endif; ?>>
+    <div class="lm-permission-layout">
+        <div class="lm-permission-main">
+            <div class="lm-permission-toolbar" data-lemonade-permission-controls hidden>
+                <div class="lm-permission-filter-control">
+                    <span class="lm-permission-filter-icon"><i class="<?= e(AdminIcon::Search->cssClass()) ?>" aria-hidden="true"></i></span>
+                    <input class="form-control lm-permission-filter" type="search" autocomplete="off" placeholder="<?= e($helpers->lang('admin.permissions.search_placeholder')) ?>" aria-label="<?= e($helpers->lang('admin.permissions.search')) ?>" data-lemonade-permission-filter data-lemonade-i18n-placeholder="admin.permissions.search_placeholder" data-lemonade-i18n-aria-label="admin.permissions.search">
                 </div>
-                <div class="lm-permission-section-actions">
-                    <span class="lm-permission-section-count" data-lemonade-permission-section-count data-selected-count="<?= e((string) $sectionSelectedCount) ?>" data-total-count="<?= e((string) $sectionTotalCount) ?>" aria-live="polite" aria-label="<?= e($countLabel) ?>: <?= e((string) $sectionSelectedCount) ?> / <?= e((string) $sectionTotalCount) ?>"><?= e((string) $sectionSelectedCount) ?> / <?= e((string) $sectionTotalCount) ?></span>
-                    <span class="lm-permission-section-select-all">
-                        <input class="form-check-input" id="<?= e($sectionToggleId) ?>" type="checkbox"<?= $sectionSelectedCount === $sectionTotalCount && $sectionTotalCount > 0 ? ' checked' : '' ?><?= $disabled ? ' disabled data-lemonade-permission-section-disabled' : '' ?> data-lemonade-permission-section-toggle aria-controls="<?= e($sectionId) ?>-groups">
-                        <label class="form-check-label" for="<?= e($sectionToggleId) ?>"<?= is_string($groupAllLabelKey) && $groupAllLabelKey !== '' ? ' data-lemonade-i18n="' . e($groupAllLabelKey) . '"' : '' ?>><?= e($groupAllLabel) ?></label>
-                    </span>
+                <div class="lm-permission-expand-actions">
+                    <button class="btn btn-light" type="button" data-lemonade-permission-toggle-all data-lemonade-permission-expand-label="<?= e($helpers->lang('admin.permissions.expand_all')) ?>" data-lemonade-permission-collapse-label="<?= e($helpers->lang('admin.permissions.collapse_all')) ?>" aria-label="<?= e($helpers->lang('admin.permissions.expand_all')) ?>">
+                        <i class="<?= e(AdminIcon::ChevronDown->cssClass()) ?>" data-lemonade-permission-expand-icon aria-hidden="true"></i>
+                        <i class="<?= e(AdminIcon::ChevronUp->cssClass()) ?>" data-lemonade-permission-collapse-icon aria-hidden="true" hidden></i>
+                        <span data-lemonade-permission-toggle-all-label data-lemonade-i18n="admin.permissions.expand_all"><?= e($helpers->lang('admin.permissions.expand_all')) ?></span>
+                    </button>
                 </div>
-            </header>
-            <div class="lm-permission-section-groups" id="<?= e($sectionId) ?>-groups">
-                <?php foreach ($section['groups'] as $group): ?>
+            </div>
+            <div class="lm-permission-sections" data-lemonade-permission-sections>
+                <?php foreach ($sections as $section): ?>
+                    <?php if ($section['groups'] === []): continue; endif; ?>
                     <?php
-                    $permissions = $group['permissions'];
-                    $selectedCount = count(array_filter($permissions, $isSelected));
-                    $totalCount = count($permissions);
-                    $headingId = $groupId((string) $group['moduleCode']);
-                    $groupToggleId = $headingId . '-all';
+                    $sectionPermissions = array_merge(...array_map(static fn(array $group): array => $group['permissions'], $section['groups']));
+                    $sectionSelectedCount = count(array_filter($sectionPermissions, $isSelected));
+                    $sectionTotalCount = count($sectionPermissions);
+                    $sectionId = 'permission-section-' . $section['scope'];
+                    $sectionToggleId = $sectionId . '-all';
                     ?>
-                    <section class="lm-permission-group" data-lemonade-permission-group aria-labelledby="<?= e($headingId) ?>">
-                        <div class="lm-permission-group-header">
-                            <div class="lm-permission-group-heading">
-                                <?php if (is_string($group['icon'] ?? null) && $group['icon'] !== ''): ?><span class="lm-permission-group-icon"><i class="<?= e($group['icon']) ?>" aria-hidden="true"></i></span><?php endif; ?>
-                                <div class="lm-permission-group-copy">
-                                    <h4 class="lm-permission-group-title" id="<?= e($headingId) ?>"><span<?= is_string($group['labelKey'] ?? null) && $group['labelKey'] !== '' ? ' data-lemonade-i18n="' . e($group['labelKey']) . '"' : '' ?>><?= e((string) $group['label']) ?></span></h4>
-                                    <?php if (is_string($group['description'] ?? null) && $group['description'] !== ''): ?>
-                                        <p class="lm-permission-group-description"<?= is_string($group['descriptionKey'] ?? null) && $group['descriptionKey'] !== '' ? ' data-lemonade-i18n="' . e($group['descriptionKey']) . '"' : '' ?>><?= e($group['description']) ?></p>
-                                    <?php endif; ?>
+                    <section class="lm-permission-section" data-lemonade-permission-section data-lemonade-permission-section-scope="<?= e($section['scope']) ?>" aria-labelledby="<?= e($sectionId) ?>">
+                        <header class="lm-permission-section-header">
+                            <div class="lm-permission-section-heading">
+                                <span class="lm-permission-section-icon"><i class="<?= e($section['icon']->cssClass()) ?>" aria-hidden="true"></i></span>
+                                <div>
+                                    <h3 id="<?= e($sectionId) ?>" data-lemonade-i18n="<?= e($section['titleKey']) ?>"><?= e($helpers->lang($section['titleKey'])) ?></h3>
+                                    <p data-lemonade-i18n="<?= e($section['descriptionKey']) ?>"><?= e($helpers->lang($section['descriptionKey'])) ?></p>
                                 </div>
                             </div>
-                            <div class="lm-permission-group-actions">
-                                <span class="lm-permission-group-count" data-lemonade-permission-count data-selected-count="<?= e((string) $selectedCount) ?>" data-total-count="<?= e((string) $totalCount) ?>" aria-live="polite" aria-label="<?= e($countLabel) ?>: <?= e((string) $selectedCount) ?> / <?= e((string) $totalCount) ?>"><?= e((string) $selectedCount) ?> / <?= e((string) $totalCount) ?></span>
-                                <span class="lm-permission-group-select-all">
-                                    <input class="form-check-input lm-permission-group-toggle" id="<?= e($groupToggleId) ?>" type="checkbox"<?= $selectedCount === $totalCount && $totalCount > 0 ? ' checked' : '' ?><?= $disabled || $totalCount === 0 ? ' disabled' : '' ?><?= $disabled ? ' data-lemonade-permission-group-disabled' : '' ?> data-lemonade-permission-group-toggle aria-controls="<?= e($headingId) ?>-permissions">
-                                    <label class="form-check-label" for="<?= e($groupToggleId) ?>"<?= is_string($groupAllLabelKey) && $groupAllLabelKey !== '' ? ' data-lemonade-i18n="' . e($groupAllLabelKey) . '"' : '' ?>><?= e($groupAllLabel) ?></label>
+                            <div class="lm-permission-section-actions">
+                                <span class="lm-permission-section-count" data-lemonade-permission-section-count data-selected-count="<?= e((string) $sectionSelectedCount) ?>" data-total-count="<?= e((string) $sectionTotalCount) ?>" aria-live="polite" aria-label="<?= e($countLabel) ?>: <?= e((string) $sectionSelectedCount) ?> / <?= e((string) $sectionTotalCount) ?>"><?= e((string) $sectionSelectedCount) ?> / <?= e((string) $sectionTotalCount) ?></span>
+                                <span class="lm-permission-section-select-all">
+                                    <input class="form-check-input" id="<?= e($sectionToggleId) ?>" type="checkbox"<?= $sectionSelectedCount === $sectionTotalCount && $sectionTotalCount > 0 ? ' checked' : '' ?><?= $disabled ? ' disabled data-lemonade-permission-section-disabled' : '' ?> data-lemonade-permission-section-toggle aria-controls="<?= e($sectionId) ?>-groups">
+                                    <label class="form-check-label" for="<?= e($sectionToggleId) ?>"<?= is_string($groupAllLabelKey) && $groupAllLabelKey !== '' ? ' data-lemonade-i18n="' . e($groupAllLabelKey) . '"' : '' ?>><?= e($groupAllLabel) ?></label>
                                 </span>
                             </div>
-                        </div>
-                        <div class="lm-permission-grid" id="<?= e($headingId) ?>-permissions">
-                            <?php foreach ($permissions as $index => $permission): ?>
+                        </header>
+                        <div class="lm-permission-section-groups" id="<?= e($sectionId) ?>-groups">
+                            <?php foreach ($section['groups'] as $group): ?>
                                 <?php
-                                $code = (string) $permission['code'];
-                                $id = $permissionId($code);
-                                $state = (string) ($permission['state'] ?? '');
-                                $isInherited = $isUserMode && str_starts_with($state, 'inherited');
-                                $checked = $isSelected($permission);
-                                $requires = is_array($permission['requires'] ?? null) ? array_values(array_filter($permission['requires'], 'is_string')) : [];
-                                $requiresAttribute = implode(',', $requires);
+                                $permissions = $group['permissions'];
+                                $groupSelectedCount = count(array_filter($permissions, $isSelected));
+                                $groupTotalCount = count($permissions);
+                                $headingId = $groupId((string) $group['moduleCode']);
+                                $groupToggleId = $headingId . '-all';
+                                $groupBodyId = $headingId . '-permissions';
                                 ?>
-                                <div class="lm-permission-item" data-lemonade-permission-item<?= $index >= $previewLimit ? ' hidden data-lemonade-permission-item-extra' : '' ?>>
-                        <?php if ($isUserMode): ?>
-                            <input type="hidden" name="permission_overrides[<?= e($code) ?>]" value="<?= $isInherited ? '' : e($state) ?>"<?= $isInherited ? ' disabled' : '' ?> data-lemonade-permission-input>
-                            <input class="form-check-input" id="<?= e($id) ?>" type="checkbox"<?= $checked ? ' checked' : '' ?><?= $disabled ? ' disabled' : '' ?> data-lemonade-permission-toggle data-lemonade-permission-code="<?= e($code) ?>" data-lemonade-permission-requires="<?= e($requiresAttribute) ?>"<?= $isInherited ? ' data-lemonade-permission-inherited-state="' . e($state) . '"' : '' ?> data-lemonade-permission-state="<?= e($state) ?>" aria-describedby="<?= e($id) ?>-state">
-                        <?php else: ?>
-                            <input type="hidden" name="permissions[<?= e($code) ?>]" value="0">
-                            <input class="form-check-input" id="<?= e($id) ?>" name="permissions[<?= e($code) ?>]" type="checkbox" value="1"<?= $checked ? ' checked' : '' ?><?= $disabled ? ' disabled' : '' ?> data-lemonade-field="permissions" data-lemonade-permission-toggle data-lemonade-permission-code="<?= e($code) ?>" data-lemonade-permission-requires="<?= e($requiresAttribute) ?>">
-                        <?php endif; ?>
-                        <label class="form-check-label" for="<?= e($id) ?>" data-lemonade-i18n="<?= e((string) $permission['labelKey']) ?>"><?= e((string) $permission['label']) ?></label>
-                        <?php if ($isUserMode): ?>
-                            <span class="lm-permission-source<?= $isInherited ? ' is-inherited' : ' is-override' ?>" data-lemonade-permission-source>
-                                <?php if ($isInherited): ?><i class="bi bi-lock" aria-hidden="true"></i><?php endif; ?><span data-lemonade-permission-source-label><?= e($isInherited ? $helpers->lang('users.editor.permission_source_role') : $helpers->lang('users.editor.permission_source_override')) ?></span>
-                            </span>
-                            <span class="visually-hidden" id="<?= e($id) ?>-state" data-lemonade-permission-state-label data-lemonade-i18n="users.editor.permission_<?= e($state) ?>"><?= e($helpers->lang('users.editor.permission_' . $state)) ?></span>
-                        <?php endif; ?>
-                                </div>
+                                <section class="lm-permission-group" data-lemonade-permission-group data-lemonade-permission-module-code="<?= e((string) $group['moduleCode']) ?>" aria-labelledby="<?= e($headingId) ?>">
+                                    <div class="lm-permission-group-header">
+                                        <button class="lm-permission-group-heading" type="button" data-lemonade-permission-group-collapse aria-expanded="false" aria-controls="<?= e($groupBodyId) ?>">
+                                            <?php if (is_string($group['icon'] ?? null) && $group['icon'] !== ''): ?><span class="lm-permission-group-icon"><i class="<?= e($group['icon']) ?>" aria-hidden="true"></i></span><?php endif; ?>
+                                            <span class="lm-permission-group-copy">
+                                                <span class="lm-permission-group-title" id="<?= e($headingId) ?>"><span<?= is_string($group['labelKey'] ?? null) && $group['labelKey'] !== '' ? ' data-lemonade-i18n="' . e($group['labelKey']) . '"' : '' ?>><?= e((string) $group['label']) ?></span></span>
+                                                <?php if (is_string($group['description'] ?? null) && $group['description'] !== ''): ?>
+                                                    <span class="lm-permission-group-description"<?= is_string($group['descriptionKey'] ?? null) && $group['descriptionKey'] !== '' ? ' data-lemonade-i18n="' . e($group['descriptionKey']) . '"' : '' ?>><?= e($group['description']) ?></span>
+                                                <?php endif; ?>
+                                            </span>
+                                            <i class="<?= e(AdminIcon::ChevronDown->cssClass()) ?> lm-permission-group-chevron" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="lm-permission-group-actions">
+                                            <span class="lm-permission-group-count" data-lemonade-permission-count data-selected-count="<?= e((string) $groupSelectedCount) ?>" data-total-count="<?= e((string) $groupTotalCount) ?>" aria-live="polite" aria-label="<?= e($countLabel) ?>: <?= e((string) $groupSelectedCount) ?> / <?= e((string) $groupTotalCount) ?>"><?= e((string) $groupSelectedCount) ?> / <?= e((string) $groupTotalCount) ?></span>
+                                            <span class="lm-permission-group-select-all">
+                                                <input class="form-check-input lm-permission-group-toggle" id="<?= e($groupToggleId) ?>" type="checkbox"<?= $groupSelectedCount === $groupTotalCount && $groupTotalCount > 0 ? ' checked' : '' ?><?= $disabled || $groupTotalCount === 0 ? ' disabled' : '' ?><?= $disabled ? ' data-lemonade-permission-group-disabled' : '' ?> data-lemonade-permission-group-toggle aria-controls="<?= e($groupBodyId) ?>">
+                                                <label class="form-check-label" for="<?= e($groupToggleId) ?>"<?= is_string($groupAllLabelKey) && $groupAllLabelKey !== '' ? ' data-lemonade-i18n="' . e($groupAllLabelKey) . '"' : '' ?>><?= e($groupAllLabel) ?></label>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="lm-permission-group-body" id="<?= e($groupBodyId) ?>" data-lemonade-permission-group-body hidden>
+                                        <div class="lm-permission-grid">
+                                            <?php foreach ($permissions as $permission): ?>
+                                                <?php
+                                                $code = (string) $permission['code'];
+                                                $id = $permissionId($code);
+                                                $state = (string) ($permission['state'] ?? '');
+                                                $isInherited = $isUserMode && str_starts_with($state, 'inherited');
+                                                $checked = $isSelected($permission);
+                                                $requires = is_array($permission['requires'] ?? null) ? array_values(array_filter($permission['requires'], 'is_string')) : [];
+                                                $requiresAttribute = implode(',', $requires);
+                                                ?>
+                                                <div class="lm-permission-item" data-lemonade-permission-item>
+                                                    <?php if ($isUserMode): ?>
+                                                        <input type="hidden" name="permission_overrides[<?= e($code) ?>]" value="<?= $isInherited ? '' : e($state) ?>"<?= $isInherited ? ' disabled' : '' ?> data-lemonade-permission-input>
+                                                        <input class="form-check-input" id="<?= e($id) ?>" type="checkbox"<?= $checked ? ' checked' : '' ?><?= $disabled ? ' disabled' : '' ?> data-lemonade-permission-toggle data-lemonade-permission-code="<?= e($code) ?>" data-lemonade-permission-requires="<?= e($requiresAttribute) ?>"<?= $isInherited ? ' data-lemonade-permission-inherited-state="' . e($state) . '"' : '' ?> data-lemonade-permission-state="<?= e($state) ?>" aria-describedby="<?= e($id) ?>-state">
+                                                    <?php else: ?>
+                                                        <input type="hidden" name="permissions[<?= e($code) ?>]" value="0">
+                                                        <input class="form-check-input" id="<?= e($id) ?>" name="permissions[<?= e($code) ?>]" type="checkbox" value="1"<?= $checked ? ' checked' : '' ?><?= $disabled ? ' disabled' : '' ?> data-lemonade-field="permissions" data-lemonade-permission-toggle data-lemonade-permission-code="<?= e($code) ?>" data-lemonade-permission-requires="<?= e($requiresAttribute) ?>">
+                                                    <?php endif; ?>
+                                                    <label class="form-check-label" for="<?= e($id) ?>" data-lemonade-i18n="<?= e((string) $permission['labelKey']) ?>"><?= e((string) $permission['label']) ?></label>
+                                                    <?php if ($isUserMode): ?>
+                                                        <span class="lm-permission-source<?= $isInherited ? ' is-inherited' : ' is-override' ?>" data-lemonade-permission-source>
+                                                            <?php if ($isInherited): ?><i class="<?= e(AdminIcon::Lock->cssClass()) ?>" aria-hidden="true"></i><?php endif; ?><span data-lemonade-permission-source-label><?= e($isInherited ? $helpers->lang('users.editor.permission_source_role') : $helpers->lang('users.editor.permission_source_override')) ?></span>
+                                                        </span>
+                                                        <span class="visually-hidden" id="<?= e($id) ?>-state" data-lemonade-permission-state-label data-lemonade-i18n="users.editor.permission_<?= e($state) ?>"><?= e($helpers->lang('users.editor.permission_' . $state)) ?></span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </section>
                             <?php endforeach; ?>
                         </div>
-                        <?php if ($totalCount > $previewLimit): ?>
-                            <div class="lm-permission-group-footer">
-                                <button class="lm-permission-group-expand" type="button" data-lemonade-permission-group-expand aria-expanded="false" aria-controls="<?= e($headingId) ?>-permissions" data-lemonade-permission-expand-count="<?= e((string) $totalCount) ?>"><span data-lemonade-permission-group-expand-label data-lemonade-i18n="admin.permissions.show_all" data-lemonade-i18n-param-count="<?= e((string) $totalCount) ?>"><?= e($helpers->lang('admin.permissions.show_all', ['count' => $totalCount])) ?></span><i class="bi bi-chevron-down" aria-hidden="true"></i></button>
-                            </div>
-                        <?php endif; ?>
                     </section>
                 <?php endforeach; ?>
             </div>
-        </section>
-    <?php endforeach; ?>
+            <p class="lm-permission-empty" data-lemonade-permission-empty data-lemonade-i18n="admin.permissions.no_results" hidden><?= e($helpers->lang('admin.permissions.no_results')) ?></p>
+        </div>
+        <aside class="lm-permission-sidebar" aria-label="<?= e($helpers->lang('admin.permissions.summary')) ?>">
+            <section class="lm-permission-summary">
+                <h3 data-lemonade-i18n="admin.permissions.summary"><?= e($helpers->lang('admin.permissions.summary')) ?></h3>
+                <p class="lm-permission-summary-value"><strong data-lemonade-permission-total-selected><?= e((string) $selectedCount) ?></strong><span aria-hidden="true"> / </span><span data-lemonade-permission-total><?= e((string) $totalCount) ?></span></p>
+                <p class="lm-permission-summary-label"><?= e($countLabel) ?></p>
+                <progress class="lm-permission-progress" max="<?= e((string) max(1, $totalCount)) ?>" value="<?= e((string) $selectedCount) ?>" data-lemonade-permission-progress aria-label="<?= e($countLabel) ?>"></progress>
+            </section>
+            <section class="lm-permission-quick-actions" data-lemonade-permission-controls hidden>
+                <h3 data-lemonade-i18n="admin.permissions.quick_actions"><?= e($helpers->lang('admin.permissions.quick_actions')) ?></h3>
+                <button class="btn btn-light" type="button" data-lemonade-permission-select-all<?= $disabled ? ' disabled data-lemonade-permission-controls-disabled' : '' ?>><i class="<?= e(AdminIcon::Check2All->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="admin.permissions.select_all"><?= e($helpers->lang('admin.permissions.select_all')) ?></span></button>
+                <button class="btn btn-light" type="button" data-lemonade-permission-clear-all<?= $disabled ? ' disabled data-lemonade-permission-controls-disabled' : '' ?>><i class="<?= e(AdminIcon::XLg->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="admin.permissions.clear_all"><?= e($helpers->lang('admin.permissions.clear_all')) ?></span></button>
+            </section>
+            <section class="lm-permission-module-overview" data-lemonade-permission-controls hidden>
+                <h3 data-lemonade-i18n="admin.permissions.module_overview"><?= e($helpers->lang('admin.permissions.module_overview')) ?></h3>
+                <div class="lm-permission-module-list" data-lemonade-permission-module-list></div>
+            </section>
+        </aside>
+    </div>
 </div>

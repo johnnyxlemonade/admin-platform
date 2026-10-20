@@ -52,12 +52,13 @@ final readonly class SessionLockController
     /**
      * Vraci stav zamcene relace a pozadovany zpusob jejiho odemknuti
      */
-    public function status(): ResponseInterface
+    public function status(ServerRequestInterface $request): ResponseInterface
     {
         if ($this->authentication->sessionState() === AdminSessionState::LOCKED) {
             return $this->responses->json([
                 'error' => ['code' => AdminErrorCode::SESSION_LOCKED->value],
                 'unlock' => $this->authentication->oidcLogoutContext() === null ? 'local' : 'oidc',
+                'retryAfterSeconds' => $this->retryAfterSeconds($request),
             ], 423);
         }
 
@@ -81,6 +82,7 @@ final readonly class SessionLockController
             'clientTranslationVersion' => $this->translationVersion,
             'returnUrl' => $destination,
             'oidc' => $this->authentication->oidcLogoutContext() !== null,
+            'retryAfterSeconds' => $this->retryAfterSeconds($request),
         ]);
     }
 
@@ -100,8 +102,7 @@ final readonly class SessionLockController
 
         $limit = $this->throttler->loginStatus($request, $user->email());
         if (!$limit->allowed()) {
-            return $this->responses->json(['error' => ['code' => 'throttled']], HttpStatus::TOO_MANY_REQUESTS->value)
-                ->withHeader('Retry-After', (string) $limit->retryAfterSeconds());
+            return $this->throttledResponse($limit->retryAfterSeconds());
         }
 
         $password = (string) (new RequestData($request))->input('password', '');
@@ -110,8 +111,7 @@ final readonly class SessionLockController
             if (!$limit->allowed()) {
                 $this->auditFailure('system.authentication.session_unlock_throttled', 'rate_limited');
 
-                return $this->responses->json(['error' => ['code' => 'throttled']], HttpStatus::TOO_MANY_REQUESTS->value)
-                    ->withHeader('Retry-After', (string) $limit->retryAfterSeconds());
+                return $this->throttledResponse($limit->retryAfterSeconds());
             }
 
             $this->auditFailure('system.authentication.session_unlock_failed', 'invalid_credentials');
@@ -126,6 +126,39 @@ final readonly class SessionLockController
         $this->throttler->clearLoginIdentity($user->email());
 
         return $this->responses->json(['success' => true]);
+    }
+
+    /**
+     * Vrati zbyvajici dobu omezeni lokalniho odemknuti bez zmeny limiteru
+     */
+    private function retryAfterSeconds(ServerRequestInterface $request): int
+    {
+        if ($this->authentication->oidcLogoutContext() !== null) {
+            return 0;
+        }
+
+        $user = $this->currentUser->currentUser();
+        if ($user === null) {
+            return 0;
+        }
+
+        $limit = $this->throttler->loginStatus($request, $user->email());
+
+        return $limit->allowed() ? 0 : max(1, $limit->retryAfterSeconds());
+    }
+
+    /**
+     * Vrati rate-limit odpoved se shodnym casem v hlavicce i JSON kontraktu
+     */
+    private function throttledResponse(int $retryAfterSeconds): ResponseInterface
+    {
+        $retryAfterSeconds = max(1, $retryAfterSeconds);
+
+        return $this->responses->json([
+            'error' => ['code' => 'throttled'],
+            'retryAfterSeconds' => $retryAfterSeconds,
+        ], HttpStatus::TOO_MANY_REQUESTS->value)
+            ->withHeader('Retry-After', (string) $retryAfterSeconds);
     }
 
     /**

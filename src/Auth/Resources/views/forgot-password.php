@@ -16,7 +16,7 @@ use Lemonade\Framework\View\ViewHelpers;
 <form class="lm-auth-form" method="post" action="<?= e($helpers->url('admin.login.forgot.submit')) ?>">
     <?= $helpers->csrfField() ?>
     <?php if ($messageKey !== null && $messageType !== null): ?>
-        <div class="lm-message lm-message--<?= e($messageType) ?>" role="<?= $messageType === 'error' ? 'alert' : 'status' ?>">
+        <div class="lm-message lm-message--<?= e($messageType) ?><?= $messageType === 'error' ? ' lm-auth-error' : '' ?>" role="<?= $messageType === 'error' ? 'alert' : 'status' ?>">
             <i class="<?= e(($messageType === 'error' ? AdminIcon::XCircle : AdminIcon::InfoCircle)->cssClass()) ?> lm-message-icon" aria-hidden="true"></i>
             <span class="lm-message-copy"><?= e($helpers->lang($messageKey)) ?></span>
             <button class="lm-message-close" type="button" data-lemonade-message-close aria-label="<?= e($helpers->lang('auth.common.close')) ?>" title="<?= e($helpers->lang('auth.common.close')) ?>" data-lemonade-i18n-aria-label="auth.common.close" data-lemonade-i18n-title="auth.common.close"><i class="<?= e(AdminIcon::XLg->cssClass()) ?>" aria-hidden="true"></i></button>

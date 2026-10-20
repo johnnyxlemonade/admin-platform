@@ -16,6 +16,21 @@ import { Message } from "./components/lemonade-message.js";
 import { MfaQr } from "./components/lemonade-mfa-qr.js";
 import { PasswordToggle } from "./components/lemonade-password-toggle.js";
 import { Theme } from "./core/lemonade-theme.js";
+
+function sessionUnlockRetryAfter(value) {
+    const seconds = Number.parseInt(value, 10);
+
+    return Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+}
+
+function sessionUnlockThrottleMessage(seconds) {
+    if (seconds < 60) {
+        return I18n.t("auth.errors.throttled_seconds", { seconds: Math.max(1, seconds) });
+    }
+
+    return I18n.t("auth.errors.throttled_minutes", { minutes: Math.ceil(seconds / 60) });
+}
+
     export class AuthLogin {
         constructor(form) {
             this.form = form;
@@ -181,18 +196,78 @@ async function initializeAuth() {
         AuthLogin.initAll();
         document.querySelectorAll("[data-lemonade-session-lock-screen]").forEach(function (screen) {
             const error = screen.querySelector("[data-lemonade-session-lock-error]");
-            const showError = (key) => { error.textContent = I18n.t(key); error.hidden = false; };
+            const errorCopy = error.querySelector("[data-lemonade-session-lock-error-copy]");
+            const form = screen.querySelector("[data-lemonade-session-local-unlock]");
+            const submit = form?.querySelector('[type="submit"]');
+            let throttleUntil = 0;
+            let throttleTimer = null;
+            let submitting = false;
+            const showError = (key) => { errorCopy.textContent = I18n.t(key); error.hidden = false; };
             const redirectAfterUnlock = () => window.location.assign(screen.dataset.lemonadeSessionReturnUrl || "/");
-            screen.querySelector("[data-lemonade-session-local-unlock]")?.addEventListener("submit", async (event) => {
+            const updateThrottle = () => {
+                const remaining = Math.max(0, Math.ceil((throttleUntil - Date.now()) / 1000));
+                if (remaining > 0) {
+                    errorCopy.textContent = sessionUnlockThrottleMessage(remaining);
+                    error.hidden = false;
+                } else if (throttleUntil > 0) {
+                    window.clearInterval(throttleTimer);
+                    throttleTimer = null;
+                    throttleUntil = 0;
+                    error.hidden = true;
+                    errorCopy.textContent = "";
+                }
+                if (submit) {
+                    submit.disabled = submitting || remaining > 0;
+                    submit.setAttribute("aria-disabled", submit.disabled ? "true" : "false");
+                }
+            };
+            const startThrottle = (seconds) => {
+                const retryAfter = sessionUnlockRetryAfter(seconds);
+                if (retryAfter === 0) {
+                    showError("auth.session_lock.throttled");
+                    return;
+                }
+                throttleUntil = Date.now() + retryAfter * 1000;
+                window.clearInterval(throttleTimer);
+                updateThrottle();
+                throttleTimer = window.setInterval(updateThrottle, 1000);
+            };
+            form?.addEventListener("submit", async (event) => {
                 event.preventDefault();
-                const response = await window.fetch(screen.dataset.lemonadeSessionUnlockUrl, { method: "POST", headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || "", "Content-Type": "application/json" }, body: JSON.stringify({ password: new FormData(event.currentTarget).get("password") }), credentials: "same-origin" });
-                if (response.ok) redirectAfterUnlock(); else showError("auth.session_lock.invalid");
+                if (Date.now() < throttleUntil || submitting) {
+                    updateThrottle();
+                    return;
+                }
+                submitting = true;
+                updateThrottle();
+                error.hidden = true;
+                try {
+                    const response = await window.fetch(screen.dataset.lemonadeSessionUnlockUrl, { method: "POST", headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || "", "Content-Type": "application/json" }, body: JSON.stringify({ password: new FormData(event.currentTarget).get("password") }), credentials: "same-origin" });
+                    if (response.ok) {
+                        redirectAfterUnlock();
+                        return;
+                    }
+                    if (response.status === 429) {
+                        const payload = await response.json().catch(() => null);
+                        startThrottle(response.headers.get("Retry-After") || payload?.retryAfterSeconds);
+                    } else {
+                        showError("auth.session_lock.invalid");
+                    }
+                } catch (reason) {
+                    showError("auth.session_lock.invalid");
+                } finally {
+                    submitting = false;
+                    updateThrottle();
+                }
             });
             screen.querySelector("[data-lemonade-session-oidc-unlock]")?.addEventListener("click", () => {
                 SessionUnlockHelper.openOidcPopup(screen.dataset.lemonadeSessionOidcUnlockUrl, async () => {
                     if (await SessionUnlockHelper.isActive(screen.dataset.lemonadeSessionStatusUrl)) redirectAfterUnlock(); else showError("auth.session_lock.oidc_failed");
                 }, (reason) => showError(`auth.session_lock.${reason}`));
             });
+            if (sessionUnlockRetryAfter(screen.dataset.lemonadeSessionRetryAfter) > 0) {
+                startThrottle(screen.dataset.lemonadeSessionRetryAfter);
+            }
         });
 }
 

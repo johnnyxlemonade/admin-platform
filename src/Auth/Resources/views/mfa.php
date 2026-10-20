@@ -13,7 +13,7 @@ use Lemonade\Framework\View\ViewHelpers;
 <p class="lm-auth-description" data-lemonade-i18n="auth.mfa.challenge_description"><?= e($helpers->lang('auth.mfa.challenge_description')) ?></p>
 <form class="lm-auth-form" method="post" action="<?= e($helpers->url('admin.login.mfa.verify')) ?>" data-lemonade-auth-login data-lemonade-auth-default-error-key="auth.mfa.errors.invalid">
     <?= $helpers->csrfField() ?>
-    <div class="lm-message lm-message--error" role="alert" data-lemonade-auth-error<?= $errorKey === null ? ' hidden' : '' ?>>
+    <div class="lm-message lm-message--error lm-auth-error" role="alert" data-lemonade-auth-error<?= $errorKey === null ? ' hidden' : '' ?>>
         <i class="<?= e(AdminIcon::XCircle->cssClass()) ?> lm-message-icon" aria-hidden="true"></i>
         <span class="lm-message-copy" data-lemonade-auth-error-copy<?= $errorKey === null || $errorMessage !== null ? '' : ' data-lemonade-i18n="' . e($errorKey) . '"' ?>><?= $errorKey === null ? '' : e($errorMessage ?? $helpers->lang($errorKey)) ?></span>
         <button class="lm-message-close" type="button" data-lemonade-message-close aria-label="<?= e($helpers->lang('auth.common.close')) ?>" title="<?= e($helpers->lang('auth.common.close')) ?>" data-lemonade-i18n-aria-label="auth.common.close" data-lemonade-i18n-title="auth.common.close"><i class="<?= e(AdminIcon::XLg->cssClass()) ?>" aria-hidden="true"></i></button>

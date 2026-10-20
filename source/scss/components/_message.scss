@@ -200,11 +200,43 @@ body.lemonade-auth .lm-message-container > .lm-message .lm-message-icon {
     font-size: 20px;
 }
 
-.lemonade-auth [data-lemonade-auth-error] {
+.lm-auth-error {
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    margin: 0 0 14px;
+    border-color: color-mix(in srgb, var(--lm-danger) 35%, var(--lm-line));
+    color: color-mix(in srgb, var(--lm-danger-dark) 84%, var(--lm-text-strong));
+    background: var(--lm-danger-soft);
     box-shadow: none;
 }
 
-.lemonade-auth [data-lemonade-auth-error][hidden] {
+.lm-auth-form > .lm-auth-error {
+    margin-bottom: 0;
+}
+
+.lm-auth-error .lm-message-icon {
+    flex-basis: 16px;
+    width: 16px;
+    height: 19px;
+    color: var(--lm-danger);
+    font-size: 14px;
+}
+
+.lm-auth-error .lm-message-copy {
+    min-width: 0;
+    padding: 0;
+    color: color-mix(in srgb, var(--lm-danger-dark) 84%, var(--lm-text-strong));
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.lm-auth-error .lm-message-close {
+    margin: -3px -4px -3px 0;
+    color: var(--lm-danger-dark);
+}
+
+.lm-auth-error[hidden] {
     display: none;
 }
 

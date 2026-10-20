@@ -9,11 +9,12 @@
  * @license   Apache-2.0 - see LICENSE
  */
 export class HttpError extends Error {
-        constructor(message, status, response) {
+        constructor(message, status, response, headers) {
             super(message);
             this.name = "LemonadeHttpError";
             this.status = status;
             this.response = response;
+            this.headers = headers || null;
         }
 }
 
@@ -62,7 +63,7 @@ export class HttpHelper {
                 if (response.status === 423 && payload?.error?.code === "session_locked") {
                     window.dispatchEvent(new CustomEvent("lemonade:session:locked"));
                 }
-                throw new HttpError("HTTP request failed.", response.status, payload);
+                throw new HttpError("HTTP request failed.", response.status, payload, response.headers);
             }
 
             return payload;

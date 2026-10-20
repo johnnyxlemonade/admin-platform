@@ -19,6 +19,20 @@ import { Theme } from "./core/lemonade-theme.js";
 import { mountComponents } from "./lemonade-admin-components.js";
 import "./pages/lemonade-install.js";
 
+function sessionUnlockRetryAfter(value) {
+    const seconds = Number.parseInt(value, 10);
+
+    return Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+}
+
+function sessionUnlockThrottleMessage(seconds) {
+    if (seconds < 60) {
+        return I18n.t("auth.errors.throttled_seconds", { seconds: Math.max(1, seconds) });
+    }
+
+    return I18n.t("auth.errors.throttled_minutes", { minutes: Math.ceil(seconds / 60) });
+}
+
 class AdminSessionHeartbeat {
     static ACTIVITY_KEY = "lemonade-admin:session-activity-at";
     static HEARTBEAT_KEY = "lemonade-admin:session-heartbeat-at";
@@ -118,6 +132,8 @@ class AdminSessionLockManager {
         this.overlay = null;
         this.probing = null;
         this.oidc = false;
+        this.retryAfterSeconds = 0;
+        this.unlockThrottleTimer = null;
     }
 
     mount() {
@@ -152,6 +168,7 @@ class AdminSessionLockManager {
                 if (response.status === 423) {
                     const payload = await response.json().catch(() => null);
                     this.oidc = payload?.unlock === "oidc";
+                    this.retryAfterSeconds = sessionUnlockRetryAfter(payload?.retryAfterSeconds);
                     this.lock();
                 }
                 else if (response.status === 401) this.redirectToLogin();
@@ -200,39 +217,92 @@ class AdminSessionLockManager {
             : `<form class="lemonade-session-lock__form"><label for="lemonade-session-password">${I18n.t("auth.session_lock.password")}</label><div class="lemonade-session-lock__input"><i class="bi bi-key"></i><input id="lemonade-session-password" type="password" autocomplete="current-password" placeholder="${I18n.t("auth.session_lock.password")}" required></div><button class="lemonade-session-lock__primary" type="submit"><i class="bi bi-unlock"></i>${I18n.t("auth.session_lock.unlock")}</button></form>`;
         const identity = document.querySelector("[data-lemonade-session-identity]");
         const identityMarkup = identity ? `<div class="lemonade-session-lock__identity"><span class="lemonade-session-lock__avatar">${identity.dataset.initials}</span><strong>${identity.dataset.name}</strong></div>` : "";
-        overlay.innerHTML = `<div class="lemonade-session-lock__card"><div class="lemonade-session-lock__emblem"><i class="bi bi-lock"></i></div><h1>${I18n.t("auth.session_lock.title")}</h1><p class="lemonade-session-lock__lead">${I18n.t(this.oidc ? "auth.session_lock.oidc_description" : "auth.session_lock.description")}</p>${identityMarkup}<p class="lemonade-session-lock__verify">${I18n.t("auth.session_lock.verify")}</p><p class="text-danger mt-2" hidden></p>${unlockMarkup}<div class="lemonade-session-lock__divider"><span>${I18n.t("auth.session_lock.or")}</span></div><div class="lemonade-session-lock__actions"><button class="lemonade-session-lock__logout" type="button"><i class="bi bi-box-arrow-right"></i>${I18n.t("auth.session_lock.logout")}</button></div><p class="lemonade-session-lock__safe"><i class="bi bi-shield-check"></i>${I18n.t("auth.session_lock.safe")}</p></div>`;
+        overlay.innerHTML = `<div class="lemonade-session-lock__card"><div class="lemonade-session-lock__emblem"><i class="bi bi-lock"></i></div><h1>${I18n.t("auth.session_lock.title")}</h1><p class="lemonade-session-lock__lead">${I18n.t(this.oidc ? "auth.session_lock.oidc_description" : "auth.session_lock.description")}</p>${identityMarkup}<p class="lemonade-session-lock__verify">${I18n.t("auth.session_lock.verify")}</p><div class="lm-message lm-message--error lm-auth-error" role="alert" data-lemonade-session-lock-error hidden><i class="bi bi-x-circle lm-message-icon" aria-hidden="true"></i><span class="lm-message-copy" data-lemonade-session-lock-error-copy></span></div>${unlockMarkup}<div class="lemonade-session-lock__divider"><span>${I18n.t("auth.session_lock.or")}</span></div><div class="lemonade-session-lock__actions"><button class="lemonade-session-lock__logout" type="button"><i class="bi bi-box-arrow-right"></i>${I18n.t("auth.session_lock.logout")}</button></div><p class="lemonade-session-lock__safe"><i class="bi bi-shield-check"></i>${I18n.t("auth.session_lock.safe")}</p></div>`;
         document.body.append(overlay);
         const form = overlay.querySelector("form");
         const password = overlay.querySelector("input");
-        const error = overlay.querySelector(".text-danger");
+        const error = overlay.querySelector("[data-lemonade-session-lock-error]");
+        const errorCopy = error.querySelector("[data-lemonade-session-lock-error-copy]");
+        const submit = form?.querySelector('[type="submit"]');
+        let throttleUntil = 0;
+        let submitting = false;
+        const updateThrottle = () => {
+            const remaining = Math.max(0, Math.ceil((throttleUntil - Date.now()) / 1000));
+            if (remaining > 0) {
+                error.hidden = false;
+                errorCopy.textContent = sessionUnlockThrottleMessage(remaining);
+            } else if (throttleUntil > 0) {
+                window.clearInterval(this.unlockThrottleTimer);
+                this.unlockThrottleTimer = null;
+                throttleUntil = 0;
+                error.hidden = true;
+                errorCopy.textContent = "";
+            }
+            if (submit) {
+                submit.disabled = submitting || remaining > 0;
+                submit.setAttribute("aria-disabled", submit.disabled ? "true" : "false");
+            }
+        };
+        const startThrottle = (seconds) => {
+            const retryAfter = sessionUnlockRetryAfter(seconds);
+            if (retryAfter === 0) {
+                error.hidden = false;
+                errorCopy.textContent = I18n.t("auth.session_lock.throttled");
+                return;
+            }
+            throttleUntil = Date.now() + retryAfter * 1000;
+            window.clearInterval(this.unlockThrottleTimer);
+            updateThrottle();
+            this.unlockThrottleTimer = window.setInterval(updateThrottle, 1000);
+        };
         overlay.querySelector(".lemonade-session-lock__logout").addEventListener("click", () => this.logout());
-        overlay.querySelector("[data-lemonade-oidc-unlock]")?.addEventListener("click", () => this.openOidcPopup(overlay, error));
+        overlay.querySelector("[data-lemonade-oidc-unlock]")?.addEventListener("click", () => this.openOidcPopup(error, errorCopy));
         form?.addEventListener("submit", async (event) => {
             event.preventDefault();
+            if (Date.now() < throttleUntil || submitting) {
+                updateThrottle();
+                return;
+            }
+            submitting = true;
+            updateThrottle();
+            error.hidden = true;
             try {
                 await HttpHelper.post(this.unlockUrl, { password: password.value });
                 this.unlock(); this.confirmActivity(); this.broadcast();
             } catch (reason) {
-                error.hidden = false;
-                error.textContent = reason.status === 429 ? I18n.t("auth.session_lock.throttled") : I18n.t("auth.session_lock.invalid");
-                password.focus();
+                if (reason.status === 429) {
+                    startThrottle(reason.headers?.get("Retry-After") || reason.response?.retryAfterSeconds);
+                } else {
+                    error.hidden = false;
+                    errorCopy.textContent = I18n.t("auth.session_lock.invalid");
+                    password.focus();
+                }
+            } finally {
+                submitting = false;
+                updateThrottle();
             }
         });
+        if (this.retryAfterSeconds > 0) {
+            startThrottle(this.retryAfterSeconds);
+        }
         (password || overlay.querySelector("[data-lemonade-oidc-unlock]"))?.focus();
     }
 
-    openOidcPopup(overlay, error) {
+    openOidcPopup(error, errorCopy) {
         SessionUnlockHelper.openOidcPopup(this.oidcUnlockUrl, async () => {
             await this.probe(true);
             if (!this.locked) this.broadcast();
-            else { error.hidden = false; error.textContent = I18n.t("auth.session_lock.oidc_failed"); }
-        }, (reason) => { error.hidden = false; error.textContent = I18n.t(`auth.session_lock.${reason}`); });
+            else { error.hidden = false; errorCopy.textContent = I18n.t("auth.session_lock.oidc_failed"); }
+        }, (reason) => { error.hidden = false; errorCopy.textContent = I18n.t(`auth.session_lock.${reason}`); });
     }
 
     unlock() {
         if (!this.locked) return;
         this.overlay?.remove();
         this.overlay = null;
+        window.clearInterval(this.unlockThrottleTimer);
+        this.unlockThrottleTimer = null;
+        this.retryAfterSeconds = 0;
         this.shell.inert = false;
         this.locked = false;
     }
