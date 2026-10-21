@@ -19,13 +19,11 @@ use Lemonade\Admin\System\Notifications\DataGrid\NotificationsDataGrid;
 use Lemonade\Admin\System\Notifications\Editor\NotificationsEditor;
 use Lemonade\Admin\System\Notifications\Http\Controller\NotificationsAudienceOptionsController;
 use Lemonade\Admin\System\Notifications\Http\Controller\NotificationsExportController;
-use Lemonade\Admin\System\Notifications\Migrations\RegisterNotificationsModule;
 use Lemonade\Admin\System\Notifications\Routing\NotificationsRouteRegistrar;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
-use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
 use Lemonade\Framework\View\ViewResourceRegistry;
 
@@ -63,7 +61,6 @@ final readonly class NotificationsModuleProvider implements ServiceProviderInter
         $container->get(NotificationsActionRegistrar::class)->register();
         $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
-        $container->get(MigrationRegistry::class)->register(RegisterNotificationsModule::class);
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(NotificationsRouteRegistrar::class));
     }
 }

@@ -14,6 +14,7 @@ use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Editor\EditorRegistry;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Module\AdminModuleRegistry;
+use Lemonade\Admin\Modules\Catalog\AvailableModule;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\ModuleBootstrapServiceProvider;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
@@ -22,7 +23,6 @@ use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
 use Lemonade\Admin\System\Users\Dashboard\UsersDashboardWidgetProvider;
 use Lemonade\Admin\System\Users\DataGrid\UsersDataGrid;
 use Lemonade\Admin\System\Users\Editor\UsersEditor;
-use Lemonade\Admin\System\Users\Migrations\RegisterUsersModule;
 use Lemonade\Admin\System\Users\ModuleManifest;
 use Lemonade\Admin\System\Users\Services\UserService;
 use Lemonade\Admin\System\Users\UsersModuleProvider;
@@ -110,7 +110,7 @@ final class UsersModuleProviderTest extends TestCase
         self::assertInstanceOf(PermissionOverridesRule::class, $this->resolveConcrete($container, PermissionOverridesRule::class));
         self::assertNotNull($registries['permissions']->definition('system.users.mfa_reset'));
         self::assertSame('image', $registries['fileUsage']->require('system.users', 'thumbnail')->kind());
-        self::assertContains(RegisterUsersModule::identifier(), $registries['migrations']->identifiers());
+        self::assertSame([], $registries['migrations']->identifiers());
 
         self::assertSame([UsersDashboardWidgetProvider::class], $registries['dashboard']->providerServiceIds());
     }
@@ -122,8 +122,16 @@ final class UsersModuleProviderTest extends TestCase
     {
         $reflection = new ReflectionClass(ModuleCatalog::class);
         $catalog = $reflection->newInstanceWithoutConstructor();
-        $manifestsProperty = new ReflectionProperty(ModuleCatalog::class, 'manifests');
-        $manifestsProperty->setValue($catalog, $manifests);
+        $modulesProperty = new ReflectionProperty(ModuleCatalog::class, 'modules');
+        $modulesProperty->setValue($catalog, array_map(
+            static fn(ModuleManifest $manifest): AvailableModule => new AvailableModule(
+                manifest: $manifest,
+                packageName: 'johnnyxlemonade/admin-platform',
+                version: 'dev-main',
+                description: 'Admin platform',
+            ),
+            $manifests,
+        ));
 
         return $catalog;
     }

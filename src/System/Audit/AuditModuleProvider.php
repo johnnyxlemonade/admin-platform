@@ -13,13 +13,11 @@ use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Audit\Dashboard\AuditDashboardWidgetProvider;
 use Lemonade\Admin\System\Audit\Dashboard\MyLoginsDashboardWidgetProvider;
 use Lemonade\Admin\System\Audit\DataGrid\AuditDataGrid;
-use Lemonade\Admin\System\Audit\Migrations\RegisterAuditModule;
 use Lemonade\Admin\System\Audit\Models\AuditLogModel;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
-use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
 use Lemonade\Framework\View\ViewResourceRegistry;
 
@@ -51,6 +49,5 @@ final readonly class AuditModuleProvider implements ServiceProviderInterface, Bo
         $container->get(DashboardWidgetRegistry::class)->registerProvider(AuditDashboardWidgetProvider::class);
         $container->get(DashboardWidgetRegistry::class)->registerProvider(MyLoginsDashboardWidgetProvider::class);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
-        $container->get(MigrationRegistry::class)->register(RegisterAuditModule::class);
     }
 }

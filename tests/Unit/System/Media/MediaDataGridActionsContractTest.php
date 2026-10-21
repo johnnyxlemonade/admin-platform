@@ -9,7 +9,7 @@ use Lemonade\Admin\Auth\LocalAdminPrincipal;
 use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\DataGrid\DataGridRowDefinition;
-use Lemonade\Admin\Modules\State\ModuleStateResolver;
+use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Presentation\AdminThumbnailComponent;
 use Lemonade\Admin\System\Media\DataGrid\MediaDataGrid;
 use Lemonade\Admin\System\Media\Services\MediaService;
@@ -53,7 +53,7 @@ final class MediaDataGridActionsContractTest extends TestCase
     {
         $grid = new MediaDataGrid(
             media: (new ReflectionClass(MediaService::class))->newInstanceWithoutConstructor(),
-            modules: (new ReflectionClass(ModuleStateResolver::class))->newInstanceWithoutConstructor(),
+            modules: (new ReflectionClass(ModuleCatalog::class))->newInstanceWithoutConstructor(),
             thumbnails: (new ReflectionClass(AdminThumbnailComponent::class))->newInstanceWithoutConstructor(),
             authorization: $this->authorization($canEdit),
             translator: $this->translator(),

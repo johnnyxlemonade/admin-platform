@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Media;
 
-use Lemonade\Admin\Modules\Definition\ModuleKind;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestDefinition;
 
 /**
@@ -14,6 +13,6 @@ final class ModuleManifest extends ModuleManifestDefinition
 {
     public function __construct()
     {
-        parent::__construct('system.media', ModuleKind::System, MediaModuleProvider::class, 'media.module.name');
+        parent::__construct('system.media', MediaModuleProvider::class, 'media.module.name');
     }
 }

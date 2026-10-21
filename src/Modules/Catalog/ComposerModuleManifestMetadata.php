@@ -8,16 +8,21 @@ use JsonException;
 use RuntimeException;
 
 /**
- * Cte deklarace manifestu samostatne instalovanych Composer modulu
+ * Cte deklarace modulu z Composer installed metadata
  */
 final readonly class ComposerModuleManifestMetadata
 {
     /**
-     * Vrati manifest classy deklarovane Composer balicky
+     * Vrati manifest classy a zobrazitelna metadata jejich Composer balicku
      *
-     * @return list<class-string>
+     * @return list<array{
+     *     manifestClass: class-string,
+     *     packageName: string,
+     *     version: string,
+     *     description: string,
+     * }>
      */
-    public static function manifestClasses(string $installedMetadataPath): array
+    public static function modules(string $installedMetadataPath): array
     {
         if (!is_file($installedMetadataPath)) {
             throw new RuntimeException(sprintf(
@@ -44,16 +49,21 @@ final readonly class ComposerModuleManifestMetadata
             throw new RuntimeException(sprintf('Composer installed package metadata "%s" must contain packages.', $installedMetadataPath));
         }
 
-        return self::declaredManifestClasses($installedMetadata);
+        return self::declaredModules($installedMetadata);
     }
 
     /**
-     * Vybere manifest classy z Composer package metadata
+     * Vybere moduly z Composer package metadata
      *
      * @param array<mixed> $installedMetadata
-     * @return list<class-string>
+     * @return list<array{
+     *     manifestClass: class-string,
+     *     packageName: string,
+     *     version: string,
+     *     description: string,
+     * }>
      */
-    private static function declaredManifestClasses(array $installedMetadata): array
+    private static function declaredModules(array $installedMetadata): array
     {
         $packages = array_is_list($installedMetadata)
             ? $installedMetadata
@@ -62,7 +72,7 @@ final readonly class ComposerModuleManifestMetadata
             throw new RuntimeException('Composer installed package metadata must contain a package list.');
         }
 
-        $classes = [];
+        $declaredModules = [];
         foreach ($packages as $package) {
             if (!is_array($package)) {
                 throw new RuntimeException('Composer installed package metadata must contain package objects.');
@@ -86,18 +96,39 @@ final readonly class ComposerModuleManifestMetadata
                 throw new RuntimeException('Composer package lemonade.modules metadata must be a list of manifest classes.');
             }
 
+            $packageName = $package['name'] ?? null;
+            $version = $package['pretty_version'] ?? $package['version'] ?? null;
+            $description = $package['description'] ?? '';
+            if (!is_string($packageName) || $packageName === '') {
+                throw new RuntimeException('Composer package declaring Lemonade modules must have a non-empty name.');
+            }
+            if (!is_string($version) || $version === '') {
+                throw new RuntimeException(sprintf('Composer package "%s" declaring Lemonade modules must have a non-empty version.', $packageName));
+            }
+            if (!is_string($description)) {
+                throw new RuntimeException(sprintf('Composer package "%s" description must be a string.', $packageName));
+            }
+
             foreach ($modules as $class) {
                 if (!is_string($class) || $class === '') {
                     throw new RuntimeException('Composer package lemonade.modules metadata must contain non-empty manifest class names.');
                 }
 
                 /** @var class-string $class */
-                $classes[] = $class;
+                $declaredModules[] = [
+                    'manifestClass' => $class,
+                    'packageName' => $packageName,
+                    'version' => $version,
+                    'description' => $description,
+                ];
             }
         }
 
-        sort($classes, SORT_STRING);
+        usort(
+            $declaredModules,
+            static fn(array $left, array $right): int => $left['manifestClass'] <=> $right['manifestClass'],
+        );
 
-        return $classes;
+        return $declaredModules;
     }
 }

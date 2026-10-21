@@ -15,7 +15,6 @@ use Lemonade\Admin\Editor\Lock\EditorLockManager;
 use Lemonade\Admin\Http\AdminErrorCode;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\ModuleProviderResolver;
-use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Validation\FormValidation;
 
@@ -29,7 +28,6 @@ final readonly class EditorDispatcher
      */
     public function __construct(
         private AdminModuleRegistry $modules,
-        private ModuleManager $moduleManager,
         private ModuleProviderResolver $providers,
         private AuthorizationService $authorization,
         private FormValidation $validation,
@@ -119,14 +117,6 @@ final readonly class EditorDispatcher
                 HttpStatusCode::NOT_FOUND,
                 AdminErrorCode::NOT_FOUND,
                 'Module not found.',
-            );
-        }
-
-        if (!$this->moduleManager->enabled($module)) {
-            throw new EditorCapabilityException(
-                HttpStatusCode::NOT_FOUND,
-                AdminErrorCode::NOT_FOUND,
-                'Module is not available.',
             );
         }
 

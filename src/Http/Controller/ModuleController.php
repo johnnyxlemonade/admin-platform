@@ -19,7 +19,6 @@ use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
 use Lemonade\Admin\Module\ModuleProviderResolver;
-use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Admin\Page\ModulePage;
 use Lemonade\Admin\Presentation\AdminPageRenderer;
 use Lemonade\Framework\Core\Http\RequestData;
@@ -41,7 +40,6 @@ final readonly class ModuleController
     public function __construct(
         private AdminModuleRouteResolver $routes,
         private AdminModuleAccessPolicy $moduleAccess,
-        private ModuleManager $modules,
         private ModuleProviderResolver $providers,
         private EditorDispatcher $editors,
         private EditorLockManager $locks,
@@ -288,9 +286,7 @@ final readonly class ModuleController
             return [null, $locale, false];
         }
 
-        return $this->modules->enabled($definition->code())
-            ? [$definition->code(), $locale, $this->moduleAccess->canAccess($definition)]
-            : [null, $locale, false];
+        return [$definition->code(), $locale, $this->moduleAccess->canAccess($definition)];
     }
 
     /**

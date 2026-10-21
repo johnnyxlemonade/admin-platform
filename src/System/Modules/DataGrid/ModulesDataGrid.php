@@ -4,36 +4,28 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Modules\DataGrid;
 
-use Lemonade\Admin\Action\Presentation\ModuleActionPresentationFactory;
-use Lemonade\Admin\DataGrid\Action\DataGridRowActionDefinition;
 use Lemonade\Admin\DataGrid\Cell\ScalarCell;
-use Lemonade\Admin\DataGrid\Cell\StatusCell;
-use Lemonade\Admin\DataGrid\Cell\StatusVariant;
 use Lemonade\Admin\DataGrid\Contract\DataGridProviderInterface;
 use Lemonade\Admin\DataGrid\DataGridColumnDefinition;
 use Lemonade\Admin\DataGrid\DataGridDefinition;
-use Lemonade\Admin\DataGrid\DataGridFilterDefinition;
 use Lemonade\Admin\DataGrid\DataGridResult;
 use Lemonade\Admin\DataGrid\DataGridRowDefinition;
 use Lemonade\Admin\DataGrid\Query\DataGridQuery;
-use Lemonade\Admin\Modules\State\ModuleState;
-use Lemonade\Admin\Modules\State\ModuleStateResolver;
-use Lemonade\Admin\Select\SelectOptionDefinition;
-use Lemonade\Admin\Select\StaticSelectOptionSource;
+use Lemonade\Admin\Modules\Catalog\AvailableModule;
+use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Framework\Localization\TranslatorInterface;
 
 /**
- * Promita sdileny runtime stav modulu do management DataGridu
+ * Promita Composer katalog do read-only prehledu modulu
  */
 final readonly class ModulesDataGrid implements DataGridProviderInterface
 {
     /**
-     * Nastavuje runtime snapshot stavu a Admin presentation zavislosti
+     * Nastavuje Composer katalog a lokalizaci nazvu modulu
      */
     public function __construct(
-        private ModuleStateResolver $states,
+        private ModuleCatalog $modules,
         private TranslatorInterface $translator,
-        private ModuleActionPresentationFactory $actionPresentation,
     ) {}
 
     /**
@@ -45,7 +37,7 @@ final readonly class ModulesDataGrid implements DataGridProviderInterface
     }
 
     /**
-     * Deklaruje sloupce, filtr druhu a razeni management prehledu
+     * Deklaruje sloupce read-only prehledu Composer modulu
      */
     public function dataGridDefinition(): DataGridDefinition
     {
@@ -63,61 +55,43 @@ final readonly class ModulesDataGrid implements DataGridProviderInterface
                     sortKey: 'code',
                 ),
                 new DataGridColumnDefinition(
-                    key: 'kind',
-                    translationKey: 'modules.fields.kind',
-                    sortKey: 'kind',
+                    key: 'version',
+                    translationKey: 'modules.fields.version',
+                    sortKey: 'version',
                 ),
                 new DataGridColumnDefinition(
-                    key: 'state',
-                    translationKey: 'modules.fields.state',
-                    sortKey: 'state',
-                ),
-                new DataGridColumnDefinition(
-                    key: 'actions',
-                    translationKey: 'admin.common.actions',
+                    key: 'description',
+                    translationKey: 'modules.fields.description',
                 ),
             ],
             searchEnabled: true,
-            filters: [
-                new DataGridFilterDefinition(
-                    key: 'status',
-                    optionSource: new StaticSelectOptionSource(
-                        options: [
-                            new SelectOptionDefinition(
-                                value: 'system',
-                                label: $this->translator->get('modules.list.system'),
-                            ),
-                            new SelectOptionDefinition(
-                                value: 'optional',
-                                label: $this->translator->get('modules.list.optional'),
-                            ),
-                        ],
-                    ),
-                ),
-            ],
+            filters: [],
             defaultSortKey: 'name',
             defaultSortDirection: 'asc',
             defaultPageSize: 25,
             maximumPageSize: 100,
             defaultView: 'all',
             showAllView: true,
+            viewFilterKey: null,
         );
     }
 
     /**
-     * Filtruje, radi a strankuje in-memory runtime stavy pro administracni prezentaci
+     * Filtruje, radi a strankuje moduly dostupne v Composer instalaci
      */
     public function execute(DataGridQuery $query): DataGridResult
     {
-        $moduleStates = $this->states->all();
-        $moduleStates = array_values(array_filter($moduleStates, fn(ModuleState $state): bool => $this->matches($state, $query)));
-        usort($moduleStates, fn(ModuleState $left, ModuleState $right): int => $this->compare($left, $right, $query));
+        $modules = array_values(array_filter(
+            $this->modules->all(),
+            fn(AvailableModule $module): bool => $this->matches($module, $query->search()),
+        ));
+        usort($modules, fn(AvailableModule $left, AvailableModule $right): int => $this->compare($left, $right, $query));
 
-        $total = count($moduleStates);
-        $pageItems = array_slice($moduleStates, ($query->page() - 1) * $query->pageSize(), $query->pageSize());
+        $total = count($modules);
+        $pageItems = array_slice($modules, ($query->page() - 1) * $query->pageSize(), $query->pageSize());
 
         return new DataGridResult(
-            items: array_map(fn(ModuleState $state): DataGridRowDefinition => $this->row($state), $pageItems),
+            items: array_map(fn(AvailableModule $module): DataGridRowDefinition => $this->row($module), $pageItems),
             page: $query->page(),
             perPage: $query->pageSize(),
             total: $total,
@@ -125,104 +99,66 @@ final readonly class ModulesDataGrid implements DataGridProviderInterface
     }
 
     /**
-     * Filtruje runtime stav podle kodu, lokalizovaneho nazvu a druhu modulu
+     * Vyhleda text v nazvu, kodu, verzi, popisu nebo nazvu balicku
      */
-    private function matches(ModuleState $state, DataGridQuery $query): bool
+    private function matches(AvailableModule $module, string $search): bool
     {
-        $term = strtolower($query->search());
-        $label = strtolower($this->label($state));
-        if ($term !== '' && !str_contains(strtolower($state->code()), $term) && !str_contains($label, $term)) {
-            return false;
+        $term = strtolower($search);
+        if ($term === '') {
+            return true;
         }
-        $statusFilter = $query->filter('status');
 
-        return $statusFilter === null || ($statusFilter === 'system' && $state->system()) || ($statusFilter === 'optional' && $state->available() && !$state->system());
+        foreach ([$this->label($module), $module->code(), $module->version(), $module->description(), $module->packageName()] as $value) {
+            if (str_contains(strtolower($value), $term)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
-     * Radi podle zvolene presentation hodnoty a kodu jako stabilniho tie-breakeru
+     * Radi podle zvolene hodnoty a kodu jako stabilniho tie-breakeru
      */
-    private function compare(ModuleState $leftState, ModuleState $rightState, DataGridQuery $query): int
+    private function compare(AvailableModule $left, AvailableModule $right, DataGridQuery $query): int
     {
-        $sortKey = $query->sortKey();
-        $leftValue = $sortKey === 'name' ? $this->label($leftState) : ($sortKey === 'code' ? $leftState->code() : ($sortKey === 'kind' ? $this->kind($leftState) : $this->state($leftState)));
-        $rightValue = $sortKey === 'name' ? $this->label($rightState) : ($sortKey === 'code' ? $rightState->code() : ($sortKey === 'kind' ? $this->kind($rightState) : $this->state($rightState)));
+        $leftValue = match ($query->sortKey()) {
+            'code' => $left->code(),
+            'version' => $left->version(),
+            default => $this->label($left),
+        };
+        $rightValue = match ($query->sortKey()) {
+            'code' => $right->code(),
+            'version' => $right->version(),
+            default => $this->label($right),
+        };
 
         $comparison = ($query->sortDirection() === 'desc' ? -1 : 1) * strcmp($leftValue, $rightValue);
-        if ($comparison !== 0) {
-            return $comparison;
-        }
 
-        return strcmp($leftState->code(), $rightState->code());
+        return $comparison !== 0 ? $comparison : strcmp($left->code(), $right->code());
     }
 
     /**
-     * Sklada radek s odvozenym lifecycle stavem a presentation akcemi
+     * Sklada read-only radek bez lifecycle akci
      */
-    private function row(ModuleState $state): DataGridRowDefinition
+    private function row(AvailableModule $module): DataGridRowDefinition
     {
         return new DataGridRowDefinition(
-            id: abs(crc32($state->code())),
+            id: abs(crc32($module->code())),
             cells: [
-                'name' => new ScalarCell(value: $this->label($state)),
-                'code' => new ScalarCell(value: $state->code()),
-                'kind' => new ScalarCell(value: $this->translator->get('modules.kind.' . $this->kind($state))),
-                'state' => new StatusCell(
-                    value: $this->translator->get('modules.state.' . $this->state($state)),
-                    variant: StatusVariant::Muted,
-                ),
+                'name' => new ScalarCell(value: $this->label($module)),
+                'code' => new ScalarCell(value: $module->code()),
+                'version' => new ScalarCell(value: $module->version()),
+                'description' => new ScalarCell(value: $module->description() !== '' ? $module->description() : '—'),
             ],
-            actions: $this->actions($state),
         );
     }
 
     /**
-     * Lokalizuje nazev z manifestu nebo zachova kod osireleho runtime zaznamu
+     * Lokalizuje nazev deklarovany manifestem
      */
-    private function label(ModuleState $state): string
+    private function label(AvailableModule $module): string
     {
-        return $state->available() ? $this->translator->get($this->states->manifest($state->code())?->labelKey() ?? $state->code()) : $state->code();
-    }
-
-    /**
-     * Urci presentation druh modulu z runtime stavu
-     */
-    private function kind(ModuleState $state): string
-    {
-        $kind = $state->kind();
-
-        return $kind === null ? 'optional' : $kind->value;
-    }
-
-    /**
-     * Mapuje runtime lifecycle stav na klic zobrazeny v DataGridu
-     */
-    private function state(ModuleState $state): string
-    {
-        return $state->missingCode() ? 'missing_code' : ($state->system() ? 'system' : (!$state->installed() ? 'available' : ($state->enabled() ? 'enabled' : 'disabled')));
-    }
-
-    /**
-     * Pridava presentation akce bez nahrazeni serverove autorizace a lifecycle validace
-     *
-     * @return list<DataGridRowActionDefinition>
-     */
-    private function actions(ModuleState $state): array
-    {
-        $actions = [];
-        $stateKey = $this->state($state);
-        if ($stateKey !== 'system' && $stateKey !== 'missing_code') {
-            $actionKey = $stateKey === 'available' ? 'install' : ($stateKey === 'disabled' ? 'enable' : 'disable');
-            $action = $this->actionPresentation->rowAction(
-                moduleCode: 'system.modules',
-                action: $actionKey,
-                entityId: abs(crc32($state->code())),
-            );
-            if ($action !== null) {
-                $actions[] = $action;
-            }
-        }
-
-        return $actions;
+        return $this->translator->get($module->manifest()->labelKey());
     }
 }

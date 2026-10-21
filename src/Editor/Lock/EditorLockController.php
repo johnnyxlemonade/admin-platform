@@ -8,7 +8,6 @@ use Lemonade\Admin\Http\AdminAuthorizationResponseHandler;
 use Lemonade\Admin\Http\AdminErrorCode;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
-use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Http\Response\Responses;
 use Psr\Http\Message\ResponseInterface;
@@ -24,7 +23,6 @@ final readonly class EditorLockController
     public function __construct(
         private AdminModuleRouteResolver $routes,
         private AdminModuleAccessPolicy $moduleAccess,
-        private ModuleManager $modules,
         private EditorLockManager $locks,
         private AdminAuthorizationResponseHandler $responses,
         private Responses $httpResponses,
@@ -59,12 +57,6 @@ final readonly class EditorLockController
             return $this->httpResponses->json([
                 'success' => false,
                 'error' => ['code' => AdminErrorCode::MODULE_NOT_FOUND->value],
-            ], HttpStatusCode::NOT_FOUND->value);
-        }
-        if (!$this->modules->enabled($module->code())) {
-            return $this->httpResponses->json([
-                'success' => false,
-                'error' => ['code' => AdminErrorCode::MODULE_NOT_AVAILABLE->value],
             ], HttpStatusCode::NOT_FOUND->value);
         }
         if (!$this->moduleAccess->canAccess($module)) {

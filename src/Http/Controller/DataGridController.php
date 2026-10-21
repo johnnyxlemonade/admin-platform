@@ -13,7 +13,6 @@ use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
 use Lemonade\Admin\Module\ModuleProviderResolver;
-use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Framework\Core\Http\RequestData;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Http\Response\Responses;
@@ -31,7 +30,6 @@ final readonly class DataGridController
     public function __construct(
         private AdminModuleRouteResolver $routes,
         private AdminModuleAccessPolicy $moduleAccess,
-        private ModuleManager $moduleManager,
         private ModuleProviderResolver $providers,
         private DataGridQueryValidator $queries,
         private AuthorizationService $authorization,
@@ -51,10 +49,6 @@ final readonly class DataGridController
             return $this->notFound(AdminErrorCode::MODULE_NOT_FOUND, 'Module not found.');
         }
         $moduleCode = $definition->code();
-
-        if (!$this->moduleManager->enabled($moduleCode)) {
-            return $this->notFound(AdminErrorCode::MODULE_NOT_AVAILABLE, 'Module is not available.');
-        }
 
         if (!$this->moduleAccess->canAccess($definition)) {
             return $this->responses->json($this->authorizationResponses->forbiddenPayload(), HttpStatusCode::FORBIDDEN->value);

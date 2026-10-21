@@ -11,7 +11,6 @@ use Lemonade\Admin\Platform\Migrations\CreateCoreAuthorizationAssignments;
 use Lemonade\Admin\Platform\Migrations\CreateCoreAuthorizationCatalog;
 use Lemonade\Admin\Platform\Migrations\CreateCoreEditorLocks;
 use Lemonade\Admin\Platform\Migrations\CreateCoreLanguages;
-use Lemonade\Admin\Platform\Migrations\CreateCoreModuleCatalog;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUserIdentities;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUsers;
 use Lemonade\Cms\Migrations\CreateCoreCmsRoutes;
@@ -30,7 +29,6 @@ final class BaselineAuditColumnsTest extends TestCase
     {
         self::assertSame([
             '20260914170000_create_core_languages',
-            '20260914170100_create_core_module_catalog',
             '20260914170300_create_core_users',
             '20260914170400_create_core_user_identities',
             '20260914170500_create_core_authorization_catalog',
@@ -40,7 +38,6 @@ final class BaselineAuditColumnsTest extends TestCase
             '20260914170900_create_core_cms_routes',
         ], [
             CreateCoreLanguages::identifier(),
-            CreateCoreModuleCatalog::identifier(),
             CreateCoreUsers::identifier(),
             CreateCoreUserIdentities::identifier(),
             CreateCoreAuthorizationCatalog::identifier(),
@@ -93,7 +90,6 @@ final class BaselineAuditColumnsTest extends TestCase
         );
 
         (new CreateCoreLanguages($database))->up($schema);
-        (new CreateCoreModuleCatalog())->up($schema);
         (new CreateCoreUsers())->up($schema);
         (new CreateCoreUserIdentities())->up($schema);
         (new CreateCoreAuthorizationCatalog())->up($schema);
@@ -116,7 +112,6 @@ final class BaselineAuditColumnsTest extends TestCase
             'cms_route',
             'system_audit_log',
             'system_language',
-            'system_module',
             'system_permission',
             'system_role',
             'system_role_permission',

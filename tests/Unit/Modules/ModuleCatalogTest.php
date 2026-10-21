@@ -6,7 +6,6 @@ namespace Lemonade\Admin\Tests\Unit\Modules;
 
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Catalog\ModuleManifestDiscovery;
-use Lemonade\Admin\Modules\Definition\ModuleKind;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestDefinition;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Core\Context\ApplicationContextFactory;
@@ -38,7 +37,7 @@ final class ModuleCatalogTest extends TestCase
             $this->expectException(RuntimeException::class);
             $this->expectExceptionMessage('Composer installed package metadata');
             $this->expectExceptionMessage('Run Composer install to complete the application installation.');
-            $catalog->load();
+            $catalog->all();
         } finally {
             @rmdir($temporary);
         }
@@ -50,17 +49,20 @@ final class ModuleCatalogTest extends TestCase
         $classes = $composer['extra']['lemonade']['modules'] ?? [];
         self::assertIsArray($classes);
 
-        $manifests = ModuleManifestDiscovery::manifestsFromClasses(array_values($classes));
+        $modules = $this->discoverComposerModules([[
+            'name' => 'johnnyxlemonade/admin-platform',
+            'extra' => ['lemonade' => ['modules' => array_values($classes)]],
+        ]]);
 
         self::assertSame(
             ['system.audit', 'system.languages', 'system.media', 'system.modules', 'system.notifications', 'system.roles', 'system.translations', 'system.users'],
-            array_map(static fn($manifest): string => $manifest->code(), $manifests),
+            array_map(static fn($module): string => $module->code(), $modules),
         );
     }
 
     public function testItDiscoversComposerDeclaredManifest(): void
     {
-        $manifests = $this->discoverComposerManifests([
+        $modules = $this->discoverComposerModules([
             [
                 'name' => 'vendor/cms-news',
                 'extra' => [
@@ -71,8 +73,10 @@ final class ModuleCatalogTest extends TestCase
             ],
         ]);
 
-        self::assertSame(['cms.news'], array_map(static fn($manifest): string => $manifest->code(), $manifests));
-        self::assertSame(ComposerPackageProviderFixture::class, $manifests[0]->runtimeProvider());
+        self::assertSame(['cms.news'], array_map(static fn($module): string => $module->code(), $modules));
+        self::assertSame(ComposerPackageProviderFixture::class, $modules[0]->manifest()->runtimeProvider());
+        self::assertSame('vendor/cms-news', $modules[0]->packageName());
+        self::assertSame('dev-main', $modules[0]->version());
     }
 
     /**
@@ -84,13 +88,19 @@ final class ModuleCatalogTest extends TestCase
         mkdir($temporary . '/vendor/composer', 0775, true);
         file_put_contents($temporary . '/vendor/composer/installed.json', json_encode(['packages' => [[
             'name' => 'vendor/cms-news',
+            'version' => '1.2.3',
+            'description' => 'News module',
             'extra' => ['lemonade' => ['modules' => [ComposerNewsManifestFixture::class]]],
         ]]], JSON_THROW_ON_ERROR));
 
         try {
             $catalog = new ModuleCatalog((new ApplicationContextFactory())->create($temporary, ['APP_ENV' => 'testing']));
 
-            self::assertSame(['cms.news'], array_map(static fn($manifest): string => $manifest->code(), $catalog->load()));
+            self::assertSame(['cms.news'], array_map(static fn($module): string => $module->code(), $catalog->all()));
+            self::assertTrue($catalog->has('cms.news'));
+            self::assertFalse($catalog->has('cms.page'));
+            self::assertSame('1.2.3', $catalog->all()[0]->version());
+            self::assertSame('News module', $catalog->all()[0]->description());
             self::assertFileDoesNotExist($temporary . '/storage/cache/modules.php');
         } finally {
             @unlink($temporary . '/vendor/composer/installed.json');
@@ -105,7 +115,7 @@ final class ModuleCatalogTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Module code "cms.news" must be unique and non-empty.');
 
-        $this->discoverComposerManifests([
+        $this->discoverComposerModules([
             [
                 'name' => 'vendor/cms-news',
                 'extra' => [
@@ -130,7 +140,7 @@ final class ModuleCatalogTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(sprintf('Module manifest "%s" must implement', \stdClass::class));
 
-        $this->discoverComposerManifests([
+        $this->discoverComposerModules([
             [
                 'name' => 'vendor/cms-invalid',
                 'extra' => [
@@ -144,7 +154,7 @@ final class ModuleCatalogTest extends TestCase
 
     public function testItIgnoresComposerPackageWithoutModuleMetadata(): void
     {
-        self::assertSame([], $this->discoverComposerManifests([
+        self::assertSame([], $this->discoverComposerModules([
             [
                 'name' => 'vendor/without-modules',
                 'extra' => [
@@ -156,7 +166,7 @@ final class ModuleCatalogTest extends TestCase
 
     public function testItBuildsComposerCatalogInModuleCodeOrder(): void
     {
-        $manifests = $this->discoverComposerManifests([
+        $modules = $this->discoverComposerModules([
             [
                 'name' => 'vendor/cms-zeta',
                 'extra' => [
@@ -175,19 +185,23 @@ final class ModuleCatalogTest extends TestCase
             ],
         ]);
 
-        self::assertSame(['cms.alpha', 'cms.zeta'], array_map(static fn($manifest): string => $manifest->code(), $manifests));
+        self::assertSame(['cms.alpha', 'cms.zeta'], array_map(static fn($module): string => $module->code(), $modules));
     }
 
     /**
      * @param list<array<string, mixed>> $packages
-     * @return list<\Lemonade\Admin\Modules\Manifest\ModuleManifestInterface>
+     * @return list<\Lemonade\Admin\Modules\Catalog\AvailableModule>
      */
-    private function discoverComposerManifests(array $packages): array
+    private function discoverComposerModules(array $packages): array
     {
         $temporary = sys_get_temp_dir() . '/lemonade-composer-modules-' . bin2hex(random_bytes(8));
         $metadataDirectory = $temporary . '/vendor/composer';
         mkdir($metadataDirectory, 0775, true);
         $metadataPath = $metadataDirectory . '/installed.json';
+        $packages = array_map(
+            static fn(array $package): array => ['version' => 'dev-main', 'description' => '', ...$package],
+            $packages,
+        );
         file_put_contents($metadataPath, json_encode(['packages' => $packages], JSON_THROW_ON_ERROR));
 
         try {
@@ -215,7 +229,7 @@ final class ComposerNewsManifestFixture extends ModuleManifestDefinition
 {
     public function __construct()
     {
-        parent::__construct('cms.news', ModuleKind::Optional, ComposerPackageProviderFixture::class);
+        parent::__construct('cms.news', ComposerPackageProviderFixture::class);
     }
 }
 
@@ -223,7 +237,7 @@ final class ComposerDuplicateNewsManifestFixture extends ModuleManifestDefinitio
 {
     public function __construct()
     {
-        parent::__construct('cms.news', ModuleKind::Optional, ComposerPackageProviderFixture::class);
+        parent::__construct('cms.news', ComposerPackageProviderFixture::class);
     }
 }
 
@@ -231,7 +245,7 @@ final class ComposerAlphaManifestFixture extends ModuleManifestDefinition
 {
     public function __construct()
     {
-        parent::__construct('cms.alpha', ModuleKind::Optional, ComposerPackageProviderFixture::class);
+        parent::__construct('cms.alpha', ComposerPackageProviderFixture::class);
     }
 }
 
@@ -239,6 +253,6 @@ final class ComposerZetaManifestFixture extends ModuleManifestDefinition
 {
     public function __construct()
     {
-        parent::__construct('cms.zeta', ModuleKind::Optional, ComposerPackageProviderFixture::class);
+        parent::__construct('cms.zeta', ComposerPackageProviderFixture::class);
     }
 }

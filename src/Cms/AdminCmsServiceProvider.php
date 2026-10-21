@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Cms;
 
-use Lemonade\Admin\Cms\Routing\ModuleLifecyclePublicModuleStateResolver;
+use Lemonade\Admin\Cms\Routing\ComposerPublicModuleStateResolver;
 use Lemonade\Admin\Cms\Routing\SystemPublicLocaleRegistry;
 use Lemonade\Cms\Routing\Locale\PublicLocaleRegistryInterface;
 use Lemonade\Cms\Routing\Module\PublicModuleStateResolverInterface;
@@ -12,7 +12,7 @@ use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 
 /**
- * Propojuje Admin lifecycle a locale capability s CMS runtime porty
+ * Propojuje Composer dostupnost modulu a locale capability s CMS runtime porty
  */
 final readonly class AdminCmsServiceProvider implements ServiceProviderInterface
 {
@@ -22,6 +22,6 @@ final readonly class AdminCmsServiceProvider implements ServiceProviderInterface
     public function register(ContainerBuilderInterface $container): void
     {
         $container->transient(PublicLocaleRegistryInterface::class, SystemPublicLocaleRegistry::class);
-        $container->transient(PublicModuleStateResolverInterface::class, ModuleLifecyclePublicModuleStateResolver::class);
+        $container->transient(PublicModuleStateResolverInterface::class, ComposerPublicModuleStateResolver::class);
     }
 }

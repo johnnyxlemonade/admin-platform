@@ -63,23 +63,13 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
         self::assertSame([], $factory->create([]));
     }
 
-    public function testItUsesTheModuleCodeAsASafeFallbackForAnUnregisteredPermissionCatalog(): void
+    public function testItOmitsPermissionsMissingFromTheRuntimeCatalog(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('get')->willReturnArgument(0);
         $factory = new EffectivePermissionGroupViewModelFactory($this->emptyModules(), new PermissionCatalogRegistry(), $translator);
 
-        self::assertSame([
-            [
-                'moduleCode' => 'system.legacy',
-                'label' => 'system.legacy',
-                'labelKey' => null,
-                'description' => null,
-                'descriptionKey' => null,
-                'icon' => null,
-                'permissions' => [['code' => 'system.legacy.view', 'label' => 'legacy.permissions.view', 'labelKey' => 'legacy.permissions.view', 'requires' => []]],
-            ],
-        ], $factory->create([
+        self::assertSame([], $factory->create([
             ['code' => 'system.legacy.view', 'name_key' => 'legacy.permissions.view', 'module_code' => 'system.legacy'],
         ]));
     }
@@ -128,7 +118,9 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
         });
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('get')->willReturnArgument(0);
-        $factory = new EffectivePermissionGroupViewModelFactory($modules, new PermissionCatalogRegistry(), $translator);
+        $catalog = new PermissionCatalogRegistry();
+        $catalog->register(new PermissionDefinition('system.example.view', 'system.example', 'example.permissions.view'));
+        $factory = new EffectivePermissionGroupViewModelFactory($modules, $catalog, $translator);
 
         $group = $factory->create([
             ['code' => 'system.example.view', 'name_key' => 'example.permissions.view', 'module_code' => 'system.example'],

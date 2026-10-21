@@ -17,6 +17,7 @@ use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\Module\Contract\AdminModuleFileCapabilitiesInterface;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestInterface;
+use Lemonade\Admin\Modules\Migration\ModuleMigrationManifestInterface;
 use Lemonade\Admin\Notification\AdminNotificationServiceProvider;
 use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
 use Lemonade\Admin\System\SystemModuleServiceProvider;
@@ -26,9 +27,10 @@ use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DefinitionServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
+use Lemonade\Framework\Database\Migration\MigrationRegistry;
 
 /**
- * Bootuje objevene moduly podle jejich manifestu a lifecycle stavu
+ * Bootuje vsechny moduly dostupne v Composer instalaci
  */
 final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderInterface, DependentServiceProviderInterface, BootableServiceProviderInterface
 {
@@ -65,8 +67,8 @@ final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderI
      */
     public function register(ContainerBuilderInterface $builder): void
     {
-        foreach ($this->catalog->load() as $manifest) {
-            $this->registerProvider($builder, $manifest);
+        foreach ($this->catalog->all() as $module) {
+            $this->registerProvider($builder, $module->manifest());
         }
     }
 
@@ -76,6 +78,7 @@ final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderI
     public function boot(ContainerInterface $container): void
     {
         $this->registerManifestAdminContributions($container);
+        $this->registerModuleMigrations($container->get(MigrationRegistry::class));
 
         foreach ($this->bootableProviders as $provider) {
             $provider->boot($container);
@@ -89,7 +92,8 @@ final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderI
      */
     private function registerManifestAdminContributions(ContainerInterface $container): void
     {
-        foreach ($this->catalog->load() as $manifest) {
+        foreach ($this->catalog->all() as $module) {
+            $manifest = $module->manifest();
             if (!$manifest instanceof AdminModuleDefinitionInterface) {
                 continue;
             }
@@ -97,6 +101,23 @@ final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderI
             $container->get(AdminModuleRegistry::class)->register($manifest);
             $container->get(PermissionCatalogRegistry::class)->register(...$manifest->permissionDefinitions());
             $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($manifest);
+        }
+    }
+
+    /**
+     * Pripoji migrace dostupnych modulu do standardniho globalniho lifecycle
+     */
+    private function registerModuleMigrations(MigrationRegistry $migrations): void
+    {
+        foreach ($this->catalog->all() as $module) {
+            $manifest = $module->manifest();
+            if (!$manifest instanceof ModuleMigrationManifestInterface) {
+                continue;
+            }
+
+            foreach ($manifest->migrations() as $migration) {
+                $migrations->register($migration);
+            }
         }
     }
 

@@ -16,13 +16,11 @@ use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Roles\Actions\RolesActionRegistrar;
 use Lemonade\Admin\System\Roles\DataGrid\RolesDataGrid;
 use Lemonade\Admin\System\Roles\Editor\RolesEditor;
-use Lemonade\Admin\System\Roles\Migrations\RegisterRolesModule;
 use Lemonade\Admin\System\Roles\Validation\RolePermissionsRule;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
-use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
 use Lemonade\Framework\Validation\Rule\RuleRegistry;
 use Lemonade\Framework\View\ViewResourceRegistry;
@@ -60,6 +58,5 @@ final readonly class RolesModuleProvider implements ServiceProviderInterface, Bo
         $container->get(RolesActionRegistrar::class)->register();
         $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(RuleRegistry::class)->addRule('system_roles_permissions', RolePermissionsRule::class);
-        $container->get(MigrationRegistry::class)->register(RegisterRolesModule::class);
     }
 }

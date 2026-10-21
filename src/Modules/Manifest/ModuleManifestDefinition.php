@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Modules\Manifest;
 
-use Lemonade\Admin\Modules\Definition\ModuleKind;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 
 /**
@@ -15,26 +14,29 @@ class ModuleManifestDefinition implements ModuleManifestInterface
     /** @param class-string<ServiceProviderInterface> $runtimeProvider */
     public function __construct(
         private readonly string $code,
-        private readonly ModuleKind $kind,
         private readonly string $runtimeProvider,
         private readonly string $labelKey = '',
     ) {}
 
+    /**
+     * Vrati stabilni kod modulu
+     */
     public function code(): string
     {
         return $this->code;
     }
 
-    public function kind(): ModuleKind
-    {
-        return $this->kind;
-    }
-
+    /**
+     * Vrati prekladovy klic nazvu modulu
+     */
     public function labelKey(): string
     {
         return $this->labelKey !== '' ? $this->labelKey : $this->code;
     }
 
+    /**
+     * Vrati provider registrujici runtime capabilities modulu
+     */
     public function runtimeProvider(): string
     {
         return $this->runtimeProvider;

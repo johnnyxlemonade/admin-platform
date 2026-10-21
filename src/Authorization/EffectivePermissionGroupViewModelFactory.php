@@ -38,6 +38,11 @@ final readonly class EffectivePermissionGroupViewModelFactory
         $groups = [];
 
         foreach ($permissions as $permission) {
+            $definition = $this->catalog->definition($permission['code']);
+            if ($definition === null) {
+                continue;
+            }
+
             $moduleCode = $permission['module_code'];
             if (!isset($groups[$moduleCode])) {
                 [$label, $labelKey, $description, $descriptionKey, $icon, $sortOrder] = $this->modulePresentation($moduleCode);
@@ -57,7 +62,7 @@ final readonly class EffectivePermissionGroupViewModelFactory
                 'code' => $permission['code'],
                 'label' => $this->translator->get($permission['name_key']),
                 'labelKey' => $permission['name_key'],
-                'requires' => $this->catalog->definition($permission['code'])?->requires() ?? [],
+                'requires' => $definition->requires(),
             ];
         }
 
@@ -83,6 +88,11 @@ final readonly class EffectivePermissionGroupViewModelFactory
         $inherited = array_fill_keys(array_column($rolePermissions, 'code'), true);
         $groups = [];
         foreach ($catalog as $permission) {
+            $definition = $this->catalog->definition($permission['code']);
+            if ($definition === null) {
+                continue;
+            }
+
             $moduleCode = $permission['module_code'];
             if (!isset($groups[$moduleCode])) {
                 [$label, $labelKey, $description, $descriptionKey, $icon, $sortOrder] = $this->modulePresentation($moduleCode);
@@ -94,7 +104,7 @@ final readonly class EffectivePermissionGroupViewModelFactory
                 'label' => $this->translator->get($permission['name_key']),
                 'labelKey' => $permission['name_key'],
                 'state' => $overrides[$code] ?? (isset($inherited[$code]) ? 'inherited_allow' : 'inherited_deny'),
-                'requires' => $this->catalog->definition($code)?->requires() ?? [],
+                'requires' => $definition->requires(),
             ];
         }
         $groups = $this->sortGroups($groups);

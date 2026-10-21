@@ -25,7 +25,6 @@ use Lemonade\Admin\Platform\Migrations\CreateCoreAuthorizationCatalog;
 use Lemonade\Admin\Platform\Migrations\CreateCoreEditorLocks;
 use Lemonade\Admin\Platform\Migrations\CreateCoreFiles;
 use Lemonade\Admin\Platform\Migrations\CreateCoreLanguages;
-use Lemonade\Admin\Platform\Migrations\CreateCoreModuleCatalog;
 use Lemonade\Admin\Platform\Migrations\CreateCoreTranslationOverrides;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUserIdentities;
 use Lemonade\Admin\Platform\Migrations\CreateCoreUsers;
@@ -99,7 +98,6 @@ final class AdminPackageServiceProvider implements ServiceProviderInterface, Boo
     private function registerPlatformMigrations(MigrationRegistry $migrations): void
     {
         $migrations->register(CreateCoreLanguages::class);
-        $migrations->register(CreateCoreModuleCatalog::class);
         $migrations->register(CreateCoreUsers::class);
         $migrations->register(CreateCoreUserTotp::class);
         $migrations->register(CreateCoreUserIdentities::class);

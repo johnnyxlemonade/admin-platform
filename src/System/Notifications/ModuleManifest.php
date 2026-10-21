@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Notifications;
 
-use Lemonade\Admin\Modules\Definition\ModuleKind;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestDefinition;
 
 /**
@@ -17,6 +16,6 @@ final class ModuleManifest extends ModuleManifestDefinition
      */
     public function __construct()
     {
-        parent::__construct('system.notifications', ModuleKind::System, NotificationsModuleProvider::class, 'notifications.module.name');
+        parent::__construct('system.notifications', NotificationsModuleProvider::class, 'notifications.module.name');
     }
 }

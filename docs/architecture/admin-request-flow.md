@@ -8,13 +8,13 @@
 
 ## HTML stránky
 
-`AdminModuleRouteRegistrar` vede standardní administrační stránky do `ModuleController`. `ModuleController::index()` přeloží URL segment přes `AdminModuleRouteResolver`, ověří lifecycle pomocí `ModuleManager`, access policy a `ModulePageRegistry`; pak volá například `LanguagesModulePageProvider::index()`.
+`AdminModuleRouteRegistrar` vede standardní administrační stránky do `ModuleController`. `ModuleController::index()` přeloží URL segment přes `AdminModuleRouteResolver`, ověří access policy a capability v `ModulePageRegistry`; pak volá například `LanguagesModulePageProvider::index()`. Registry obsahují pouze moduly bootnuté z Composer katalogu.
 
 `ModuleController::create()` a `::edit()` obsluhují plnohodnotné editory. Pro editor používá `EditorDispatcher`, vytvoří nebo načte data a při editaci získá zámek přes `EditorLockManager`. Neexistující, nepovolený nebo nepodporovaný modul vrací administrační 404/403 HTML odpověď. Validace při POST znovu vykreslí stránku se stavem 422; při úspěchu následuje redirect.
 
 ## JSON transport
 
-`DataGridController::index()` je endpoint pro tabulky. Kontroluje route, stav modulu, přístup k modulu, existenci gridu a `DataGridProviderInterface::permission()`. `DataGridQueryValidator` validuje query podle `DataGridDefinition`; úspěch vrací JSON se sloupci, filtry, řádky, řazením a stránkováním. Chybný filtr vrací 422 JSON, neznámý nebo nedostupný modul 404 JSON a zakázaný přístup 403 JSON.
+`DataGridController::index()` je endpoint pro tabulky. Kontroluje registrovanou route, přístup k modulu, existenci gridu a `DataGridProviderInterface::permission()`. `DataGridQueryValidator` validuje query podle `DataGridDefinition`; úspěch vrací JSON se sloupci, filtry, řádky, řazením a stránkováním. Chybný filtr vrací 422 JSON, neznámý nebo nedostupný Composer modul 404 JSON a zakázaný přístup 403 JSON.
 
 `ModuleActionController` předává JSON payload do `ModuleActionDispatcher`. Dispatcher volá registrovaný handler, například `LanguagesSetEnabledAction` nebo `NotificationsResetDisplayAction`, a vrátí structured result. Konflikt zámku a optimistic conflict jsou 409 JSON; akce může vrátit `refreshGrid` nebo `refreshPage`.
 
@@ -24,7 +24,7 @@ Zámek editoru je také shared interní transport: `POST api/editor/{module}/{id
 
 ## Modální editory
 
-`EditorModalRouteRegistrar` poskytuje jediný shared GET transport: `api/modal/{module}/create` a `api/modal/{module}/{id}/edit`. Route parametr je Admin URL segment, který `EditorModalController` přeloží přes `AdminModuleRouteResolver` na runtime module code. Controller ověří lifecycle, přístup k modulu, registraci modalní presentation v `ModulePageRegistry` a podporu `create` nebo `save` v `ModuleActionRegistry`. `EditorDispatcher` pak authoritative ověří oprávnění editoru; pro editaci `EditorModalLoader` také získá lock. Odpověď má `modalHtml`.
+`EditorModalRouteRegistrar` poskytuje jediný shared GET transport: `api/modal/{module}/create` a `api/modal/{module}/{id}/edit`. Route parametr je Admin URL segment, který `EditorModalController` přeloží přes `AdminModuleRouteResolver` na runtime module code. Controller ověří přístup k modulu, registraci modalní presentation v `ModulePageRegistry` a podporu `create` nebo `save` v `ModuleActionRegistry`. `EditorDispatcher` pak authoritative ověří oprávnění editoru; pro editaci `EditorModalLoader` také získá lock. Odpověď má `modalHtml`.
 
 Modul registruje pouze svou modalní presentation přes `ModuleModalEditorPageProviderInterface`; může tedy použít vlastní `AdminEditorDefinitionFactory` a namespaced view bez vlastního controlleru nebo route. `packages/admin/source/js/components/lemonade-modal-form.js` HTML vloží do vlastního native `<dialog>` Admin Modalu a volá `mountComponents()` pro vložený fragment.
 

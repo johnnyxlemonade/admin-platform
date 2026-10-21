@@ -8,15 +8,15 @@
 `johnnyxlemonade/admin-platform` contains the Admin HTTP runtime and built-in
 System modules used by Lemonade applications. It runs on
 `johnnyxlemonade/framework` and provides authentication and authorization,
-module discovery and lifecycle management, navigation, DataGrid, AdminEditor,
+Composer module discovery and bootstrap, navigation, DataGrid, AdminEditor,
 dashboard widgets, audit logging, notifications, language and translation
 management, shared file handling, and reusable JavaScript and CSS components.
 
 ## Built-in modules
 
 The package declares these System manifests through Composer package metadata.
-System modules are always installed and enabled; their routes and actions still
-enforce their own permissions.
+Every manifest present in the Composer installation is active; routes and actions
+still enforce their own permissions.
 
 | Module | Code | Purpose |
 | --- | --- | --- |
@@ -25,7 +25,7 @@ enforce their own permissions.
 | Languages | `system.languages` | `system_language` records and enabled/default state. |
 | Translations | `system.translations` | Runtime overrides of source translations. |
 | Notifications | `system.notifications` | Published Admin notifications and recipient display state. |
-| Modules | `system.modules` | Discovered module state, lifecycle and configurable features. |
+| Modules | `system.modules` | Read-only overview of Composer-discovered modules. |
 | Audit | `system.audit` | Read-only audit history. |
 | Media | `system.media` | Read-only catalogue of shared `system_file` records. |
 
@@ -60,13 +60,11 @@ roles or users, activate/deactivate them, soft-delete/restore them, and can rese
 recipient display state without changing notification content. The header dropdown
 is a notification surface; the inbox and management module are authoritative.
 
-**Modules** distinguishes a manifest discovered from Composer metadata from an
-installed module state. A discovered optional module must be installed before it
-can be enabled; its lifecycle also manages declared optional features and module
-migrations. Missing manifests are retained as missing state rather than booted.
-The module owns management UI and lifecycle permissions, while each module
-manifest owns its code, provider, permissions, navigation metadata and optional
-capabilities.
+**Modules** is a read-only projection of Composer metadata. It shows each
+available manifest's localized name and code together with its package version
+and description. There are no install, enable or disable actions. Each module
+manifest owns its code, provider, permissions, navigation metadata, migrations
+and optional capabilities.
 
 **Audit** is a read-only audit log for audited mutations and authentication
 events, including local and OIDC login/logout. It also supplies audit
@@ -89,7 +87,7 @@ register their own widgets; this package does not claim host-specific content.
 The package supplies the shared contracts and HTTP transport that built-in and
 external Admin modules register into:
 
-- Module manifests, discovery, runtime registries, lifecycle state and Admin
+- Module manifests, Composer discovery, runtime registries and Admin
   metadata; navigation is generated from that metadata and permissions.
 - Admin authentication, authorization and permission catalogues, including
   effective role and per-user permissions.
@@ -128,9 +126,11 @@ its module definition and the capabilities it owns—such as pages, DataGrid,
 AdminEditor, actions, permissions, navigation metadata, translations or
 dashboard widgets—into the shared registries.
 
-Optional modules are discovered first, then installed and explicitly enabled in
-the Modules UI. A provider is not inferred by scanning directories, and a
-duplicate module code is an error.
+Composer availability is activation: adding a package makes its module available
+after the controlled migration and permission-sync deployment steps, while
+removing the package stops booting its capabilities without deleting its data.
+A provider is not inferred by scanning directories, and a duplicate module code
+is an error.
 
 ## Package boundaries
 
@@ -140,7 +140,7 @@ duplicate module code is an error.
   Admin Platform only provides Admin-side integration points.
 - `johnnyxlemonade/admin-image` owns image delivery and image variant
   integration. Admin Platform owns shared file metadata and Admin file UI.
-- `johnnyxlemonade/admin-cms-news` is a concrete optional CMS News module, not
+- `johnnyxlemonade/admin-cms-news` is a concrete Composer CMS News module, not
   built-in Admin Platform functionality.
 
 ## Installation and host integration
@@ -152,9 +152,10 @@ composer require johnnyxlemonade/admin-platform
 Register `Lemonade\Admin\AdminPackageServiceProvider` in the host application.
 The host must also bind `AdminRoutingConfiguration` with its Admin base path
 (commonly `/admin`), provide branding and asset configuration, and run the
-application's migrations/installation flow. The provider registers platform
-migrations and built-in manifests; discovery uses Composer metadata, so no
-manual module list is required.
+application's migrations/installation flow. The provider registers platform and
+Composer-module migrations in the shared migration registry; discovery uses
+Composer metadata, so no manual module list is required. Permission sync exposes
+new definitions for assignment but grants none automatically.
 
 ## Development and QA
 

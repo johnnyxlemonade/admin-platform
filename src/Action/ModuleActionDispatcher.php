@@ -13,7 +13,6 @@ use Lemonade\Admin\Http\AdminErrorCode;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
 use Lemonade\Admin\Module\ModuleProviderResolver;
-use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use RuntimeException;
@@ -29,7 +28,6 @@ final readonly class ModuleActionDispatcher
     public function __construct(
         private AdminModuleRouteResolver $routes,
         private AdminModuleAccessPolicy $moduleAccess,
-        private ModuleManager $modules,
         private ModuleProviderResolver $providers,
         private AuthorizationService $authorization,
         private EditorLockManager $locks,
@@ -50,13 +48,6 @@ final readonly class ModuleActionDispatcher
                 HttpStatusCode::NOT_FOUND,
                 AdminErrorCode::NOT_FOUND,
                 'Module not found.',
-            );
-        }
-        if (!$this->modules->enabled($module->code())) {
-            throw new ModuleActionException(
-                HttpStatusCode::NOT_FOUND,
-                AdminErrorCode::NOT_FOUND,
-                'Module is not available.',
             );
         }
         if (!$this->moduleAccess->canAccess($module)) {

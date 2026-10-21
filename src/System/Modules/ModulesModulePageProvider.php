@@ -12,7 +12,7 @@ use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Routing\UrlGenerator;
 
 /**
- * Sklada indexovou stranku management DataGridu nad runtime stavy modulu
+ * Sklada read-only indexovou stranku Composer modulu
  */
 final readonly class ModulesModulePageProvider implements ModuleIndexPageProviderInterface
 {

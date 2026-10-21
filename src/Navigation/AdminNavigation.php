@@ -9,7 +9,6 @@ use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
-use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Framework\Localization\TranslatorInterface;
 
 /**
@@ -21,7 +20,6 @@ final readonly class AdminNavigation
      * Nastavuje hodnoty potrebne pro zobrazeni navigace
      */
     public function __construct(
-        private ModuleManager $modules,
         private AuthorizationService $authorization,
         private AdminModuleRegistry $adminModules,
         private AdminModuleRouteResolver $routes,
@@ -68,8 +66,7 @@ final readonly class AdminNavigation
             $moduleCode = $definition->code();
             $metadata = $definition->adminMetadata();
             $permission = $metadata->navigationPermission();
-            if (!$this->modules->enabled($moduleCode)
-                || !$this->access->canAccess($definition)
+            if (!$this->access->canAccess($definition)
                 || ($permission !== null && !$this->authorization->hasPermission($permission))) {
                 continue;
             }

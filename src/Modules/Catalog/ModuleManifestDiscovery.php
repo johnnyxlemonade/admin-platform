@@ -20,28 +20,16 @@ final readonly class ModuleManifestDiscovery
     public function __construct(private readonly ApplicationContext $context) {}
 
     /**
-     * Najde a overi manifesty deklarovane Composer metadata
+     * Najde a overi moduly deklarovane Composer metadata
      *
-     * @return list<ModuleManifestInterface>
+     * @return list<AvailableModule>
      */
     public function discover(): array
     {
-        return self::manifestsFromClasses([
-            ...ComposerModuleManifestMetadata::manifestClasses($this->context->path('vendor/composer/installed.json')),
-        ]);
-    }
-
-    /**
-     * Overi manifest classy z kazdeho discovery zdroje
-     *
-     * @param list<mixed> $classes
-     * @return list<ModuleManifestInterface>
-     */
-    public static function manifestsFromClasses(array $classes): array
-    {
-        $manifests = [];
+        $modules = [];
         $codes = [];
-        foreach ($classes as $class) {
+        foreach (ComposerModuleManifestMetadata::modules($this->context->path('vendor/composer/installed.json')) as $metadata) {
+            $class = $metadata['manifestClass'];
             if (!is_string($class) || !class_exists($class)) {
                 throw new RuntimeException('Module manifest class must be autoloadable.');
             }
@@ -59,11 +47,16 @@ final readonly class ModuleManifestDiscovery
                 throw new RuntimeException(sprintf('Runtime provider "%s" for module "%s" must implement %s.', $provider, $code, ServiceProviderInterface::class));
             }
             $codes[$code] = true;
-            $manifests[] = $manifest;
+            $modules[] = new AvailableModule(
+                manifest: $manifest,
+                packageName: $metadata['packageName'],
+                version: $metadata['version'],
+                description: $metadata['description'],
+            );
         }
 
-        usort($manifests, static fn(ModuleManifestInterface $a, ModuleManifestInterface $b): int => $a->code() <=> $b->code());
+        usort($modules, static fn(AvailableModule $left, AvailableModule $right): int => $left->code() <=> $right->code());
 
-        return $manifests;
+        return $modules;
     }
 }

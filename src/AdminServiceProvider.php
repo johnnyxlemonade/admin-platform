@@ -6,7 +6,6 @@ namespace Lemonade\Admin;
 
 use Lemonade\Admin\Assets\AdminAssetsPublishCommand;
 use Lemonade\Admin\Audit\AuditEventPresentationRegistry;
-use Lemonade\Admin\Cms\Routing\PublicModuleRuntimeCacheInvalidator;
 use Lemonade\Admin\Event\DomainEventDispatcher;
 use Lemonade\Admin\Http\Middleware\AdminAuthorizationRequestCacheMiddleware;
 use Lemonade\Admin\Http\Middleware\AdminInstallationGuard;
@@ -64,8 +63,6 @@ final readonly class AdminServiceProvider implements ServiceProviderInterface, B
 
         $container->get(DomainEventDispatcher::class)->listen($container->get(TranslationOverrideCacheInvalidator::class));
         $container->get(DomainEventDispatcher::class)->listen($container->get(PublicLocaleSnapshotCacheInvalidator::class));
-        $container->get(DomainEventDispatcher::class)->listen($container->get(PublicModuleRuntimeCacheInvalidator::class));
-
         if (method_exists($container, 'isBound') && $container->isBound(MiddlewareStack::class)) {
             $container->get(MiddlewareStack::class)->prepend(AdminInstallationGuard::class);
             $container->get(MiddlewareStack::class)->prepend(AdminAuthorizationRequestCacheMiddleware::class);

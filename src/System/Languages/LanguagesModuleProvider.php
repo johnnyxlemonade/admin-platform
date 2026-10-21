@@ -17,13 +17,11 @@ use Lemonade\Admin\System\Languages\Actions\LanguagesActionRegistrar;
 use Lemonade\Admin\System\Languages\Actions\LanguagesSetEnabledAction;
 use Lemonade\Admin\System\Languages\DataGrid\LanguagesDataGrid;
 use Lemonade\Admin\System\Languages\Editor\LanguagesEditor;
-use Lemonade\Admin\System\Languages\Migrations\RegisterLanguagesModule;
 use Lemonade\Admin\System\Languages\Services\LanguageService;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
-use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
 
 /**
@@ -59,6 +57,5 @@ final readonly class LanguagesModuleProvider implements ServiceProviderInterface
         $container->get(LanguagesActionRegistrar::class)->register();
         $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
-        $container->get(MigrationRegistry::class)->register(RegisterLanguagesModule::class);
     }
 }

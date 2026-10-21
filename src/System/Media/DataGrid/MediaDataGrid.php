@@ -21,7 +21,7 @@ use Lemonade\Admin\DataGrid\DataGridResult;
 use Lemonade\Admin\DataGrid\DataGridRowDefinition;
 use Lemonade\Admin\DataGrid\Query\DataGridQuery;
 use Lemonade\Admin\Icon\AdminIcon;
-use Lemonade\Admin\Modules\State\ModuleStateResolver;
+use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
 use Lemonade\Admin\Presentation\AdminThumbnailComponent;
 use Lemonade\Admin\Presentation\MediaCategory;
 use Lemonade\Admin\Select\SelectOptionDefinition;
@@ -37,7 +37,7 @@ final readonly class MediaDataGrid implements DataGridProviderInterface
 {
     public function __construct(
         private MediaService $media,
-        private ModuleStateResolver $modules,
+        private ModuleCatalog $modules,
         private AdminThumbnailComponent $thumbnails,
         private AuthorizationService $authorization,
         private TranslatorInterface $translator,
@@ -127,13 +127,11 @@ final readonly class MediaDataGrid implements DataGridProviderInterface
     private function filterOptions(): array
     {
         $modules = [];
-        foreach ($this->modules->all() as $state) {
-            if ($state->available()) {
-                $modules[$state->code()] = new SelectOptionDefinition(
-                    value: $state->code(),
-                    label: $state->code(),
-                );
-            }
+        foreach ($this->modules->all() as $module) {
+            $modules[$module->code()] = new SelectOptionDefinition(
+                value: $module->code(),
+                label: $module->code(),
+            );
         }
         foreach ($this->media->filterValues() as $value) {
             $modules[$value['module_code']] = new SelectOptionDefinition(value: $value['module_code'], label: $value['module_code']);

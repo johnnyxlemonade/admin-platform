@@ -4,6 +4,13 @@
 
 Každý systémový `*ModuleDefinition` vrací `PermissionDefinition` a provider ji zaregistruje v `PermissionCatalogRegistry`. Katalog je runtime kontrakt. `system_permission` ukládá kód, vlastnící modul a lokalizační klíč, ale závislosti `requires` jsou v definici. `PermissionDependencyResolver` doplní předpoklady při ukládání role.
 
+Runtime katalog obsahuje pouze permissions modulů nalezených v Composer instalaci.
+`PermissionSyncService` synchronizuje jejich databázovou projekci, ale nová
+oprávnění automaticky nepřiděluje žádnému uživateli ani roli. Stale uložené
+permission pouze reportuje a nemaže jejich assignmenty. Editory rolí a uživatelů
+filtrují uloženou projekci přes runtime katalog, takže permission odebraného
+Composer modulu nezobrazí.
+
 `AuthorizationService` sestavuje efektivní oprávnění z role (`system_role_permission`) a uživatelských výjimek (`system_user_permission`). Uživatel s rolí superadministrátora dostává kompletní katalog. `system_user_role` drží přiřazení role; individuální override má effect allow nebo deny.
 
 ## Role versus přiřazení role

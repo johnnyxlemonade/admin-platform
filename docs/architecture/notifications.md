@@ -2,7 +2,7 @@
 
 ## Složení
 
-`NotificationsModuleProvider` registruje `NotificationsModuleDefinition`, `NotificationsDataGrid`, `NotificationsEditor`, index a modalní page provider, lifecycle actions, permission katalog, auditní prezentaci a `RegisterNotificationsModule`. Standardní tabulku poskytuje `NotificationsDataGrid`; create/edit trigger míří na shared `EditorModalController` přes `admin.api.modal.create` a `admin.api.modal.edit`.
+`NotificationsModuleProvider` registruje `NotificationsModuleDefinition`, `NotificationsDataGrid`, `NotificationsEditor`, index a modalní page provider, notification lifecycle actions, permission katalog a auditní prezentaci. Standardní tabulku poskytuje `NotificationsDataGrid`; create/edit trigger míří na shared `EditorModalController` přes `admin.api.modal.create` a `admin.api.modal.edit`.
 
 `NotificationsAdminEditorDefinitionFactory` sestavuje modalní `AdminEditorDefinition` s typem, nadpisem, zprávou a audience blokem. `NotificationsEditor` validuje data a volá `NotificationPublicationService`. GET modal odpověď obsahuje `modalHtml`; POST create/save je registrovaná module action s `system.notifications.publish` a úspěch vrací refresh gridu.
 

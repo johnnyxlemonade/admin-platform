@@ -18,7 +18,6 @@ use Lemonade\Admin\System\Users\Dashboard\UsersDashboardWidgetProvider;
 use Lemonade\Admin\System\Users\DataGrid\UsersDataGrid;
 use Lemonade\Admin\System\Users\Editor\UsersEditor;
 use Lemonade\Admin\System\Users\Http\Controller\UsersProfileController;
-use Lemonade\Admin\System\Users\Migrations\RegisterUsersModule;
 use Lemonade\Admin\System\Users\Routing\UsersProfileRouteRegistrar;
 use Lemonade\Admin\System\Users\Validation\PermissionOverridesRule;
 use Lemonade\Admin\System\Users\Validation\RoleAssignmentsRule;
@@ -27,7 +26,6 @@ use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
-use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
 use Lemonade\Framework\Validation\Rule\RuleRegistry;
 use Lemonade\Framework\View\ViewResourceRegistry;
@@ -67,7 +65,6 @@ final readonly class UsersModuleProvider implements ServiceProviderInterface, Bo
         $container->get(RuleRegistry::class)->addRule('system_users_role', RoleAssignmentsRule::class);
         $container->get(RuleRegistry::class)->addRule('system_users_permission_overrides', PermissionOverridesRule::class);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
-        $container->get(MigrationRegistry::class)->register(RegisterUsersModule::class);
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(UsersProfileRouteRegistrar::class));
     }
 }

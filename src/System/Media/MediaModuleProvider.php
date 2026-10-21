@@ -13,13 +13,11 @@ use Lemonade\Admin\Routing\AdminRouteRegistrarRegistry;
 use Lemonade\Admin\System\Media\DataGrid\MediaDataGrid;
 use Lemonade\Admin\System\Media\Http\Controller\MediaDownloadController;
 use Lemonade\Admin\System\Media\Http\Controller\MediaFilePresentationController;
-use Lemonade\Admin\System\Media\Migrations\RegisterMediaModule;
 use Lemonade\Admin\System\Media\Routing\MediaRouteRegistrar;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
-use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
 
 /**
@@ -28,7 +26,7 @@ use Lemonade\Framework\Localization\TranslationResourceRegistry;
 final readonly class MediaModuleProvider implements ServiceProviderInterface, BootableServiceProviderInterface
 {
     /**
-     * Pripojuje read-only definici, grid, preklady a registracni migraci
+     * Pripojuje scoped HTTP controllery modulu
      */
     public function register(ContainerBuilderInterface $container): void
     {
@@ -48,7 +46,6 @@ final readonly class MediaModuleProvider implements ServiceProviderInterface, Bo
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
         $container->get(DataGridRegistry::class)->register($definition->code(), MediaDataGrid::class);
         $container->get(ModulePageRegistry::class)->registerIndex($definition->code(), MediaModulePageProvider::class);
-        $container->get(MigrationRegistry::class)->register(RegisterMediaModule::class);
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(MediaRouteRegistrar::class));
     }
 }

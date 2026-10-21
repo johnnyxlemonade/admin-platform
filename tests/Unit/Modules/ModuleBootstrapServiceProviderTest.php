@@ -14,10 +14,11 @@ use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\Module\Contract\AdminModuleFileCapabilitiesInterface;
+use Lemonade\Admin\Modules\Catalog\AvailableModule;
 use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
-use Lemonade\Admin\Modules\Definition\ModuleKind;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestDefinition;
 use Lemonade\Admin\Modules\Manifest\ModuleManifestInterface;
+use Lemonade\Admin\Modules\Migration\ModuleMigrationManifestInterface;
 use Lemonade\Admin\Modules\ModuleBootstrapServiceProvider;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Admin\Presentation\AdminFileCapabilities;
@@ -29,6 +30,9 @@ use Lemonade\Framework\Container\Exception\ContainerFrozenException;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
+use Lemonade\Framework\Database\Migration\MigrationInterface;
+use Lemonade\Framework\Database\Migration\MigrationRegistry;
+use Lemonade\Framework\Database\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionProperty;
@@ -43,7 +47,7 @@ final class ModuleBootstrapServiceProviderTest extends TestCase
      */
     protected function setUp(): void
     {
-        ModuleLifecycleEvents::$events = [];
+        ModuleBootstrapEvents::$events = [];
     }
 
     /**
@@ -51,16 +55,16 @@ final class ModuleBootstrapServiceProviderTest extends TestCase
      */
     public function testManifestProvidersRegisterBeforeFreezeAndBootInDiscoveryOrder(): void
     {
-        $container = new Container();
+        $container = $this->container();
         $provider = new ModuleBootstrapServiceProvider($this->catalog(
-            new ModuleLifecycleManifest('first', FirstBootableManifestProvider::class),
-            new ModuleLifecycleManifest('middle', NonBootableManifestProvider::class),
-            new ModuleLifecycleManifest('last', LastBootableManifestProvider::class),
+            new ModuleBootstrapManifest('first', FirstBootableManifestProvider::class),
+            new ModuleBootstrapManifest('middle', NonBootableManifestProvider::class),
+            new ModuleBootstrapManifest('last', LastBootableManifestProvider::class),
         ));
 
         $provider->register($container);
 
-        self::assertSame(['register.first', 'register.middle', 'register.last'], ModuleLifecycleEvents::$events);
+        self::assertSame(['register.first', 'register.middle', 'register.last'], ModuleBootstrapEvents::$events);
 
         $container->freeze();
         $provider->boot($container);
@@ -72,7 +76,7 @@ final class ModuleBootstrapServiceProviderTest extends TestCase
             'boot.first.frozen',
             'boot.last.frozen',
             'boot.last.binding_rejected',
-        ], ModuleLifecycleEvents::$events);
+        ], ModuleBootstrapEvents::$events);
     }
 
     /**
@@ -80,16 +84,16 @@ final class ModuleBootstrapServiceProviderTest extends TestCase
      */
     public function testManifestProviderDependenciesAreNotResolvedAcrossThePackageBoundary(): void
     {
-        $container = new Container();
+        $container = $this->container();
         $provider = new ModuleBootstrapServiceProvider($this->catalog(
-            new ModuleLifecycleManifest('dependent', PackageBoundaryDependentManifestProvider::class),
+            new ModuleBootstrapManifest('dependent', PackageBoundaryDependentManifestProvider::class),
         ));
 
         $provider->register($container);
         $container->freeze();
         $provider->boot($container);
 
-        self::assertSame(['register.dependent', 'boot.dependent'], ModuleLifecycleEvents::$events);
+        self::assertSame(['register.dependent', 'boot.dependent'], ModuleBootstrapEvents::$events);
     }
 
     /**
@@ -97,7 +101,7 @@ final class ModuleBootstrapServiceProviderTest extends TestCase
      */
     public function testAdminManifestContributesMetadataPermissionsAuditAndFiles(): void
     {
-        $container = new Container();
+        $container = $this->container();
         $adminModules = new AdminModuleRegistry(new AdminNavigationGroupRegistry());
         $permissions = new PermissionCatalogRegistry();
         $audit = new AuditEventPresentationRegistry();
@@ -119,14 +123,48 @@ final class ModuleBootstrapServiceProviderTest extends TestCase
     }
 
     /**
+     * Registruje migrace Composer modulu do standardniho globalniho registry
+     */
+    public function testAvailableModuleMigrationsJoinTheGlobalRegistry(): void
+    {
+        $container = $this->container();
+        $provider = new ModuleBootstrapServiceProvider($this->catalog(new MigratingManifestFixture()));
+
+        $provider->register($container);
+        $container->freeze();
+        $provider->boot($container);
+
+        self::assertSame([FixtureModuleMigration::identifier()], $container->get(MigrationRegistry::class)->identifiers());
+    }
+
+    /**
+     * Pripravi container se standardnim migration registry
+     */
+    private function container(): Container
+    {
+        $container = new Container();
+        $container->instance(MigrationRegistry::class, new MigrationRegistry($container));
+
+        return $container;
+    }
+
+    /**
      * Vytvori katalog s presne zadanymi manifesty bez Composer discovery
      */
     private function catalog(ModuleManifestInterface ...$manifests): ModuleCatalog
     {
         $reflection = new ReflectionClass(ModuleCatalog::class);
         $catalog = $reflection->newInstanceWithoutConstructor();
-        $manifestsProperty = new ReflectionProperty(ModuleCatalog::class, 'manifests');
-        $manifestsProperty->setValue($catalog, $manifests);
+        $modulesProperty = new ReflectionProperty(ModuleCatalog::class, 'modules');
+        $modulesProperty->setValue($catalog, array_map(
+            static fn(ModuleManifestInterface $manifest): AvailableModule => new AvailableModule(
+                manifest: $manifest,
+                packageName: 'test/package',
+                version: '1.0.0',
+                description: 'Test module',
+            ),
+            $manifests,
+        ));
 
         return $catalog;
     }
@@ -135,7 +173,7 @@ final class ModuleBootstrapServiceProviderTest extends TestCase
 /**
  * Uchovava poradi lifecycle udalosti fixture manifestovych provideru
  */
-final class ModuleLifecycleEvents
+final class ModuleBootstrapEvents
 {
     /** @var list<string> */
     public static array $events = [];
@@ -144,7 +182,7 @@ final class ModuleLifecycleEvents
 /**
  * Deklaruje fixture manifest s urcenym runtime providerem
  */
-final class ModuleLifecycleManifest extends ModuleManifestDefinition
+final class ModuleBootstrapManifest extends ModuleManifestDefinition
 {
     /**
      * Nastavuje kod fixture modulu a jeho provider
@@ -153,7 +191,7 @@ final class ModuleLifecycleManifest extends ModuleManifestDefinition
      */
     public function __construct(string $code, string $provider)
     {
-        parent::__construct($code, ModuleKind::System, $provider);
+        parent::__construct($code, $provider);
     }
 }
 
@@ -167,7 +205,7 @@ final class AdminManifestFixture extends ModuleManifestDefinition implements Adm
      */
     public function __construct()
     {
-        parent::__construct('test.admin', ModuleKind::System, NonBootableManifestProvider::class);
+        parent::__construct('test.admin', NonBootableManifestProvider::class);
     }
 
     /**
@@ -210,6 +248,47 @@ final class AdminManifestFixture extends ModuleManifestDefinition implements Adm
 }
 
 /**
+ * Deklaruje modul s migraci registrovanou standardnim runnerem
+ */
+final class MigratingManifestFixture extends ModuleManifestDefinition implements ModuleMigrationManifestInterface
+{
+    /**
+     * Nastavuje identitu migration fixture modulu
+     */
+    public function __construct()
+    {
+        parent::__construct('test.migrating', NonBootableManifestProvider::class);
+    }
+
+    /**
+     * Vraci jedinou fixture migraci
+     */
+    public function migrations(): array
+    {
+        return [FixtureModuleMigration::class];
+    }
+}
+
+/**
+ * Predstavuje modulovou migraci ve standardnim globalnim registry
+ */
+final readonly class FixtureModuleMigration implements MigrationInterface
+{
+    /**
+     * Vraci stabilni identifikator fixture migrace
+     */
+    public static function identifier(): string
+    {
+        return '20261021000000_fixture_module_migration';
+    }
+
+    /**
+     * Neprovadi schema zmenu mimo overeni registrace
+     */
+    public function up(Schema $schema): void {}
+}
+
+/**
  * Registruje a bootuje prvni fixture manifestovy provider
  */
 final class FirstBootableManifestProvider implements ServiceProviderInterface, BootableServiceProviderInterface
@@ -220,7 +299,7 @@ final class FirstBootableManifestProvider implements ServiceProviderInterface, B
     public function register(ContainerBuilderInterface $container): void
     {
         unset($container);
-        ModuleLifecycleEvents::$events[] = 'register.first';
+        ModuleBootstrapEvents::$events[] = 'register.first';
     }
 
     /**
@@ -237,7 +316,7 @@ final class FirstBootableManifestProvider implements ServiceProviderInterface, B
     private static function assertFrozen(ContainerInterface $container, string $event): void
     {
         if ($container instanceof ContainerBuilderInterface && $container->isFrozen()) {
-            ModuleLifecycleEvents::$events[] = $event;
+            ModuleBootstrapEvents::$events[] = $event;
         }
     }
 }
@@ -253,7 +332,7 @@ final class NonBootableManifestProvider implements ServiceProviderInterface
     public function register(ContainerBuilderInterface $container): void
     {
         unset($container);
-        ModuleLifecycleEvents::$events[] = 'register.middle';
+        ModuleBootstrapEvents::$events[] = 'register.middle';
     }
 
     /**
@@ -262,7 +341,7 @@ final class NonBootableManifestProvider implements ServiceProviderInterface
     public function boot(ContainerInterface $container): void
     {
         unset($container);
-        ModuleLifecycleEvents::$events[] = 'boot.middle';
+        ModuleBootstrapEvents::$events[] = 'boot.middle';
     }
 }
 
@@ -277,7 +356,7 @@ final class LastBootableManifestProvider implements ServiceProviderInterface, Bo
     public function register(ContainerBuilderInterface $container): void
     {
         unset($container);
-        ModuleLifecycleEvents::$events[] = 'register.last';
+        ModuleBootstrapEvents::$events[] = 'register.last';
     }
 
     /**
@@ -289,12 +368,12 @@ final class LastBootableManifestProvider implements ServiceProviderInterface, Bo
             return;
         }
 
-        ModuleLifecycleEvents::$events[] = 'boot.last.frozen';
+        ModuleBootstrapEvents::$events[] = 'boot.last.frozen';
 
         try {
-            $container->singleton(ModuleLifecycleLateBinding::class, ModuleLifecycleLateBinding::class);
+            $container->singleton(ModuleBootstrapLateBinding::class, ModuleBootstrapLateBinding::class);
         } catch (ContainerFrozenException) {
-            ModuleLifecycleEvents::$events[] = 'boot.last.binding_rejected';
+            ModuleBootstrapEvents::$events[] = 'boot.last.binding_rejected';
         }
     }
 }
@@ -302,7 +381,7 @@ final class LastBootableManifestProvider implements ServiceProviderInterface, Bo
 /**
  * Predstavuje zakazanou pozdni definici fixture provideru
  */
-final class ModuleLifecycleLateBinding {}
+final class ModuleBootstrapLateBinding {}
 
 /**
  * Deklaruje nepodporovanou zavislost mimo seznam manifestovych provideru
@@ -325,7 +404,7 @@ final class PackageBoundaryDependentManifestProvider implements ServiceProviderI
     public function register(ContainerBuilderInterface $container): void
     {
         unset($container);
-        ModuleLifecycleEvents::$events[] = 'register.dependent';
+        ModuleBootstrapEvents::$events[] = 'register.dependent';
     }
 
     /**
@@ -334,7 +413,7 @@ final class PackageBoundaryDependentManifestProvider implements ServiceProviderI
     public function boot(ContainerInterface $container): void
     {
         unset($container);
-        ModuleLifecycleEvents::$events[] = 'boot.dependent';
+        ModuleBootstrapEvents::$events[] = 'boot.dependent';
     }
 }
 
@@ -349,6 +428,6 @@ final class PackageBoundaryDependencyProvider implements ServiceProviderInterfac
     public function register(ContainerBuilderInterface $container): void
     {
         unset($container);
-        ModuleLifecycleEvents::$events[] = 'register.dependency';
+        ModuleBootstrapEvents::$events[] = 'register.dependency';
     }
 }

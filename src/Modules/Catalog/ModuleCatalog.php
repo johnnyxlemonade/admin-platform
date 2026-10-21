@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Modules\Catalog;
 
-use Lemonade\Admin\Modules\Manifest\ModuleManifestInterface;
 use Lemonade\Framework\Core\Context\ApplicationContext;
 
 /**
@@ -14,10 +13,8 @@ final class ModuleCatalog
 {
     private readonly ModuleManifestDiscovery $discovery;
 
-    /**
-     * @var list<ModuleManifestInterface>|null
-     */
-    private ?array $manifests = null;
+    /** @var list<AvailableModule>|null */
+    private ?array $modules = null;
 
     /**
      * Nastavuje Composer discovery pro jeden application bootstrap
@@ -28,16 +25,30 @@ final class ModuleCatalog
     }
 
     /**
-     * Vrati Composerem deklarovane manifesty pro jeden application bootstrap
+     * Vrati Composerem deklarovane moduly pro jeden application bootstrap
      *
-     * @return list<ModuleManifestInterface>
+     * @return list<AvailableModule>
      */
-    public function load(): array
+    public function all(): array
     {
-        if ($this->manifests !== null) {
-            return $this->manifests;
+        if ($this->modules !== null) {
+            return $this->modules;
         }
 
-        return $this->manifests = $this->discovery->discover();
+        return $this->modules = $this->discovery->discover();
+    }
+
+    /**
+     * Overi Composer dostupnost modulu podle jeho stabilniho kodu
+     */
+    public function has(string $code): bool
+    {
+        foreach ($this->all() as $module) {
+            if ($module->code() === $code) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

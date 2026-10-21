@@ -15,7 +15,6 @@ use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
 use Lemonade\Admin\Module\ModuleProviderResolver;
-use Lemonade\Admin\Modules\State\ModuleManager;
 use Lemonade\Admin\Page\ModulePage;
 use Lemonade\Framework\Core\Http\RequestData;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
@@ -35,7 +34,6 @@ final readonly class EditorModalController
     public function __construct(
         private AdminModuleRouteResolver $routes,
         private AdminModuleAccessPolicy $moduleAccess,
-        private ModuleManager $modules,
         private ModuleProviderResolver $providers,
         private ModuleActionRegistry $actions,
         private EditorDispatcher $editors,
@@ -108,7 +106,7 @@ final readonly class EditorModalController
         }
 
         $moduleCode = $definition->code();
-        if (!$this->modules->enabled($moduleCode) || !$this->providers->hasModalEditor($moduleCode)) {
+        if (!$this->providers->hasModalEditor($moduleCode)) {
             return [null, '', false];
         }
         if (!$this->moduleAccess->canAccess($definition)) {

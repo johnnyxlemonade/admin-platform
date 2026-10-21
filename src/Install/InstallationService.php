@@ -7,7 +7,6 @@ namespace Lemonade\Admin\Install;
 use Closure;
 use Lemonade\Admin\Assets\AdminAssetManifest;
 use Lemonade\Admin\Authorization\PermissionSyncService;
-use Lemonade\Admin\Modules\Lifecycle\ModuleLifecycleService;
 use Lemonade\Admin\System\Users\Models\UserRoleModel;
 use Lemonade\Admin\System\Users\Services\UserService;
 use Lemonade\Framework\Container\ContainerInterface;
@@ -139,7 +138,7 @@ final readonly class InstallationService implements InstallationStateInterface
     public function preflight(): array
     {
         $checks = [];
-        $checks[] = $this->check('php', version_compare(PHP_VERSION, '8.1.0', '>=') && version_compare(PHP_VERSION, '8.6.0', '<'), 'install.installErrors.php');
+        $checks[] = $this->check('php', version_compare(PHP_VERSION, '8.3.0', '>=') && version_compare(PHP_VERSION, '8.6.0', '<'), 'install.installErrors.php');
         foreach (['fileinfo', 'mbstring', 'pdo', 'pdo_mysql'] as $extension) {
             $checks[] = $this->check('extension.' . $extension, extension_loaded($extension), 'install.installErrors.extension.' . $extension);
         }
@@ -231,9 +230,6 @@ final readonly class InstallationService implements InstallationStateInterface
                     case InstallStep::Database:
                         (new MigrationRunner($this->migrations, $this->migrationState(), $this->schema()))->migrate();
                         break;
-                    case InstallStep::Modules:
-                        $this->modules()->migrateInstalled();
-                        break;
                     case InstallStep::Permissions:
                         if ($initialInstall) {
                             $this->roles()->ensureCanonicalSystemRoles();
@@ -271,7 +267,7 @@ final readonly class InstallationService implements InstallationStateInterface
             return ['success' => false, 'steps' => $steps, 'rootCreated' => false];
         }
         $rootCreated = false;
-        foreach ([InstallStep::Database, InstallStep::Modules, InstallStep::Permissions] as $step) {
+        foreach ([InstallStep::Database, InstallStep::Permissions] as $step) {
             $result = $this->executeStep($step, $initialInstall);
             $steps[] = $this->stepRecord($result);
             if ($result['status'] === InstallStepStatus::Error) {
@@ -435,14 +431,6 @@ final readonly class InstallationService implements InstallationStateInterface
     private function schema(): Schema
     {
         return $this->container->get(Schema::class);
-    }
-
-    /**
-     * Zpracovava krok modules v instalaci aplikace
-     */
-    private function modules(): ModuleLifecycleService
-    {
-        return $this->container->get(ModuleLifecycleService::class);
     }
 
     /**

@@ -16,12 +16,6 @@ use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
 use Lemonade\Admin\Module\AdminNavigationGroup as AdminNavigationGroupCode;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
-use Lemonade\Admin\Modules\Catalog\ModuleCatalog;
-use Lemonade\Admin\Modules\Definition\ModuleKind;
-use Lemonade\Admin\Modules\Manifest\ModuleManifestDefinition;
-use Lemonade\Admin\Modules\Persistence\ModuleModel;
-use Lemonade\Admin\Modules\State\ModuleManager;
-use Lemonade\Admin\Modules\State\ModuleStateResolver;
 use Lemonade\Admin\Navigation\AdminNavigation;
 use Lemonade\Admin\Navigation\AdminNavigationEntryInterface;
 use Lemonade\Admin\Navigation\AdminNavigationGroup;
@@ -29,9 +23,7 @@ use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Admin\Navigation\AdminNavigationItem;
 use Lemonade\Admin\System\Languages\LanguagesModuleDefinition;
 use Lemonade\Admin\System\Roles\RolesModuleDefinition;
-use Lemonade\Admin\System\SystemModuleServiceProvider;
 use Lemonade\Admin\System\Users\UsersModuleDefinition;
-use Lemonade\Framework\Core\Context\ApplicationContextFactory;
 use Lemonade\Framework\Database\Connection\ConnectionInterface;
 use Lemonade\Framework\Database\Database;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
@@ -40,20 +32,6 @@ use PHPUnit\Framework\TestCase;
 
 final class AdminNavigationTest extends TestCase
 {
-    /** @var list<string> */
-    private array $temporaryCatalogRoots = [];
-
-    protected function tearDown(): void
-    {
-        foreach ($this->temporaryCatalogRoots as $root) {
-            @unlink($root . '/vendor/composer/installed.json');
-            @rmdir($root . '/vendor/composer');
-            @rmdir($root . '/vendor');
-            @rmdir($root);
-        }
-        $this->temporaryCatalogRoots = [];
-    }
-
     public function testItOrdersCanonicalGroupsAfterStandaloneItems(): void
     {
         $navigation = $this->navigation([
@@ -220,7 +198,6 @@ final class AdminNavigationTest extends TestCase
         $authorization = new AuthorizationService($principal, $database);
 
         return new AdminNavigation(
-            new ModuleManager($this->states($definitions, $database)),
             $authorization,
             $adminModules,
             new AdminModuleRouteResolver($adminModules),
@@ -292,23 +269,6 @@ final class AdminNavigationTest extends TestCase
         };
     }
 
-    /** @param list<AdminModuleDefinitionInterface> $definitions */
-    private function states(array $definitions, Database $database): ModuleStateResolver
-    {
-        $root = sys_get_temp_dir() . '/admin-navigation-modules-' . bin2hex(random_bytes(8));
-        $metadataDirectory = $root . '/vendor/composer';
-        mkdir($metadataDirectory, 0775, true);
-        $this->temporaryCatalogRoots[] = $root;
-        NavigationManifestFixture::configure(array_map(static fn(AdminModuleDefinitionInterface $definition): string => $definition->code(), $definitions));
-        $catalog = new ModuleCatalog((new ApplicationContextFactory())->create($root, ['APP_ENV' => 'testing']));
-        file_put_contents($metadataDirectory . '/installed.json', json_encode(['packages' => [[
-            'name' => 'lemonade/navigation-test-modules',
-            'extra' => ['lemonade' => ['modules' => array_fill(0, count($definitions), NavigationManifestFixture::class)]],
-        ]]], JSON_THROW_ON_ERROR));
-
-        return new ModuleStateResolver($catalog, new ModuleModel($database));
-    }
-
     private function connection(bool $superAdmin): ConnectionInterface
     {
         return new class ($superAdmin) implements ConnectionInterface {
@@ -369,27 +329,5 @@ final class AdminNavigationTest extends TestCase
                 return $value;
             }
         };
-    }
-}
-
-final class NavigationManifestFixture extends ModuleManifestDefinition
-{
-    /** @var list<string> */
-    private static array $codes = [];
-
-    /** @param list<string> $codes */
-    public static function configure(array $codes): void
-    {
-        self::$codes = $codes;
-    }
-
-    public function __construct()
-    {
-        $code = array_shift(self::$codes);
-        if (!is_string($code)) {
-            throw new \LogicException('Navigation manifest fixture was instantiated too many times.');
-        }
-
-        parent::__construct($code, ModuleKind::System, SystemModuleServiceProvider::class);
     }
 }

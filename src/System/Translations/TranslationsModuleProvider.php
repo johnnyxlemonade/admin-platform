@@ -16,12 +16,10 @@ use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Admin\System\Translations\Actions\TranslationsActionRegistrar;
 use Lemonade\Admin\System\Translations\DataGrid\TranslationsDataGrid;
 use Lemonade\Admin\System\Translations\Editor\TranslationsEditor;
-use Lemonade\Admin\System\Translations\Migrations\RegisterTranslationsModule;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
-use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
 
 /**
@@ -54,6 +52,5 @@ final readonly class TranslationsModuleProvider implements ServiceProviderInterf
         $container->get(ModulePageRegistry::class)->registerModalEditor($definition->code(), TranslationsModulePageProvider::class);
         $container->get(TranslationsActionRegistrar::class)->register();
         $container->get(AuditEventPresentationRegistry::class)->registerModuleDefinition($definition);
-        $container->get(MigrationRegistry::class)->register(RegisterTranslationsModule::class);
     }
 }
