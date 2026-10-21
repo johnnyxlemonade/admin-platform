@@ -15,5 +15,8 @@ final readonly class CoreIdentityServiceProvider implements ServiceProviderInter
     /**
      * Zapisuje sluzby pro localni a externi application identity
      */
-    public function register(ContainerBuilderInterface $container): void {}
+    public function register(ContainerBuilderInterface $container): void
+    {
+        $container->scoped(LocalUserDirectory::class, LocalUserDirectory::class);
+    }
 }

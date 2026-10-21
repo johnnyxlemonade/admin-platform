@@ -6,6 +6,7 @@ namespace Lemonade\Admin\Tests\Unit\Editor\AdminEditor;
 
 use Closure;
 use InvalidArgumentException;
+use Lemonade\Admin\Editor\AdminEditor\Field\ActionSelectField;
 use Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition;
 use Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorInputFieldDefinition;
 use Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorStatusVariant;
@@ -30,7 +31,7 @@ use ReflectionClass;
 final class AdminEditorFieldDefinitionTest extends TestCase
 {
     /**
-     * Overi vsech ctrnact factory a jejich konkretni navratove typy
+     * Overi vsechny factory a jejich konkretni navratove typy
      *
      * @param Closure(): AdminEditorFieldDefinition $factory
      * @param class-string<AdminEditorFieldDefinition> $expectedClass
@@ -58,6 +59,7 @@ final class AdminEditorFieldDefinitionTest extends TestCase
         yield 'datetime local' => [static fn(): TextInputField => Field::datetimeLocal('field_name'), TextInputField::class];
         yield 'textarea' => [static fn(): TextareaField => Field::textarea('field_name'), TextareaField::class];
         yield 'select' => [static fn(): SelectField => Field::select('field_name'), SelectField::class];
+        yield 'action select' => [static fn(): ActionSelectField => Field::actionSelect('field_name', 'assign-owner', actionLabel: 'Assign'), ActionSelectField::class];
         yield 'checkbox' => [static fn(): BooleanField => Field::checkbox('field_name'), BooleanField::class];
         yield 'toggle' => [static fn(): BooleanField => Field::toggle('field_name'), BooleanField::class];
         yield 'hidden' => [static fn(): HiddenField => Field::hidden('field_name'), HiddenField::class];
@@ -179,6 +181,7 @@ final class AdminEditorFieldDefinitionTest extends TestCase
             HiddenField::class,
             TextareaField::class,
             SelectField::class,
+            ActionSelectField::class,
             ReadonlyDisplayField::class,
             StatusDisplayField::class,
             ReadonlyEditableField::class,

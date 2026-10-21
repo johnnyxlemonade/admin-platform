@@ -62,6 +62,7 @@ final class AdminEditorFieldRendererTest extends TestCase
         yield 'datetime local' => [static fn(): AdminEditorFieldDefinition => Field::datetimeLocal('field'), 'type="datetime-local"'];
         yield 'textarea' => [static fn(): AdminEditorFieldDefinition => Field::textarea('field'), '<textarea'];
         yield 'select' => [static fn(): AdminEditorFieldDefinition => Field::select('field'), '<select'];
+        yield 'action select' => [static fn(): AdminEditorFieldDefinition => Field::actionSelect('field', 'assign-owner', actionLabel: 'Assign'), 'data-lemonade-transport-only'];
         yield 'checkbox' => [static fn(): AdminEditorFieldDefinition => Field::checkbox('field'), 'type="checkbox"'];
         yield 'toggle' => [static fn(): AdminEditorFieldDefinition => Field::toggle('field'), 'form-switch'];
         yield 'hidden' => [static fn(): AdminEditorFieldDefinition => Field::hidden('field'), 'type="hidden"'];
@@ -251,6 +252,38 @@ final class AdminEditorFieldRendererTest extends TestCase
         self::assertSame('admin.url_segment.save', $field->actionTranslationKey());
         self::assertStringNotContainsString(' readonly', $html);
         self::assertStringNotContainsString('data-lemonade-editable-field-unlock', $html);
+    }
+
+    /**
+     * Action select odesila cilovou hodnotu samostatnou module action
+     */
+    public function testActionSelectRendersIndependentTransportWithoutDirtyState(): void
+    {
+        $field = Field::actionSelect(
+            name: 'owner_id',
+            actionKey: 'assign-owner',
+            label: 'Owner',
+            actionLabel: 'Assign',
+        )->options([7 => 'Ada', 9 => 'Grace']);
+        $form = new AdminActionFormDefinition(
+            id: 'page-editor',
+            action: '/admin/pages/edit/4',
+            actionUrl: '/admin/pages/ajax/4',
+            actionKey: 'save',
+        );
+
+        $html = (new AdminEditorFieldRenderer())->render(
+            $field,
+            new AdminEditorRenderContext(values: ['owner_id' => 9]),
+            'page-editor',
+            $form,
+        );
+
+        self::assertStringContainsString('name="owner_id"', $html);
+        self::assertStringContainsString('value="9" selected', $html);
+        self::assertStringContainsString('data-lemonade-transport-only', $html);
+        self::assertStringContainsString('data-lemonade-action-key="assign-owner"', $html);
+        self::assertStringContainsString('data-lemonade-url="/admin/pages/ajax/4"', $html);
     }
 
     /**

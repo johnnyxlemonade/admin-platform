@@ -336,6 +336,23 @@ final class AuthorizationService implements AuthorizationResolverInterface
     }
 
     /**
+     * Overi globalni nebo vlastnicke opravneni nad znamym vlastnikem entity
+     */
+    public function canForOwner(string $globalPermission, string $ownPermission, ?int $ownerId): bool
+    {
+        if ($this->hasPermission($globalPermission)) {
+            return true;
+        }
+
+        $userId = $this->currentUserId();
+
+        return $ownerId !== null
+            && $userId !== null
+            && $ownerId === $userId
+            && $this->hasPermission($ownPermission);
+    }
+
+    /**
      * Nacte a uklada do request cache complete permission katalog
      *
      * @return list<array{code:string,name_key:string,module_code:string}>

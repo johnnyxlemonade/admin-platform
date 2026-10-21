@@ -98,6 +98,43 @@ final class AuthorizationRequestCacheTest extends TestCase
         self::assertFalse((new AuthorizationService($this->principal(42), $this->database($connection)))->hasPermission('system.audit.view'));
     }
 
+    public function testEntityOwnershipRequiresMatchingCurrentUserForOwnPermission(): void
+    {
+        $connection = $this->createMock(ConnectionInterface::class);
+        $connection->method('select')->willReturnCallback(
+            static function (string $sql): array {
+                if (str_contains($sql, 'system_role_permission')) {
+                    return [['code' => 'cms.page.edit_own', 'name_key' => 'page.permissions.edit_own', 'module_code' => 'cms.page']];
+                }
+
+                return [];
+            },
+        );
+        $authorization = new AuthorizationService($this->principal(42), $this->database($connection));
+
+        self::assertTrue($authorization->canForOwner('cms.page.edit', 'cms.page.edit_own', 42));
+        self::assertFalse($authorization->canForOwner('cms.page.edit', 'cms.page.edit_own', 7));
+        self::assertFalse($authorization->canForOwner('cms.page.edit', 'cms.page.edit_own', null));
+    }
+
+    public function testGlobalEntityPermissionIgnoresOwnership(): void
+    {
+        $connection = $this->createMock(ConnectionInterface::class);
+        $connection->method('select')->willReturnCallback(
+            static function (string $sql): array {
+                if (str_contains($sql, 'system_role_permission')) {
+                    return [['code' => 'cms.news.delete', 'name_key' => 'news.permissions.delete', 'module_code' => 'cms.news']];
+                }
+
+                return [];
+            },
+        );
+        $authorization = new AuthorizationService($this->principal(42), $this->database($connection));
+
+        self::assertTrue($authorization->canForOwner('cms.news.delete', 'cms.news.delete_own', 7));
+        self::assertTrue($authorization->canForOwner('cms.news.delete', 'cms.news.delete_own', null));
+    }
+
     private function principal(int $id): CurrentPrincipalProviderInterface
     {
         return new class ($id) implements CurrentPrincipalProviderInterface {

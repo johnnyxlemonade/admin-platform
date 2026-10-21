@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Editor\AdminEditor\Rendering;
 
 use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
+use Lemonade\Admin\Editor\AdminEditor\Field\ActionSelectField;
 use Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition;
 use Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorInputFieldDefinition;
 use Lemonade\Admin\Editor\AdminEditor\Field\BooleanField;
@@ -99,6 +100,7 @@ final readonly class AdminEditorFieldRenderer
             $field instanceof ReadonlyDisplayField => $this->readonlyDisplayControl($field, $value, $inputId),
             $field instanceof BooleanField => $this->booleanControl($field, $value, $inputId, $describedBy, $errors),
             $field instanceof TextareaField => $this->textareaControl($field, $context, $value, $inputId, $describedBy, $errors),
+            $field instanceof ActionSelectField => $this->actionSelectControl($field, $value, $inputId, $describedBy, $errors, $form),
             $field instanceof SelectField => $this->selectControl($field, $value, $inputId, $describedBy, $errors),
             $field instanceof TextInputField => $this->textInputControl($field, $value, $inputId, $describedBy, $errors),
             $field instanceof ReadonlyEditableField => $this->readonlyEditableControl($field, $context, $editorId, $value, $inputId, $describedBy, $errors),
@@ -172,6 +174,45 @@ final readonly class AdminEditorFieldRenderer
             : '';
 
         return $html . '</select>' . $preservedValue;
+    }
+
+    /**
+     * Vykresli select a jeho samostatnou action
+     *
+     * @param list<string> $describedBy
+     * @param list<string> $errors
+     */
+    private function actionSelectControl(
+        ActionSelectField $field,
+        mixed $value,
+        string $inputId,
+        array $describedBy,
+        array $errors,
+        ?AdminActionFormDefinition $form,
+    ): string {
+        $attributes = $field->inputAttributes();
+        $attributes['data-lemonade-transport-only'] = true;
+        $common = $this->inputCommon($field, $inputId, $describedBy, $errors, attributes: $attributes);
+        $html = '<div class="input-group"><select class="form-select' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . '>';
+        foreach ($field->selectOptions() as $optionValue => $optionLabel) {
+            $selected = (string) $value === (string) $optionValue;
+            $html .= '<option value="' . $this->escape((string) $optionValue) . '"' . ($selected ? ' selected' : '') . '>' . $this->escape($optionLabel) . '</option>';
+        }
+        $html .= '</select>';
+        $actionUrl = $form?->actionUrl();
+        if ($form !== null && $actionUrl !== null) {
+            $labelKey = $field->actionTranslationKey();
+            $label = $this->text($field->actionText(), $labelKey);
+            $html .= '<button class="btn btn-outline-secondary" type="button"'
+                . ' data-lemonade-action data-lemonade-form="' . $this->escape($form->id()) . '"'
+                . ' data-lemonade-url="' . $this->escape($actionUrl) . '"'
+                . ' data-lemonade-method="' . $this->escape($form->method()) . '"'
+                . ' data-lemonade-action-key="' . $this->escape($field->actionKey()) . '"'
+                . ' data-lemonade-dirty-state-preserve'
+                . $this->translationAttribute($labelKey) . '>' . $this->escape($label ?? '') . '</button>';
+        }
+
+        return $html . '</div>';
     }
 
     /**

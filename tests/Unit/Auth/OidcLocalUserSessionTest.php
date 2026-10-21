@@ -83,6 +83,33 @@ final class OidcLocalUserSessionTest extends TestCase
         self::assertSame('after@example.test', $provider->currentUser()?->email());
     }
 
+    /**
+     * Vylouci soft-delete uzivatele a po obnoveni jej v novem request scope znovu nacte
+     */
+    public function testSoftDeletedUserIsExcludedUntilRestored(): void
+    {
+        $session = $this->session();
+        $session->set('admin.auth.user_id', 42);
+        $connection = $this->createMock(ConnectionInterface::class);
+        $connection->expects(self::exactly(2))->method('select')->willReturnOnConsecutiveCalls(
+            [],
+            [['id' => 42, 'email' => 'restored@example.test']],
+        );
+        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $authentication = new AuthenticationService(
+            new LocalAuthenticationProvider($database),
+            $session,
+            $database,
+            new CsrfTokenManager($session),
+            $this->createMock(AuditLogWriterInterface::class),
+        );
+
+        self::assertNull((new CurrentUserProvider($authentication, $database))->currentUser());
+        $restoredUser = (new CurrentUserProvider($authentication, $database))->currentUser();
+        self::assertInstanceOf(AuthenticatedUser::class, $restoredUser);
+        self::assertSame(42, $restoredUser->id());
+    }
+
     public function testSeparateProviderInstancesDoNotShareCurrentUserCache(): void
     {
         $session = $this->session();

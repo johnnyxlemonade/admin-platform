@@ -71,6 +71,27 @@ final class Field
     }
 
     /**
+     * Vytvori single select se samostatnou module action
+     */
+    public static function actionSelect(
+        string $name,
+        string $actionKey,
+        string $label = '',
+        ?string $labelKey = null,
+        string $actionLabel = '',
+        ?string $actionLabelKey = null,
+    ): ActionSelectField {
+        return ActionSelectField::create(
+            $name,
+            $actionKey,
+            $label,
+            $labelKey,
+            $actionLabel,
+            $actionLabelKey,
+        );
+    }
+
+    /**
      * Vytvori checkbox vstup
      */
     public static function checkbox(string $name, string $label = '', ?string $labelKey = null): BooleanField

@@ -6,6 +6,7 @@ namespace Lemonade\Admin\Editor;
 
 use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Editor\Contract\EditorAccessPolicyInterface;
+use Lemonade\Admin\Editor\Contract\EditorFieldAccessPolicyInterface;
 use Lemonade\Admin\Editor\Contract\EditorLockBypassPolicyInterface;
 use Lemonade\Admin\Editor\Contract\EditorProviderInterface;
 use Lemonade\Admin\Editor\Exception\EditorCapabilityException;
@@ -70,7 +71,7 @@ final readonly class EditorDispatcher
                 throw $exception;
             }
         }
-        $input = $this->allowedInput($definition, $payload);
+        $input = $this->allowedInput($provider, $definition, $payload, $id);
         $validation = $this->validation->validate($input, $provider->updateValidationSchema($id));
 
         if (!$validation->isValid()) {
@@ -97,7 +98,7 @@ final readonly class EditorDispatcher
     public function create(string $module, array $payload): EditorSaveOutcome
     {
         [$provider, $definition] = $this->provider($module, true, true);
-        $input = $this->allowedInput($definition, $payload);
+        $input = $this->allowedInput($provider, $definition, $payload);
         $validation = $this->validation->validate($input, $provider->createValidationSchema());
 
         if (!$validation->isValid()) {
@@ -170,8 +171,12 @@ final readonly class EditorDispatcher
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
-    private function allowedInput(EditorDefinition $definition, array $payload): array
-    {
+    private function allowedInput(
+        EditorProviderInterface $provider,
+        EditorDefinition $definition,
+        array $payload,
+        ?int $id = null,
+    ): array {
         $input = [];
         foreach ($definition->fields() as $field) {
             if (!array_key_exists($field->name(), $payload)) {
@@ -183,7 +188,10 @@ final readonly class EditorDispatcher
             }
 
             $permission = $field->permission();
-            if ($permission !== null && !$this->authorization->hasPermission($permission)) {
+            $decision = $id !== null && $provider instanceof EditorFieldAccessPolicyInterface
+                ? $provider->fieldAccessDecision($id, $field->name())
+                : null;
+            if ($decision !== true && ($decision === false || ($permission !== null && !$this->authorization->hasPermission($permission)))) {
                 throw new EditorCapabilityException(
                     HttpStatusCode::FORBIDDEN,
                     AdminErrorCode::PERMISSION_DENIED,
