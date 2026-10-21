@@ -26,10 +26,11 @@ import { Message } from "../components/lemonade-message.js";
 
         const endpoint = root.getAttribute("data-install-endpoint");
         const initial = root.getAttribute("data-install-initial") === "1";
-        const steps = ["database", "modules", "permissions"];
-        if (initial) {
-            steps.push("root");
-        }
+        const steps = Array.prototype.map.call(root.querySelectorAll("[data-install-step]"), function (item) {
+            return item.getAttribute("data-install-step");
+        }).filter(function (step) {
+            return step && step !== "environment";
+        });
         let authorizationSent = false;
 
         const translated = function (key) {
