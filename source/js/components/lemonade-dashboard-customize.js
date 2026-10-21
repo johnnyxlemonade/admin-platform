@@ -13,6 +13,7 @@ import { DomHelper } from "../core/lemonade-dom-helper.js";
 import { EventHelper } from "../core/lemonade-event-helper.js";
 import { HttpHelper } from "../core/lemonade-http-helper.js";
 import { I18n } from "../core/lemonade-i18n.js";
+import { Dropdown } from "./lemonade-dropdown.js";
 import { Message } from "./lemonade-message.js";
 import { Modal } from "./lemonade-modal.js";
 import { Sortable } from "./lemonade-sortable.js";
@@ -262,7 +263,12 @@ import { Sortable } from "./lemonade-sortable.js";
             if (!current) {
                 return;
             }
+            Dropdown.destroy(current);
             current.outerHTML = response.widgetAreaHtml;
+            const updated = this.element.querySelector("[data-lemonade-dashboard-widget-area]");
+            if (updated) {
+                Dropdown.mount(updated);
+            }
             this.setCustomize(this.customizing);
             const runtime = this.element.lemonadeDashboardWidgets;
             if (runtime) {
