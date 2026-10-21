@@ -29,6 +29,8 @@ use Lemonade\Framework\View\ViewHelpers;
  */
 final readonly class AdminEditorRenderer
 {
+    private const HEADER_CONTEXT_SEARCH_THRESHOLD = 6;
+
     private AdminEditorFieldRenderer $fields;
 
     /**
@@ -117,20 +119,62 @@ final readonly class AdminEditorRenderer
             $context->items(),
             static fn(AdminEditorHeaderContextItem $item): bool => $item->active(),
         ))[0] ?? $context->items()[0];
-        $html = '<div class="lm-editor-header-context" data-lemonade-dropdown data-lemonade-dropdown-placement="bottom-end">';
-        $html .= '<button class="btn btn-light lm-editor-header-context-trigger" type="button" data-lemonade-dropdown-trigger aria-haspopup="menu" aria-expanded="false" aria-label="' . $this->escape($context->label()) . '">';
-        $html .= '<span>' . $this->escape($active->label()) . '</span><i class="bi bi-chevron-down" aria-hidden="true"></i>';
-        $html .= '</button><div class="lm-dropdown-menu" data-lemonade-dropdown-panel hidden role="menu" aria-label="' . $this->escape($context->label()) . '">';
-        foreach ($context->items() as $item) {
-            $html .= '<a class="lm-dropdown-item' . ($item->active() ? ' is-active' : '') . '" href="' . $this->escape($item->href()) . '" role="menuitem"' . ($item->active() ? ' aria-current="page"' : '') . '>';
-            $html .= '<span>' . $this->escape($item->label()) . '</span>';
-            if ($item->secondary() !== null) {
-                $html .= '<small class="text-muted ms-auto">' . $this->escape($item->secondary()) . '</small>';
-            }
-            $html .= '</a>';
+        $html = '<div class="lm-editor-header-context" data-lemonade-editor-header-context data-lemonade-dropdown data-lemonade-dropdown-placement="bottom-end" data-lemonade-dropdown-close-on-inside="false">';
+        $html .= '<button class="btn btn-light lm-editor-header-context-trigger" type="button" data-lemonade-dropdown-trigger aria-haspopup="dialog" aria-expanded="false" aria-label="' . $this->escape($context->label()) . '">';
+        $html .= '<span>' . $this->escape($active->label()) . '</span>';
+        if ($active->code() !== null) {
+            $html .= '<small>' . $this->escape($active->code()) . '</small>';
         }
+        $html .= '<i class="bi bi-chevron-down" aria-hidden="true"></i></button>';
+        $html .= '<div class="lm-dropdown-menu lm-editor-header-context-menu" data-lemonade-dropdown-panel hidden role="dialog" aria-label="' . $this->escape($context->label()) . '">';
+        $html .= '<div class="lm-editor-header-context-heading"><strong>' . $this->escape($context->label()) . '</strong>';
+        $counts = $context->translationCounts();
+        if ($counts !== null) {
+            $html .= '<span>' . $this->escape($this->text(
+                '{existing} of {total} translations',
+                'admin.editor.language_versions_count',
+                $counts,
+            )) . '</span>';
+        }
+        $html .= '</div>';
+        if (count($context->items()) >= self::HEADER_CONTEXT_SEARCH_THRESHOLD) {
+            $searchLabel = $this->text('Search languages', 'admin.editor.language_versions_search');
+            $html .= '<div class="lm-search lm-editor-header-context-search">';
+            $html .= '<i class="' . $this->escape(AdminIcon::Search->cssClass()) . ' lm-search-icon" aria-hidden="true"></i>';
+            $html .= '<input class="form-control" type="search" autocomplete="off" spellcheck="false" placeholder="' . $this->escape($searchLabel) . '" aria-label="' . $this->escape($searchLabel) . '" data-lemonade-i18n-placeholder="admin.editor.language_versions_search" data-lemonade-i18n-aria-label="admin.editor.language_versions_search" data-lemonade-editor-header-context-search>';
+            $html .= '</div>';
+        }
+        $html .= '<ul class="lm-editor-header-context-list" data-lemonade-editor-header-context-list>';
+        foreach ($context->items() as $item) {
+            $html .= $this->headerContextItem($item);
+        }
+        $html .= '</ul>';
+        $html .= '<p class="lm-editor-header-context-empty" data-lemonade-editor-header-context-empty role="status" hidden>';
+        $html .= $this->escape($this->text('No languages match your search.', 'admin.editor.language_versions_empty'));
+        $html .= '</p>';
 
         return $html . '</div></div>';
+    }
+
+    /**
+     * Vykresli jednu jazykovou volbu se stavem a aktivnim oznacenim
+     */
+    private function headerContextItem(AdminEditorHeaderContextItem $item): string
+    {
+        $code = $item->code();
+        $html = '<li data-lemonade-editor-header-context-item>';
+        $html .= '<a class="lm-dropdown-item' . ($item->active() ? ' is-active' : '') . '" href="' . $this->escape($item->href()) . '"' . ($item->active() ? ' aria-current="page"' : '') . ' data-lemonade-editor-header-context-link data-lemonade-editor-header-context-code="' . $this->escape($code ?? '') . '">';
+        $html .= '<span class="lm-editor-header-context-language"><span>' . $this->escape($item->label()) . '</span>';
+        if ($code !== null) {
+            $html .= '<small>' . $this->escape($code) . '</small>';
+        }
+        $html .= '</span>';
+        if ($item->secondary() !== null) {
+            $html .= '<small class="lm-editor-header-context-status">' . $this->escape($item->secondary()) . '</small>';
+        }
+        $html .= '<span class="lm-editor-header-context-check" aria-hidden="true"><i class="' . $this->escape(AdminIcon::CheckLg->cssClass()) . '"></i></span>';
+
+        return $html . '</a></li>';
     }
 
     /**
@@ -412,10 +456,20 @@ final readonly class AdminEditorRenderer
 
     /**
      * Vraci text nebo jeho lokalizovanou variantu
+     *
+     * @param array<string,int|string> $replacements
      */
-    private function text(string $value, ?string $key): string
+    private function text(string $value, ?string $key, array $replacements = []): string
     {
-        return $key !== null && $this->helpers !== null ? $this->helpers->lang($key) : $value;
+        if ($key !== null && $this->helpers !== null) {
+            return $this->helpers->lang($key, $replacements);
+        }
+
+        foreach ($replacements as $name => $replacement) {
+            $value = str_replace('{' . $name . '}', (string) $replacement, $value);
+        }
+
+        return $value;
     }
 
     /**

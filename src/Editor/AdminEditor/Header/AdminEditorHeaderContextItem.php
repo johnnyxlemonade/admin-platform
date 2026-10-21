@@ -17,6 +17,8 @@ final readonly class AdminEditorHeaderContextItem
         private string $href,
         private bool $active = false,
         private ?string $secondary = null,
+        private ?string $code = null,
+        private ?bool $translationExists = null,
     ) {}
 
     /**
@@ -49,5 +51,21 @@ final readonly class AdminEditorHeaderContextItem
     public function secondary(): ?string
     {
         return $this->secondary;
+    }
+
+    /**
+     * Vrati kratky kod zobrazovaneho jazyka
+     */
+    public function code(): ?string
+    {
+        return $this->code;
+    }
+
+    /**
+     * Urci, zda ma jazyk jiz ulozenou content mutaci
+     */
+    public function translationExists(): ?bool
+    {
+        return $this->translationExists;
     }
 }

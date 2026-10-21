@@ -50,4 +50,24 @@ final readonly class AdminEditorHeaderContextDefinition
     {
         return $this->items;
     }
+
+    /**
+     * Vrati pomer existujicich mutaci, pokud jej poskytuji vsechny volby
+     *
+     * @return array{existing:int,total:int}|null
+     */
+    public function translationCounts(): ?array
+    {
+        $existing = 0;
+        foreach ($this->items as $item) {
+            if ($item->translationExists() === null) {
+                return null;
+            }
+            if ($item->translationExists()) {
+                ++$existing;
+            }
+        }
+
+        return ['existing' => $existing, 'total' => count($this->items)];
+    }
 }

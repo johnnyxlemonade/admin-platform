@@ -13,6 +13,7 @@ import { Message } from "./components/lemonade-message.js";
 const loadedModules = new Map();
 
 const registry = [
+    { name: "Editor header context", selector: "[data-lemonade-editor-header-context]", load: () => import("./components/lemonade-editor-header-context.js") },
     { name: "Dropdown", selector: "[data-lemonade-dropdown]", load: () => import("./components/lemonade-dropdown.js") },
     { name: "Tabs", selector: "[data-lemonade-tabs]", load: () => import("./components/lemonade-tabs.js") },
     { name: "DataGrid", selector: "[data-lemonade-grid]", load: () => import("./components/lemonade-datagrid.js") },

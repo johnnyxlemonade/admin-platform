@@ -43,9 +43,139 @@
     white-space: nowrap;
 }
 
+.admin-shell .lm-editor-header-context-trigger > small {
+    flex: 0 0 auto;
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
 .admin-shell .lm-editor-header-context-trigger > .bi {
     flex: 0 0 auto;
     font-size: 11px;
+}
+
+.admin-shell .lm-editor-header-context-menu {
+    position: fixed;
+    width: min(340px, calc(100vw - var(--lm-space-6)));
+    max-width: calc(100vw - var(--lm-space-6));
+    max-height: calc(100vh - var(--lm-space-6));
+    padding: 0;
+    overflow: hidden;
+}
+
+.admin-shell .lm-editor-header-context-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--lm-space-3);
+    padding: var(--lm-space-3) var(--lm-space-4) var(--lm-space-2);
+}
+
+.admin-shell .lm-editor-header-context-heading > strong {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--lm-text-heading);
+    font-size: 13px;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-editor-header-context-heading > span {
+    flex: 0 0 auto;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-editor-header-context-search {
+    height: 36px;
+    margin: 0 var(--lm-space-3) var(--lm-space-2);
+}
+
+.admin-shell .lm-editor-header-context-search .form-control {
+    padding-right: var(--lm-space-3);
+    font-size: 13px;
+}
+
+.admin-shell .lm-editor-header-context-list {
+    max-height: min(360px, calc(100vh - 180px));
+    padding: var(--lm-space-1) 7px 7px;
+    margin: 0;
+    overflow-y: auto;
+    list-style: none;
+    @include mixins.lemonade-scrollbar;
+}
+
+.admin-shell .lm-editor-header-context-list .lm-dropdown-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content 16px;
+    min-height: 48px;
+    gap: var(--lm-space-3);
+    padding: var(--lm-space-2) 10px;
+}
+
+.admin-shell .lm-editor-header-context-list .lm-dropdown-item.is-active {
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface-soft);
+}
+
+.admin-shell .lm-editor-header-context-language {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: var(--lm-space-2);
+}
+
+.admin-shell .lm-editor-header-context-language > span {
+    overflow: hidden;
+    color: inherit;
+    font-weight: 500;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-editor-header-context-list .is-active .lm-editor-header-context-language > span {
+    color: var(--lm-text-heading);
+    font-weight: 650;
+}
+
+.admin-shell .lm-editor-header-context-language > small {
+    flex: 0 0 auto;
+    color: var(--lm-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.admin-shell .lm-editor-header-context-status {
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    font-weight: 400;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.admin-shell .lm-editor-header-context-check {
+    color: var(--lm-primary);
+    font-size: 13px;
+    text-align: center;
+    visibility: hidden;
+}
+
+.admin-shell .lm-editor-header-context-list .is-active .lm-editor-header-context-check {
+    visibility: visible;
+}
+
+.admin-shell .lm-editor-header-context-empty {
+    padding: var(--lm-space-4);
+    margin: 0;
+    color: var(--lm-text-muted);
+    font-size: 13px;
+    text-align: center;
 }
 
 @media (max-width: 479.98px) {
