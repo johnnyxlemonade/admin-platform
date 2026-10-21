@@ -25,7 +25,6 @@ use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
-use Lemonade\Framework\View\ViewResourceRegistry;
 
 /**
  * Registruje Languages capability vcetne editoru, akci a DataGridu
@@ -51,7 +50,6 @@ final readonly class LanguagesModuleProvider implements ServiceProviderInterface
     {
         $definition = new LanguagesModuleDefinition();
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.languages');
-        $container->get(ViewResourceRegistry::class)->register('languages', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('languages');
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(DataGridRegistry::class)->register($definition->code(), LanguagesDataGrid::class);

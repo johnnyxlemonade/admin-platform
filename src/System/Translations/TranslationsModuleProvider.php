@@ -23,7 +23,6 @@ use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
 use Lemonade\Framework\Database\Migration\MigrationRegistry;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
-use Lemonade\Framework\View\ViewResourceRegistry;
 
 /**
  * Registruje source projection, editor a action transport modulu prekladu
@@ -46,7 +45,6 @@ final readonly class TranslationsModuleProvider implements ServiceProviderInterf
     {
         $definition = new TranslationsModuleDefinition();
         $container->get(TranslationResourceRegistry::class)->register(__DIR__ . '/Resources/lang', 'system.translations');
-        $container->get(ViewResourceRegistry::class)->register('translations', __DIR__ . '/Resources/views');
         $container->get(ClientTranslationGroupRegistry::class)->register('translations');
         $container->get(AdminModuleRegistry::class)->register($definition);
         $container->get(PermissionCatalogRegistry::class)->register(...$definition->permissionDefinitions());
