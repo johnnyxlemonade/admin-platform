@@ -24,10 +24,10 @@ final readonly class DataGridDefinition
         private array $columns,
         private bool $searchEnabled,
         private array $filters,
-        private string $defaultSortKey,
-        private string $defaultSortDirection,
-        private int $defaultPageSize,
-        private int $maximumPageSize,
+        private ?string $defaultSortKey = null,
+        private string $defaultSortDirection = 'asc',
+        private int $defaultPageSize = 25,
+        private int $maximumPageSize = 100,
         private string $defaultView = 'all',
         private bool $showAllView = true,
         private ?string $viewFilterKey = 'status',
@@ -45,8 +45,11 @@ final readonly class DataGridDefinition
         ))) {
             throw new InvalidArgumentException('DataGrid sortable column sort keys must be unique.');
         }
-        if (!in_array($this->defaultSortKey, $sortKeys, true)) {
+        if ($sortKeys !== [] && !in_array($this->defaultSortKey, $sortKeys, true)) {
             throw new InvalidArgumentException('DataGrid default sort key must be declared by a sortable column.');
+        }
+        if ($sortKeys === [] && $this->defaultSortKey !== null) {
+            throw new InvalidArgumentException('DataGrid without sortable columns cannot declare a default sort key.');
         }
         if (!in_array($this->defaultSortDirection, ['asc', 'desc'], true)) {
             throw new InvalidArgumentException('DataGrid default sort direction must be asc or desc.');
@@ -128,7 +131,7 @@ final readonly class DataGridDefinition
     /**
      * Vrati vychozi klic razeni
      */
-    public function defaultSortKey(): string
+    public function defaultSortKey(): ?string
     {
         return $this->defaultSortKey;
     }

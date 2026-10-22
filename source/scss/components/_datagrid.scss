@@ -37,6 +37,36 @@
     background: var(--lm-primary-soft);
 }
 
+.admin-shell .lm-column-menu {
+    min-width: 220px;
+    padding: 8px;
+}
+
+.admin-shell .lm-column-menu-title {
+    padding: 6px 8px 8px;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-column-option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 8px;
+    border-radius: 5px;
+    color: var(--lm-text);
+    cursor: pointer;
+}
+
+.admin-shell .lm-column-option:hover {
+    background: var(--lm-surface-hover);
+}
+
+.admin-shell .lm-datagrid-table .is-user-hidden {
+    display: none !important;
+}
+
 .admin-shell .lm-datagrid-filter-count {
     display: inline-flex;
     position: absolute;
@@ -1017,7 +1047,7 @@
         flex: 0 0 100%;
         width: 100%;
     }
-    .admin-shell .datagrid-toolbar .lm-filter-dropdown, .admin-shell .datagrid-toolbar [data-lemonade-grid-reload], .admin-shell .datagrid-toolbar [data-lemonade-grid-reset] {
+    .admin-shell .datagrid-toolbar .lm-filter-dropdown, .admin-shell .datagrid-toolbar .lm-column-dropdown, .admin-shell .datagrid-toolbar [data-lemonade-grid-reload], .admin-shell .datagrid-toolbar [data-lemonade-grid-reset] {
         order: 2;
         flex: 0 0 auto;
     }

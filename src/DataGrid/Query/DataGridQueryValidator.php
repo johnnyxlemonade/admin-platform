@@ -24,15 +24,19 @@ final readonly class DataGridQueryValidator
         if ($page < 1 || $pageSize < 1 || $pageSize > $definition->maximumPageSize()) {
             throw new InvalidArgumentException('Invalid pagination.');
         }
-        $sortKey = (string) ($input['sort'] ?? $definition->defaultSortKey());
-        $direction = array_key_exists('sort', $input)
-            ? (string) ($input['direction'] ?? 'asc')
-            : $definition->defaultSortDirection();
-        if (!in_array($sortKey, $definition->sortKeys(), true)) {
-            throw new InvalidArgumentException('Invalid sort.');
-        }
-        if (!in_array($direction, ['asc', 'desc'], true)) {
-            throw new InvalidArgumentException('Invalid sort direction.');
+        $sortKeys = $definition->sortKeys();
+        $sortKey = '';
+        $direction = '';
+        if ($sortKeys !== []) {
+            $requestedSortKey = (string) ($input['sort'] ?? '');
+            $usesRequestedSort = in_array($requestedSortKey, $sortKeys, true);
+            $sortKey = $usesRequestedSort ? $requestedSortKey : (string) $definition->defaultSortKey();
+            $direction = $usesRequestedSort
+                ? (string) ($input['direction'] ?? 'asc')
+                : $definition->defaultSortDirection();
+            if (!in_array($direction, ['asc', 'desc'], true)) {
+                throw new InvalidArgumentException('Invalid sort direction.');
+            }
         }
         $search = trim((string) ($input['q'] ?? ''));
         if (!$definition->searchEnabled() && $search !== '') {

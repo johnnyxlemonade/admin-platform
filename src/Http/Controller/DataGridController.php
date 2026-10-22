@@ -74,7 +74,7 @@ final readonly class DataGridController
 
         return $this->responses->json([
             'columns' => array_map(static fn($column): array => [
-                'key' => $column->key(), 'translationKey' => $column->translationKey(), 'sortable' => $column->sortKey() !== null, 'sortKey' => $column->sortKey(), 'class' => $column->class(),
+                'key' => $column->key(), 'translationKey' => $column->translationKey(), 'sortable' => $column->sortKey() !== null, 'sortKey' => $column->sortKey(), 'class' => $column->class(), 'configurable' => $column->configurable(), 'visibleByDefault' => $column->visibleByDefault(),
             ], $dataGridDefinition->columns()),
             'filters' => array_map(static fn($filter): array => [
                 'key' => $filter->key(), 'options' => $filter->options(), 'value' => $query->filter($filter->key()),
@@ -83,7 +83,7 @@ final readonly class DataGridController
             'tree' => $dataGridDefinition->treeColumnKey() === null
                 ? null
                 : ['columnKey' => $dataGridDefinition->treeColumnKey()],
-            'sort' => ['column' => $query->sortKey(), 'direction' => $query->sortDirection()],
+            'sort' => ['column' => $query->sortKey() !== '' ? $query->sortKey() : null, 'direction' => $query->sortDirection() !== '' ? $query->sortDirection() : null],
             'pagination' => [
                 'enabled' => $dataGridDefinition->paginationEnabled(), 'page' => $result->page(), 'perPage' => $result->perPage(), 'total' => $result->total(), 'pages' => $result->total() === 0 ? 0 : (int) ceil($result->total() / $result->perPage()),
             ],

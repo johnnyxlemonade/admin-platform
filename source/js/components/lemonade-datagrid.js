@@ -46,6 +46,8 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 filterTriggers: DomHelper.queryAll("[data-lemonade-grid-filter-trigger], .lm-filter-dropdown > [data-lemonade-dropdown-trigger]", element),
                 views: DomHelper.queryAll("[data-lemonade-grid-view]", element),
                 filterApply: element.querySelector("[data-lemonade-grid-filter-apply]"),
+                columnToggles: DomHelper.queryAll("[data-lemonade-grid-column-toggle]", element),
+                columnsTrigger: element.querySelector("[data-lemonade-grid-columns-trigger]"),
                 reload: element.querySelector("[data-lemonade-grid-reload]"),
                 reset: element.querySelector("[data-lemonade-grid-reset]"),
                 chips: element.querySelector("[data-lemonade-grid-filter-chips]"),
@@ -63,6 +65,18 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 error: element.querySelector("[data-lemonade-grid-error]"),
                 retry: element.querySelector("[data-lemonade-grid-retry]")
             };
+            this.sortKeys = new Set(DomHelper.queryAll("[data-lemonade-sort]", element).map(function (control) {
+                return control.getAttribute("data-lemonade-sort");
+            }).filter(Boolean));
+            this.configurableColumns = new Map(this.controls.columnToggles.map(function (control) {
+                return [control.value, control.getAttribute("data-lemonade-grid-column-default-visible") !== "false"];
+            }));
+            this.defaultHiddenColumns = new Set(Array.from(this.configurableColumns).filter(function (column) {
+                return column[1] === false;
+            }).map(function (column) {
+                return column[0];
+            }));
+            this.hiddenColumns = this.getStoredHiddenColumns();
             this.dataArea = this.getDataArea();
             this.ensureStateElements();
             this.ensureBusyOverlay();
@@ -88,6 +102,7 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
 
             this.prepareSelectionControls();
             this.prepareFilterTriggers();
+            this.prepareColumnControls();
             this.prepareGridTranslationFallbacks();
             this.setupViewsOverflow();
             this.bindEvents();
@@ -181,6 +196,15 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 count.hidden = true;
                 trigger.replaceChildren(icon, count);
             });
+        }
+
+        prepareColumnControls() {
+            const dropdown = this.controls.columnsTrigger?.closest("[data-lemonade-dropdown]");
+            if (dropdown) {
+                Dropdown.create(dropdown, { placement: "bottom-end", closeOnInsideClick: false });
+            }
+            this.syncColumnControls();
+            this.applyColumnVisibility();
         }
 
         async loadGridTranslations() {
@@ -387,12 +411,10 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             }, this);
             if (Object.prototype.hasOwnProperty.call(this.preferences, "sort")) {
                 const storedSort = String(this.preferences.sort || "");
-                if (storedSort.startsWith("-")) {
-                    state.sort = storedSort.slice(1);
-                    state.direction = "desc";
-                } else if (storedSort) {
-                    state.sort = storedSort;
-                    state.direction = this.preferences.direction === "desc" ? "desc" : "asc";
+                const normalizedSort = storedSort.startsWith("-") ? storedSort.slice(1) : storedSort;
+                if (this.sortKeys.has(normalizedSort)) {
+                    state.sort = normalizedSort;
+                    state.direction = storedSort.startsWith("-") || this.preferences.direction === "desc" ? "desc" : "asc";
                 }
             }
             if (Object.prototype.hasOwnProperty.call(this.preferences, "pageSize")) {
@@ -423,7 +445,7 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 filters: this.getDefaultFilters(),
                 search: this.controls.search ? this.controls.search.value : "",
                 sort: this.element.getAttribute("data-lemonade-default-sort") || "",
-                direction: this.element.getAttribute("data-lemonade-default-direction") || "asc",
+                direction: this.element.getAttribute("data-lemonade-default-direction") || "",
                 page: 1,
                 pageSize: Number(this.element.getAttribute("data-lemonade-default-page-size") || (this.controls.pageSize && this.controls.pageSize.value) || 1),
                 viewQuery: {},
@@ -438,6 +460,31 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 filters[control.getAttribute("data-lemonade-filter")] = control.value;
             });
             return this.normalizeFilters(filters);
+        }
+
+        getStoredHiddenColumns() {
+            if (!Array.isArray(this.preferences.hiddenColumns)) {
+                return new Set(this.defaultHiddenColumns);
+            }
+
+            return new Set(this.preferences.hiddenColumns.map(String).filter(function (key) {
+                return this.configurableColumns.has(key);
+            }, this));
+        }
+
+        syncColumnControls() {
+            this.controls.columnToggles.forEach(function (control) {
+                control.checked = !this.hiddenColumns.has(control.value);
+            }, this);
+            if (this.controls.columnsTrigger) {
+                this.controls.columnsTrigger.classList.toggle("is-active", !this.areSetsEqual(this.hiddenColumns, this.defaultHiddenColumns));
+            }
+        }
+
+        applyColumnVisibility() {
+            DomHelper.queryAll("[data-lemonade-grid-column]", this.element).forEach(function (element) {
+                element.classList.toggle("is-user-hidden", this.hiddenColumns.has(element.getAttribute("data-lemonade-grid-column")));
+            }, this);
         }
 
         getFilterEmptyValue(control) {
@@ -472,9 +519,10 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 activeView: source.activeView || "",
                 filters: this.normalizeFilters(source.filters),
                 sort: source.sort || "",
-                direction: source.direction === "desc" ? "desc" : "asc",
+                direction: source.direction === "desc" ? "desc" : (source.sort ? "asc" : ""),
                 page: Number(source.page) || 1,
-                pageSize: Number(source.pageSize) || 0
+                pageSize: Number(source.pageSize) || 0,
+                hiddenColumns: Array.from(this.hiddenColumns).sort()
             };
             if (this.controls.search) {
                 preferences.search = String(source.search || "");
@@ -493,6 +541,12 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             });
         }
 
+        areSetsEqual(first, second) {
+            return first.size === second.size && Array.from(first).every(function (value) {
+                return second.has(value);
+            });
+        }
+
         hasModifiedPreferences() {
             const current = this.getPersistentPreferences(this.state);
             const defaults = this.getPersistentPreferences(this.defaultState);
@@ -502,6 +556,7 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 || current.direction !== defaults.direction
                 || current.page !== defaults.page
                 || current.pageSize !== defaults.pageSize
+                || !this.areSetsEqual(this.hiddenColumns, this.defaultHiddenColumns)
                 || !this.areFiltersEqual(current.filters, defaults.filters);
         }
 
@@ -581,6 +636,20 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                     },
                     onOpen: function () { self.syncFilterControls(); },
                     onClose: function () { self.syncFilterControls(); },
+                });
+            });
+
+            this.controls.columnToggles.forEach(function (control) {
+                EventHelper.on(control, "change", function () {
+                    if (control.checked) {
+                        self.hiddenColumns.delete(control.value);
+                    } else {
+                        self.hiddenColumns.add(control.value);
+                    }
+                    self.persistPreferences();
+                    self.applyColumnVisibility();
+                    self.syncColumnControls();
+                    self.renderResetAction();
                 });
             });
 
@@ -763,10 +832,12 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             this.cancelPendingSearch();
             this.preferences = {};
             this.treeCollapsed.clear();
+            this.hiddenColumns = new Set(this.defaultHiddenColumns);
             this.state = this.cloneState(this.defaultState);
             this.resetSelection();
             this.persistPreferences();
             this.renderState();
+            this.applyColumnVisibility();
             void this.refresh({ preserveSelection: true });
         }
 
@@ -932,12 +1003,13 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 throw new Error("Invalid Lemonade DataGrid response.");
             }
             if (!body) { return; }
+            this.updateColumnDefinitions(response.columns);
             this.renderRows(body, response.columns, response.items, response.tree || null);
             this.pagination = response.pagination;
             this.state.page = Number(response.pagination.page) || this.state.page;
             this.state.pageSize = Number(response.pagination.perPage) || this.state.pageSize;
-            this.state.sort = response.sort.column;
-            this.state.direction = response.sort.direction;
+            this.state.sort = response.sort.column || "";
+            this.state.direction = response.sort.direction || "";
             const filters = {};
             response.filters.forEach(function (filter) {
                 this.filterOptions[filter.key] = Array.isArray(filter.options) ? filter.options : [];
@@ -989,6 +1061,8 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 columns.forEach(function (column) {
                     const cell = document.createElement("td");
                     if (column.class) { cell.className = column.class; }
+                    cell.setAttribute("data-lemonade-grid-column", column.key);
+                    cell.classList.toggle("is-user-hidden", this.hiddenColumns.has(column.key));
                     if (column.key === "actions") {
                         cell.classList.add("lm-datagrid-actions-column");
                         this.renderActions(cell, item.actions || []);
@@ -1003,7 +1077,27 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 fragment.appendChild(row);
             }, this);
             body.replaceChildren(fragment);
+            this.applyColumnVisibility();
             this.applyTreeVisibility();
+        }
+
+        updateColumnDefinitions(columns) {
+            const configurableColumns = new Map();
+            columns.forEach(function (column) {
+                if (column.configurable === true) {
+                    configurableColumns.set(column.key, column.visibleByDefault !== false);
+                }
+            });
+            this.configurableColumns = configurableColumns;
+            this.defaultHiddenColumns = new Set(Array.from(configurableColumns).filter(function (column) {
+                return column[1] === false;
+            }).map(function (column) {
+                return column[0];
+            }));
+            this.hiddenColumns = new Set(Array.from(this.hiddenColumns).filter(function (key) {
+                return configurableColumns.has(key);
+            }));
+            this.syncColumnControls();
         }
 
         renderTreeCell(cell, rowId, treeRows, childCounts) {
@@ -1354,6 +1448,8 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
         renderState() {
             this.syncFilterControls();
             this.syncSearchControl();
+            this.syncColumnControls();
+            this.applyColumnVisibility();
             if (this.controls.pageSize) { this.controls.pageSize.value = String(this.state.pageSize); }
             DomHelper.queryAll("[data-lemonade-sort]", this.element).forEach(function (element) {
                 const column = element.getAttribute("data-lemonade-sort");

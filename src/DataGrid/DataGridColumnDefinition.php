@@ -12,7 +12,14 @@ final readonly class DataGridColumnDefinition
     /**
      * Vytvori sloupec s prekladem a volitelnym razenim
      */
-    public function __construct(private string $key, private string $translationKey, private ?string $sortKey = null, private ?string $class = null) {}
+    public function __construct(
+        private string $key,
+        private string $translationKey,
+        private ?string $sortKey = null,
+        private ?string $class = null,
+        private bool $configurable = false,
+        private bool $visibleByDefault = true,
+    ) {}
 
     /**
      * Vrati klic sloupce
@@ -44,5 +51,21 @@ final readonly class DataGridColumnDefinition
     public function class(): ?string
     {
         return $this->class;
+    }
+
+    /**
+     * Urci zda muze uzivatel menit viditelnost sloupce
+     */
+    public function configurable(): bool
+    {
+        return $this->configurable;
+    }
+
+    /**
+     * Urci vychozi viditelnost konfigurovatelneho sloupce
+     */
+    public function visibleByDefault(): bool
+    {
+        return $this->visibleByDefault;
     }
 }

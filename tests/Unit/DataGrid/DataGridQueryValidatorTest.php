@@ -58,6 +58,52 @@ final class DataGridQueryValidatorTest extends TestCase
         self::assertSame('asc', $query->sortDirection());
     }
 
+    public function testItFallsBackFromAStaleStoredSortKey(): void
+    {
+        $query = (new DataGridQueryValidator())->validate($this->definition(defaultSortDirection: 'desc'), [
+            'sort' => 'removedColumn',
+            'direction' => 'asc',
+        ]);
+
+        self::assertSame('email', $query->sortKey());
+        self::assertSame('desc', $query->sortDirection());
+    }
+
+    public function testItAcceptsAGridWithoutSortableColumns(): void
+    {
+        $definition = new DataGridDefinition(
+            id: 'tree',
+            columns: [new DataGridColumnDefinition('title', 'test.fields.title')],
+            searchEnabled: false,
+            filters: [],
+        );
+
+        $query = (new DataGridQueryValidator())->validate($definition, [
+            'sort' => 'removedColumn',
+            'direction' => 'sideways',
+        ]);
+
+        self::assertNull($definition->defaultSortKey());
+        self::assertSame('', $query->sortKey());
+        self::assertSame('', $query->sortDirection());
+    }
+
+    public function testColumnVisibilityDefaultsRemainBackwardCompatible(): void
+    {
+        $fixed = new DataGridColumnDefinition('title', 'test.fields.title');
+        $optional = new DataGridColumnDefinition(
+            'order',
+            'test.fields.order',
+            configurable: true,
+            visibleByDefault: false,
+        );
+
+        self::assertFalse($fixed->configurable());
+        self::assertTrue($fixed->visibleByDefault());
+        self::assertTrue($optional->configurable());
+        self::assertFalse($optional->visibleByDefault());
+    }
+
     /**
      * Umozni canonical views nad jinym filtrem nez je lifecycle status
      */
@@ -142,7 +188,7 @@ final class DataGridQueryValidatorTest extends TestCase
         $validator = new DataGridQueryValidator();
         $rejected = 0;
 
-        foreach ([['sort' => 'database_column'], ['sort' => 'email', 'direction' => 'sideways'], ['status' => 'unknown'], ['page' => '0'], ['pageSize' => '101']] as $input) {
+        foreach ([['sort' => 'email', 'direction' => 'sideways'], ['status' => 'unknown'], ['page' => '0'], ['pageSize' => '101']] as $input) {
             try {
                 $validator->validate($this->definition(), $input);
                 self::fail('Invalid DataGrid query was accepted.');
@@ -151,7 +197,7 @@ final class DataGridQueryValidatorTest extends TestCase
             }
         }
 
-        self::assertSame(5, $rejected);
+        self::assertSame(4, $rejected);
     }
 
     private function definition(string $defaultSortDirection = 'asc'): DataGridDefinition
