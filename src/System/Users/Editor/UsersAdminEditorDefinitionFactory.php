@@ -149,6 +149,8 @@ final readonly class UsersAdminEditorDefinitionFactory
                 blocks: $profileBlocks,
                 title: '',
                 titleKey: 'users.editor.sections.profile',
+                description: '',
+                descriptionKey: 'users.editor.sections.profile_help',
             ),
         ];
         if ($roleFields !== []) {
@@ -174,6 +176,8 @@ final readonly class UsersAdminEditorDefinitionFactory
                 ],
                 title: '',
                 titleKey: 'users.editor.sections.security',
+                description: '',
+                descriptionKey: 'users.editor.sections.security_help',
             );
         }
         if (!$isCreate) {
@@ -194,6 +198,8 @@ final readonly class UsersAdminEditorDefinitionFactory
                 ],
                 title: '',
                 titleKey: 'users.editor.two_factor',
+                description: '',
+                descriptionKey: 'users.editor.sections.two_factor_help',
             );
         }
 

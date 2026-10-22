@@ -57,7 +57,9 @@ return [
         'title' => 'Upravit překlad',
         'description' => 'Vlastní hodnota překladu nahradí výchozí překlad',
         'identity' => 'Identita překladu',
+        'identity_help' => 'Jazyk, zdroj a klíč upravovaného překladu',
         'values' => 'Hodnoty',
+        'values_help' => 'Výchozí, aktuální a vlastní hodnota překladu',
         'saved' => 'Překlad byl uložen',
     ],
     'validation' => [

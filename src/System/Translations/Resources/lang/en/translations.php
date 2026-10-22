@@ -57,7 +57,9 @@ return [
         'title' => 'Edit translation',
         'description' => 'A custom translation replaces the default translation',
         'identity' => 'Translation identity',
+        'identity_help' => 'Language, source and key of the edited translation',
         'values' => 'Values',
+        'values_help' => 'Default, current and custom translation values',
         'saved' => 'Translation saved',
     ],
     'validation' => [

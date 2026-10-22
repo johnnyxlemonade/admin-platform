@@ -193,7 +193,7 @@ final readonly class AdminEditorFieldRenderer
         $attributes = $field->inputAttributes();
         $attributes['data-lemonade-transport-only'] = true;
         $common = $this->inputCommon($field, $inputId, $describedBy, $errors, attributes: $attributes);
-        $html = '<div class="input-group"><select class="form-select' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . '>';
+        $html = '<div class="input-group lm-action-select"><select class="form-select' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . '>';
         foreach ($field->selectOptions() as $optionValue => $optionLabel) {
             $selected = (string) $value === (string) $optionValue;
             $html .= '<option value="' . $this->escape((string) $optionValue) . '"' . ($selected ? ' selected' : '') . '>' . $this->escape($optionLabel) . '</option>';

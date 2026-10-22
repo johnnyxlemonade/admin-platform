@@ -315,3 +315,82 @@
     border-color: var(--lm-primary);
     background-color: var(--lm-primary);
 }
+
+.admin-shell .lm-editor-audit-metadata {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+    gap: 14px 18px;
+    margin: 0 0 16px;
+}
+
+.admin-shell .lm-editor-audit-metadata-item {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.admin-shell .lm-editor-audit-metadata-item--wide {
+    grid-column: 1 / -1;
+}
+
+.admin-shell .lm-editor-audit-metadata-item--current {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+}
+
+.admin-shell .lm-editor-audit-metadata-item dt {
+    color: var(--lm-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-shell .lm-editor-audit-metadata-item dd {
+    margin: 0;
+    color: var(--lm-text);
+    line-height: 1.35;
+}
+
+.admin-shell .lm-editor-audit-metadata-item dd strong {
+    display: block;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.admin-shell .lm-editor-audit-metadata-detail {
+    display: block;
+    color: var(--lm-text-muted);
+    font-size: 12px;
+}
+
+.admin-shell .lm-action-select {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-shell .lm-action-select > .form-select,
+.admin-shell .lm-action-select > .lm-select {
+    flex: 999 1 190px;
+    width: auto;
+    min-width: min(190px, 100%);
+    border-radius: var(--bs-border-radius);
+}
+
+.admin-shell .lm-action-select > .btn {
+    flex: 1 1 130px;
+    width: auto;
+    border-radius: var(--bs-border-radius);
+    border-color: var(--lm-primary);
+    color: #fff;
+    background: var(--lm-primary);
+}
+
+.admin-shell .lm-action-select > .btn:hover,
+.admin-shell .lm-action-select > .btn:focus-visible {
+    border-color: var(--lm-primary-dark);
+    color: #fff;
+    background: var(--lm-primary-dark);
+}

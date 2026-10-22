@@ -53,6 +53,8 @@ final readonly class TranslationsAdminEditorDefinitionFactory
                 ],
                 title: '',
                 titleKey: 'translations.editor.identity',
+                description: '',
+                descriptionKey: 'translations.editor.identity_help',
             ))
             ->block(new SectionBlock(
                 id: 'values',
@@ -63,6 +65,8 @@ final readonly class TranslationsAdminEditorDefinitionFactory
                 ],
                 title: '',
                 titleKey: 'translations.editor.values',
+                description: '',
+                descriptionKey: 'translations.editor.values_help',
             ))
             ->build();
     }

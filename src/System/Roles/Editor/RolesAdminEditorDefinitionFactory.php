@@ -116,6 +116,8 @@ final readonly class RolesAdminEditorDefinitionFactory
                         ],
                         title: '',
                         titleKey: 'roles.editor.sections.details',
+                        description: '',
+                        descriptionKey: 'roles.editor.sections.details_help',
                     ),
                 ],
                 labelKey: 'roles.editor.tabs.basic',
