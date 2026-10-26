@@ -163,7 +163,12 @@ final class AdminFileImageOriginalWriterTest extends TestCase
             return;
         }
 
-        foreach (scandir($path) ?: [] as $entry) {
+        $entries = scandir($path);
+        if ($entries === false) {
+            throw new \RuntimeException(sprintf('Test directory "%s" could not be read.', $path));
+        }
+
+        foreach ($entries as $entry) {
             if ($entry === '.' || $entry === '..') {
                 continue;
             }
