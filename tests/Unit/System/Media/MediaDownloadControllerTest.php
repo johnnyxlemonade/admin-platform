@@ -8,7 +8,6 @@ use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Auth\LocalAdminPrincipal;
 use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
-use Lemonade\Admin\File\FileReadModel;
 use Lemonade\Admin\Http\AdminResponseFactory;
 use Lemonade\Admin\Presentation\AdminFileOriginalPathResolver;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
@@ -71,7 +70,7 @@ final class MediaDownloadControllerTest extends TestCase
         $controller = new MediaDownloadController(
             authorization: $this->authorization(),
             adminResponses: (new ReflectionClass(AdminResponseFactory::class))->newInstanceWithoutConstructor(),
-            files: new AdminFileModel($this->driver(), new FileReadModel($this->driver())),
+            files: new AdminFileModel($this->driver()),
             originals: new AdminFileOriginalPathResolver(
                 images: (new ReflectionClass(ImageVariantPathResolver::class))->newInstanceWithoutConstructor(),
                 context: new ApplicationContext(Environment::Testing, new Path($basePath, $basePath . '/public'), DebugMode::disabled()),
