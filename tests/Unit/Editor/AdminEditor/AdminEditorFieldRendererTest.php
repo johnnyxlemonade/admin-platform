@@ -11,6 +11,7 @@ use Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition;
 use Lemonade\Admin\Editor\AdminEditor\Field\Field;
 use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorFieldRenderer;
 use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
+use Lemonade\Admin\File\FileReadModel;
 use Lemonade\Admin\Presentation\AdminFileCapabilities;
 use Lemonade\Admin\Presentation\AdminFileUploadComponent;
 use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
@@ -388,7 +389,10 @@ final class AdminEditorFieldRendererTest extends TestCase
         $images = new ImageUrlGenerator($urls, new ImageVariantRegistry());
 
         return new AdminFileUploadComponent(
-            new AdminFileModel(self::createStub(DatabaseDriverInterface::class)),
+            new AdminFileModel(
+                self::createStub(DatabaseDriverInterface::class),
+                new FileReadModel(self::createStub(DatabaseDriverInterface::class)),
+            ),
             new AdminThumbnailComponent($images),
             $images,
             $urls,

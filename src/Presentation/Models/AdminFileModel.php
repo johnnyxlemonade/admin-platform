@@ -23,8 +23,6 @@ final class AdminFileModel extends Model
 
     protected bool $useTimestamps = true;
 
-    private readonly FileReadModel $readModel;
-
     /**
      * @var list<string>
      */
@@ -51,10 +49,11 @@ final class AdminFileModel extends Model
     /**
      * Nastavuje zapisovy model a sdilenou read-only vrstvu souboru
      */
-    public function __construct(DatabaseDriverInterface $database)
-    {
+    public function __construct(
+        DatabaseDriverInterface $database,
+        private readonly FileReadModel $readModel,
+    ) {
         parent::__construct($database);
-        $this->readModel = new FileReadModel($database);
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Presentation;
 
+use Lemonade\Admin\File\FileReadModel;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
 use Lemonade\Framework\Database\DatabaseResultInterface;
@@ -132,6 +133,6 @@ final class AdminFileModelTest extends TestCase
      */
     private function model(DatabaseDriverInterface $driver): AdminFileModel
     {
-        return new AdminFileModel($driver);
+        return new AdminFileModel($driver, new FileReadModel($driver));
     }
 }

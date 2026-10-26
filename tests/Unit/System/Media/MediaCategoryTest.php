@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\System\Media;
 
 use Lemonade\Admin\DataGrid\Query\DataGridQuery;
+use Lemonade\Admin\File\FileReadModel;
 use Lemonade\Admin\Presentation\MediaCategory;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
@@ -40,7 +41,7 @@ final class MediaCategoryTest extends TestCase
             return $this->databaseResult();
         });
 
-        (new AdminFileModel($driver))->listForManagement(new DataGridQuery(
+        (new AdminFileModel($driver, new FileReadModel($driver)))->listForManagement(new DataGridQuery(
             page: 1,
             pageSize: 25,
             sortKey: 'createdAt',
