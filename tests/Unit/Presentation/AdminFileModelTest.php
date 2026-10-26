@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Presentation;
 
+use Lemonade\Admin\File\FileReadModel;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
 use Lemonade\Framework\Database\DatabaseResultInterface;
@@ -17,8 +18,11 @@ final class AdminFileModelTest extends TestCase
         $result->method('result_array')->willReturn([
             [
                 'id' => 14,
+                'module_code' => 'cms.news',
+                'entity_id' => 3,
                 'usage' => 'attachment',
                 'kind' => 'document',
+                'media_category' => 'document',
                 'original_filename' => 'program.pdf',
                 'display_name' => 'Program slavnosti',
                 'caption' => null,
@@ -31,8 +35,11 @@ final class AdminFileModelTest extends TestCase
             ],
             [
                 'id' => 11,
+                'module_code' => 'cms.news',
+                'entity_id' => 3,
                 'usage' => 'gallery',
                 'kind' => 'image',
+                'media_category' => 'image',
                 'original_filename' => 'park.jpg',
                 'display_name' => null,
                 'caption' => 'Park',
@@ -56,7 +63,7 @@ final class AdminFileModelTest extends TestCase
                 return $result;
             });
 
-        $files = (new AdminFileModel($driver))->listForEntityUsages(
+        $files = $this->model($driver)->listForEntityUsages(
             'cms.news',
             3,
             ['gallery', 'attachment'],
@@ -71,7 +78,7 @@ final class AdminFileModelTest extends TestCase
         $driver = $this->createMock(DatabaseDriverInterface::class);
         $driver->expects(self::never())->method('query');
 
-        self::assertSame([], (new AdminFileModel($driver))->listForEntityUsages('cms.news', 3, []));
+        self::assertSame([], $this->model($driver)->listForEntityUsages('cms.news', 3, []));
     }
 
     public function testUpdatesBothPresentationValuesAndUsesNullForClearedCaption(): void
@@ -90,7 +97,7 @@ final class AdminFileModelTest extends TestCase
             });
         $driver->expects(self::once())->method('affected_rows')->willReturn(1);
 
-        (new AdminFileModel($driver))->updatePresentation(14, 'Program slavnosti', null);
+        $this->model($driver)->updatePresentation(14, 'Program slavnosti', null);
     }
 
     /**
@@ -111,7 +118,7 @@ final class AdminFileModelTest extends TestCase
             });
         $driver->expects(self::once())->method('affected_rows')->willReturn(1);
 
-        (new AdminFileModel($driver))->updateFile(
+        $this->model($driver)->updateFile(
             id: 14,
             originalFilename: 'program.pdf',
             extension: 'pdf',
@@ -119,5 +126,13 @@ final class AdminFileModelTest extends TestCase
             fileSize: 1234,
             storagePath: 'admin/files/program.pdf',
         );
+    }
+
+    /**
+     * Vytvori zapisovy Admin model nad sdilenou read-only vrstvou
+     */
+    private function model(DatabaseDriverInterface $driver): AdminFileModel
+    {
+        return new AdminFileModel($driver, new FileReadModel($driver));
     }
 }

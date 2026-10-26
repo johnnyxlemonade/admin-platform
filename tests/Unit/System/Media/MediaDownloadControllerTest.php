@@ -8,6 +8,7 @@ use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Auth\LocalAdminPrincipal;
 use Lemonade\Admin\Authorization\AuthorizationService;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
+use Lemonade\Admin\File\FileReadModel;
 use Lemonade\Admin\Http\AdminResponseFactory;
 use Lemonade\Admin\Presentation\AdminFileOriginalPathResolver;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
@@ -70,7 +71,7 @@ final class MediaDownloadControllerTest extends TestCase
         $controller = new MediaDownloadController(
             authorization: $this->authorization(),
             adminResponses: (new ReflectionClass(AdminResponseFactory::class))->newInstanceWithoutConstructor(),
-            files: new AdminFileModel($this->driver()),
+            files: new AdminFileModel($this->driver(), new FileReadModel($this->driver())),
             originals: new AdminFileOriginalPathResolver(
                 images: (new ReflectionClass(ImageVariantPathResolver::class))->newInstanceWithoutConstructor(),
                 context: new ApplicationContext(Environment::Testing, new Path($basePath, $basePath . '/public'), DebugMode::disabled()),
@@ -123,11 +124,20 @@ final class MediaDownloadControllerTest extends TestCase
         $result = $this->createMock(DatabaseResultInterface::class);
         $metadata = [
             'id' => 16,
+            'module_code' => 'cms.page',
+            'entity_id' => 7,
+            'usage' => 'attachment',
             'kind' => 'file',
+            'media_category' => 'document',
             'storage_path' => 'admin/files/program.pdf',
             'display_name' => 'Program podzimu.pdf',
             'original_filename' => 'program.pdf',
+            'extension' => 'pdf',
             'mime_type' => 'application/pdf',
+            'file_size' => 11,
+            'width' => null,
+            'height' => null,
+            'sort_order' => 0,
         ];
         $result->method('result_array')->willReturn([$metadata]);
 

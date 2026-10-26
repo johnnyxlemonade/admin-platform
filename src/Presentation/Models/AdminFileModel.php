@@ -6,7 +6,10 @@ namespace Lemonade\Admin\Presentation\Models;
 
 use Lemonade\Admin\DataGrid\Query\DataGridQuery;
 use Lemonade\Admin\DataGrid\Query\QueryPage;
+use Lemonade\Admin\File\FileMetadata;
+use Lemonade\Admin\File\FileReadModel;
 use Lemonade\Admin\Presentation\MediaCategory;
+use Lemonade\Framework\Database\DatabaseDriverInterface;
 use Lemonade\Framework\Database\Model;
 use Lemonade\Image\ImageOriginalMetadata;
 use RuntimeException;
@@ -42,6 +45,16 @@ final class AdminFileModel extends Model
         'height',
         'sort_order',
     ];
+
+    /**
+     * Nastavuje zapisovy model a sdilenou read-only vrstvu souboru
+     */
+    public function __construct(
+        DatabaseDriverInterface $database,
+        private readonly FileReadModel $readModel,
+    ) {
+        parent::__construct($database);
+    }
 
     /**
      * Nacte stranku souboru pro centralni management bez lookupu vlastniku nebo storage
@@ -92,7 +105,7 @@ final class AdminFileModel extends Model
      */
     public function findForManagement(int $id): ?array
     {
-        return $this->query()->where('id', $id)->first();
+        return $this->readModel->findFile($id)?->toArray();
     }
 
     /**
@@ -152,16 +165,9 @@ final class AdminFileModel extends Model
      */
     public function findForEntity(string $module, int $entityId, string $usage): ?array
     {
-        /** @var array{id:int,module_code:string,entity_id:int,usage:string,kind:string,original_filename:string,display_name:string|null,caption:string|null,extension:string,mime_type:string,file_size:int,width:int|null,height:int|null}|null $file */
-        $file = $this->query()
-            ->select(['id', 'module_code', 'entity_id', 'usage', 'kind', 'asset_id', 'source_version', 'storage_path', 'original_filename', 'display_name', 'caption', 'extension', 'mime_type', 'file_size', 'width', 'height'])
-            ->where('module_code', $module)
-            ->where('entity_id', $entityId)
-            ->where('usage', $usage)
-            ->orderBy('id', 'DESC')
-            ->first();
+        $file = $this->readModel->findForEntity($module, $entityId, $usage);
 
-        return $file;
+        return $file?->toArray();
     }
 
     /**
@@ -171,13 +177,7 @@ final class AdminFileModel extends Model
      */
     public function findActiveImageForEntity(string $module, int $entityId, string $usage): ?array
     {
-        return $this->query()
-            ->where('module_code', $module)
-            ->where('entity_id', $entityId)
-            ->where('usage', $usage)
-            ->where('kind', 'image')
-            ->orderBy('id', 'DESC')
-            ->first();
+        return $this->readModel->findForEntity($module, $entityId, $usage, 'image')?->toArray();
     }
 
     /**
@@ -187,11 +187,7 @@ final class AdminFileModel extends Model
      */
     public function findActiveImage(string $module, int $id): ?array
     {
-        return $this->query()
-            ->where('id', $id)
-            ->where('module_code', $module)
-            ->where('kind', 'image')
-            ->first();
+        return $this->readModel->findById($module, $id, 'image')?->toArray();
     }
 
     /**
@@ -220,26 +216,9 @@ final class AdminFileModel extends Model
      */
     public function findForEntities(string $module, array $entityIds, string $usage): array
     {
-        if ($entityIds === []) {
-            return [];
-        }
-
-        $rows = $this->query()
-            ->select(['id', 'module_code', 'entity_id', 'usage', 'kind', 'original_filename', 'display_name', 'caption', 'extension', 'mime_type', 'file_size', 'width', 'height'])
-            ->where('module_code', $module)
-            ->whereIn('entity_id', $entityIds)
-            ->where('usage', $usage)
-            ->where('kind', 'image')
-            ->orderBy('id', 'DESC')
-            ->getArray();
-
         $files = [];
-        foreach ($rows as $row) {
-            if (isset($files[(int) $row['entity_id']])) {
-                continue;
-            }
-
-            $files[(int) $row['entity_id']] = $this->file($row);
+        foreach ($this->readModel->findForEntities($module, $entityIds, $usage, 'image') as $entityId => $file) {
+            $files[$entityId] = $file->toArray();
         }
 
         return $files;
@@ -324,46 +303,18 @@ final class AdminFileModel extends Model
      */
     public function listForEntity(string $module, int $entityId, string $usage): array
     {
-        return $this->query()->where('module_code', $module)->where('entity_id', $entityId)->where('usage', $usage)->orderBy('sort_order', 'ASC')->orderBy('id', 'ASC')->getArray();
+        return $this->legacyFiles($this->readModel->listForEntity($module, $entityId, $usage));
     }
 
     /**
      * Nacte presentation metadata souboru pro vice usage jednoho vlastnika jednim dotazem
      *
      * @param list<string> $usages
-     * @return list<array{id:int,usage:string,kind:string,original_filename:string,display_name:string|null,caption:string|null,extension:string,mime_type:string,file_size:int,width:int|null,height:int|null,sort_order:int}>
+     * @return list<array<string,mixed>>
      */
     public function listForEntityUsages(string $module, int $entityId, array $usages): array
     {
-        if ($usages === []) {
-            return [];
-        }
-
-        /** @var list<array{id:int,usage:string,kind:string,original_filename:string,display_name:string|null,caption:string|null,extension:string,mime_type:string,file_size:int,width:int|null,height:int|null,sort_order:int}> $files */
-        $files = $this->query()
-            ->select([
-                'id',
-                'usage',
-                'kind',
-                'original_filename',
-                'display_name',
-                'caption',
-                'extension',
-                'mime_type',
-                'file_size',
-                'width',
-                'height',
-                'sort_order',
-            ])
-            ->where('module_code', $module)
-            ->where('entity_id', $entityId)
-            ->whereIn('usage', $usages)
-            ->orderBy('usage', 'ASC')
-            ->orderBy('sort_order', 'ASC')
-            ->orderBy('id', 'ASC')
-            ->getArray();
-
-        return $files;
+        return $this->legacyFiles($this->readModel->listForEntityUsages($module, $entityId, $usages));
     }
 
     /**
@@ -373,7 +324,7 @@ final class AdminFileModel extends Model
      */
     public function findForTarget(string $module, int $entityId, string $usage, int $fileId): ?array
     {
-        return $this->query()->where('id', $fileId)->where('module_code', $module)->where('entity_id', $entityId)->where('usage', $usage)->first();
+        return $this->readModel->findForTarget($module, $entityId, $usage, $fileId)?->toArray();
     }
 
     /**
@@ -442,28 +393,17 @@ final class AdminFileModel extends Model
     }
 
     /**
-     * Normalizuje databazovy radek na stabilni file metadata contract
+     * Prevede typed read contract na zpetne kompatibilni pole Admin modelu
      *
-     * @param array<string, mixed> $row
-     * @return array{id:int,module_code:string,entity_id:int,usage:string,kind:string,original_filename:string,display_name:string|null,caption:string|null,extension:string,mime_type:string,file_size:int,width:int|null,height:int|null}
+     * @param list<FileMetadata> $files
+     * @return list<array<string,mixed>>
      */
-    private function file(array $row): array
+    private function legacyFiles(array $files): array
     {
-        return [
-            'id' => (int) $row['id'],
-            'module_code' => (string) $row['module_code'],
-            'entity_id' => (int) $row['entity_id'],
-            'usage' => (string) $row['usage'],
-            'kind' => (string) $row['kind'],
-            'original_filename' => (string) $row['original_filename'],
-            'display_name' => $row['display_name'] === null ? null : (string) $row['display_name'],
-            'caption' => $row['caption'] === null ? null : (string) $row['caption'],
-            'extension' => (string) $row['extension'],
-            'mime_type' => (string) $row['mime_type'],
-            'file_size' => (int) $row['file_size'],
-            'width' => $row['width'] === null ? null : (int) $row['width'],
-            'height' => $row['height'] === null ? null : (int) $row['height'],
-        ];
+        return array_map(
+            static fn(FileMetadata $file): array => $file->toArray(),
+            $files,
+        );
     }
 
     /**
