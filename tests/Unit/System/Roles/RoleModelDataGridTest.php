@@ -27,12 +27,12 @@ final class RoleModelDataGridTest extends TestCase
             self::assertStringContainsString('FROM system_role AS r', $query['sql']);
             self::assertStringContainsString($expectedCondition, $query['sql']);
             self::assertStringNotContainsString('WHERE deleted_at', $query['sql']);
-            if (str_contains($query['sql'], 'LEFT JOIN system_user_role ur')) {
+            if (str_contains($query['sql'], 'LEFT JOIN system_user_role AS ur')) {
                 $rowQuery = $query['sql'];
             }
         }
         self::assertIsString($rowQuery);
-        self::assertStringContainsString('LEFT JOIN system_user_role ur ON ur.role_id = r.id', $rowQuery);
+        self::assertStringContainsString('LEFT JOIN system_user_role AS ur ON ur.role_id = r.id', $rowQuery);
     }
 
     public function testDataGridAppliesTheSelectedSortBeforeItsDeterministicTieBreaker(): void
@@ -41,7 +41,7 @@ final class RoleModelDataGridTest extends TestCase
 
         $rowQuery = null;
         foreach ($queries as $query) {
-            if (str_contains($query['sql'], 'LEFT JOIN system_user_role ur')) {
+            if (str_contains($query['sql'], 'LEFT JOIN system_user_role AS ur')) {
                 $rowQuery = $query['sql'];
             }
         }

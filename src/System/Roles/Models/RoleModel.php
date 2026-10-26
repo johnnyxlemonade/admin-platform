@@ -7,6 +7,7 @@ namespace Lemonade\Admin\System\Roles\Models;
 use Lemonade\Admin\DataGrid\Query\DataGridQuery;
 use Lemonade\Admin\DataGrid\Query\QueryPage;
 use Lemonade\Framework\Database\Model;
+use Lemonade\Framework\Database\QueryBuilder;
 
 /**
  * Zprostredkuje persistenci roli, permission setu a soft-delete projekci
@@ -33,7 +34,7 @@ final class RoleModel extends Model
         $rows = $this->filteredRoles($search, $query->filter('status'))
             ->select(['r.id', 'r.code', 'r.name', 'r.description', 'r.is_system', 'r.is_super_admin', 'r.deleted_at'])
             ->selectRaw('COUNT(ur.user_id) AS user_count')
-            ->join('system_user_role ur', 'ur.role_id = r.id', 'LEFT')
+            ->joinOn('system_user_role ur', 'ur.role_id', '=', 'r.id', 'LEFT')
             ->groupBy('r.id')
             ->orderBy($sorts[$query->sortKey()], $direction)
             ->orderBy('r.id', 'ASC')
@@ -160,7 +161,7 @@ final class RoleModel extends Model
     /**
      * Pripravi zaklad dotazu pro aktivni nebo smazane role
      */
-    private function filteredRoles(string $search, ?string $status): \Lemonade\Framework\Database\QueryBuilder
+    private function filteredRoles(string $search, ?string $status): QueryBuilder
     {
         $query = $this->withDeleted()->query()->from('system_role r');
         $query = $status === 'deleted'
@@ -176,7 +177,7 @@ final class RoleModel extends Model
     /**
      * Pripravi dotaz nad prirazeni opravneni roli
      */
-    private function rolePermissionQuery(): \Lemonade\Framework\Database\QueryBuilder
+    private function rolePermissionQuery(): QueryBuilder
     {
         return $this->withDeleted()->query()->from('system_role_permission');
     }

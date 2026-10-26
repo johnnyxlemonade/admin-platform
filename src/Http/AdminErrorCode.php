@@ -10,6 +10,7 @@ namespace Lemonade\Admin\Http;
 enum AdminErrorCode: string
 {
     case VALIDATION_FAILED = 'validation_failed';
+    case UPLOAD_FAILED = 'upload_failed';
     case PERMISSION_DENIED = 'permission_denied';
     case LOCAL_ACTOR_REQUIRED = 'local_actor_required';
     case NOT_FOUND = 'not_found';

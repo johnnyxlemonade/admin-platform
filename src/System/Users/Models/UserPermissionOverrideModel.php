@@ -24,7 +24,7 @@ final class UserPermissionOverrideModel extends Model
         $rows = $this->query()
             ->from('system_user_permission up')
             ->select(['p.code', 'up.effect'])
-            ->join('system_permission p', 'p.id = up.permission_id')
+            ->joinOn('system_permission p', 'p.id', '=', 'up.permission_id')
             ->where('up.user_id', $userId)
             ->orderBy('p.code')
             ->getArray();

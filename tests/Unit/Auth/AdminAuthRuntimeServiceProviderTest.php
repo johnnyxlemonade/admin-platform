@@ -17,6 +17,7 @@ use Lemonade\Framework\Container\Container;
 use Lemonade\Framework\Container\ScopeKind;
 use Lemonade\Framework\Container\ServiceLifetime;
 use Lemonade\Framework\Core\Config\Definition\ConfigDefinitionRegistry;
+use Lemonade\Framework\Http\Request\HttpRequestInspector;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface as PsrHttpClientInterface;
 
@@ -64,6 +65,7 @@ final class AdminAuthRuntimeServiceProviderTest extends TestCase
         (new AdminAuthRuntimeServiceProvider())->register($container);
 
         $scope = $container->beginScope(ScopeKind::Request);
+        $scope->bindScopedInstance(HttpRequestInspector::class, new HttpRequestInspector());
 
         try {
             self::assertInstanceOf(AuthenticationThrottler::class, $scope->get(AuthenticationThrottler::class));

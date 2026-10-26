@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Presentation;
 
+use Lemonade\Framework\Upload\Config\ImageUploadProfileConfig;
+
 /**
  * Popisuje jednu autorizovanou file usage modulu bez persistence detailu
  */
@@ -65,6 +67,28 @@ final readonly class AdminFileUsageDefinition
     public function imageProfile(): ?string
     {
         return $this->imageProfile;
+    }
+
+    /**
+     * Zvoli upload kind a profil pred chunk session podle deklarace usage a image pripony
+     *
+     * @return array{kind:string,profile:string}
+     */
+    public function uploadPipeline(string $filename, ?ImageUploadProfileConfig $imageProfile): array
+    {
+        if ($this->imageProfile === null) {
+            return ['kind' => $this->kind, 'profile' => $this->profile];
+        }
+        if (!$imageProfile instanceof ImageUploadProfileConfig) {
+            throw new \OutOfBoundsException('Image upload profile is not configured.');
+        }
+
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        if ($extension !== '' && in_array($extension, $imageProfile->allowedExtensions(), true)) {
+            return ['kind' => 'image', 'profile' => $this->imageProfile];
+        }
+
+        return ['kind' => $this->kind, 'profile' => $this->profile];
     }
 
     /**

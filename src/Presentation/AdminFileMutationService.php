@@ -13,6 +13,7 @@ use Lemonade\Admin\Presentation\Models\AdminFileModel;
 use Lemonade\Framework\Core\Context\ApplicationContext;
 use Lemonade\Framework\Database\Database;
 use Lemonade\Framework\Filesystem\Filesystem;
+use Lemonade\Framework\Image\ImageVariantCache;
 use Lemonade\Framework\Image\ImageVariantPathResolver;
 use Lemonade\Framework\Image\Value\ImageAsset;
 use Lemonade\Framework\Image\Value\ImageDimensions;
@@ -34,6 +35,7 @@ final readonly class AdminFileMutationService
         private TransactionalEventProcessor $events,
         private LocalActorGuard $actors,
         private ImageVariantPathResolver $paths,
+        private ImageVariantCache $variants,
         private Filesystem $filesystem,
         private ApplicationContext $context,
         private Database $database,
@@ -216,7 +218,7 @@ final readonly class AdminFileMutationService
             $metadata->format(),
             new ImageDimensions($metadata->width(), $metadata->height()),
         );
-        $this->filesystem->delete($this->paths->originalPath(new ImageAsset($assetId, $original)));
+        $this->deleteImageAsset(new ImageAsset($assetId, $original));
     }
 
     /**
@@ -405,7 +407,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Smaze canonical original az po committed odstraneni metadata; variants cache nehleda ani nemaze
+     * Smaze varianty a canonical original az po committed odstraneni metadata
      *
      * @param array<string,mixed> $file
      */
@@ -440,10 +442,19 @@ final readonly class AdminFileMutationService
                 $format,
                 $dimensions,
             );
-            $this->filesystem->delete($this->paths->originalPath(new ImageAsset($assetId, $original)));
+            $this->deleteImageAsset(new ImageAsset($assetId, $original));
         } catch (\InvalidArgumentException $exception) {
             throw new \RuntimeException('Image file metadata is invalid.', previous: $exception);
         }
+    }
+
+    /**
+     * Odstrani pouze jednu immutable image source version vcetne jejich variant
+     */
+    private function deleteImageAsset(ImageAsset $asset): void
+    {
+        $this->variants->forget($asset);
+        $this->filesystem->delete($this->paths->originalPath($asset));
     }
 
     /**

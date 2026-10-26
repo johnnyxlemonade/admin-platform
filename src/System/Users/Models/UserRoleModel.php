@@ -44,7 +44,7 @@ final class UserRoleModel extends Model
         return $this->query()
             ->from('system_role r')
             ->select(['r.id', 'r.code', 'r.name'])
-            ->join('system_user_role ur', 'ur.role_id = r.id')
+            ->joinOn('system_user_role ur', 'ur.role_id', '=', 'r.id')
             ->where('ur.user_id', $userId)
             ->where('r.deleted_at', null)
             ->orderBy('r.name')

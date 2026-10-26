@@ -10,7 +10,7 @@
     "ext-openssl": "*",
     "ext-pdo": "*",
     "guzzlehttp/guzzle": "^7.10",
-    "johnnyxlemonade/framework": "dev-master",
+    "johnnyxlemonade/framework": "dev-main",
     "johnnyxlemonade/cms-core": "dev-main",
     "johnnyxlemonade/admin-image": "dev-main",
     "league/oauth2-client": "^2.9",

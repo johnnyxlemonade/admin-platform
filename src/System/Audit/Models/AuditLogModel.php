@@ -128,7 +128,7 @@ final class AuditLogModel extends Model implements PersonalLoginAuditReaderInter
                 'a.created_at',
             ])
             ->selectRaw('u.first_name AS actor_first_name, u.last_name AS actor_last_name, u.email AS actor_email')
-            ->join('system_user u', 'u.id = a.actor_user_id', 'LEFT')
+            ->joinOn('system_user u', 'u.id', '=', 'a.actor_user_id', 'LEFT')
             ->orderBy('a.created_at', 'DESC')
             ->orderBy('a.id', 'DESC')
             ->limit($limit)
@@ -144,7 +144,7 @@ final class AuditLogModel extends Model implements PersonalLoginAuditReaderInter
     {
         $builder = $this->query()
             ->from('system_audit_log a')
-            ->join('system_user u', 'u.id = a.actor_user_id', 'LEFT');
+            ->joinOn('system_user u', 'u.id', '=', 'a.actor_user_id', 'LEFT');
         $module = $query->filter('module');
         if ($module !== null) {
             $builder = $builder->where('a.module_code', $module);

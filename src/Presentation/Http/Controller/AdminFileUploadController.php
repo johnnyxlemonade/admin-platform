@@ -14,6 +14,7 @@ use Lemonade\Admin\Presentation\AdminFileMutationService;
 use Lemonade\Admin\Presentation\AdminFilePhysicalCleanupException;
 use Lemonade\Admin\Presentation\AdminFileRenameModalDefinitionFactory;
 use Lemonade\Admin\Presentation\AdminFileUploadComponent;
+use Lemonade\Admin\Presentation\AdminFileUsageDefinition;
 use Lemonade\Admin\Presentation\AdminFileUsageRegistry;
 use Lemonade\Admin\Presentation\Models\AdminFileModel;
 use Lemonade\Framework\Core\Http\RequestData;
@@ -22,10 +23,11 @@ use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Http\Response\Responses;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Upload\Chunk\ChunkUploadService;
+use Lemonade\Framework\Upload\Config\UploadConfig;
+use Lemonade\Framework\Upload\Exception\ChunkUploadQuotaExceededException;
 use Lemonade\Framework\Upload\Exception\UploadValidationException;
-use Lemonade\Framework\Upload\ValueObject\UploadedFile;
+use Lemonade\Framework\Upload\ValueObject\UploadedImage;
 use Lemonade\Framework\View\ViewRendererInterface;
-use Nyholm\Psr7\UploadedFile as PsrUploadedFile;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -47,6 +49,7 @@ final readonly class AdminFileUploadController
         private AdminFileModel $fileModel,
         private AdminFileRenameModalDefinitionFactory $renameModal,
         private ChunkUploadService $chunks,
+        private UploadConfig $uploadConfig,
         private Filesystem $filesystem,
         private Responses $responses,
         private TranslatorInterface $translator,
@@ -71,12 +74,13 @@ final readonly class AdminFileUploadController
             if ($filename === '' || !is_int($size) || $size <= 0) {
                 throw new \InvalidArgumentException('Upload filename and size are required.');
             }
-            if (($validation = $this->startValidationError($definition, $filename, $size)) !== null) {
+            $pipeline = $this->uploadPipeline($definition, $filename);
+            if (($validation = $this->startValidationError($pipeline['kind'], $pipeline['profile'], $filename, $size)) !== null) {
                 return $validation;
             }
             $session = $this->chunks->start(
-                kind: $definition->kind(),
-                profile: $definition->profile(),
+                kind: $pipeline['kind'],
+                profile: $pipeline['profile'],
                 originalFilename: $filename,
                 declaredSize: $size,
                 context: [
@@ -125,6 +129,13 @@ final readonly class AdminFileUploadController
     {
         try {
             $session = $this->chunks->session($uploadId);
+        } catch (UploadValidationException $exception) {
+            return $this->sessionUnavailable($exception);
+        } catch (\Throwable $exception) {
+            return $this->uploadError($exception);
+        }
+
+        try {
             if (($response = $this->authorizeSession($session->context)) !== null) {
                 return $response;
             }
@@ -132,7 +143,24 @@ final readonly class AdminFileUploadController
             if (!is_int($offset) || $offset < 0) {
                 throw new \InvalidArgumentException('Upload offset is required.');
             }
-            $updated = $this->chunks->append($uploadId, $offset, $request->getBody());
+            if ($offset !== $session->currentOffset) {
+                return $this->uploadFailure('offset_conflict', HttpStatusCode::CONFLICT);
+            }
+            try {
+                $updated = $this->chunks->append($uploadId, $offset, $request->getBody());
+            } catch (UploadValidationException $exception) {
+                try {
+                    $latest = $this->chunks->session($uploadId);
+                } catch (UploadValidationException $sessionException) {
+                    return $this->sessionUnavailable($sessionException);
+                }
+
+                if ($latest->currentOffset !== $offset) {
+                    return $this->uploadFailure('offset_conflict', HttpStatusCode::CONFLICT);
+                }
+
+                return $this->uploadError($exception);
+            }
         } catch (\Throwable $exception) {
             return $this->uploadError($exception);
         }
@@ -147,18 +175,26 @@ final readonly class AdminFileUploadController
     {
         try {
             $session = $this->chunks->session($uploadId);
+        } catch (UploadValidationException $exception) {
+            return $this->sessionUnavailable($exception);
+        } catch (\Throwable $exception) {
+            return $this->uploadError($exception);
+        }
+
+        try {
             if (($response = $this->authorizeSession($session->context)) !== null) {
                 return $response;
             }
-            $uploaded = $this->chunks->complete($uploadId);
             $context = $this->targetContext($session->context);
             $definition = $this->usages->require($context['module'], $context['usage']);
-            $imageProfile = $definition->imageProfile();
-            if ($definition->kind() === 'image') {
-                $fileId = $this->finalizeImage($context, $definition->multiple(), $uploaded, $session->originalFilename, $definition->profile());
-            } elseif ($imageProfile !== null && $this->originals->supports($uploaded, $session->originalFilename, $imageProfile)) {
-                $fileId = $this->finalizeImage($context, $definition->multiple(), $uploaded, $session->originalFilename, $imageProfile);
-            } else {
+            $pipeline = $this->uploadPipeline($definition, $session->originalFilename);
+            if ($session->kind !== $pipeline['kind'] || $session->profile !== $pipeline['profile']) {
+                throw new \RuntimeException('Chunk upload pipeline no longer matches its registered target.');
+            }
+            $uploaded = $this->chunks->complete($uploadId);
+            if ($session->kind === 'image' && $uploaded instanceof UploadedImage) {
+                $fileId = $this->finalizeImage($context, $definition->multiple(), $uploaded, $session->originalFilename);
+            } elseif ($session->kind === 'file' && !($uploaded instanceof UploadedImage)) {
                 $fileId = $this->files->saveGenericUpload(
                     module: $context['module'],
                     entityId: $context['entity'],
@@ -167,6 +203,10 @@ final readonly class AdminFileUploadController
                     uploaded: $uploaded,
                     multiple: $definition->multiple(),
                 );
+            } else {
+                $this->filesystem->delete($uploaded->storedPath());
+
+                throw new \RuntimeException('Chunk upload result does not match its server-owned pipeline.');
             }
         } catch (\Throwable $exception) {
             return $this->uploadError($exception);
@@ -186,6 +226,13 @@ final readonly class AdminFileUploadController
     {
         try {
             $session = $this->chunks->session($uploadId);
+        } catch (UploadValidationException $exception) {
+            return $this->sessionUnavailable($exception);
+        } catch (\Throwable $exception) {
+            return $this->uploadError($exception);
+        }
+
+        try {
             if (($response = $this->authorizeSession($session->context)) !== null) {
                 return $response;
             }
@@ -416,6 +463,13 @@ final readonly class AdminFileUploadController
      */
     private function uploadError(\Throwable $exception): ResponseInterface
     {
+        if ($exception instanceof ChunkUploadQuotaExceededException) {
+            return $this->uploadFailure('quota_exceeded', HttpStatusCode::TOO_MANY_REQUESTS);
+        }
+        if ($exception instanceof UploadValidationException || $exception instanceof \InvalidArgumentException || $exception instanceof \OutOfBoundsException) {
+            return $this->uploadFailure('invalid_file', HttpStatusCode::UNPROCESSABLE_ENTITY);
+        }
+
         $this->logger->error('Admin file upload mutation failed.', [
             'exception' => $exception,
             'exception_class' => $exception::class,
@@ -424,22 +478,28 @@ final readonly class AdminFileUploadController
         return $this->responses->json([
             'success' => false,
             'error' => [
-                'code' => AdminErrorCode::VALIDATION_FAILED->value,
-                'reason' => $exception instanceof UploadValidationException ? 'invalid_file' : null,
+                'code' => AdminErrorCode::UPLOAD_FAILED->value,
+                'reason' => 'infrastructure_failure',
             ],
             'errors' => ['file' => $this->translator->get('admin.file_upload.failed')],
-        ], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
+        ], HttpStatusCode::INTERNAL_SERVER_ERROR->value);
     }
 
     /**
      * Vraci pred zahajenim chunk session pouze chyby, ktere lze rozhodnout z authoritativniho upload profilu
      */
     private function startValidationError(
-        \Lemonade\Admin\Presentation\AdminFileUsageDefinition $definition,
+        string $kind,
+        string $profileName,
         string $filename,
         int $size,
     ): ?ResponseInterface {
-        $profile = $this->uploads->profile($definition);
+        $profile = $kind === 'image'
+            ? $this->uploadConfig->images[$profileName] ?? null
+            : $this->uploadConfig->files[$profileName] ?? null;
+        if ($profile === null) {
+            throw new \OutOfBoundsException('Upload profile is not configured.');
+        }
         if ($size > $profile->maxBytes()) {
             return $this->uploadValidationError('file_too_large');
         }
@@ -469,30 +529,58 @@ final readonly class AdminFileUploadController
     }
 
     /**
+     * Vraci strukturovanou upload chybu se zachovanym klientskym payload kontraktem
+     */
+    private function uploadFailure(string $reason, HttpStatusCode $status): ResponseInterface
+    {
+        return $this->responses->json([
+            'success' => false,
+            'error' => [
+                'code' => AdminErrorCode::VALIDATION_FAILED->value,
+                'reason' => $reason,
+            ],
+            'errors' => ['file' => $this->translator->get('admin.file_upload.failed')],
+        ], $status->value);
+    }
+
+    /**
+     * Skryje rozdil mezi expirovanou a neznamou session za retry-safe konflikt
+     */
+    private function sessionUnavailable(UploadValidationException $exception): ResponseInterface
+    {
+        $this->logger->notice('Admin chunk upload session is no longer available.', [
+            'exception_class' => $exception::class,
+        ]);
+
+        return $this->uploadFailure('session_expired', HttpStatusCode::CONFLICT);
+    }
+
+    /**
+     * Zvoli serverovy kind a profil pred vznikem chunk session podle povolene image pripony
+     *
+     * @return array{kind:string,profile:string}
+     */
+    private function uploadPipeline(AdminFileUsageDefinition $definition, string $filename): array
+    {
+        $imageProfileName = $definition->imageProfile();
+
+        return $definition->uploadPipeline(
+            $filename,
+            $imageProfileName === null ? null : ($this->uploadConfig->images[$imageProfileName] ?? null),
+        );
+    }
+
+    /**
      * Prevede Framework image profile output na canonical Admin image asset a kompenzuje neuspesny bind
      *
      * @param array{module:string,entity:int,usage:string} $target
      */
-    private function finalizeImage(array $target, bool $multiple, UploadedFile $uploaded, string $originalFilename, string $imageProfile): int
+    private function finalizeImage(array $target, bool $multiple, UploadedImage $uploaded, string $originalFilename): int
     {
-        $resource = fopen($uploaded->storedPath(), 'rb');
-        if ($resource === false) {
-            throw new \RuntimeException('Finalized image cannot be opened.');
-        }
         $assetId = $multiple ? bin2hex(random_bytes(16)) : $this->files->imageAssetId($target['module'], $target['entity'], $target['usage']);
-        $source = new PsrUploadedFile(
-            $resource,
-            $uploaded->sizeBytes(),
-            UPLOAD_ERR_OK,
-            $originalFilename,
-            $uploaded->mimeType(),
-        );
         try {
-            $written = $this->originals->write($assetId, $source, $imageProfile);
+            $written = $this->originals->write($assetId, $uploaded, $originalFilename);
         } finally {
-            // Nyholm UploadedFile owns the resource through its PSR stream. Closing
-            // that stream is idempotent; fclose($resource) would close it twice.
-            $source->getStream()->close();
             $this->filesystem->delete($uploaded->storedPath());
         }
 

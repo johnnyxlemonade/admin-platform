@@ -391,7 +391,7 @@ final class NotificationModel extends Model implements NotificationInboxReposito
             /** @var list<array{id:int,title:string,active:int,deleted_at:string|null,created_at:string,updated_at:string,author_first_name:string|null,author_last_name:string|null,author_email:string|null}> $rows */
             $rows = $this->query()
                 ->from('admin_notification n')
-                ->join('system_user u', 'u.id = n.created_by_user_id', 'LEFT')
+                ->joinOn('system_user u', 'u.id', '=', 'n.created_by_user_id', 'LEFT')
                 ->select(['n.id', 'n.title', 'n.active', 'n.deleted_at', 'n.created_at', 'n.updated_at'])
                 ->selectRaw('u.first_name AS author_first_name, u.last_name AS author_last_name, u.email AS author_email')
                 ->whereIn('n.id', $chunk)
@@ -412,7 +412,7 @@ final class NotificationModel extends Model implements NotificationInboxReposito
     {
         $builder = $this->query()
             ->from('admin_notification n')
-            ->join('system_user u', 'u.id = n.created_by_user_id', 'LEFT');
+            ->joinOn('system_user u', 'u.id', '=', 'n.created_by_user_id', 'LEFT');
 
         $status = $query->filter('status');
         if ($status === 'deleted') {
@@ -489,6 +489,13 @@ final class NotificationModel extends Model implements NotificationInboxReposito
             $conditions[] = 'EXISTS (SELECT 1 FROM admin_notification_audience_role ar WHERE ar.notification_id = n.id AND ar.role_code IN (' . $placeholders . '))';
             array_push($bindings, ...$roles);
         }
-        return $this->query()->from('admin_notification n')->joinSubquery($receipts, 'nr', 'nr.notification_id = n.id', 'LEFT')->join('system_user u', 'u.id = n.created_by_user_id', 'LEFT')->where('n.active', 1)->where('n.deleted_at', null)->whereRaw('(' . implode(' OR ', $conditions) . ')', $bindings);
+
+        return $this->query()
+            ->from('admin_notification n')
+            ->joinSubqueryOn($receipts, 'nr', 'nr.notification_id', '=', 'n.id', 'LEFT')
+            ->joinOn('system_user u', 'u.id', '=', 'n.created_by_user_id', 'LEFT')
+            ->where('n.active', 1)
+            ->where('n.deleted_at', null)
+            ->whereRaw('(' . implode(' OR ', $conditions) . ')', $bindings);
     }
 }

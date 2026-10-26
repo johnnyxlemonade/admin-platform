@@ -170,10 +170,10 @@ final readonly class AdminFileUploadComponent
         }
 
         return new AdminFileUploadProfilePresentation(
-            accept: implode(',', array_map(static fn(string $extension): string => '.' . $extension, $profile->allowedExtensions)),
-            allowedExtensions: array_map(strtoupper(...), $profile->allowedExtensions),
-            maxBytes: $profile->maxBytes,
-            maxSizeLabel: human_filesize($profile->maxBytes, 1),
+            accept: implode(',', array_map(static fn(string $extension): string => '.' . $extension, $profile->allowedExtensions())),
+            allowedExtensions: array_map(strtoupper(...), $profile->allowedExtensions()),
+            maxBytes: $profile->maxBytes(),
+            maxSizeLabel: human_filesize($profile->maxBytes(), 1),
         );
     }
 

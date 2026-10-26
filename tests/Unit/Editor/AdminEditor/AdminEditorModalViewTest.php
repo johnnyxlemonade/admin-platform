@@ -9,7 +9,6 @@ use Lemonade\Admin\Editor\AdminEditor\AdminEditorBuilder;
 use Lemonade\Admin\Editor\AdminEditor\Field\Field;
 use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorFieldRenderer;
 use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
-use Lemonade\Framework\Core\Config\AppConfig;
 use Lemonade\Framework\Localization\Config\LocalizationConfig;
 use Lemonade\Framework\Localization\Config\LocalizationUrlConfig;
 use Lemonade\Framework\Localization\TranslatorInterface;
@@ -19,7 +18,6 @@ use Lemonade\Framework\Routing\UrlGenerator;
 use Lemonade\Framework\Security\Csrf\CsrfTokenManager;
 use Lemonade\Framework\Security\Csrf\CsrfViewHelper;
 use Lemonade\Framework\Session\Contract\SessionInterface;
-use Lemonade\Framework\Support\BaseUrlResolver;
 use Lemonade\Framework\View\View;
 use Lemonade\Framework\View\ViewHelpers;
 use PHPUnit\Framework\TestCase;
@@ -106,17 +104,6 @@ final class AdminEditorModalViewTest extends TestCase
         );
 
         return new ViewHelpers(
-            baseUrl: new BaseUrlResolver(new AppConfig(
-                timezone: null,
-                baseUrl: 'https://example.test',
-                basePath: '',
-                publicPath: '',
-                env: 'testing',
-                debug: false,
-                appPath: '',
-                configPath: '',
-                storagePath: '',
-            )),
             urlGenerator: new UrlGenerator(
                 new Router(),
                 null,
