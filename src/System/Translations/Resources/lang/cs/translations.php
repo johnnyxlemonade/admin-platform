@@ -3,7 +3,11 @@
 declare(strict_types=1);
 
 return [
-    'module' => ['name' => 'Překlady', 'description' => 'Správa překladů administrace.'],
+    'module' => [
+        'name' => 'Překlady',
+        'description' => 'Správa překladů administrace.',
+    ],
+
     'audit' => [
         'events' => [
             'created' => 'Vlastní překlad vytvořen',
@@ -11,6 +15,7 @@ return [
             'removed' => 'Vlastní překlad odstraněn',
         ],
     ],
+
     'list' => [
         'title' => 'Překlady',
         'description' => 'Správa překladů aplikace a modulů',
@@ -18,6 +23,7 @@ return [
         'loading' => 'Načítání překladů…',
         'empty' => 'Pro vybrané filtry nebyly nalezeny žádné překlady',
     ],
+
     'filters' => [
         'locale' => 'Jazyk',
         'all_locales' => 'Všechny jazyky',
@@ -26,6 +32,7 @@ return [
         'status' => 'Stav',
         'all_statuses' => 'Všechny stavy',
     ],
+
     'fields' => [
         'locale' => 'Jazyk',
         'owner' => 'Oblast',
@@ -36,23 +43,28 @@ return [
         'override' => 'Vlastní překlad',
         'status' => 'Stav',
     ],
+
     'status' => [
         'default' => 'Výchozí',
         'overridden' => 'Upraveno',
         'missing' => 'Chybí překlad',
     ],
+
     'permissions' => [
         'view' => 'Zobrazit překlady',
         'edit' => 'Upravovat překlady',
     ],
+
     'actions' => [
         'reset' => 'Obnovit výchozí překlad',
         'bulk_reset' => 'Obnovit vybrané překlady',
     ],
+
     'confirm' => [
         'reset' => 'Odstranit vlastní překlad a vrátit výchozí hodnotu?',
         'bulk_reset' => 'Opravdu chcete u vybraných překladů odstranit vlastní hodnoty a vrátit výchozí překlady?',
     ],
+
     'editor' => [
         'title' => 'Upravit překlad',
         'description' => 'Vlastní hodnota překladu nahradí výchozí překlad',
@@ -62,6 +74,7 @@ return [
         'values_help' => 'Výchozí, aktuální a vlastní hodnota překladu',
         'saved' => 'Překlad byl uložen',
     ],
+
     'validation' => [
         'create_not_supported' => 'Nové překlady nelze vytvářet v administraci',
         'bulk_ids_invalid' => 'Vyberte alespoň jeden platný překlad',

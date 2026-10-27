@@ -3,7 +3,11 @@
 declare(strict_types=1);
 
 return [
-    'module' => ['name' => 'Translations', 'description' => 'Manage administration translations.'],
+    'module' => [
+        'name' => 'Translations',
+        'description' => 'Manage administration translations.',
+    ],
+
     'audit' => [
         'events' => [
             'created' => 'Custom translation created',
@@ -11,6 +15,7 @@ return [
             'removed' => 'Custom translation removed',
         ],
     ],
+
     'list' => [
         'title' => 'Translations',
         'description' => 'Manage application and module translations',
@@ -18,6 +23,7 @@ return [
         'loading' => 'Loading translations…',
         'empty' => 'No translations match the selected filters',
     ],
+
     'filters' => [
         'locale' => 'Locale',
         'all_locales' => 'All locales',
@@ -26,6 +32,7 @@ return [
         'status' => 'Status',
         'all_statuses' => 'All statuses',
     ],
+
     'fields' => [
         'locale' => 'Locale',
         'owner' => 'Domain',
@@ -36,23 +43,28 @@ return [
         'override' => 'Custom translation',
         'status' => 'Status',
     ],
+
     'status' => [
         'default' => 'Default',
         'overridden' => 'Modified',
         'missing' => 'Missing translation',
     ],
+
     'permissions' => [
         'view' => 'View translations',
         'edit' => 'Edit translations',
     ],
+
     'actions' => [
         'reset' => 'Restore default translation',
         'bulk_reset' => 'Restore selected translations',
     ],
+
     'confirm' => [
         'reset' => 'Remove the custom translation and restore the default value?',
         'bulk_reset' => 'Remove custom values from the selected translations and restore their default translations?',
     ],
+
     'editor' => [
         'title' => 'Edit translation',
         'description' => 'A custom translation replaces the default translation',
@@ -62,6 +74,7 @@ return [
         'values_help' => 'Default, current and custom translation values',
         'saved' => 'Translation saved',
     ],
+
     'validation' => [
         'create_not_supported' => 'New translations cannot be created in administration',
         'bulk_ids_invalid' => 'Select at least one valid translation',
