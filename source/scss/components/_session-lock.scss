@@ -105,7 +105,7 @@
     display: flex;
     gap: .65rem;
     padding: 0 .85rem;
-    transition: border-color .16s ease, box-shadow .16s ease;
+    transition: border-color .16s ease;
 }
 
 .lemonade-session-lock__input:hover {
@@ -114,7 +114,6 @@
 
 .lemonade-session-lock__input:focus-within {
     border-color: var(--lm-form-border-focus);
-    box-shadow: var(--lm-focus-shadow);
 }
 
 .lemonade-session-lock__input:has(input:user-invalid),
@@ -122,13 +121,6 @@
 .lemonade-session-lock__card:has([data-lemonade-session-lock-error]:not([hidden])) .lemonade-session-lock__input,
 .lemonade-session-lock__input.is-invalid {
     border-color: var(--lm-danger);
-}
-
-.lemonade-session-lock__input:has(input:user-invalid):focus-within,
-.lemonade-session-lock__input:has(input[aria-invalid="true"]):focus-within,
-.lemonade-session-lock__card:has([data-lemonade-session-lock-error]:not([hidden])) .lemonade-session-lock__input:focus-within,
-.lemonade-session-lock__input.is-invalid:focus-within {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--lm-danger) 20%, transparent);
 }
 
 .lemonade-session-lock__input:has(input:disabled) {

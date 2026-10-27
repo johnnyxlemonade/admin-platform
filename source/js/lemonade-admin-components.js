@@ -18,6 +18,7 @@ const registry = [
     { name: "Tabs", selector: "[data-lemonade-tabs]", load: () => import("./components/lemonade-tabs.js") },
     { name: "DataGrid", selector: "[data-lemonade-grid]", load: () => import("./components/lemonade-datagrid.js") },
     { name: "Select", selector: "select.form-select", load: () => import("./components/lemonade-select.js") },
+    { name: "Date and time", selector: "input[data-lemonade-date-time]", load: () => import("./components/lemonade-date-time.js") },
     { name: "Conditional", selector: "[data-lemonade-conditional]", load: () => import("./components/lemonade-conditional.js") },
     { name: "Form editor", selector: "form[data-lemonade-editor-form]", load: () => import("./components/lemonade-form-editor.js") },
     { name: "URL segment", selector: "[data-lemonade-url-segment]", load: () => import("./components/lemonade-url-segment.js") },

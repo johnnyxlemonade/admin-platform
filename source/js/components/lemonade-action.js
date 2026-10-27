@@ -274,7 +274,7 @@ import { Message } from "./lemonade-message.js";
 
             if (firstField) {
                 this.activateTabForField(firstField);
-                firstField.focus();
+                (firstField.lemonadeDateTime?.picker?.altInput || firstField).focus();
             }
 
             return true;

@@ -57,7 +57,6 @@
 
 .lm-modal[data-lemonade-modal-kind="form"] .form-control:focus, .lm-modal[data-lemonade-modal-kind="form"] .form-select:focus {
     border-color: var(--lm-form-border-focus);
-    box-shadow: var(--lm-focus-shadow) !important;
 }
 
 .lm-modal[data-lemonade-modal-kind="form"] .form-control:disabled, .lm-modal[data-lemonade-modal-kind="form"] .form-select:disabled {

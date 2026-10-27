@@ -219,8 +219,49 @@
     @include mixins.lemonade-scrollbar;
 }
 
+.admin-shell .admin-editor-tabs > .admin-editor-layout {
+    margin-top: var(--lm-space-5);
+}
+
 .admin-shell .admin-editor-tabs .lm-tabs-list {
     flex-wrap: nowrap;
+    min-width: 100%;
+    gap: var(--lm-space-2);
+    border: 0;
+    border-bottom: 1px solid var(--lm-line);
+    border-radius: 0;
+    background: transparent;
+}
+
+.admin-shell .admin-editor-tabs .lm-tab {
+    min-height: 42px;
+    padding: 8px var(--lm-space-4) 5px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    color: var(--lm-text-secondary);
+    background: transparent;
+    transition: color .16s ease;
+}
+
+.admin-shell .admin-editor-tabs .lm-tab:hover {
+    color: var(--lm-text-heading);
+    background: transparent;
+}
+
+.admin-shell .admin-editor-tabs .lm-tab:focus-visible {
+    outline: 2px solid var(--lm-form-border-focus);
+    outline-offset: -3px;
+    box-shadow: none;
+}
+
+.admin-shell .admin-editor-tabs .lm-tab.is-active,
+.admin-shell .admin-editor-tabs .lm-tab.is-active:hover {
+    border-bottom-color: var(--lm-primary);
+    border-radius: 0;
+    color: var(--lm-primary-dark);
+    background: transparent;
+    font-weight: 700;
 }
 
 .admin-shell .admin-editor-section > .card-body {

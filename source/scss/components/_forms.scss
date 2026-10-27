@@ -225,7 +225,6 @@
 
 .admin-shell .form-control:focus, .admin-shell .form-select:focus {
     border-color: var(--lm-form-border-focus);
-    box-shadow: var(--lm-focus-shadow) !important;
 }
 
 .admin-shell .form-control[readonly],
@@ -260,7 +259,6 @@
 
 .admin-shell .lm-select.is-invalid .lm-select-trigger:focus {
     border-color: var(--lm-danger);
-    box-shadow: var(--lm-focus-shadow) !important;
 }
 
 .admin-shell textarea.form-control {
@@ -308,7 +306,6 @@
 
 .admin-shell .form-check-input:focus-visible {
     border-color: var(--lm-primary);
-    box-shadow: var(--lm-focus-shadow);
 }
 
 .admin-shell .form-check-input:checked {

@@ -13,5 +13,6 @@ enum NativeInputType: string
     case Email = 'email';
     case Tel = 'tel';
     case Number = 'number';
+    case Date = 'date';
     case DatetimeLocal = 'datetime-local';
 }

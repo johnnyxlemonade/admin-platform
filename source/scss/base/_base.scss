@@ -6,15 +6,34 @@ html, body {
     min-width: 320px;
 }
 
-.admin-shell :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus,
-.lemonade-auth :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus {
+.form-control,
+.form-select,
+.input-group-text {
+    --bs-border-radius: var(--lm-radius);
+    --bs-border-radius-sm: var(--lm-radius);
+    --bs-border-radius-lg: var(--lm-radius);
+}
+
+.admin-shell :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(:not(input, select, textarea, .form-select)):focus,
+.lemonade-auth :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(:not(input, select, textarea, .form-select)):focus {
     outline: 0;
 }
 
-.admin-shell :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible,
-.lemonade-auth :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+.admin-shell :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(:not(input, select, textarea, .form-select)):focus-visible,
+.lemonade-auth :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(:not(input, select, textarea, .form-select)):focus-visible {
     outline: 0;
     box-shadow: var(--lm-focus-shadow);
+}
+
+:is(.admin-shell, .lemonade-auth, .lm-modal[data-lemonade-modal-kind="form"])
+    :is(.form-control, .form-select, .form-check-input):focus {
+    box-shadow: none;
+}
+
+:is(.admin-shell, .lemonade-auth, .lm-modal[data-lemonade-modal-kind="form"])
+    .form-check-input:focus-visible {
+    outline: 2px solid var(--lm-form-border-focus);
+    outline-offset: 2px;
 }
 
 .admin-shell {

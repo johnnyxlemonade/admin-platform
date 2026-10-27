@@ -226,8 +226,11 @@ final readonly class AdminEditorFieldRenderer
         $inputValue = $field->inputType() === NativeInputType::DatetimeLocal
             ? $this->datetimeLocalValue($value)
             : $this->stringValue($value);
+        $isDateTime = in_array($field->inputType(), [NativeInputType::Date, NativeInputType::DatetimeLocal], true);
+        $inputType = $isDateTime ? NativeInputType::Text->value : $field->inputType()->value;
+        $dateTime = $isDateTime ? ' data-lemonade-date-time="' . $field->inputType()->value . '"' : '';
 
-        return '<input class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '" type="' . $field->inputType()->value . '" value="' . $this->escape($inputValue) . '"'
+        return '<input class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '" type="' . $inputType . '" value="' . $this->escape($inputValue) . '"' . $dateTime
             . $this->inputCommon($field, $inputId, $describedBy, $errors, $field->autocompleteValue())
             . $this->placeholder($field) . '>';
     }

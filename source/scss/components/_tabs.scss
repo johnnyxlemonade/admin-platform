@@ -5,54 +5,69 @@
 .lm-tabs-list {
     display: flex;
     width: max-content;
-    min-width: 100%;
     margin: 0;
     padding: 0;
-    border: 0;
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    background: var(--lm-surface-soft);
     list-style: none;
 }
 
 .lm-tab {
-    display: block;
+    display: inline-flex;
     flex: 0 0 auto;
-    min-width: 150px;
-    padding: 11px clamp(17px, 1.05vw, 23px) 10px;
+    align-items: center;
+    justify-content: center;
+    min-width: 165px;
+    min-height: 42px;
+    padding: 10px clamp(20px, 1.35vw, 26px) 8px;
     margin: 0;
     border: 0;
     border-right: 1px solid var(--lm-line-subtle);
     border-bottom: 2px solid transparent;
     border-radius: 0;
-    color: var(--lm-text-control);
-    background: var(--lm-surface-soft);
+    color: var(--lm-text);
+    background: transparent;
     font-size: clamp(14px, .82vw, 16px);
+    font-weight: 500;
+    line-height: 1.25;
     text-align: center;
     white-space: nowrap;
+    transition: background-color .16s ease, color .16s ease;
 }
 
 .lm-tab:first-child {
-    border-radius: 6px 0 0 0;
+    border-top-left-radius: var(--lm-radius);
 }
 
 .lm-tab:last-child {
-    border-radius: 0 6px 0 0;
+    border-top-right-radius: var(--lm-radius);
     border-right: 0;
 }
 
-.lm-tab:hover, .lm-tab:focus-visible {
-    color: var(--lm-text-secondary);
-    background: var(--lm-surface);
+.lm-tab:hover {
+    color: var(--lm-text-heading);
+    background: var(--lm-surface-hover);
 }
 
 .lm-tab:focus-visible {
-    outline: 0;
-    box-shadow: var(--lm-focus-shadow);
+    position: relative;
+    z-index: 1;
+    outline: 2px solid var(--lm-form-border-focus);
+    outline-offset: -3px;
 }
 
 .lm-tab.is-active {
     border-bottom-color: var(--lm-primary);
-    color: var(--lm-primary);
-    background: var(--lm-surface);
-    font-weight: 600;
+    color: var(--lm-primary-dark);
+    border-radius: var(--lm-radius) var(--lm-radius) 0 0;
+    background: var(--lm-primary-soft);
+    font-weight: 700;
+}
+
+.lm-tab.is-active:hover {
+    color: var(--lm-primary-dark);
+    background: var(--lm-primary-soft);
 }
 
 .lm-tab-panel {

@@ -47,6 +47,14 @@ final class Field
     }
 
     /**
+     * Vytvori vstup data
+     */
+    public static function date(string $name, string $label = '', ?string $labelKey = null): TextInputField
+    {
+        return TextInputField::create($name, NativeInputType::Date, $label, $labelKey);
+    }
+
+    /**
      * Vytvori vstup lokalniho data a casu
      */
     public static function datetimeLocal(string $name, string $label = '', ?string $labelKey = null): TextInputField

@@ -56,6 +56,7 @@ final class AdminEditorFieldDefinitionTest extends TestCase
         yield 'email' => [static fn(): TextInputField => Field::email('field_name'), TextInputField::class];
         yield 'tel' => [static fn(): TextInputField => Field::tel('field_name'), TextInputField::class];
         yield 'number' => [static fn(): TextInputField => Field::number('field_name'), TextInputField::class];
+        yield 'date' => [static fn(): TextInputField => Field::date('field_name'), TextInputField::class];
         yield 'datetime local' => [static fn(): TextInputField => Field::datetimeLocal('field_name'), TextInputField::class];
         yield 'textarea' => [static fn(): TextareaField => Field::textarea('field_name'), TextareaField::class];
         yield 'select' => [static fn(): SelectField => Field::select('field_name'), SelectField::class];
@@ -69,13 +70,14 @@ final class AdminEditorFieldDefinitionTest extends TestCase
         yield 'URL segment' => [static fn(): UrlSegmentField => Field::urlSegment('field_name'), UrlSegmentField::class];
     }
 
-    /** Overi presne nativni input typy sdilene jednou rodinou */
-    public function testNativeInputFactoriesKeepTheirHtmlTypes(): void
+    /** Overi deklarovane input typy sdilene jednou rodinou */
+    public function testInputFactoriesKeepTheirDeclaredTypes(): void
     {
         self::assertSame(NativeInputType::Text, Field::text('field')->inputType());
         self::assertSame(NativeInputType::Email, Field::email('field')->inputType());
         self::assertSame(NativeInputType::Tel, Field::tel('field')->inputType());
         self::assertSame(NativeInputType::Number, Field::number('field')->inputType());
+        self::assertSame(NativeInputType::Date, Field::date('field')->inputType());
         self::assertSame(NativeInputType::DatetimeLocal, Field::datetimeLocal('field')->inputType());
     }
 
