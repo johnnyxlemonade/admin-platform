@@ -1,48 +1,266 @@
 .lemonade-session-lock {
     align-items: center;
-    background: rgb(15 23 42 / 72%);
+    background: color-mix(in srgb, var(--lm-canvas) 68%, transparent);
     display: flex;
     inset: 0;
     justify-content: center;
+    overflow-y: auto;
     padding: 1.5rem;
     position: fixed;
     z-index: 2147483647;
 }
 
 .lemonade-session-lock__card {
-    background: var(--bs-body-bg);
-    border-radius: var(--bs-border-radius-lg);
-    box-shadow: 0 1rem 3rem rgb(0 0 0 / 30%);
-    color: #142750;
+    background: var(--lm-surface);
+    border: 1px solid var(--lm-card-border);
+    border-radius: var(--lm-radius-lg);
+    box-shadow: var(--lm-shadow-lg);
+    color: var(--lm-text);
+    margin: auto;
+    max-height: calc(100dvh - 3rem);
     max-width: 32rem;
-    overflow: hidden;
+    overflow-y: auto;
     padding: 1.75rem 2.25rem 2rem;
-    position: relative;
     width: 100%;
 }
 
-.lemonade-session-lock__card::before { background: radial-gradient(ellipse at top, #dcecff 0%, transparent 68%); content: ""; height: 11rem; inset: 0 0 auto; pointer-events: none; position: absolute; }
-.lemonade-session-lock__card > * { position: relative; }
-.lemonade-session-lock__emblem { align-items: center; background: #e9f1ff; border-radius: 50%; color: #1f54ec; display: flex; font-size: 2.35rem; height: 6rem; justify-content: center; margin: 1.25rem auto .9rem; width: 6rem; }
-.lemonade-session-lock__card h1, .lemonade-session-lock__lead, .lemonade-session-lock__verify { text-align: center; }
-.lemonade-session-lock__card h1 { font-size: 1.65rem; font-weight: 700; }
-.lemonade-session-lock__lead { color: #61739a; margin: .4rem auto 1.25rem; max-width: 28rem; }
-.lemonade-session-lock__identity { align-items: center; background: #f5f8ff; border: 1px solid #e2eafa; border-radius: .6rem; display: flex; gap: .75rem; padding: .85rem 1rem; }
-.lemonade-session-lock__avatar { align-items: center; background: #dfd2ff; border-radius: 50%; color: #3e277e; display: flex; font-weight: 700; height: 2.65rem; justify-content: center; width: 2.65rem; }
-.lemonade-session-lock__verify { color: #61739a; margin: 1.15rem 0; }
-.lemonade-session-lock__form label { display: block; font-size: .8rem; font-weight: 700; margin-bottom: .35rem; }
-.lemonade-session-lock__input { align-items: center; border: 1px solid #d5e0f3; border-radius: .55rem; display: flex; gap: .65rem; padding: 0 .85rem; }
-.lemonade-session-lock__input input { background: transparent; border: 0; outline: 0; padding: .75rem 0; width: 100%; }
-.lemonade-session-lock__primary { background: #254df4; border: 0; border-radius: .55rem; color: #fff; display: block; font-weight: 700; margin-top: 1rem; padding: .8rem; text-align: center; width: 100%; }
-.lemonade-session-lock__primary i, .lemonade-session-lock__logout i { margin-right: .5rem; }
-.lemonade-session-lock__divider { color: #72809b; display: flex; gap: .75rem; margin: 1.2rem 0; text-align: center; }
-.lemonade-session-lock__divider::before, .lemonade-session-lock__divider::after { background: #dfe6f1; content: ""; flex: 1; height: 1px; margin-top: .75rem; }
-.lemonade-session-lock__logout { background: #f9fbff; border: 1px solid #cfdcf1; border-radius: .55rem; color: #1b315d; padding: .75rem; width: 100%; }
-.lemonade-session-lock__safe { color: #7382a0; font-size: .78rem; margin: 1rem 0 0; text-align: center; }
+.lemonade-session-lock__emblem {
+    align-items: center;
+    background: var(--lm-primary-soft);
+    border-radius: 50%;
+    color: var(--lm-primary);
+    display: flex;
+    font-size: 2rem;
+    height: 4.75rem;
+    justify-content: center;
+    margin: .5rem auto 1rem;
+    width: 4.75rem;
+}
+
+.lemonade-session-lock__card h1,
+.lemonade-session-lock__lead,
+.lemonade-session-lock__verify {
+    text-align: center;
+}
+
+.lemonade-session-lock__card h1 {
+    color: var(--lm-text-heading);
+    font-size: 1.65rem;
+    font-weight: 700;
+}
+
+.lemonade-session-lock__lead {
+    color: var(--lm-text-muted);
+    margin: .4rem auto 1.25rem;
+    max-width: 28rem;
+}
+
+.lemonade-session-lock__identity {
+    align-items: center;
+    background: var(--lm-surface-soft);
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-heading);
+    display: flex;
+    gap: .75rem;
+    padding: .85rem 1rem;
+}
+
+.lemonade-session-lock__avatar {
+    align-items: center;
+    background: var(--lm-category-life-bg);
+    border-radius: 50%;
+    color: var(--lm-category-life);
+    display: flex;
+    flex: 0 0 2.65rem;
+    font-weight: 700;
+    height: 2.65rem;
+    justify-content: center;
+}
+
+.lemonade-session-lock__identity strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.lemonade-session-lock__verify {
+    color: var(--lm-text-secondary);
+    margin: 1.15rem 0;
+}
+
+.lemonade-session-lock__form label {
+    color: var(--lm-text-heading);
+    display: block;
+    font-size: .8rem;
+    font-weight: 700;
+    margin-bottom: .35rem;
+}
+
+.lemonade-session-lock__input {
+    align-items: center;
+    background: var(--lm-surface);
+    border: 1px solid var(--lm-form-border);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-muted);
+    display: flex;
+    gap: .65rem;
+    padding: 0 .85rem;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.lemonade-session-lock__input:hover {
+    border-color: var(--lm-form-border-hover);
+}
+
+.lemonade-session-lock__input:focus-within {
+    border-color: var(--lm-form-border-focus);
+    box-shadow: var(--lm-focus-shadow);
+}
+
+.lemonade-session-lock__input:has(input:user-invalid),
+.lemonade-session-lock__input:has(input[aria-invalid="true"]),
+.lemonade-session-lock__card:has([data-lemonade-session-lock-error]:not([hidden])) .lemonade-session-lock__input,
+.lemonade-session-lock__input.is-invalid {
+    border-color: var(--lm-danger);
+}
+
+.lemonade-session-lock__input:has(input:user-invalid):focus-within,
+.lemonade-session-lock__input:has(input[aria-invalid="true"]):focus-within,
+.lemonade-session-lock__card:has([data-lemonade-session-lock-error]:not([hidden])) .lemonade-session-lock__input:focus-within,
+.lemonade-session-lock__input.is-invalid:focus-within {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--lm-danger) 20%, transparent);
+}
+
+.lemonade-session-lock__input:has(input:disabled) {
+    background: var(--lm-surface-soft);
+    color: var(--lm-text-soft);
+    cursor: not-allowed;
+}
+
+.lemonade-session-lock__input input {
+    background: transparent;
+    border: 0;
+    color: var(--lm-text-control);
+    min-width: 0;
+    outline: 0;
+    padding: .75rem 0;
+    width: 100%;
+}
+
+.lemonade-session-lock__input input::placeholder {
+    color: var(--lm-text-muted);
+    opacity: 1;
+}
+
+.lemonade-session-lock__input input:disabled {
+    color: var(--lm-text-muted);
+    cursor: not-allowed;
+}
+
+.lemonade-session-lock__primary,
+.lemonade-session-lock__logout {
+    border-radius: var(--lm-radius);
+    display: block;
+    padding: .8rem;
+    text-align: center;
+    width: 100%;
+}
+
+.lemonade-session-lock__primary {
+    background: var(--lm-primary);
+    border: 1px solid var(--lm-primary);
+    box-shadow: var(--lm-primary-shadow);
+    color: var(--lm-canvas);
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+.lemonade-session-lock__primary:hover {
+    background: var(--lm-primary-dark);
+    border-color: var(--lm-primary-dark);
+    color: var(--lm-canvas);
+}
+
+.lemonade-session-lock__primary:focus-visible,
+.lemonade-session-lock__logout:focus-visible {
+    outline: 2px solid var(--lm-primary);
+    outline-offset: 2px;
+    box-shadow: var(--lm-focus-shadow);
+}
+
+.lemonade-session-lock__primary:disabled,
+.lemonade-session-lock__logout:disabled {
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: .6;
+}
+
+.lemonade-session-lock__primary:disabled:hover {
+    background: var(--lm-primary);
+    border-color: var(--lm-primary);
+}
+
+.lemonade-session-lock__primary i,
+.lemonade-session-lock__logout i {
+    margin-right: .5rem;
+}
+
+.lemonade-session-lock__divider {
+    align-items: center;
+    color: var(--lm-text-muted);
+    display: flex;
+    gap: .75rem;
+    margin: 1.2rem 0;
+    text-align: center;
+}
+
+.lemonade-session-lock__divider::before,
+.lemonade-session-lock__divider::after {
+    background: var(--lm-line);
+    content: "";
+    flex: 1;
+    height: 1px;
+}
+
+.lemonade-session-lock__logout {
+    background: var(--lm-surface-soft);
+    border: 1px solid var(--lm-line-strong);
+    color: var(--lm-text-secondary);
+}
+
+.lemonade-session-lock__logout:hover {
+    background: var(--lm-surface-hover);
+    border-color: var(--lm-form-border-hover);
+    color: var(--lm-text-heading);
+}
+
+.lemonade-session-lock__logout:disabled:hover {
+    background: var(--lm-surface-soft);
+    border-color: var(--lm-line-strong);
+    color: var(--lm-text-secondary);
+}
+
+.lemonade-session-lock__safe {
+    color: var(--lm-text-muted);
+    font-size: .78rem;
+    margin: 1rem 0 0;
+    text-align: center;
+}
 
 .lemonade-session-lock__actions {
     display: flex;
     gap: .75rem;
     justify-content: space-between;
     margin-top: 1.25rem;
+}
+
+@media (max-width: 575.98px) {
+    .lemonade-session-lock {
+        padding: 1rem;
+    }
+
+    .lemonade-session-lock__card {
+        max-height: calc(100dvh - 2rem);
+        padding: 1.5rem;
+    }
 }
