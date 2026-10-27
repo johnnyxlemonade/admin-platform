@@ -3,6 +3,26 @@
 declare(strict_types=1);
 
 return [
+    'cms_display' => [
+        'tabs' => ['settings' => 'Settings'],
+        'sections' => ['recommendation' => 'Recommendation', 'recommendation_help' => 'Placement among recommended content', 'display' => 'Display settings', 'display_help' => 'Additional display settings'],
+        'fields' => [
+            'recommended' => 'Recommended item',
+            'recommended_help' => 'The item will appear among recommended content.',
+            'show_author' => 'Show author',
+            'show_author_help' => 'The author name appears with the item.',
+            'sharing_enabled' => 'Enable sharing',
+            'sharing_enabled_help' => 'Shows sharing buttons.',
+            'show_published_at' => 'Show publication date',
+            'show_published_at_help' => 'The date appears in the header.',
+            'show_thumbnail' => 'Show main image',
+            'show_thumbnail_help' => 'The main image appears in the detail.',
+            'show_reading_time' => 'Show reading time',
+            'show_reading_time_help' => 'Automatically calculated approximate reading time.',
+            'show_tags' => 'Show tags',
+            'show_tags_help' => 'Shows tags from the current language version.',
+        ],
+    ],
     'url_segment' => ['label' => 'URL segment', 'help' => 'Changing the URL is a separate operation. Later title changes do not overwrite it.', 'save' => 'Save URL', 'updated' => 'The URL was changed.', 'invalid' => 'The URL segment is invalid.', 'reserved' => 'This URL is reserved by the application.', 'occupied' => 'This URL is already occupied by other content.'],
     'rich_text' => ['insert_image' => 'Insert image', 'edit_image' => 'Edit image', 'save_image' => 'Save image', 'alternative_text' => 'Alternative text', 'alignment' => 'Alignment', 'alignment_default' => 'Default', 'alignment_left' => 'Left', 'alignment_center' => 'Center', 'alignment_right' => 'Right', 'width' => 'Width', 'width_default' => 'Default', 'width_25' => '25 %', 'width_50' => '50 %', 'width_75' => '75 %', 'width_100' => '100 %', 'upload_image' => 'Upload new image', 'existing_images' => 'Previously uploaded images', 'empty_images' => 'No images have been uploaded yet.', 'load_failed' => 'Images or files could not be loaded. Please try again.', 'upload_failed' => 'The image or file could not be uploaded. Please try again.', 'invalid_file' => 'The file is invalid.', 'close' => 'Close', 'back' => 'Back', 'change_image' => 'Change image', 'delete_image' => 'Delete image', 'insert_file' => 'Insert file', 'edit_file' => 'Edit file', 'save_file' => 'Save file', 'change_file' => 'Change file', 'link_text' => 'Link text', 'upload_file' => 'Upload new file', 'existing_files' => 'Previously uploaded files', 'empty_files' => 'No files have been uploaded yet.', 'delete_file' => 'Delete file', 'remove_from_content' => 'Remove from content'],
     'common' => [

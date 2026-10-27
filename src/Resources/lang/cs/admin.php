@@ -3,6 +3,26 @@
 declare(strict_types=1);
 
 return [
+    'cms_display' => [
+        'tabs' => ['settings' => 'Nastavení'],
+        'sections' => ['recommendation' => 'Doporučení', 'recommendation_help' => 'Zařazení záznamu mezi doporučený obsah', 'display' => 'Nastavení zobrazení', 'display_help' => 'Doplňující nastavení zobrazení'],
+        'fields' => [
+            'recommended' => 'Doporučený záznam',
+            'recommended_help' => 'Záznam se bude zobrazovat mezi doporučeným obsahem.',
+            'show_author' => 'Zobrazit autora',
+            'show_author_help' => 'U záznamu se zobrazí jméno autora.',
+            'sharing_enabled' => 'Povolit sdílení',
+            'sharing_enabled_help' => 'Zobrazí tlačítka pro sdílení.',
+            'show_published_at' => 'Zobrazit datum publikace',
+            'show_published_at_help' => 'Datum bude uvedeno v hlavičce.',
+            'show_thumbnail' => 'Zobrazit hlavní obrázek',
+            'show_thumbnail_help' => 'Hlavní obrázek se zobrazí v detailu.',
+            'show_reading_time' => 'Zobrazit dobu čtení',
+            'show_reading_time_help' => 'Automaticky vypočítaná orientační doba čtení.',
+            'show_tags' => 'Zobrazit štítky',
+            'show_tags_help' => 'Zobrazí štítky aktuální jazykové verze.',
+        ],
+    ],
     'url_segment' => ['label' => 'URL segment', 'help' => 'Změna URL je samostatná operace. Pozdější změna názvu ji nepřepíše.', 'save' => 'Uložit URL', 'updated' => 'URL byla změněna.', 'invalid' => 'URL segment není platný.', 'reserved' => 'Tato URL je vyhrazena aplikací.', 'occupied' => 'Tato URL je již obsazena jiným obsahem.'],
     'rich_text' => ['insert_image' => 'Vložit obrázek', 'edit_image' => 'Upravit obrázek', 'save_image' => 'Uložit obrázek', 'alternative_text' => 'Alternativní text', 'alignment' => 'Zarovnání', 'alignment_default' => 'Výchozí', 'alignment_left' => 'Vlevo', 'alignment_center' => 'Na střed', 'alignment_right' => 'Vpravo', 'width' => 'Šířka', 'width_default' => 'Výchozí', 'width_25' => '25 %', 'width_50' => '50 %', 'width_75' => '75 %', 'width_100' => '100 %', 'upload_image' => 'Nahrát nový obrázek', 'existing_images' => 'Již nahrané obrázky', 'empty_images' => 'Zatím nebyly nahrány žádné obrázky.', 'load_failed' => 'Obrázky nebo soubory se nepodařilo načíst. Zkuste to prosím znovu.', 'upload_failed' => 'Obrázek nebo soubor se nepodařilo nahrát. Zkuste to prosím znovu.', 'invalid_file' => 'Soubor není platný.', 'close' => 'Zavřít', 'back' => 'Zpět', 'change_image' => 'Změnit obrázek', 'delete_image' => 'Smazat obrázek', 'insert_file' => 'Vložit soubor', 'edit_file' => 'Upravit soubor', 'save_file' => 'Uložit soubor', 'change_file' => 'Změnit soubor', 'link_text' => 'Text odkazu', 'upload_file' => 'Nahrát nový soubor', 'existing_files' => 'Již nahrané soubory', 'empty_files' => 'Zatím nebyly nahrány žádné soubory.', 'delete_file' => 'Smazat soubor', 'remove_from_content' => 'Odebrat z obsahu'],
     'common' => [

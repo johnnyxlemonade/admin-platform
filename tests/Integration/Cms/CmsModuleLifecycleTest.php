@@ -44,7 +44,7 @@ use Psr\Log\NullLogger;
 use ReflectionMethod;
 
 /**
- * Overuje skutecna schema News a Auction proti spolecnemu CMS lifecycle
+ * Overuje skutecna schema News, Auction a Rental proti spolecnemu CMS lifecycle
  */
 final class CmsModuleLifecycleTest extends TestCase
 {
@@ -104,12 +104,25 @@ final class CmsModuleLifecycleTest extends TestCase
         $data = (new ReflectionMethod($dataClass, 'fromEditor'))->invoke(null, $domainInput);
         self::assertIsObject($data);
         $id = $service->createDraft(7, 'cs');
+        $draft = $database->table($root)->where('id', $id)->first() ?? [];
+        foreach (CmsContentInput::DISPLAY_DEFAULTS as $column => $default) {
+            self::assertSame($default, (int) ($draft[$column] ?? -1));
+        }
         $title = 'Integration ' . $prefix . ' ' . bin2hex(random_bytes(4));
         $input = CmsContentInput::fromEditor([
             'locale' => 'cs', 'title' => $title, 'tags' => ['První', 'Druhý', 'První'],
             'publication_state' => '2', 'published_at' => '2028-02-01T12:00',
+            'recommended' => '1', 'show_author' => '0', 'sharing_enabled' => '0',
+            'show_published_at' => '0', 'show_thumbnail' => '0', 'show_reading_time' => '0', 'show_tags' => '0',
         ]);
         $service->save(7, $id, $input, $data);
+        $savedRoot = $database->table($root)->where('id', $id)->first() ?? [];
+        self::assertSame(1, (int) ($savedRoot['recommended'] ?? -1));
+        foreach (array_keys(CmsContentInput::DISPLAY_DEFAULTS) as $column) {
+            if ($column !== 'recommended') {
+                self::assertSame(0, (int) ($savedRoot[$column] ?? -1));
+            }
+        }
         $row = $database->table($translation)->where('article_id', $id)->where('locale', 'cs')->first();
         self::assertNotNull($row);
         self::assertSame('2028-02-01 12:00:00', $row['published_at']);
@@ -130,7 +143,7 @@ final class CmsModuleLifecycleTest extends TestCase
     }
 
     /**
-     * Poskytuje realne manifesty a domenova data obou modulu
+     * Poskytuje realne manifesty a domenova data vsech tri modulu
      *
      * @return iterable<string,array{string,string,string,string,string,string,string,array<string,mixed>}>
      */
@@ -140,6 +153,11 @@ final class CmsModuleLifecycleTest extends TestCase
             'Lemonade\\Cms\\News\\ModuleManifest', 'Lemonade\\Cms\\News\\NewsData', 'cms.news',
             'cms_news_article', 'cms_news_article_translation', 'cms_news_article_translation_tag', 'news',
             ['author_name' => 'Jana', 'recommended' => '1'],
+        ];
+        yield 'rental' => [
+            'Lemonade\\Cms\\Rental\\ModuleManifest', 'Lemonade\\Cms\\Rental\\RentalData', 'cms.rental',
+            'cms_rental', 'cms_rental_translation', 'cms_rental_translation_tag', 'rental',
+            ['monthly_rent' => '1234567890123.5', 'offer_state' => 'available', 'location' => 'Praha'],
         ];
         yield 'auction' => [
             'Lemonade\\Cms\\Auction\\ModuleManifest', 'Lemonade\\Cms\\Auction\\AuctionData', 'cms.auction',

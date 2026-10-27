@@ -94,15 +94,28 @@ final class CmsContentLifecycleTest extends TestCase
         $definition = new CmsContentDefinition($moduleCode, $root, $root, $translation, 'article_id', $tags, 'uq_' . $root . '_translation_locale', 'test', IntegrationDomainData::class);
         $lifecycle = $this->lifecycle($database, $definition, new AuditLogService($database));
         $id = $lifecycle->createDraft(7, 'cs');
+        $draftRoot = $this->requireRow($database->table($root)->where('id', $id)->first());
+        foreach (CmsContentInput::DISPLAY_DEFAULTS as $column => $default) {
+            self::assertSame($default, (int) $draftRoot[$column]);
+        }
         $input = CmsContentInput::fromEditor([
             'locale' => 'cs', 'title' => 'Prvni zaznam ' . $suffix, 'tags' => ['Praha', 'Brno', 'Praha'],
             'publication_state' => '2', 'published_at' => '2028-01-02T10:30',
+            'recommended' => '1', 'show_author' => '0', 'sharing_enabled' => '0',
+            'show_published_at' => '0', 'show_thumbnail' => '0', 'show_reading_time' => '0', 'show_tags' => '0',
         ]);
         $data = new IntegrationDomainData('1234567890123.50', 'Praha');
         $lifecycle->save(7, $id, $input, $data);
         $rootRow = $this->requireRow($database->table($root)->where('id', $id)->first());
         $row = $this->requireRow($database->table($translation)->where('article_id', $id)->where('locale', 'cs')->first());
         self::assertSame('1234567890123.50', $rootRow['price']);
+        self::assertSame(1, (int) $rootRow['recommended']);
+        foreach (array_keys(CmsContentInput::DISPLAY_DEFAULTS) as $column) {
+            if ($column !== 'recommended') {
+                self::assertSame(0, (int) $rootRow[$column]);
+            }
+        }
+
         self::assertSame('Praha', $row['location']);
         self::assertSame('2028-01-02 10:30:00', $row['published_at']);
         self::assertSame(['Praha', 'Brno'], array_column($database->table($tags)->where('translation_id', $row['id'])->orderBy('sort_order', 'ASC')->getArray(), 'name'));
@@ -119,6 +132,7 @@ final class CmsContentLifecycleTest extends TestCase
         $lifecycle->changeUrlSegment(7, $id, 'cs', 'změněná-cesta-' . $suffix);
         $lifecycle->transferOwner(7, $id, 9);
         $lifecycle->save(7, $id, CmsContentInput::fromEditor(['locale' => 'en', 'title' => 'English ' . $suffix]), new IntegrationDomainData('1234567890123.50', 'London'));
+        self::assertSame(0, (int) $this->requireRow($database->table($root)->where('id', $id)->first())['show_author']);
         self::assertSame('London', $this->requireRow($database->table($translation)->where('article_id', $id)->where('locale', 'en')->first())['location']);
         $lifecycle->delete(7, $id);
         $lifecycle->restore(7, $id);
