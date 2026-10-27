@@ -31,6 +31,16 @@ return [
         ],
     ],
 
+    'seo' => [
+        'tab' => 'SEO',
+        'section' => 'Search settings',
+        'section_help' => 'Page title, description and URL for search engines',
+        'page_title' => 'Page title',
+        'page_title_help' => 'Recommended length is 50–60 characters. This title appears in search results.',
+        'meta_description' => 'Meta description',
+        'meta_description_help' => 'Recommended length is 120–160 characters. This description appears in search results.',
+    ],
+
     'url_segment' => [
         'label' => 'URL segment',
         'help' => 'Changing the URL is a separate operation. Later title changes do not overwrite it.',

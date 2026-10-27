@@ -31,6 +31,16 @@ return [
         ],
     ],
 
+    'seo' => [
+        'tab' => 'SEO',
+        'section' => 'Nastavení pro vyhledávače',
+        'section_help' => 'Titulek, popis a adresa stránky pro vyhledávače',
+        'page_title' => 'Titulek stránky',
+        'page_title_help' => 'Doporučená délka je 50–60 znaků. Tento název se zobrazí ve výsledcích vyhledávání.',
+        'meta_description' => 'Popis pro vyhledávače',
+        'meta_description_help' => 'Doporučená délka je 120–160 znaků. Tento popis se zobrazí ve výsledcích vyhledávání.',
+    ],
+
     'url_segment' => [
         'label' => 'URL segment',
         'help' => 'Změna URL je samostatná operace. Pozdější změna názvu ji nepřepíše.',

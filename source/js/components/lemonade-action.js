@@ -47,6 +47,7 @@ import { Message } from "./lemonade-message.js";
                     data: this.getPayload()
                 });
                 this.updateEditorVersion(response);
+                this.updateEditorFields(response, form);
                 if (!this.element.hasAttribute("data-lemonade-defer-success-feedback")) {
                     this.showFeedback(response && response.feedbackType === "info" ? "info" : "success", response);
                 }
@@ -201,6 +202,21 @@ import { Message } from "./lemonade-message.js";
                 field.value = String(version);
                 field.setAttribute("data-lemonade-editor-version-value", String(version));
             }
+        }
+
+        updateEditorFields(response, form) {
+            const fields = response && response.data && response.data.editorFields;
+            if (!form || !form.hasAttribute("data-lemonade-editor-form") || !fields || typeof fields !== "object" || Array.isArray(fields)) {
+                return;
+            }
+
+            Object.keys(fields).forEach(function (name) {
+                const field = form.elements.namedItem(name);
+                const value = fields[name];
+                if (field && "value" in field && (typeof value === "string" || typeof value === "number")) {
+                    field.value = String(value);
+                }
+            });
         }
 
         renderValidationErrors(response) {
