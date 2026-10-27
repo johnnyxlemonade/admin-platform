@@ -6,13 +6,13 @@
   },
   "devDependencies": {
     "@fontsource-variable/inter": "^5.3.0",
-    "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.13.1",
-    "sass": "^1.93.2",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.2",
+    "sass": "^1.106.1",
     "vite": "^8.3.5"
   },
   "dependencies": {
-    "jodit": "^4.18.0",
+    "jodit": "^4.18.10",
     "qrcode": "^1.5.4"
   },
   "allowScripts": {

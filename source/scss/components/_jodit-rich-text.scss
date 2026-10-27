@@ -1,7 +1,30 @@
 @use "jodit/es2021/jodit.min.css" as *;
 
+.admin-shell :is(.jodit-container, .jodit-popup-container, .jodit-context-menu-container, .jodit-dialog) {
+    --jd-font-default: var(--lm-font-family);
+    --jd-color-text: var(--lm-text);
+    --jd-color-default: var(--lm-text);
+    --jd-color-text-icons: var(--lm-text-control);
+    --jd-color-icon: var(--lm-text-control);
+    --jd-color-placeholder: var(--lm-text-muted);
+    --jd-color-panel: var(--lm-surface-soft);
+    --jd-color-background-default: var(--lm-surface);
+    --jd-color-button-background-hover: var(--lm-surface-hover);
+    --jd-color-button-background-hover-opacity40: var(--lm-primary-soft);
+    --jd-color-button-background-hover-opacity60: var(--lm-primary-soft);
+    --jd-color-border: var(--lm-line-strong);
+    --jd-color-separator: var(--lm-line-strong);
+    --jd-dark-background-color: var(--lm-surface);
+    --jd-dark-background-ligher: var(--lm-surface-hover);
+    --jd-dark-toolbar-color: var(--lm-surface-soft);
+    --jd-dark-border-color: var(--lm-line-strong);
+    --jd-dark-text-color: var(--lm-text);
+    --jd-dark-text-color-opacity80: var(--lm-text-muted);
+    --jd-dark-icon-color: var(--lm-text-control);
+}
+
 .admin-shell .jodit-container {
-    border-color: var(--lm-line);
+    border-color: var(--lm-form-border);
     border-radius: 0;
     color: var(--lm-text);
     background: var(--lm-surface);
@@ -10,24 +33,181 @@
 
 .admin-shell .jodit-toolbar__box:not(:empty),
 .admin-shell .jodit-status-bar {
-    border-color: var(--lm-line);
+    border-color: var(--lm-line-strong);
     background: var(--lm-surface-soft);
+}
+
+.admin-shell .jodit-toolbar__box:not(:empty) {
+    border-bottom: 1px solid var(--lm-line-strong);
+}
+
+.admin-shell :is(.jodit-container, .jodit-popup-container, .jodit-context-menu-container) {
+    :is(.jodit-toolbar-button, .jodit-toolbar-button__button, .jodit-toolbar-button__trigger,
+        .jodit-toolbar-select, .jodit-toolbar-select__button, .jodit-toolbar-select__trigger, .jodit-ui-button_variant_initial) {
+        --jd-color-icon: var(--lm-text-control);
+        --jd-color-text: var(--lm-text);
+        color: var(--lm-text-control);
+
+        &:hover:not([disabled]) {
+            --jd-color-icon: var(--lm-text-control);
+            --jd-color-text: var(--lm-text-control);
+            background-color: var(--lm-surface-hover);
+            color: var(--lm-text-control);
+
+            :is(.jodit-toolbar-button__text, .jodit-toolbar-select__text, .jodit-ui-button__text) {
+                color: var(--lm-text-control);
+            }
+        }
+
+        &:is(:active, [aria-pressed="true"]):not([disabled]) {
+            --jd-color-icon: var(--lm-text-heading);
+            --jd-color-text: var(--lm-text-heading);
+            background-color: var(--lm-primary-soft);
+            color: var(--lm-text-heading);
+
+            :is(.jodit-toolbar-button__text, .jodit-toolbar-select__text, .jodit-ui-button__text) {
+                color: var(--lm-text-heading);
+            }
+        }
+
+        &:focus-visible:not([disabled]) {
+            outline: 2px solid var(--lm-form-border-focus);
+            outline-offset: -2px;
+        }
+
+        &[disabled] {
+            --jd-color-icon: var(--lm-text-muted);
+            --jd-color-text: var(--lm-text-muted);
+            color: var(--lm-text-muted);
+            opacity: 1;
+
+            :is(.jodit-toolbar-button__text, .jodit-toolbar-select__text, .jodit-ui-button__text) {
+                color: var(--lm-text-muted);
+            }
+        }
+    }
+}
+
+.admin-shell :is(.jodit-popup-container, .jodit-context-menu-container) :is(.jodit-popup__content, .jodit-context-menu__content),
+.admin-shell .jodit-dialog__panel {
+    border: 1px solid var(--lm-line-strong);
+    background: var(--lm-surface);
+    color: var(--lm-text);
+}
+
+.admin-shell .jodit-popup-container .jodit-tabs .jodit-tabs__buttons
+    .jodit-ui-button:is(:active, [aria-pressed="true"]) .jodit-ui-button__text {
+    color: var(--lm-text-heading);
+}
+
+.admin-shell .jodit-container .jodit-placeholder,
+.admin-shell :is(.jodit-container, .jodit-popup-container, .jodit-dialog) .jodit-status-bar {
+    color: var(--lm-text-muted);
+}
+
+.admin-shell :is(.jodit-container, .jodit-popup-container, .jodit-dialog)
+    :is(.jodit-input, .jodit-select, .jodit-form textarea, .jodit-form input[type="text"], .jodit-form input[type="url"]) {
+    border-color: var(--lm-form-border);
+    background: var(--lm-surface);
+    color: var(--lm-text);
 }
 
 .admin-shell .jodit-wysiwyg {
     min-height: 16rem;
+    padding: var(--lm-space-5);
     color: var(--lm-text);
     background: var(--lm-surface);
     font-family: var(--lm-font-family);
-    font-size: 1rem;
-    line-height: 1.7;
+    font-size: .9375rem;
+    line-height: 1.6;
+    overflow-wrap: break-word;
+    overflow-x: auto;
+}
+
+@media (max-width: 575px) {
+    .admin-shell .jodit-wysiwyg {
+        padding: var(--lm-space-4);
+    }
+}
+
+.admin-shell .jodit-wysiwyg :is(p, ul, ol, blockquote, table) {
+    margin-block: 0 var(--lm-space-5);
+}
+
+.admin-shell .jodit-wysiwyg :is(h2, h3, h4, h5, h6) {
+    margin-block: var(--lm-space-5) var(--lm-space-3);
+    color: inherit;
+    font-family: inherit;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.admin-shell .jodit-wysiwyg h2 { font-size: 1.5rem; }
+.admin-shell .jodit-wysiwyg h3 { font-size: 1.25rem; }
+.admin-shell .jodit-wysiwyg h4 { font-size: 1.125rem; }
+.admin-shell .jodit-wysiwyg h5 { font-size: 1rem; }
+.admin-shell .jodit-wysiwyg h6 { font-size: .875rem; }
+
+.admin-shell .jodit-wysiwyg > :first-child {
+    margin-block-start: 0;
+}
+
+.admin-shell .jodit-wysiwyg > :last-child {
+    margin-block-end: 0;
+}
+
+.admin-shell .jodit-wysiwyg :is(ul, ol) {
+    padding-inline-start: 1.75rem;
+}
+
+.admin-shell .jodit-wysiwyg li + li {
+    margin-block-start: .375rem;
+}
+
+.admin-shell .jodit-wysiwyg li > p {
+    margin-block: 0;
+}
+
+.admin-shell .jodit-wysiwyg li > :is(ul, ol) {
+    margin-block: .375rem 0;
+}
+
+.admin-shell .jodit-wysiwyg blockquote {
+    margin-inline: 0;
+    padding: .125rem 0 .125rem var(--lm-space-4);
+    border-inline-start: 2px solid var(--lm-line);
+}
+
+.admin-shell .jodit-wysiwyg blockquote > :last-child {
+    margin-block-end: 0;
+}
+
+.admin-shell .jodit-wysiwyg table {
+    max-width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-shell .jodit-wysiwyg :is(th, td) {
+    padding: .625rem .75rem;
+    border: 1px solid var(--lm-line);
+    vertical-align: top;
+}
+
+.admin-shell .jodit-wysiwyg :is(th, td) > :last-child {
+    margin-block-end: 0;
+}
+
+.admin-shell .jodit-wysiwyg th {
+    font-weight: 600;
+    text-align: start;
 }
 
 .admin-shell .jodit-wysiwyg img {
     display: block;
+    width: auto;
     max-width: 100%;
     height: auto;
-    margin-block: var(--lm-space-4);
+    margin-block: var(--lm-space-5);
 }
 
 .admin-shell .jodit-wysiwyg img[data-align="left"] {
@@ -48,6 +228,26 @@
 .admin-shell .jodit-wysiwyg img[data-width="50"] { width: 50%; }
 .admin-shell .jodit-wysiwyg img[data-width="75"] { width: 75%; }
 .admin-shell .jodit-wysiwyg img[data-width="100"] { width: 100%; }
+
+.admin-shell .jodit-wysiwyg iframe {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+}
+
+.admin-shell .jodit-wysiwyg [data-jodit_iframe_wrapper] {
+    max-width: 100%;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+}
+
+.admin-shell .jodit-wysiwyg [data-jodit_iframe_wrapper] iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
 
 .admin-shell .jodit-wysiwyg a[data-file-id] {
     display: inline-flex;
@@ -210,15 +410,6 @@
 }
 
 .admin-shell .jodit-container:focus-within {
-    border-color: var(--lm-primary);
-    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--lm-primary) 20%, transparent);
-}
-
-[data-bs-theme="dark"] .admin-shell .jodit-container {
-    border-color: var(--lm-form-border);
-}
-
-[data-bs-theme="dark"] .admin-shell .jodit-container:focus-within {
     border-color: var(--lm-form-border-focus);
     box-shadow: var(--lm-focus-shadow);
 }

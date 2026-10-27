@@ -86,6 +86,13 @@ return [
         'existing_files' => 'Již nahrané soubory',
         'empty_files' => 'Zatím nebyly nahrány žádné soubory.',
         'delete_file' => 'Smazat soubor',
+        'insert_video' => 'Vložit video',
+        'edit_video' => 'Upravit video',
+        'save_video' => 'Uložit změny',
+        'remove_video' => 'Odebrat video',
+        'video_url' => 'URL videa',
+        'video_supported_services' => 'Podporováno: YouTube, Vimeo a veřejná videa Facebooku.',
+        'invalid_video_url' => 'Zadejte podporovanou URL videa.',
         'remove_from_content' => 'Odebrat z obsahu',
     ],
 

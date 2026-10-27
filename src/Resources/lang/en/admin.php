@@ -86,6 +86,13 @@ return [
         'existing_files' => 'Previously uploaded files',
         'empty_files' => 'No files have been uploaded yet.',
         'delete_file' => 'Delete file',
+        'insert_video' => 'Insert video',
+        'edit_video' => 'Edit video',
+        'save_video' => 'Save changes',
+        'remove_video' => 'Remove video',
+        'video_url' => 'Video URL',
+        'video_supported_services' => 'Supported: YouTube, Vimeo, and public Facebook videos.',
+        'invalid_video_url' => 'Enter a supported video URL.',
         'remove_from_content' => 'Remove from content',
     ],
 
