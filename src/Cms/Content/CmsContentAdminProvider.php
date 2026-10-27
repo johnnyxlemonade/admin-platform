@@ -8,15 +8,21 @@ use Lemonade\Admin\Action\ModuleActionDefinition;
 use Lemonade\Admin\Action\ModuleActionRegistry;
 use Lemonade\Admin\Action\Presentation\ConfirmationDefinition;
 use Lemonade\Admin\Action\StandardEditorAction;
+use Lemonade\Admin\Authorization\AuthorizationService;
+use Lemonade\Admin\Cms\Content\Action\CmsContentAction;
+use Lemonade\Admin\Cms\Content\Action\CmsContentActionType;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Editor\EditorDispatcher;
 use Lemonade\Admin\Editor\EditorRegistry;
+use Lemonade\Admin\Identity\LocalActorGuard;
 use Lemonade\Admin\Localization\ClientTranslationGroupRegistry;
 use Lemonade\Admin\Page\ModulePageRegistry;
+use Lemonade\Cms\Content\CmsContentReadModel;
 use Lemonade\Framework\Container\ContainerBuilderInterface;
 use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
+use Lemonade\Framework\Database\Database;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
 
 /**
@@ -34,10 +40,8 @@ final readonly class CmsContentAdminProvider implements ServiceProviderInterface
         private string $dataGridService,
         private string $pageService,
         private string $editorService,
-        private string $changeUrlService,
-        private string $deleteService,
-        private string $restoreService,
-        private string $assignOwnerService,
+        private string $lifecycleService,
+        private string $contentDefinitionService,
     ) {}
 
     /**
@@ -45,7 +49,39 @@ final readonly class CmsContentAdminProvider implements ServiceProviderInterface
      */
     public function register(ContainerBuilderInterface $container): void
     {
+        $definitionService = $this->contentDefinitionService;
+        $readService = $this->moduleCode . '.read';
+        $gridService = $this->moduleCode . '.grid_query';
+        $container->scoped($readService, static fn(ContainerInterface $container): CmsContentReadModel => new CmsContentReadModel(
+            $container->get(Database::class),
+            $container->get($definitionService),
+        ));
+        $container->scoped($gridService, static fn(ContainerInterface $container): CmsContentDataGrid => new CmsContentDataGrid(
+            $container->get(Database::class),
+            $container->get($definitionService),
+        ));
+        foreach ([$this->editorService, $this->pageService, $this->dataGridService] as $consumer) {
+            $container->when($consumer)->needs(CmsContentReadModel::class)->give($readService);
+        }
+        $container->when($this->dataGridService)->needs(CmsContentDataGrid::class)->give($gridService);
         $moduleCode = $this->moduleCode;
+        $lifecycleService = $this->lifecycleService;
+        $group = $this->translationGroup;
+        foreach (CmsContentActionType::cases() as $type) {
+            $container->scoped(
+                $this->handlerId($type->value),
+                static fn(ContainerInterface $container): CmsContentAction => new CmsContentAction(
+                    $container->get($lifecycleService),
+                    $container->get($readService),
+                    $container->get(LocalActorGuard::class),
+                    $container->get(AuthorizationService::class),
+                    $type,
+                    $moduleCode,
+                    $group,
+                ),
+            );
+        }
+
         $container->scoped(
             $this->handlerId('create'),
             static fn(ContainerInterface $container): StandardEditorAction => StandardEditorAction::create(
@@ -98,26 +134,26 @@ final readonly class CmsContentAdminProvider implements ServiceProviderInterface
             key: 'change-url',
             permission: $module . '.edit_own',
             labelKey: 'admin.url_segment.save',
-        ), $this->changeUrlService);
+        ), $this->handlerId('change-url'));
         $actions->register($module, new ModuleActionDefinition(
             key: 'delete',
             permission: $module . '.delete_own',
             labelKey: $group . '.actions.delete',
             confirmation: new ConfirmationDefinition($group . '.confirm.delete'),
             refreshGrid: true,
-        ), $this->deleteService);
+        ), $this->handlerId('delete'));
         $actions->register($module, new ModuleActionDefinition(
             key: 'restore',
             permission: $module . '.restore_own',
             labelKey: $group . '.actions.restore',
             confirmation: new ConfirmationDefinition($group . '.confirm.restore'),
             refreshGrid: true,
-        ), $this->restoreService);
+        ), $this->handlerId('restore'));
         $actions->register($module, new ModuleActionDefinition(
             key: 'assign-owner',
             permission: $module . '.assign_owner',
             labelKey: $group . '.actions.assign_owner',
-        ), $this->assignOwnerService);
+        ), $this->handlerId('assign-owner'));
     }
 
     /**

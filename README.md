@@ -177,3 +177,62 @@ composer qa
 
 This package does not version `composer.lock`; `composer.json` is the dependency
 contract.
+
+Standard non-hierarchical CMS modules register `CmsContentAdminProvider` with
+`moduleCode`, `translationGroup`, the existing presentation services,
+`lifecycleService` and `contentDefinitionService`. Register a scoped
+`CmsContentDefinition` and `CmsContentModel` for the module and use that same
+model when constructing its `CmsContentLifecycle`. Call the provider's
+`register()` and `boot()` from the module service provider. The provider
+registers change-url, delete, restore, and assign-owner actions automatically;
+the module code is also the permission prefix and the translation group supplies
+the existing action and owner-validation keys. See `CmsNewsServiceProvider` or
+`CmsAuctionServiceProvider` for a complete registration.
+
+The provider also registers module-scoped `CmsContentReadModel` and
+`CmsContentDataGrid` services (`<moduleCode>.read` and `<moduleCode>.grid_query`)
+and contextually injects them into the registered editor, page and grid services.
+Explicit editor factories can resolve the module's `.read` service directly.
+No module-specific model, repository interface or callback is required.
+
+`CmsContentDataGrid::listForDataGrid()` accepts the existing `DataGridQuery`,
+default content locale, optional owner ID and an optional `CmsDataGridDefinition`.
+News uses the standard definition. Auction and Rental declare their additions:
+
+```php
+new CmsDataGridDefinition(
+    columns: [
+        new CmsDataGridColumn('location', searchable: true),
+        new CmsDataGridColumn('monthlyRent'),
+        new CmsDataGridColumn('currency', sortable: false),
+        new CmsDataGridColumn('availableFrom'),
+        new CmsDataGridColumn('offerState'),
+        new CmsDataGridColumn('createdAt'),
+    ],
+    filters: [new CmsDataGridFilter('offerState', [
+        'preparing', 'available', 'reserved', 'rented', 'cancelled',
+    ])],
+);
+```
+
+These names refer to typed domain PHP properties. Their SQL columns come from
+`CmsRoot` / `CmsLocalized`; `createdAt` is an explicitly registered standard
+column. Client sort and filter keys never become SQL identifiers. The shared
+query handles canonical and audit joins, title/path search, locale, publication
+state, soft deletion, owner restriction, counts and pagination. Default ordering
+is publication date with descending root ID as the tie breaker. The grid's
+existing presentation definition still controls visible columns, filter options
+and transport validation. Optional `defaultSort` selects a registered sort key.
+
+A new module supplies its mapped domain data and validation, migration, editor
+fields, grid presentation/domain additions and module registration. Standard
+reads, lifecycle and actions come from the shared infrastructure.
+
+MySQL integration tests live in `tests/Integration/Cms` and in each module's
+`tests/Integration`. Run them explicitly in addition to the default PHPUnit
+unit/contract suite. The module suites require a fresh isolated database named
+`cms_news_test_*`, `cms_auction_test_*` or `cms_rental_test_*`, supplied through
+`NEWS_INTEGRATION_DATABASE`, `AUCTION_INTEGRATION_DATABASE` or
+`RENTAL_INTEGRATION_DATABASE`; the test MySQL connection is `db` / `db` at host
+`db`. They exercise the registered editor and HTTP DataGrid transport, including
+owner permissions, deleted records, canonical URLs, audit names and domain data.
