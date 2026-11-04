@@ -270,6 +270,8 @@ return [
     ],
 
     'editor' => [
+        'publication_state_help' => 'Koncept zůstává neveřejný. Stav Publikováno umožňuje zobrazení od data publikace.',
+        'published_at_help' => 'Datum a čas, od kdy se publikovaný obsah může začít zobrazovat.',
         'unsaved_changes' => 'Neuložené změny',
         'unsaved_changes_help' => 'Změny zatím nejsou uložené.',
         'unsaved_changes_navigation' => 'Máte neuložené změny',

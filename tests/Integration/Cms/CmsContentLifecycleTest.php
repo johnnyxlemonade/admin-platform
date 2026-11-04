@@ -36,11 +36,11 @@ use Lemonade\Framework\Database\Driver\Mysql\MysqlDatabaseDriver;
 use Lemonade\Framework\Database\Driver\Mysql\MysqlIdentifierEscaper;
 use Lemonade\Framework\Database\Driver\Mysql\MysqlSchemaGrammar;
 use Lemonade\Framework\Database\Driver\Mysql\MysqlSqlEscaper;
+use Lemonade\Framework\Database\Instrumentation\Internal\DatabaseInstrumentation;
 use Lemonade\Framework\Database\Schema\Blueprint\TableBlueprint;
 use Lemonade\Framework\Database\Schema\Schema;
 use Lemonade\Framework\Database\Schema\SchemaCompiler;
 use Lemonade\Framework\Database\Sql\IdentifierProtector;
-use Lemonade\Framework\Observability\Benchmark\Benchmark;
 use Lemonade\Framework\Routing\Router;
 use Lemonade\Framework\Support\Slug\Slugger;
 use Nyholm\Psr7\ServerRequest;
@@ -63,7 +63,7 @@ final class CmsContentLifecycleTest extends TestCase
             'driver' => 'mysql', 'host' => 'db', 'database' => $databaseName,
             'username' => 'db', 'password' => 'db',
         ]);
-        $connection = new MysqlConnection($config, new Benchmark());
+        $connection = new MysqlConnection($config, new DatabaseInstrumentation());
         $escaper = new MysqlIdentifierEscaper('');
         $driver = new MysqlDatabaseDriver($connection, $config, $escaper, new IdentifierProtector($escaper));
         $database = new Database($connection, $driver);

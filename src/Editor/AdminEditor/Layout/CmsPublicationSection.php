@@ -32,10 +32,15 @@ final class CmsPublicationSection
                 new FieldColumn(
                     Field::select('publication_state', labelKey: $module . '.fields.publication_state')
                         ->options(array_fill_keys(array_keys(CmsPublicationState::editorOptionLabelKeys()), ''))
-                        ->optionLabelKeys(CmsPublicationState::editorOptionLabelKeys()),
+                        ->optionLabelKeys(CmsPublicationState::editorOptionLabelKeys())
+                        ->help('', 'admin.editor.publication_state_help'),
                     md: 12,
                 ),
-                new FieldColumn(Field::datetimeLocal('published_at', labelKey: $module . '.fields.published_at'), md: 12),
+                new FieldColumn(
+                    Field::datetimeLocal('published_at', labelKey: $module . '.fields.published_at')
+                        ->help('', 'admin.editor.published_at_help'),
+                    md: 12,
+                ),
             ])],
             title: '',
             titleKey: $module . '.editor.publication',

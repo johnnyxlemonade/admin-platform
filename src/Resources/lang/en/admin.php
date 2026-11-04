@@ -270,6 +270,8 @@ return [
     ],
 
     'editor' => [
+        'publication_state_help' => 'A draft stays private. The Published state allows it to appear from the publication date.',
+        'published_at_help' => 'The date and time from which published content may start appearing.',
         'unsaved_changes' => 'Unsaved changes',
         'unsaved_changes_help' => 'Your changes have not been saved yet.',
         'unsaved_changes_navigation' => 'You have unsaved changes',
