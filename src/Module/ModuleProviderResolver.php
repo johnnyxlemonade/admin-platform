@@ -11,6 +11,7 @@ use Lemonade\Admin\DataGrid\Contract\DataGridProviderInterface;
 use Lemonade\Admin\DataGrid\DataGridRegistry;
 use Lemonade\Admin\Editor\Contract\EditorProviderInterface;
 use Lemonade\Admin\Editor\EditorRegistry;
+use Lemonade\Admin\Module\Contract\ModuleProviderFactoryInterface;
 use Lemonade\Admin\Page\Contract\ModuleEditorPageProviderInterface;
 use Lemonade\Admin\Page\Contract\ModuleIndexPageProviderInterface;
 use Lemonade\Admin\Page\Contract\ModuleModalEditorPageProviderInterface;
@@ -50,7 +51,7 @@ final class ModuleProviderResolver
      */
     public function dataGrid(string $moduleCode): DataGridProviderInterface
     {
-        return $this->service($this->dataGrids->providerServiceId($moduleCode), DataGridProviderInterface::class);
+        return $this->service($this->dataGrids->providerServiceId($moduleCode), DataGridProviderInterface::class, $moduleCode);
     }
 
     /**
@@ -66,7 +67,7 @@ final class ModuleProviderResolver
      */
     public function editor(string $moduleCode): EditorProviderInterface
     {
-        return $this->service($this->editors->providerServiceId($moduleCode), EditorProviderInterface::class);
+        return $this->service($this->editors->providerServiceId($moduleCode), EditorProviderInterface::class, $moduleCode);
     }
 
     /**
@@ -82,7 +83,7 @@ final class ModuleProviderResolver
      */
     public function index(string $moduleCode): ModuleIndexPageProviderInterface
     {
-        return $this->service($this->pages->indexProviderServiceId($moduleCode), ModuleIndexPageProviderInterface::class);
+        return $this->service($this->pages->indexProviderServiceId($moduleCode), ModuleIndexPageProviderInterface::class, $moduleCode);
     }
 
     /**
@@ -98,7 +99,7 @@ final class ModuleProviderResolver
      */
     public function editorPage(string $moduleCode): ModuleEditorPageProviderInterface
     {
-        return $this->service($this->pages->editorProviderServiceId($moduleCode), ModuleEditorPageProviderInterface::class);
+        return $this->service($this->pages->editorProviderServiceId($moduleCode), ModuleEditorPageProviderInterface::class, $moduleCode);
     }
 
     /**
@@ -114,7 +115,7 @@ final class ModuleProviderResolver
      */
     public function modalEditor(string $moduleCode): ModuleModalEditorPageProviderInterface
     {
-        return $this->service($this->pages->modalEditorProviderServiceId($moduleCode), ModuleModalEditorPageProviderInterface::class);
+        return $this->service($this->pages->modalEditorProviderServiceId($moduleCode), ModuleModalEditorPageProviderInterface::class, $moduleCode);
     }
 
     /**
@@ -134,7 +135,7 @@ final class ModuleProviderResolver
     {
         $registered = $this->actions->action($moduleCode, $key);
 
-        return ['definition' => $registered['definition'], 'handler' => $this->service($registered['handlerServiceId'], ModuleActionHandlerInterface::class)];
+        return ['definition' => $registered['definition'], 'handler' => $this->service($registered['handlerServiceId'], ModuleActionHandlerInterface::class, $moduleCode, $key)];
     }
 
     /**
@@ -144,9 +145,16 @@ final class ModuleProviderResolver
      * @param class-string<T> $expectedType
      * @return T
      */
-    private function service(string $serviceId, string $expectedType): object
+    private function service(string $serviceId, string $expectedType, string $moduleCode, ?string $action = null): object
     {
-        $service = $this->resolved[$serviceId] ??= $this->container->get($serviceId);
+        $cacheKey = $serviceId . ':' . $moduleCode . ':' . $expectedType . ':' . ($action ?? '');
+        if (!isset($this->resolved[$cacheKey])) {
+            $provider = $this->resolved[$serviceId] ??= $this->container->get($serviceId);
+            $this->resolved[$cacheKey] = $provider instanceof ModuleProviderFactoryInterface
+                ? $provider->createProvider($moduleCode, $expectedType, $action)
+                : $provider;
+        }
+        $service = $this->resolved[$cacheKey];
         if (!$service instanceof $expectedType) {
             throw new RuntimeException(sprintf('Module provider service "%s" must implement %s.', $serviceId, $expectedType));
         }

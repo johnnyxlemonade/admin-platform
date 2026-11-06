@@ -140,6 +140,7 @@ return [
 
     'navigation' => [
         'dashboard' => 'Přehled',
+        'cms' => 'CMS',
         'content' => 'Obsah',
         'commerce' => 'Obchod',
         'users' => 'Uživatelé a přístupy',
@@ -234,6 +235,10 @@ return [
         'system' => [
             'title' => 'Systémová oprávnění',
             'description' => 'Správa administrace a systémových funkcionalit platformy.',
+        ],
+        'content-types' => [
+            'title' => 'Vlastní obsahové typy',
+            'description' => 'Oprávnění k záznamům typů vytvořených přes Content Type Builder.',
         ],
         'modules' => [
             'title' => 'Moduly',

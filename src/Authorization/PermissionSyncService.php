@@ -21,6 +21,16 @@ final readonly class PermissionSyncService
      */
     public function sync(): PermissionSyncReport
     {
+        return $this->syncDefinitions($this->catalog->all(), true);
+    }
+
+    /**
+     * Zapise explicitni prispevek katalogu v transakci jeho vlastnika bez prideleni prav
+     *
+     * @param list<PermissionDefinition> $definitions
+     */
+    public function syncDefinitions(array $definitions, bool $reportStale = false): PermissionSyncReport
+    {
         $inserted = 0;
         $updated = 0;
         $unchanged = 0;
@@ -29,7 +39,7 @@ final readonly class PermissionSyncService
             $existing[(string) $row['code']] = $row;
         }
         $defined = [];
-        foreach ($this->catalog->all() as $definition) {
+        foreach ($definitions as $definition) {
             $defined[] = $definition->code();
             $row = $existing[$definition->code()] ?? null;
             if ($row === null) {
@@ -44,7 +54,7 @@ final readonly class PermissionSyncService
             }
             $unchanged++;
         }
-        $stale = array_values(array_diff(array_keys($existing), $defined));
+        $stale = $reportStale ? array_values(array_diff(array_keys($existing), $defined)) : [];
         sort($stale);
 
         return new PermissionSyncReport($inserted, $updated, $unchanged, $stale);

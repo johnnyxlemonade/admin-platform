@@ -18,7 +18,7 @@ final class LanguagesModuleDefinitionTest extends TestCase
 
         self::assertSame('system.languages', $definition->code());
         self::assertSame('languages', $metadata->routeSegment());
-        self::assertSame(AdminNavigationGroup::System, $metadata->navigationGroup);
+        self::assertSame(AdminNavigationGroup::System, $metadata->navigationGroup());
         self::assertSame(55, $metadata->navigationOrder());
         self::assertSame(AdminIcon::Sliders, $metadata->icon());
         self::assertSame([

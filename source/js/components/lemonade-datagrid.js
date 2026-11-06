@@ -1731,7 +1731,7 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
         }
 
         getFilterValueLabel(control, value) {
-            const option = Array.from(control.options).find(function (candidate) {
+            const option = Array.from(control.options || []).find(function (candidate) {
                 return candidate.value === String(value);
             });
             if (option && option.textContent) {

@@ -10,6 +10,8 @@ namespace Lemonade\Admin\Module;
 enum AdminNavigationGroup: string
 {
     case System = 'system';
+    case Cms = 'cms';
     case Content = 'content';
     case Settings = 'settings';
+
 }

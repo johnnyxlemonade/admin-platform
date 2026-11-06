@@ -74,6 +74,47 @@ final class AdminNavigationTest extends TestCase
         );
     }
 
+    /**
+     * Skryti navigace nemeni registraci ani dostupnost ostatnich modulu
+     */
+    public function testHiddenModuleIsOmittedEvenForSuperAdmin(): void
+    {
+        $navigation = $this->navigation([
+            $this->definition('example.hidden', AdminNavigationGroupCode::Cms, 10, navigationVisible: false),
+            $this->definition('example.visible', AdminNavigationGroupCode::Cms, 20),
+        ]);
+        $group = $navigation->items()[2] ?? null;
+        self::assertInstanceOf(AdminNavigationGroup::class, $group);
+        self::assertSame(['example.visible'], array_map(static fn(AdminNavigationItem $item): ?string => $item->moduleCode(), $group->items()));
+    }
+
+    /**
+     * Aktivni vlastni typy maji samostatnou skupinu a prazdna skupina zmizi
+     */
+    public function testContentGroupIsSeparateFromCmsAndOmittedWhenEmpty(): void
+    {
+        foreach ([true, false, true] as $visible) {
+            $navigation = $this->navigation([
+                $this->definition('cms.content-types', AdminNavigationGroupCode::Cms, 10),
+                $this->definition('cms.example', AdminNavigationGroupCode::Content, 20, navigationVisible: $visible),
+            ]);
+            $keys = array_map(static fn(AdminNavigationEntryInterface $entry): string => $entry->key(), $navigation->items());
+            self::assertContains('group:cms', $keys);
+            self::assertSame($visible, in_array('group:content', $keys, true));
+        }
+    }
+
+    /**
+     * Viditelne metadata nikdy neobchazeji navigation permission
+     */
+    public function testVisibleModuleStillRequiresItsPermission(): void
+    {
+        $navigation = $this->navigation([
+            $this->definition('example.protected', AdminNavigationGroupCode::Cms, 10, permission: 'example.protected.view'),
+        ], false);
+        self::assertCount(2, $navigation->items());
+    }
+
     public function testItExposesTheNavigationViewModelDataWithoutLegacyArrays(): void
     {
         $navigation = $this->navigation([
@@ -157,12 +198,12 @@ final class AdminNavigationTest extends TestCase
                 order: $metadata->navigationOrder(),
                 label: $metadata->nameKey(),
                 labelKey: $metadata->nameKey(),
-                route: 'admin.' . $metadata->navigationGroup->value . '.module.index',
+                route: 'admin.' . $metadata->navigationGroup()->value . '.module.index',
                 routeParameters: ['module' => $metadata->routeSegment()],
                 routePrefix: false,
                 icon: $metadata->icon(),
                 moduleCode: $definition->code(),
-                moduleNavigationGroup: $metadata->navigationGroup,
+                moduleNavigationGroup: $metadata->navigationGroup(),
                 moduleRouteSegment: $metadata->routeSegment(),
             );
 
@@ -237,14 +278,16 @@ final class AdminNavigationTest extends TestCase
         return new AdminNavigationGroupRegistry();
     }
 
-    private function definition(string $code, AdminNavigationGroupCode $group, int $order, bool $superAdminOnly = false): AdminModuleDefinitionInterface
+    private function definition(string $code, AdminNavigationGroupCode $group, int $order, bool $superAdminOnly = false, bool $navigationVisible = true, ?string $permission = null): AdminModuleDefinitionInterface
     {
-        return new class ($code, $group, $order, $superAdminOnly) implements AdminModuleDefinitionInterface {
+        return new class ($code, $group, $order, $superAdminOnly, $navigationVisible, $permission) implements AdminModuleDefinitionInterface {
             public function __construct(
                 private readonly string $code,
                 private readonly AdminNavigationGroupCode $group,
                 private readonly int $order,
                 private readonly bool $superAdminOnly,
+                private readonly bool $navigationVisible,
+                private readonly ?string $permission,
             ) {}
 
             public function code(): string
@@ -254,7 +297,7 @@ final class AdminNavigationTest extends TestCase
 
             public function adminMetadata(): AdminModuleMetadata
             {
-                return new AdminModuleMetadata('example.module.name', AdminIcon::People, $this->group, $this->order, str_replace('.', '-', $this->code), null, $this->superAdminOnly);
+                return new AdminModuleMetadata('example.module.name', AdminIcon::People, $this->group, $this->order, str_replace('.', '-', $this->code), $this->permission, $this->superAdminOnly, navigationVisible: $this->navigationVisible);
             }
 
             public function permissionDefinitions(): array

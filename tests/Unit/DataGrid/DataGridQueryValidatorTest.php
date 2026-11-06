@@ -15,6 +15,19 @@ use PHPUnit\Framework\TestCase;
 
 final class DataGridQueryValidatorTest extends TestCase
 {
+    /**
+     * Skalarni filtr zachova decimal presnost a odmitne nepovoleny SQL vstup
+     */
+    public function testExplicitScalarFilterPreservesExactInputAndRejectsInjection(): void
+    {
+        $filter = new DataGridFilterDefinition('price', new StaticSelectOptionSource([]), inputType: 'number', valuePattern: '/^-?[0-9]{1,16}(?:\.[0-9]{1,8})?$/D');
+        $definition = new DataGridDefinition('test', [], false, [$filter], null, 'asc', 25, 100);
+        $validator = new DataGridQueryValidator();
+        self::assertSame('1234567890123456.12345678', $validator->validate($definition, ['price' => '1234567890123456.12345678'])->filter('price'));
+        $this->expectException(InvalidArgumentException::class);
+        $validator->validate($definition, ['price' => '1 OR 1=1']);
+    }
+
     public function testItNormalizesAValidQuery(): void
     {
         $query = (new DataGridQueryValidator())->validate($this->definition(), ['page' => '2', 'pageSize' => '25', 'sort' => 'email', 'direction' => 'desc', 'q' => ' user ', 'status' => 'active']);

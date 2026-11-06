@@ -140,6 +140,7 @@ return [
 
     'navigation' => [
         'dashboard' => 'Overview',
+        'cms' => 'CMS',
         'content' => 'Content',
         'commerce' => 'Commerce',
         'users' => 'Users and access',
@@ -234,6 +235,10 @@ return [
         'system' => [
             'title' => 'System permissions',
             'description' => 'Manage administration and the platform’s system capabilities.',
+        ],
+        'content-types' => [
+            'title' => 'Custom content types',
+            'description' => 'Permissions for records of types created with Content Type Builder.',
         ],
         'modules' => [
             'title' => 'Modules',

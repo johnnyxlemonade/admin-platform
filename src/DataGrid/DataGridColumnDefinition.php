@@ -19,6 +19,7 @@ final readonly class DataGridColumnDefinition
         private ?string $class = null,
         private bool $configurable = false,
         private bool $visibleByDefault = true,
+        private ?string $label = null,
     ) {}
 
     /**
@@ -67,5 +68,13 @@ final readonly class DataGridColumnDefinition
     public function visibleByDefault(): bool
     {
         return $this->visibleByDefault;
+    }
+
+    /**
+     * Vraci vlastni nazev sloupce bez prekladu
+     */
+    public function label(): ?string
+    {
+        return $this->label;
     }
 }

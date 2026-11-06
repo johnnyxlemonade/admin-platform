@@ -10,6 +10,7 @@ use Lemonade\Admin\Editor\Contract\EditorFieldAccessPolicyInterface;
 use Lemonade\Admin\Editor\Contract\EditorLockBypassPolicyInterface;
 use Lemonade\Admin\Editor\Contract\EditorProviderInterface;
 use Lemonade\Admin\Editor\Exception\EditorCapabilityException;
+use Lemonade\Admin\Editor\Exception\EditorValidationException;
 use Lemonade\Admin\Editor\Lock\EditorLockException;
 use Lemonade\Admin\Editor\Lock\EditorLockManager;
 use Lemonade\Admin\Http\AdminErrorCode;
@@ -17,6 +18,7 @@ use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\ModuleProviderResolver;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Validation\FormValidation;
+use Lemonade\Framework\Validation\ValidationResult;
 
 /**
  * Zpracovava data potrebna pro administracni editor
@@ -76,7 +78,18 @@ final readonly class EditorDispatcher
             return EditorSaveOutcome::invalid($validation, $this->safeInput($definition, $input));
         }
 
-        return EditorSaveOutcome::saved($provider->update($id, $validation->validated()));
+        try {
+            return EditorSaveOutcome::saved($provider->update($id, $validation->validated()));
+        } catch (EditorValidationException $exception) {
+            if ($exception->errors() === []) {
+                throw $exception;
+            }
+
+            return EditorSaveOutcome::invalid(
+                new ValidationResult(false, $exception->errors(), []),
+                $this->safeInput($definition, $input),
+            );
+        }
     }
 
     /**
@@ -103,7 +116,18 @@ final readonly class EditorDispatcher
             return EditorSaveOutcome::invalid($validation, $this->safeInput($definition, $input));
         }
 
-        return EditorSaveOutcome::saved($provider->create($validation->validated()));
+        try {
+            return EditorSaveOutcome::saved($provider->create($validation->validated()));
+        } catch (EditorValidationException $exception) {
+            if ($exception->errors() === []) {
+                throw $exception;
+            }
+
+            return EditorSaveOutcome::invalid(
+                new ValidationResult(false, $exception->errors(), []),
+                $this->safeInput($definition, $input),
+            );
+        }
     }
 
     /**

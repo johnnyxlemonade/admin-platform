@@ -20,6 +20,7 @@ final readonly class AuditModulePresentation
         private string $moduleCode,
         private string $nameKey,
         private AdminIcon|null $icon = null,
+        private ?string $name = null,
     ) {
         if ($this->moduleCode === '' || $this->nameKey === '') {
             throw new InvalidArgumentException('Audit module presentation identity and localization fields must not be empty.');
@@ -48,5 +49,13 @@ final readonly class AuditModulePresentation
     public function icon(): AdminIcon|null
     {
         return $this->icon;
+    }
+
+    /**
+     * Vraci vlastni nazev modulu bez prekladu
+     */
+    public function name(): ?string
+    {
+        return $this->name;
     }
 }

@@ -20,7 +20,7 @@ use Lemonade\Framework\Http\HttpStatus;
 /** Standardni auditovane akce nehierarchickeho CMS obsahu. */
 final readonly class CmsContentAction implements ModuleActionHandlerInterface, ModuleActionAccessPolicyInterface
 {
-    /** @param CmsContentLifecycle<object> $lifecycle */
+    /** @param CmsContentLifecycle<*> $lifecycle */
     public function __construct(
         private CmsContentLifecycle $lifecycle,
         private CmsContentReadModel $content,

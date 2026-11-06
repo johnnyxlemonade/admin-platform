@@ -14,6 +14,28 @@ use PHPUnit\Framework\TestCase;
 
 final class AdminEditorFieldRendererTest extends TestCase
 {
+    /**
+     * Vlastni ID zachova vazbu labelu a napovedy bez duplicitnich atributu
+     */
+    public function testPresentationAttributesKeepAccessibleControlIdentity(): void
+    {
+        $html = (new AdminEditorFieldRenderer())->render(
+            Field::text('location', 'Location')->help('Help')->attributes(['id' => 'workplace', 'class' => 'custom wide']),
+            new AdminEditorRenderContext(values: ['location' => 'Prague']),
+            'record',
+        );
+        $document = new \DOMDocument();
+        $document->loadHTML($html);
+        $input = $document->getElementsByTagName('input')->item(0);
+        self::assertNotNull($input);
+        self::assertSame('workplace', $input->getAttribute('id'));
+        self::assertSame('workplace', $document->getElementsByTagName('label')->item(0)?->getAttribute('for'));
+        self::assertSame('workplace-help', $input->getAttribute('aria-describedby'));
+        self::assertSame('location', $input->getAttribute('name'));
+        self::assertSame('Prague', $input->getAttribute('value'));
+        self::assertSame(['form-control', 'custom', 'wide'], explode(' ', $input->getAttribute('class')));
+    }
+
     public function testRichTextUploadRequiresUploadComponentForEntityContext(): void
     {
         $this->expectException(LogicException::class);

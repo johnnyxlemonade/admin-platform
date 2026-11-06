@@ -236,3 +236,47 @@ unit/contract suite. The module suites require a fresh isolated database named
 `RENTAL_INTEGRATION_DATABASE`; the test MySQL connection is `db` / `db` at host
 `db`. They exercise the registered editor and HTTP DataGrid transport, including
 owner permissions, deleted records, canonical URLs, audit names and domain data.
+
+## Field layout editor
+
+`source/js/components/lemonade-field-builder.js` provides the reusable visual
+field editing surface: field list, Bootstrap twelve-column rows, Sortable,
+inspector, native Select-options dialog and live preview. It uses the existing
+form-editor CSS and controls rendered into templates by AdminEditor. The
+component has no routes, persistence, permissions or content lifecycle.
+
+A `data-lemonade-field-builder` root receives translated labels, type labels,
+inspector/preview/option templates and the name of a hidden transport input in
+the surrounding AdminEditor form. Its state contains fields with stable client
+keys and rows of `{field, span}` columns. Changes update that input and use the
+existing dirty-state lifecycle, including discard. Rendered rich text previews
+are isolated in a sandbox with scripts and external resources disabled.
+
+`admin-cms-content-types` supplies the definitions and owns their server-side
+validation and relational storage. The original Form Builder prototype is not
+connected to this component. Sortable teardown now removes listeners to support
+repeatedly rendered layout rows. System labels follow the existing
+`lemonade:locale:changed` event without translating or replacing user-entered data.
+The layout and inspector have empty states and keyboard movement alternatives.
+No Builder-specific JavaScript test suite is added.
+
+### Database-defined content types
+
+Composer discovery still determines which packages are available. The optional
+Content Types package may additionally contribute stored types to the existing
+Admin registries after its schema is installed. `ModuleProviderFactoryInterface`
+lets one registered scoped service materialize providers for these explicit module
+identities; it performs no discovery or container registration at request time.
+Ordinary services keep their original per-request identity. Module metadata can
+carry a literal user-entered name for navigation, permission groups and audit.
+
+Bootstrap never writes permissions. `PermissionSyncService::syncDefinitions()`
+allows a definition-owning mutation to project only its new permissions in its
+transaction; ordinary role assignment and prerequisite resolution are unchanged.
+The standard full sync remains the deployment path for already-existing types.
+
+`CmsDataGridProjection` adds a one-row-per-record SQL projection before common
+CMS counting/pagination without replacing ownership, locale or deletion scopes.
+DataGrid columns/filters can have literal labels. Explicit scalar filters use a
+bounded server-side pattern; existing static select filters retain their allowlists.
+`DataGridIndexViewModel` can separate the UI translation group from runtime identity.

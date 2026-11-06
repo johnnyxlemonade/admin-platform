@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Module;
 
+use Lemonade\Admin\Authorization\PermissionSection;
 use Lemonade\Admin\Icon\AdminIcon;
 
 /**
@@ -17,12 +18,16 @@ final readonly class AdminModuleMetadata
     public function __construct(
         private string $nameKey,
         private AdminIcon $icon,
-        public AdminNavigationGroup $navigationGroup,
+        private AdminNavigationGroup $navigationGroup,
         private int $navigationOrder,
         private string $routeSegment,
         private ?string $navigationPermission = null,
         private bool $superAdminOnly = false,
         private ?string $descriptionKey = null,
+        private ?string $name = null,
+        private bool $navigationVisible = true,
+        private ?PermissionSection $permissionSection = null,
+        private ?string $description = null,
     ) {}
 
     /**
@@ -79,5 +84,45 @@ final readonly class AdminModuleMetadata
     public function superAdminOnly(): bool
     {
         return $this->superAdminOnly;
+    }
+
+    /**
+     * Vraci navigacni skupinu modulu
+     */
+    public function navigationGroup(): AdminNavigationGroup
+    {
+        return $this->navigationGroup;
+    }
+
+    /**
+     * Vraci vlastni nazev modulu bez prekladu
+     */
+    public function name(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
+     * Urcuje viditelnost modulu v navigaci
+     */
+    public function navigationVisible(): bool
+    {
+        return $this->navigationVisible;
+    }
+
+    /**
+     * Vraci sekci pro zobrazeni opravneni modulu
+     */
+    public function permissionSection(): ?PermissionSection
+    {
+        return $this->permissionSection;
+    }
+
+    /**
+     * Vraci vlastni popis modulu bez prekladu
+     */
+    public function description(): ?string
+    {
+        return $this->description;
     }
 }

@@ -58,7 +58,7 @@ final class AdminModuleRegistryTest extends TestCase
         $admin = $this->adminRegistry();
         foreach ([
             $this->definition('custom.users', 'users', AdminNavigationGroup::System),
-            $this->definition('custom.news', 'news', AdminNavigationGroup::Content),
+            $this->definition('custom.news', 'news', AdminNavigationGroup::Cms),
             $this->definition('custom.settings', 'settings', AdminNavigationGroup::Settings),
         ] as $definition) {
             $admin->register($definition);
@@ -67,7 +67,7 @@ final class AdminModuleRegistryTest extends TestCase
         $routes = new AdminModuleRouteResolver($admin);
 
         self::assertSame('admin.system.module.index', $routes->managementRouteName('users', 'index'));
-        self::assertSame('admin.content.module.edit', $routes->managementRouteName('news', 'edit'));
+        self::assertSame('admin.cms.module.edit', $routes->managementRouteName('news', 'edit'));
         self::assertSame('admin.settings.module.ajax.entity', $routes->managementRouteName('settings', 'ajax.entity'));
     }
 

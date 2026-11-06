@@ -133,7 +133,7 @@ final readonly class AdminModuleRouteRegistrar implements AdminRouteRegistrarInt
     {
         $segments = [];
         foreach ($this->modules->all() as $definition) {
-            if ($definition->adminMetadata()->navigationGroup === $group) {
+            if ($definition->adminMetadata()->navigationGroup() === $group) {
                 $segments[] = $definition->adminMetadata()->routeSegment();
             }
         }

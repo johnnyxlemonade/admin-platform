@@ -66,7 +66,8 @@ final readonly class AdminNavigation
             $moduleCode = $definition->code();
             $metadata = $definition->adminMetadata();
             $permission = $metadata->navigationPermission();
-            if (!$this->access->canAccess($definition)
+            if (!$metadata->navigationVisible()
+                || !$this->access->canAccess($definition)
                 || ($permission !== null && !$this->authorization->hasPermission($permission))) {
                 continue;
             }
@@ -74,17 +75,17 @@ final readonly class AdminNavigation
             $item = new AdminNavigationItem(
                 key: 'module:' . $moduleCode,
                 order: $metadata->navigationOrder(),
-                label: $this->translator->get($metadata->nameKey()),
-                labelKey: $metadata->nameKey(),
+                label: $metadata->name() ?? $this->translator->get($metadata->nameKey()),
+                labelKey: $metadata->name() === null ? $metadata->nameKey() : null,
                 route: $this->routes->managementRouteNameForMetadata($metadata, 'index'),
                 routeParameters: ['module' => $metadata->routeSegment()],
                 routePrefix: false,
                 icon: $metadata->icon(),
                 moduleCode: $moduleCode,
-                moduleNavigationGroup: $metadata->navigationGroup,
+                moduleNavigationGroup: $metadata->navigationGroup(),
                 moduleRouteSegment: $metadata->routeSegment(),
             );
-            $grouped[$metadata->navigationGroup->value][] = $item;
+            $grouped[$metadata->navigationGroup()->value][] = $item;
         }
 
         usort($standalone, static fn(AdminNavigationItem $left, AdminNavigationItem $right): int => [$left->order(), $left->key()] <=> [$right->order(), $right->key()]);

@@ -21,8 +21,8 @@ final class DataGridPrimaryActionTest extends TestCase
     {
         $form = new AdminActionFormDefinition(
             id: 'news-create-draft-form',
-            action: '/admin/content/news/create',
-            actionUrl: '/admin/content/news/ajax',
+            action: '/admin/cms/news/create',
+            actionUrl: '/admin/cms/news/ajax',
             actionKey: 'create',
             navigateToEditAfterCreate: true,
         );

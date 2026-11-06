@@ -14,6 +14,12 @@ Načtené hodnoty, old input a validační chyby nevlastní field definition. Je
 
 Pole shared editoru tvoří `EditorDefinition`; `EditorDispatcher` z něj přijímá jen deklarovaná nezamčená pole. Před uložením ověří permission definice editoru, případné `EditorAccessPolicyInterface`, field permission a validační schema provideru. Neplatný vstup vrátí `EditorSaveOutcome::invalid`; uložené heslové pole se nevrací v safe input.
 
+Validační chyby z transakčního uložení může provider vrátit přes volitelné `errors`
+v `EditorValidationException`: mapa obsahuje názvy transportních polí a hotové
+lokalizované zprávy. `EditorDispatcher` je převede na stejný neplatný výsledek jako
+chyby schématu a zachová bezpečný vstup pro HTML i AJAX transport. Výjimky bez této
+mapy nadále používají obecný `messageKey`.
+
 Pro serverem definovane selecty je `StaticSelectOptionSource`. Aktualni role v editoru Uzivatelu a filtry Uzivatelu/Auditu pouzivaji tento staticky zdroj. Asynchronni vyber prijemcu Oznameni je samostatny modulovy DOM a API contract, ne sdilena PHP option-source abstrakce.
 
 ## Zámky a konflikty

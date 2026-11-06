@@ -40,6 +40,7 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
         self::assertSame([
             [
                 'moduleCode' => 'system.users',
+                'section' => 'system',
                 'label' => 'Uživatelé',
                 'labelKey' => 'users.module.name',
                 'description' => 'Spravujte uživatelské účty a přístupy do administrace.',

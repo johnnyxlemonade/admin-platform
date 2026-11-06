@@ -27,7 +27,7 @@ final class UsersModuleDefinitionTest extends TestCase
         self::assertSame('system.users', $definition->code());
         self::assertSame('users.module.name', $metadata->nameKey());
         self::assertSame(AdminIcon::People, $metadata->icon());
-        self::assertSame(AdminNavigationGroup::System, $metadata->navigationGroup);
+        self::assertSame(AdminNavigationGroup::System, $metadata->navigationGroup());
         self::assertSame(45, $metadata->navigationOrder());
         self::assertSame('users', $metadata->routeSegment());
         self::assertSame('system.users.view', $metadata->navigationPermission());

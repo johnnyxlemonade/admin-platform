@@ -561,7 +561,7 @@ let rebindListenerRemover = null;
         const icon = scope === "system" ? "bi-gear" : "bi-boxes";
         const allDisabled = editable ? "" : " disabled data-lemonade-permission-section-disabled";
         return '<section class="lm-permission-section" data-lemonade-permission-section data-lemonade-permission-section-scope="' + escapeHtml(scope) + '" aria-labelledby="' + sectionId + '">' +
-            '<header class="lm-permission-section-header"><div class="lm-permission-section-heading"><span class="lm-permission-section-icon"><i class="bi ' + icon + '" aria-hidden="true"></i></span><div><h3 id="' + sectionId + '">' + escapeHtml(title) + "</h3><p>" + escapeHtml(description) + "</p></div></div>" +
+            '<header class="lm-permission-section-header"><div class="lm-permission-section-heading"><span class="lm-permission-section-icon"><i class="bi ' + icon + '" aria-hidden="true"></i></span><div><h3 id="' + sectionId + '" data-lemonade-i18n="admin.permissions.' + escapeHtml(scope) + '.title">' + escapeHtml(title) + '</h3><p data-lemonade-i18n="admin.permissions.' + escapeHtml(scope) + '.description">' + escapeHtml(description) + "</p></div></div>" +
             '<div class="lm-permission-section-actions"><span class="lm-permission-section-count" data-lemonade-permission-section-count data-selected-count="' + selected + '" data-total-count="' + permissions.length + '" aria-live="polite">' + selected + " / " + permissions.length + '</span><span class="lm-permission-section-select-all"><input class="form-check-input" id="' + sectionId + '-all" type="checkbox"' + (selected === permissions.length && permissions.length > 0 ? " checked" : "") + allDisabled + ' data-lemonade-permission-section-toggle aria-controls="' + sectionId + '-groups"><label class="form-check-label" for="' + sectionId + '-all"' + allLabelI18n + ">" + escapeHtml(allLabel) + "</label></span></div></header>" +
             '<div class="lm-permission-section-groups" id="' + sectionId + '-groups">' + groups.map(function (group) {
                 return permissionGroupMarkup(container, group, editable, allLabel, allLabelI18n);
@@ -645,14 +645,13 @@ export const PermissionOverrides = {
             const allLabel = container.getAttribute("data-lemonade-permission-select-all-label") || "";
             const allLabelKey = container.getAttribute("data-lemonade-permission-select-all-label-key") || "";
             const allLabelI18n = allLabelKey ? ' data-lemonade-i18n="' + escapeHtml(allLabelKey) + '"' : "";
-            const systemGroups = (groups || []).filter(function (group) {
-                return String(group.moduleCode || "").indexOf("system.") === 0;
-            });
-            const moduleGroups = (groups || []).filter(function (group) {
-                return String(group.moduleCode || "").indexOf("system.") !== 0;
-            });
-            sections.innerHTML = permissionSectionMarkup(container, "system", systemGroups, editable, allLabel, allLabelI18n)
-                + permissionSectionMarkup(container, "modules", moduleGroups, editable, allLabel, allLabelI18n);
+            sections.innerHTML = ["system", "modules", "content-types"].map(function (section) {
+                const sectionGroups = (groups || []).filter(function (group) {
+                    const groupSection = group.section || (String(group.moduleCode || "").indexOf("system.") === 0 ? "system" : "modules");
+                    return groupSection === section;
+                });
+                return permissionSectionMarkup(container, section, sectionGroups, editable, allLabel, allLabelI18n);
+            }).join("");
             bindToggles(root);
             if (I18n) I18n.apply(container);
             root.dispatchEvent(new CustomEvent("lemonade:dirty-state:resync", { bubbles: true }));

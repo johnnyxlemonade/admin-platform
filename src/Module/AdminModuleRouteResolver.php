@@ -57,7 +57,7 @@ final readonly class AdminModuleRouteResolver
      */
     public function managementRouteNameForMetadata(AdminModuleMetadata $metadata, string $action): string
     {
-        return 'admin.' . $metadata->navigationGroup->value . '.module.' . $action;
+        return 'admin.' . $metadata->navigationGroup()->value . '.module.' . $action;
     }
 
     /**

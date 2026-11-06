@@ -260,13 +260,10 @@ import { Message } from "./lemonade-message.js";
                     this.showFormError(error);
                     return;
                 }
-                field.classList.add("is-invalid");
-                field.setAttribute("aria-invalid", "true");
-                const message = document.createElement("span");
-                message.className = "lm-form-help is-error";
-                message.setAttribute("data-lemonade-field-error", fieldName);
-                message.textContent = String(error);
-                (field.closest(".lm-form-group") || field.parentElement).appendChild(message);
+                Action.renderFieldValidationError(field, error);
+                if (field.hasAttribute("data-lemonade-required-message")) {
+                    field.setAttribute("data-lemonade-required-touched", "");
+                }
                 if (!firstField) {
                     firstField = field;
                 }
@@ -291,13 +288,89 @@ import { Message } from "./lemonade-message.js";
         }
 
         clearValidationErrors(form) {
+            DomHelper.queryAll("[data-lemonade-field]", form).forEach(function (field) {
+                Action.clearFieldValidationErrors(field);
+            });
             DomHelper.queryAll("[data-lemonade-field-error]", form).forEach(function (element) {
                 element.remove();
             });
-            DomHelper.queryAll("[data-lemonade-field].is-invalid", form).forEach(function (field) {
-                field.classList.remove("is-invalid");
-                field.removeAttribute("aria-invalid");
+        }
+
+        static renderFieldValidationError(field, error, messageKey = null) {
+            field.classList.add("is-invalid");
+            field.setAttribute("aria-invalid", "true");
+            field.lemonadeSelect?.root.classList.add("is-invalid");
+            field.lemonadeSelect?.trigger.setAttribute("aria-invalid", "true");
+            const message = document.createElement("span");
+            message.className = "lm-form-help is-error";
+            message.setAttribute("data-lemonade-field-error", field.getAttribute("data-lemonade-field"));
+            message.textContent = String(error);
+            if (messageKey) {
+                message.setAttribute("data-lemonade-live-required-error", "");
+                message.setAttribute("data-lemonade-i18n", messageKey);
+            }
+            (field.closest(".lm-form-group") || field.parentElement).appendChild(message);
+        }
+
+        static validateRequiredField(field) {
+            const messageKey = field.getAttribute("data-lemonade-required-message");
+            if (!messageKey || field.disabled || field.readOnly) {
+                return;
+            }
+            const form = field.form;
+            const condition = field.getAttribute("data-lemonade-required-when");
+            const state = condition ? form?.elements.namedItem(condition) : null;
+            const required = state
+                ? state.value === field.getAttribute("data-lemonade-required-value")
+                : field.getAttribute("data-lemonade-required-active") === "1";
+            const group = field.closest(".lm-form-group");
+            const existing = group?.querySelector("[data-lemonade-field-error]");
+            // Do not replace server-side range/type errors with the optional live check.
+            if (existing && !existing.hasAttribute("data-lemonade-live-required-error") && existing.textContent !== I18n.t(messageKey)) {
+                return;
+            }
+            Action.clearFieldValidationErrors(field);
+            let value = field.lemonadeJoditRichText?.editor?.value ?? field.value ?? "";
+            if (field.hasAttribute("data-lemonade-admin-rich-text")) {
+                // Parse in an inert template only; never insert user HTML into the page.
+                const fragment = document.createElement("template");
+                fragment.innerHTML = value;
+                value = fragment.content.textContent;
+            }
+            if (required && String(value).trim() === "") {
+                Action.renderFieldValidationError(field, I18n.t(messageKey), messageKey);
+            }
+        }
+
+        static clearFieldValidationErrors(field) {
+            const form = field.form || field.closest("form");
+            if (!form) {
+                return;
+            }
+
+            const name = field.getAttribute("data-lemonade-field");
+            const removedIds = [];
+            DomHelper.queryAll("[data-lemonade-field-error]", form).forEach(function (message) {
+                if (message.getAttribute("data-lemonade-field-error") === name) {
+                    if (message.id) removedIds.push(message.id);
+                    message.remove();
+                }
             });
+            const controls = [field, field.lemonadeDateTime?.picker?.altInput, field.lemonadeSelect?.trigger];
+            controls.filter(Boolean).forEach(function (control) {
+                control.classList.remove("is-invalid");
+                control.removeAttribute("aria-invalid");
+                const describedBy = control.getAttribute("aria-describedby");
+                if (describedBy && removedIds.length) {
+                    const remaining = describedBy.split(/\s+/).filter((id) => !removedIds.includes(id));
+                    if (remaining.length) {
+                        control.setAttribute("aria-describedby", remaining.join(" "));
+                    } else {
+                        control.removeAttribute("aria-describedby");
+                    }
+                }
+            });
+            field.lemonadeSelect?.root.classList.remove("is-invalid");
         }
 
         showFormError(error) {
@@ -397,6 +470,32 @@ import { Message } from "./lemonade-message.js";
             }
 
             this.isBound = true;
+            ["input", "change"].forEach(function (eventName) {
+                EventHelper.delegate(document, eventName, "form[data-lemonade-action-form] [data-lemonade-field]", function (event, field) {
+                    Action.clearFieldValidationErrors(field);
+                    if (eventName === "change" && field.tagName === "SELECT") {
+                        field.setAttribute("data-lemonade-required-touched", "");
+                        Action.validateRequiredField(field);
+                    }
+                    if (eventName === "change") {
+                        DomHelper.queryAll("[data-lemonade-required-when][data-lemonade-required-touched]", field.form).forEach(function (dependent) {
+                            if (dependent.getAttribute("data-lemonade-required-when") === field.name) {
+                                Action.validateRequiredField(dependent);
+                            }
+                        });
+                    }
+                });
+            });
+            EventHelper.delegate(document, "focusout", "form[data-lemonade-action-form] .lm-form-group", function (event, group) {
+                if (event.relatedTarget && group.contains(event.relatedTarget)) {
+                    return;
+                }
+                const field = group.querySelector("[data-lemonade-required-message]");
+                if (field) {
+                    field.setAttribute("data-lemonade-required-touched", "");
+                    Action.validateRequiredField(field);
+                }
+            });
             EventHelper.delegate(document, "click", "[data-lemonade-action]", function (event, element) {
                 void new Action(element).execute(event);
             });

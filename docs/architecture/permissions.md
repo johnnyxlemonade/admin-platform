@@ -24,3 +24,22 @@ Composer modulu nezobrazí.
 `AdminNavigation` používá navigation permission pouze pro viditelnost sidebaru. `ModuleController`, `DataGridController` a `EditorDispatcher` kontrolují capability a permission pro request. `ModuleActionDispatcher` kontroluje permission z `ModuleActionDefinition`; service vrstva kontroluje business pravidla a podle potřeby i oprávnění cílové entity. Viditelná DataGrid action nikdy není autorizace.
 
 Například `system.languages.create` vyžaduje `system.languages.view`; `system.modules.*` a `system.audit.view` mají delegaci pouze pro superadministrátora. Route/action chyby v JSON transportu vracejí 403 structured payload, zatímco HTML request použije administrační response flow.
+
+## Prezentace vlastnich obsahovych typu
+
+`AdminModuleMetadata::permissionSection` muze explicitne zaradit skupinu do
+`PermissionSection::ContentTypes`. Bez tohoto metadata zustava puvodni cleneni
+`system.*` do Systemu a ostatnich modulu do Modulu. Sekce je pouze prezentacni;
+`PermissionCatalogRegistry`, kody, zavislosti a ulozena prirazeni se nemeni.
+`EffectivePermissionGroupViewModelFactory` predava sekci do role i user override
+projekce a stavajici renderer zachovava checkboxy, souhrny a hromadne akce.
+Volitelne literalni `name` a `description` v metadatech se neprekladaji.
+
+Composer balicek muze registrovat databazove definovane runtime typy. Ty zustavaji
+v katalogu i pri deaktivaci, aby jejich prava nezmizela ze spravy roli.
+`navigationVisible` omezuje pouze sidebar, nikdy serverovou autorizaci nebo
+registraci rout. Vychozi hodnota `true` zachovava chovani existujicich modulu.
+
+Vlastni typy pouzivaji `AdminNavigationGroup::Content`, tedy vlastni navigacni
+skupinu a standardni management routy pod `/content`. Sprava definic zustava
+v `Cms` pod `/cms`. Prazdna skupina se nevykresluje.

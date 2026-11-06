@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Lemonade\Admin\Authorization\PermissionSection;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Framework\View\ViewHelpers;
 
@@ -37,29 +38,21 @@ $isSelected = static function (array $permission) use ($isUserMode, $selectedPer
         ? in_array($permission['state'] ?? 'inherited_deny', ['allow', 'inherited_allow'], true)
         : isset($selectedPermissionSet[$permission['code']]);
 };
-$sections = [
-    [
-        'scope' => 'system',
-        'titleKey' => 'admin.permissions.system.title',
-        'descriptionKey' => 'admin.permissions.system.description',
-        'icon' => AdminIcon::Gear,
-        'groups' => array_values(array_filter($groups, static fn(array $group): bool => str_starts_with((string) $group['moduleCode'], 'system.'))),
-    ],
-    [
-        'scope' => 'modules',
-        'titleKey' => 'admin.permissions.modules.title',
-        'descriptionKey' => 'admin.permissions.modules.description',
-        'icon' => AdminIcon::Boxes,
-        'groups' => array_values(array_filter($groups, static fn(array $group): bool => !str_starts_with((string) $group['moduleCode'], 'system.'))),
-    ],
-];
+$sections = array_map(static fn(PermissionSection $section): array => [
+    'scope' => $section->value,
+    'titleKey' => 'admin.permissions.' . $section->value . '.title',
+    'descriptionKey' => 'admin.permissions.' . $section->value . '.description',
+    'icon' => $section === PermissionSection::System ? AdminIcon::Gear : AdminIcon::Boxes,
+    'groups' => array_values(array_filter($groups, static fn(array $group): bool =>
+        ($group['section'] ?? (str_starts_with((string) $group['moduleCode'], 'system.') ? 'system' : 'modules')) === $section->value)),
+], PermissionSection::cases());
 $allPermissions = $groups === []
     ? []
     : array_merge(...array_map(static fn(array $group): array => $group['permissions'], $groups));
 $selectedCount = count(array_filter($allPermissions, $isSelected));
 $totalCount = count($allPermissions);
 ?>
-<div class="lm-permission-groups" data-lemonade-permission-groups data-lemonade-permission-mode="<?= e($permissionMode) ?>" data-lemonade-permission-count-label="<?= e($countLabel) ?>" data-lemonade-permission-select-all-label="<?= e($groupAllLabel) ?>" data-lemonade-permission-select-all-label-key="<?= e((string) $groupAllLabelKey) ?>" data-lemonade-permission-system-title="<?= e($helpers->lang('admin.permissions.system.title')) ?>" data-lemonade-permission-system-description="<?= e($helpers->lang('admin.permissions.system.description')) ?>" data-lemonade-permission-modules-title="<?= e($helpers->lang('admin.permissions.modules.title')) ?>" data-lemonade-permission-modules-description="<?= e($helpers->lang('admin.permissions.modules.description')) ?>"<?php if ($isUserMode): ?> data-lemonade-permission-role-label="<?= e($helpers->lang('users.editor.permission_source_role')) ?>" data-lemonade-permission-override-label="<?= e($helpers->lang('users.editor.permission_source_override')) ?>" data-lemonade-permission-inherited-allow-label="<?= e($helpers->lang('users.editor.permission_inherited_allow')) ?>" data-lemonade-permission-inherited-deny-label="<?= e($helpers->lang('users.editor.permission_inherited_deny')) ?>" data-lemonade-permission-allow-label="<?= e($helpers->lang('users.editor.permission_allow')) ?>" data-lemonade-permission-deny-label="<?= e($helpers->lang('users.editor.permission_deny')) ?>"<?php endif; ?>>
+<div class="lm-permission-groups" data-lemonade-permission-groups data-lemonade-permission-mode="<?= e($permissionMode) ?>" data-lemonade-permission-count-label="<?= e($countLabel) ?>" data-lemonade-permission-select-all-label="<?= e($groupAllLabel) ?>" data-lemonade-permission-select-all-label-key="<?= e((string) $groupAllLabelKey) ?>" data-lemonade-permission-system-title="<?= e($helpers->lang('admin.permissions.system.title')) ?>" data-lemonade-permission-system-description="<?= e($helpers->lang('admin.permissions.system.description')) ?>" data-lemonade-permission-modules-title="<?= e($helpers->lang('admin.permissions.modules.title')) ?>" data-lemonade-permission-modules-description="<?= e($helpers->lang('admin.permissions.modules.description')) ?>" data-lemonade-permission-content-types-title="<?= e($helpers->lang('admin.permissions.content-types.title')) ?>" data-lemonade-permission-content-types-description="<?= e($helpers->lang('admin.permissions.content-types.description')) ?>"<?php if ($isUserMode): ?> data-lemonade-permission-role-label="<?= e($helpers->lang('users.editor.permission_source_role')) ?>" data-lemonade-permission-override-label="<?= e($helpers->lang('users.editor.permission_source_override')) ?>" data-lemonade-permission-inherited-allow-label="<?= e($helpers->lang('users.editor.permission_inherited_allow')) ?>" data-lemonade-permission-inherited-deny-label="<?= e($helpers->lang('users.editor.permission_inherited_deny')) ?>" data-lemonade-permission-allow-label="<?= e($helpers->lang('users.editor.permission_allow')) ?>" data-lemonade-permission-deny-label="<?= e($helpers->lang('users.editor.permission_deny')) ?>"<?php endif; ?>>
     <div class="lm-permission-layout">
         <div class="lm-permission-main">
             <div class="lm-permission-toolbar" data-lemonade-permission-controls hidden>

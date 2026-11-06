@@ -22,23 +22,29 @@ final class AdminNavigationGroupRegistry
     public function __construct()
     {
         $this->definitions = [
+            AdminNavigationGroup::Cms->value => new AdminNavigationGroupDefinition(
+                code: AdminNavigationGroup::Cms->value,
+                nameKey: 'admin.navigation.cms',
+                order: 40,
+                icon: AdminIcon::JournalText,
+            ),
             AdminNavigationGroup::Content->value => new AdminNavigationGroupDefinition(
-                AdminNavigationGroup::Content->value,
-                'admin.navigation.content',
-                40,
-                AdminIcon::JournalText,
+                code: AdminNavigationGroup::Content->value,
+                nameKey: 'admin.navigation.content',
+                order: 45,
+                icon: AdminIcon::Boxes,
             ),
             AdminNavigationGroup::System->value => new AdminNavigationGroupDefinition(
-                AdminNavigationGroup::System->value,
-                'admin.navigation.system',
-                50,
-                AdminIcon::Gear,
+                code: AdminNavigationGroup::System->value,
+                nameKey: 'admin.navigation.system',
+                order: 50,
+                icon: AdminIcon::Gear,
             ),
             AdminNavigationGroup::Settings->value => new AdminNavigationGroupDefinition(
-                AdminNavigationGroup::Settings->value,
-                'admin.navigation.settings',
-                60,
-                AdminIcon::Sliders,
+                code: AdminNavigationGroup::Settings->value,
+                nameKey: 'admin.navigation.settings',
+                order: 60,
+                icon: AdminIcon::Sliders,
             ),
         ];
     }

@@ -34,6 +34,7 @@ final readonly class CmsContentDataGrid
         string $defaultLocale,
         ?int $ownerId = null,
         CmsDataGridDefinition $definition = new CmsDataGridDefinition(),
+        ?CmsDataGridProjection $projection = null,
     ): QueryPage {
         $properties = $this->properties();
         $sorts = ['title' => 't.title', 'publishedAt' => 't.published_at', 'updatedAt' => 'a.updated_at', 'state' => 't.publication_state'];
@@ -51,8 +52,10 @@ final readonly class CmsContentDataGrid
                 $search[] = $sqlColumn;
             }
         }
+        $sorts += $projection?->sorts() ?? [];
         $defaultSort = $sorts[$definition->defaultSort] ?? throw new InvalidArgumentException('Unknown CMS default sort.');
         $builder = $this->dataGridQuery($query, $query->filter('locale') ?? $defaultLocale, $ownerId, $definition, $properties, $search);
+        $builder = $projection?->apply($builder, $query) ?? $builder;
         $total = $builder->countAllResults();
         $rows = $builder->selectRaw(implode(', ', array_unique($select)))
             ->orderBy($sorts[$query->sortKey()] ?? $defaultSort, $query->sortDirection() === 'asc' ? 'ASC' : 'DESC')

@@ -23,6 +23,8 @@ final readonly class DataGridIndexViewModel
         private string $emptyText,
         private string $errorText,
         private ?string $gridClass = null,
+        private ?string $translationGroup = null,
+        private bool $translateTitle = true,
     ) {}
 
     /**
@@ -103,5 +105,21 @@ final readonly class DataGridIndexViewModel
     public function gridClass(): ?string
     {
         return $this->gridClass;
+    }
+
+    /**
+     * Vraci volitelnou prekladovou skupinu gridu
+     */
+    public function translationGroup(): ?string
+    {
+        return $this->translationGroup;
+    }
+
+    /**
+     * Urcuje zda se nadpis gridu preklada
+     */
+    public function translateTitle(): bool
+    {
+        return $this->translateTitle;
     }
 }

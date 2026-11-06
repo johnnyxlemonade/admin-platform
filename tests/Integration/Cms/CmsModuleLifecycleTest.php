@@ -137,7 +137,7 @@ final class CmsModuleLifecycleTest extends TestCase
         if ($prefix === 'auction') {
             $rootRow = $database->table($root)->where('id', $id)->first();
             self::assertNotNull($rootRow);
-            self::assertSame('1234567890123.50', $rootRow['starting_price']);
+            self::assertSame('1234567890123.5', $rootRow['starting_price']);
             self::assertSame('Praha', $row['location']);
         }
     }

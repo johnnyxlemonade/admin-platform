@@ -104,7 +104,7 @@ final readonly class AuditEventPresenter
     {
         $presentation = $this->presentations->modulePresentation($moduleCode);
 
-        return $presentation === null ? $moduleCode : $this->translator->get($presentation->nameKey());
+        return $presentation === null ? $moduleCode : ($presentation->name() ?? $this->translator->get($presentation->nameKey()));
     }
 
     /**

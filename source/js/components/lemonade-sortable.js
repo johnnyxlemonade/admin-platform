@@ -12,6 +12,7 @@
 export class Sortable {
         constructor(element) {
             this.element = element;
+            this.abort = new AbortController();
             this.armedItem = null;
             this.bind();
         }
@@ -29,10 +30,10 @@ export class Sortable {
                 if (!handle || !item) { return; }
                 this.armedItem = item;
                 item.draggable = true;
-            });
-            this.element.addEventListener("pointerup", () => this.clearDraggable());
-            document.addEventListener("pointerup", () => this.clearDraggable());
-            document.addEventListener("pointercancel", () => this.clearDraggable());
+            }, { signal: this.abort.signal });
+            this.element.addEventListener("pointerup", () => this.clearDraggable(), { signal: this.abort.signal });
+            document.addEventListener("pointerup", () => this.clearDraggable(), { signal: this.abort.signal });
+            document.addEventListener("pointercancel", () => this.clearDraggable(), { signal: this.abort.signal });
             this.element.addEventListener("dragstart", (event) => {
                 const item = this.getItem(event.target);
                 if (!item) { return; }
@@ -42,7 +43,7 @@ export class Sortable {
                 this.element.classList.add("is-sorting");
                 event.dataTransfer.effectAllowed = "move";
                 event.dataTransfer.setData("text/plain", Sortable.active.id);
-            });
+            }, { signal: this.abort.signal });
             this.element.addEventListener("dragover", (event) => {
                 const active = Sortable.active;
                 if (!active || !this.isCompatible(active.source)) { return; }
@@ -53,7 +54,7 @@ export class Sortable {
                 const before = event.clientY < target.getBoundingClientRect().top + (target.offsetHeight / 2);
                 this.element.insertBefore(active.item, before ? target : target.nextSibling);
                 this.setDropTarget(target);
-            });
+            }, { signal: this.abort.signal });
             this.element.addEventListener("drop", (event) => {
                 const active = Sortable.active;
                 if (!active || !this.isCompatible(active.source)) { return; }
@@ -61,8 +62,8 @@ export class Sortable {
                 const source = active.source;
                 this.finish();
                 this.emitChange(source);
-            });
-            this.element.addEventListener("dragend", () => this.finish());
+            }, { signal: this.abort.signal });
+            this.element.addEventListener("dragend", () => this.finish(), { signal: this.abort.signal });
         }
 
         setDropTarget(target) { this.getItems().forEach((item) => item.classList.toggle("is-drop-target", item === target)); }
@@ -102,6 +103,7 @@ export class Sortable {
                 if (Sortable.active && Sortable.active.source.element === element) {
                     Sortable.active = null;
                 }
+                element.lemonadeSortable?.abort.abort();
                 delete element.lemonadeSortable;
             });
         }

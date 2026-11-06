@@ -42,6 +42,7 @@ final class AuditEventPresentationRegistry
             moduleCode: $moduleCode,
             nameKey: $metadata->nameKey(),
             icon: $metadata->icon(),
+            name: $metadata->name(),
         ));
 
         foreach ($definition->auditEventDefinitions() as $eventDefinition) {

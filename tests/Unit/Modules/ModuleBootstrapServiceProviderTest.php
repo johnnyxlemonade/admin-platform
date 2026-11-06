@@ -216,7 +216,7 @@ final class AdminManifestFixture extends ModuleManifestDefinition implements Adm
         return new AdminModuleMetadata(
             'test.admin.name',
             AdminIcon::JournalText,
-            AdminNavigationGroup::Content,
+            AdminNavigationGroup::Cms,
             1,
             'test-admin',
         );

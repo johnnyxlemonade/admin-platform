@@ -27,7 +27,7 @@ final class AdminNavigationGroupMetadataTest extends TestCase
     public function testSystemModuleDefinitionsUseTheSystemNavigationGroupEnum(): void
     {
         foreach ($this->definitions() as $definition) {
-            self::assertSame(AdminNavigationGroup::System, $definition->adminMetadata()->navigationGroup);
+            self::assertSame(AdminNavigationGroup::System, $definition->adminMetadata()->navigationGroup());
         }
     }
 

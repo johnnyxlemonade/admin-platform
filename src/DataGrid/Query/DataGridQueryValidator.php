@@ -49,7 +49,7 @@ final readonly class DataGridQueryValidator
             if ($value === '') {
                 continue;
             }
-            if (!in_array($value, $filter->allowedValues(), true)) {
+            if (!$filter->accepts($value)) {
                 throw new InvalidArgumentException('Invalid filter: ' . $key . '.');
             }
             $filters[$key] = $value;

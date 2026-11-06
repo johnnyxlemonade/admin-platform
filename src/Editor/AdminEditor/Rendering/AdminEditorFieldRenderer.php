@@ -48,7 +48,8 @@ final readonly class AdminEditorFieldRenderer
             return $this->hidden($field, $context, $editorId);
         }
 
-        $inputId = $this->id($editorId . '-' . $field->name());
+        $customId = $field instanceof AdminEditorInputFieldDefinition ? ($field->inputAttributes()['id'] ?? null) : null;
+        $inputId = is_string($customId) && $customId !== '' ? $this->escape($customId) : $this->id($editorId . '-' . $field->name());
         $errorId = $inputId . '-error';
         $errors = $context->errorsFor($field->name());
         $help = $this->text($field->helpText(), $field->helpTranslationKey());
@@ -123,7 +124,7 @@ final readonly class AdminEditorFieldRenderer
             ? $this->preservedValue($field, $value)
             : '';
 
-        return '<div class="form-check' . ($field->isToggle() ? ' form-switch' : '') . '"><input class="form-check-input" type="checkbox" value="1"' . $common . $checked . '></div>' . $preservedValue;
+        return '<div class="form-check' . ($field->isToggle() ? ' form-switch' : '') . '"><input class="form-check-input' . $this->customClass($field) . '" type="checkbox" value="1"' . $common . $checked . '></div>' . $preservedValue;
     }
 
     /**
@@ -143,7 +144,7 @@ final readonly class AdminEditorFieldRenderer
         $common = $this->inputCommon($field, $inputId, $describedBy, $errors);
         $richText = $field->isRichText() ? ' data-lemonade-admin-rich-text="jodit"' : '';
 
-        return '<textarea class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . $richText
+        return '<textarea class="form-control' . $this->customClass($field) . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . $richText
             . $this->richTextImageUploadAttribute($field, $context)
             . $this->richTextFileUploadAttribute($field, $context)
             . $this->placeholder($field) . '>' . $this->escape($this->stringValue($value)) . '</textarea>';
@@ -159,7 +160,7 @@ final readonly class AdminEditorFieldRenderer
     {
         $common = $this->inputCommon($field, $inputId, $describedBy, $errors);
         $selectedValues = $field->isMultiple() ? $this->multipleValues($value) : [];
-        $html = '<select class="form-select' . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . ($field->isMultiple() ? ' multiple' : '') . '>';
+        $html = '<select class="form-select' . $this->customClass($field) . ($errors !== [] ? ' is-invalid' : '') . '"' . $common . ($field->isMultiple() ? ' multiple' : '') . '>';
         foreach ($field->selectOptions() as $optionValue => $optionLabel) {
             $optionLabelKey = $field->selectOptionLabelKeys()[$optionValue] ?? null;
             $label = $this->text($optionLabel, $optionLabelKey) ?? '';
@@ -230,7 +231,7 @@ final readonly class AdminEditorFieldRenderer
         $inputType = $isDateTime ? NativeInputType::Text->value : $field->inputType()->value;
         $dateTime = $isDateTime ? ' data-lemonade-date-time="' . $field->inputType()->value . '"' : '';
 
-        return '<input class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '" type="' . $inputType . '" value="' . $this->escape($inputValue) . '"' . $dateTime
+        return '<input class="form-control' . $this->customClass($field) . ($errors !== [] ? ' is-invalid' : '') . '" type="' . $inputType . '" value="' . $this->escape($inputValue) . '"' . $dateTime
             . $this->inputCommon($field, $inputId, $describedBy, $errors, $field->autocompleteValue())
             . $this->placeholder($field) . '>';
     }
@@ -250,7 +251,7 @@ final readonly class AdminEditorFieldRenderer
         array $describedBy,
         array $errors,
     ): string {
-        $input = '<input class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '" type="text" value="' . $this->escape($this->stringValue($value)) . '"'
+        $input = '<input class="form-control' . $this->customClass($field) . ($errors !== [] ? ' is-invalid' : '') . '" type="text" value="' . $this->escape($this->stringValue($value)) . '"'
             . $this->inputCommon($field, $inputId, $describedBy, $errors, $field->autocompleteValue())
             . $this->placeholder($field) . '>';
         $unlock = $this->text($field->unlockText(), $field->unlockKey()) ?? '';
@@ -284,7 +285,7 @@ final readonly class AdminEditorFieldRenderer
             $attributes['data-lemonade-url-segment-auto'] = true;
         }
 
-        $input = '<input class="form-control' . ($errors !== [] ? ' is-invalid' : '') . '" type="text" value="' . $this->escape($this->stringValue($value)) . '"'
+        $input = '<input class="form-control' . $this->customClass($field) . ($errors !== [] ? ' is-invalid' : '') . '" type="text" value="' . $this->escape($this->stringValue($value)) . '"'
             . $this->inputCommon($field, $inputId, $describedBy, $errors, attributes: $attributes) . '>';
         $html = '<div class="input-group" data-lemonade-url-segment-root>';
         $prefix = $field->pathPrefix();
@@ -364,6 +365,7 @@ final readonly class AdminEditorFieldRenderer
     ): string {
         $readonlyAsDisabled = $this->readonlyAsDisabled($field);
         $inputAttributes = $attributes ?? $field->inputAttributes();
+        unset($inputAttributes['id'], $inputAttributes['class']);
         if ($autocomplete !== null) {
             $inputAttributes['autocomplete'] = $autocomplete;
         }
@@ -378,6 +380,15 @@ final readonly class AdminEditorFieldRenderer
             . ($errors !== [] ? ' aria-invalid="true"' : '')
             . ($describedBy !== [] ? ' aria-describedby="' . implode(' ', $describedBy) . '"' : '')
             . $this->attributes($inputAttributes);
+    }
+
+    /**
+     * Pripoji prezentacni tridy bez nahrazeni standardniho Bootstrap controlu
+     */
+    private function customClass(AdminEditorInputFieldDefinition $field): string
+    {
+        $class = $field->inputAttributes()['class'] ?? null;
+        return is_string($class) && trim($class) !== '' ? ' ' . $this->escape(trim($class)) : '';
     }
 
     /**

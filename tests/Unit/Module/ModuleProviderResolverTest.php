@@ -35,6 +35,52 @@ use PHPUnit\Framework\TestCase;
 final class ModuleProviderResolverTest extends TestCase
 {
     /**
+     * Jedna factory oddeluje runtime podle modulu a akce a zachova request cache
+     */
+    public function testExplicitFactoryReceivesModuleAndActionContext(): void
+    {
+        $factory = new class implements \Lemonade\Admin\Module\Contract\ModuleProviderFactoryInterface {
+            /** @var list<array{string,class-string,string|null}> */
+            private array $calls = [];
+
+            /**
+             * Vraci zaznamenane pozadavky na vytvoreni provideru
+             *
+             * @return list<array{string,class-string,string|null}>
+             */
+            public function calls(): array
+            {
+                return $this->calls;
+            }
+
+            public function createProvider(string $moduleCode, string $contract, ?string $action = null): object
+            {
+                $this->calls[] = [$moduleCode,$contract,$action];
+                return new ScopedActionHandlerStub();
+            }
+        };
+        $actions = new ModuleActionRegistry();
+        foreach (['cms.type_1','cms.type_2'] as $module) {
+            foreach (['delete','restore'] as $action) {
+                $actions->register($module, new ModuleActionDefinition($action, 'test.manage', 'test.action'), 'factory');
+            }
+        }
+        $container = new Container();
+        $container->instance('factory', $factory);
+        $container->freeze();
+        $resolver = new ModuleProviderResolver(new DataGridRegistry(), new EditorRegistry(), new ModulePageRegistry(), $actions, $container);
+        $first = $resolver->action('cms.type_1', 'delete')['handler'];
+        self::assertSame($first, $resolver->action('cms.type_1', 'delete')['handler']);
+        self::assertNotSame($first, $resolver->action('cms.type_2', 'delete')['handler']);
+        self::assertNotSame($first, $resolver->action('cms.type_1', 'restore')['handler']);
+        self::assertSame([
+            ['cms.type_1',ModuleActionHandlerInterface::class,'delete'],
+            ['cms.type_2',ModuleActionHandlerInterface::class,'delete'],
+            ['cms.type_1',ModuleActionHandlerInterface::class,'restore'],
+        ], $factory->calls());
+    }
+
+    /**
      * Overuje canonical identitu v requestu a izolaci mezi requesty
      */
     public function testProvidersAreMaterializedAndCachedOnlyInCurrentRequestScope(): void

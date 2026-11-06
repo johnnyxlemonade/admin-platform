@@ -51,7 +51,7 @@ final readonly class NavigationTranslationController
         $items = [];
         foreach ($this->navigation->items() as $entry) {
             if ($entry instanceof AdminNavigationItem) {
-                $items[] = ['id' => $entry->key(), 'label' => $this->label($entry->labelKey(), $locale)];
+                $items[] = ['id' => $entry->key(), 'label' => ($entry->labelKey() === null ? $entry->label() : $this->label($entry->labelKey(), $locale))];
 
                 continue;
             }
@@ -59,7 +59,7 @@ final readonly class NavigationTranslationController
             if ($entry instanceof AdminNavigationGroup) {
                 $groups[] = ['id' => $entry->key(), 'label' => $this->label($entry->labelKey(), $locale)];
                 foreach ($entry->items() as $item) {
-                    $items[] = ['id' => $item->key(), 'label' => $this->label($item->labelKey(), $locale)];
+                    $items[] = ['id' => $item->key(), 'label' => ($item->labelKey() === null ? $item->label() : $this->label($item->labelKey(), $locale))];
                 }
             }
         }

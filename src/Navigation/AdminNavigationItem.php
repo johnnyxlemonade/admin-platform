@@ -11,24 +11,24 @@ use Lemonade\Admin\Module\AdminNavigationGroup;
 /**
  * Predstavuje jednu odkazovou polozku navigace
  */
-final class AdminNavigationItem implements AdminNavigationEntryInterface
+final readonly class AdminNavigationItem implements AdminNavigationEntryInterface
 {
     /**
      * Nastavuje hodnoty potrebne pro zobrazeni navigace
      * @param array<string, bool|float|int|string|null> $routeParameters
      */
     public function __construct(
-        private readonly string $key,
-        private readonly int $order,
-        private readonly string $label,
-        private readonly string $labelKey,
-        private readonly string $route,
-        private readonly array $routeParameters,
-        private readonly bool $routePrefix,
-        private readonly ?AdminIcon $icon,
-        private readonly ?string $moduleCode,
-        private readonly ?AdminNavigationGroup $moduleNavigationGroup = null,
-        private readonly ?string $moduleRouteSegment = null,
+        private string $key,
+        private int $order,
+        private string $label,
+        private ?string $labelKey,
+        private string $route,
+        private array $routeParameters,
+        private bool $routePrefix,
+        private ?AdminIcon $icon,
+        private ?string $moduleCode,
+        private ?AdminNavigationGroup $moduleNavigationGroup = null,
+        private ?string $moduleRouteSegment = null,
     ) {}
 
     /**
@@ -58,7 +58,7 @@ final class AdminNavigationItem implements AdminNavigationEntryInterface
     /**
      * Vraci lokalizacni klic popisku navigace
      */
-    public function labelKey(): string
+    public function labelKey(): ?string
     {
         return $this->labelKey;
     }
@@ -110,7 +110,7 @@ final class AdminNavigationItem implements AdminNavigationEntryInterface
     public function isActiveFor(?AdminModuleMetadata $metadata): bool
     {
         return $metadata !== null
-            && $this->moduleNavigationGroup === $metadata->navigationGroup
+            && $this->moduleNavigationGroup === $metadata->navigationGroup()
             && $this->moduleRouteSegment === $metadata->routeSegment();
     }
 }
