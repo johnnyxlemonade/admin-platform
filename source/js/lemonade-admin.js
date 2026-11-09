@@ -44,6 +44,8 @@ class AdminSessionHeartbeat {
         this.timer = null;
         this.activityAt = 0;
         this.lastHeartbeatAt = 0;
+        this.lastAttemptAt = 0;
+        this.sending = false;
         this.recordActivity = this.recordActivity.bind(this);
     }
 
@@ -52,19 +54,45 @@ class AdminSessionHeartbeat {
             return;
         }
 
-        ["pointerdown", "mousedown", "keydown", "touchstart"].forEach((eventName) => {
-            window.addEventListener(eventName, this.recordActivity, { passive: true });
+        ["pointerdown", "mousedown", "keydown", "touchstart", "click", "input", "change", "paste", "cut", "dragstart", "drop", "dragend"].forEach((eventName) => {
+            window.addEventListener(eventName, this.recordActivity, { capture: true, passive: true });
         });
         this.timer = window.setInterval(() => {
             void this.sendHeartbeatWhenNeeded();
         }, AdminSessionHeartbeat.INTERVAL_MS);
     }
 
-    recordActivity() {
+    recordActivity(event) {
+        if (!event.isTrusted || this.lockManager.isLocked()) {
+            return;
+        }
+
         this.writeTimestamp(AdminSessionHeartbeat.ACTIVITY_KEY, Date.now());
+        void this.sendHeartbeatWhenNeeded();
     }
 
     async sendHeartbeatWhenNeeded() {
+        if (this.sending || this.lockManager.isLocked()) {
+            return;
+        }
+
+        this.sending = true;
+        try {
+            if (navigator.locks) {
+                await navigator.locks.request(AdminSessionHeartbeat.HEARTBEAT_KEY, { ifAvailable: true }, async (lock) => {
+                    if (lock) await this.sendHeartbeat();
+                });
+            } else {
+                await this.sendHeartbeat();
+            }
+        } catch (error) {
+            // Leave the successful heartbeat unchanged; later activity or the timer retries.
+        } finally {
+            this.sending = false;
+        }
+    }
+
+    async sendHeartbeat() {
         if (this.lockManager.isLocked()) {
             return;
         }
@@ -72,23 +100,15 @@ class AdminSessionHeartbeat {
         const activityAt = this.readTimestamp(AdminSessionHeartbeat.ACTIVITY_KEY);
         const lastHeartbeatAt = this.readTimestamp(AdminSessionHeartbeat.HEARTBEAT_KEY);
         const now = Date.now();
-        if (activityAt <= lastHeartbeatAt || now - lastHeartbeatAt < AdminSessionHeartbeat.INTERVAL_MS) {
+        if (activityAt <= lastHeartbeatAt || now - Math.max(lastHeartbeatAt, this.lastAttemptAt) < AdminSessionHeartbeat.INTERVAL_MS) {
             return;
         }
 
+        this.lastAttemptAt = now;
+        await HttpHelper.post(this.endpoint, undefined, { keepalive: true });
+        // Use the request time so activity during the request remains pending.
         this.writeTimestamp(AdminSessionHeartbeat.HEARTBEAT_KEY, now);
-        if (this.readTimestamp(AdminSessionHeartbeat.HEARTBEAT_KEY) !== now) {
-            return;
-        }
-
-        try {
-            await HttpHelper.post(this.endpoint);
-            this.lockManager.confirmActivity(now);
-        } catch (error) {
-            if (this.readTimestamp(AdminSessionHeartbeat.HEARTBEAT_KEY) === now) {
-                this.writeTimestamp(AdminSessionHeartbeat.HEARTBEAT_KEY, lastHeartbeatAt);
-            }
-        }
+        this.lockManager.confirmActivity(now);
     }
 
     readTimestamp(key) {
