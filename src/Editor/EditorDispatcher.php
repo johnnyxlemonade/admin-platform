@@ -47,6 +47,14 @@ final readonly class EditorDispatcher
     }
 
     /**
+     * Overi pravo ulozit entitu bez spusteni editoroveho save transportu
+     */
+    public function assertSaveAccess(string $module, int $id): void
+    {
+        $this->provider($module, true, false, $id);
+    }
+
+    /**
      * Vrati vychozi data pro zalozeni zaznamu v editoru
      */
     public function createData(string $module): EditorLoaded

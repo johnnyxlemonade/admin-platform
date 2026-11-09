@@ -216,6 +216,9 @@ class AdminFileUploadCollection {
     }
 
     async uploadFiles(files) {
+        if (!this.editable) {
+            return;
+        }
         if (this.element.dataset.lemonadeFileUploadMultiple !== "true") {
             files = files.slice(0, 1);
         }
@@ -284,6 +287,9 @@ class AdminFileUploadCollection {
     }
 
     async click(event) {
+        if (!this.editable) {
+            return;
+        }
         const avatarSelect = event.target.closest("[data-lemonade-file-upload-avatar-select]");
         if (avatarSelect && this.element.contains(avatarSelect)) {
             this.input?.click();
@@ -342,7 +348,7 @@ class AdminFileUploadCollection {
     }
 
     async sort(event) {
-        if (event.target !== this.items || !this.element.dataset.lemonadeFileUploadReorderUrl) {
+        if (!this.editable || event.target !== this.items || !this.element.dataset.lemonadeFileUploadReorderUrl) {
             return;
         }
         try {
@@ -468,7 +474,7 @@ class AdminFileUploadCollection {
             this.singlePreview?.replaceChildren(...(state ? [state] : []));
             this.items?.replaceChildren();
             this.singleSurface?.classList.toggle("has-file", file !== null);
-            this.singleSurface?.classList.toggle("is-empty", file === null);
+            this.singleSurface?.classList.toggle("is-empty", this.editable && file === null);
             this.publishSingleState(file);
             return;
         }
@@ -575,23 +581,25 @@ class AdminFileUploadCollection {
         metadata.textContent = String(file.metadata || "");
         copy.append(name, metadata);
         item.append(copy);
-        if (this.items?.hasAttribute("data-lemonade-sortable")) {
+        if (this.editable && this.items?.hasAttribute("data-lemonade-sortable")) {
             const handle = this.iconButton("arrows-move", this.translate("admin.file_upload.reorder", null, this.element.dataset.lemonadeFileUploadReorderLabel || "Reorder"));
             handle.classList.add("lm-file-upload-item-handle");
             handle.dataset.lemonadeSortableHandle = "";
             item.append(handle);
         }
-        const renameUrl = this.url("lemonadeFileUploadRenameModalUrl", file.id);
-        if (renameUrl) {
-            const edit = this.iconButton("pencil-square", this.translate("admin.file_upload.edit", null, this.element.dataset.lemonadeFileUploadEditLabel));
-            edit.dataset.lemonadeModalFormUrl = renameUrl;
-            edit.dataset.lemonadeModalSize = "medium";
-            item.append(edit);
+        if (this.editable) {
+            const renameUrl = this.url("lemonadeFileUploadRenameModalUrl", file.id);
+            if (renameUrl) {
+                const edit = this.iconButton("pencil-square", this.translate("admin.file_upload.edit", null, this.element.dataset.lemonadeFileUploadEditLabel));
+                edit.dataset.lemonadeModalFormUrl = renameUrl;
+                edit.dataset.lemonadeModalSize = "medium";
+                item.append(edit);
+            }
+            const remove = this.iconButton("trash3", this.translate(this.element.dataset.lemonadeFileUploadRemoveKey || "admin.file_upload.remove", null, this.element.dataset.lemonadeFileUploadRemoveLabel || "Remove"));
+            remove.classList.add("is-danger");
+            remove.dataset.lemonadeFileUploadRemove = "";
+            item.append(remove);
         }
-        const remove = this.iconButton("trash3", this.translate(this.element.dataset.lemonadeFileUploadRemoveKey || "admin.file_upload.remove", null, this.element.dataset.lemonadeFileUploadRemoveLabel || "Remove"));
-        remove.classList.add("is-danger");
-        remove.dataset.lemonadeFileUploadRemove = "";
-        item.append(remove);
 
         return item;
     }

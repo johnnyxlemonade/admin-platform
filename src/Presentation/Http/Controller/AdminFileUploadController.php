@@ -106,7 +106,7 @@ final readonly class AdminFileUploadController
      */
     public function collection(string $module, string $usage, int $entity): ResponseInterface
     {
-        if (($response = $this->authorize($module, $entity)) !== null) {
+        if (($response = $this->authorize($module, $entity, false)) !== null) {
             return $response;
         }
 
@@ -382,12 +382,15 @@ final readonly class AdminFileUploadController
     }
 
     /**
-     * Pouzije standardni editorovou access a existence kontrolu pro shared image slot
+     * Overi existenci a cteni entity; pro file mutace navic pravo ulozeni
      */
-    private function authorize(string $module, int $entity): ?ResponseInterface
+    private function authorize(string $module, int $entity, bool $saving = true): ?ResponseInterface
     {
         try {
             $this->editors->updateData($module, $entity);
+            if ($saving) {
+                $this->editors->assertSaveAccess($module, $entity);
+            }
         } catch (EditorEntityNotFoundException) {
             return $this->notFound();
         } catch (EditorCapabilityException $exception) {
