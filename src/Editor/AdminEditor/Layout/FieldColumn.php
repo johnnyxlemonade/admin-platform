@@ -6,6 +6,7 @@ namespace Lemonade\Admin\Editor\AdminEditor\Layout;
 
 use InvalidArgumentException;
 use Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition;
+use Lemonade\Admin\Icon\AdminIcon;
 
 /**
  * Zpracovava data potrebna pro administracni editor
@@ -22,6 +23,7 @@ final readonly class FieldColumn
         private ?int $lg = null,
         private ?int $xl = null,
         private ?int $xxl = null,
+        private ?AdminIcon $cardIcon = null,
     ) {
         foreach ([
             'sm' => $sm,
@@ -42,6 +44,14 @@ final readonly class FieldColumn
     public function field(): AdminEditorFieldDefinition
     {
         return $this->field;
+    }
+
+    /**
+     * Vrati ikonu volitelne karty kolem pole
+     */
+    public function cardIcon(): ?AdminIcon
+    {
+        return $this->cardIcon;
     }
 
     /**

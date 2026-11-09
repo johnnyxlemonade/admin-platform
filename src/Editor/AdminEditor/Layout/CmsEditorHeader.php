@@ -21,15 +21,18 @@ final class CmsEditorHeader
     /**
      * Vytvori hlavicku s breadcrumbs, akcemi a kontextem editoru
      */
-    public static function create(string $module, string $indexUrl, ?AdminEditorHeaderContextDefinition $context): AdminEditorHeaderDefinition
+    public static function create(string $module, string $indexUrl, ?AdminEditorHeaderContextDefinition $context, ?string $moduleName = null): AdminEditorHeaderDefinition
     {
         $titleKey = $module . '.editor.title';
+        $moduleBreadcrumb = $moduleName === null
+            ? ['label' => '', 'labelKey' => $module . '.module.name', 'href' => $indexUrl]
+            : ['label' => $moduleName, 'href' => $indexUrl];
 
         return new AdminEditorHeaderDefinition(
             title: '',
             titleKey: $titleKey,
             breadcrumbs: [
-                ['label' => '', 'labelKey' => $module . '.module.name', 'href' => $indexUrl],
+                $moduleBreadcrumb,
                 ['label' => '', 'labelKey' => $titleKey, 'current' => true],
             ],
             actions: [

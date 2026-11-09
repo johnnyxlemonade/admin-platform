@@ -46,6 +46,7 @@ enum AdminIcon: string
     case GripVertical = 'grip-vertical';
     case Hammer = 'hammer';
     case HouseDoor = 'house-door';
+    case Image = 'image';
     case Images = 'images';
     case Inbox = 'inbox';
     case InfoCircle = 'info-circle';
@@ -56,6 +57,7 @@ enum AdminIcon: string
     case MoonStars = 'moon-stars';
     case Newspaper = 'newspaper';
     case PauseCircle = 'pause-circle';
+    case Paperclip = 'paperclip';
     case PencilSquare = 'pencil-square';
     case People = 'people';
     case Person = 'person';

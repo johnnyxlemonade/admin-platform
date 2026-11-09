@@ -326,7 +326,15 @@ final readonly class AdminEditorRenderer
                 $html .= $this->fields->render($field, $context, $editor->id(), $form);
                 continue;
             }
-            $html .= '<div class="' . $this->columnClasses($column) . '">' . $this->fields->render($field, $context, $editor->id(), $form) . '</div>';
+            $fieldHtml = $this->fields->render($field, $context, $editor->id(), $form);
+            $cardIcon = $column->cardIcon();
+            if ($cardIcon !== null) {
+                $fieldHtml = '<div class="admin-editor-field-card">'
+                    . '<span class="admin-editor-field-card-icon" aria-hidden="true"><i class="' . $cardIcon->cssClass() . '"></i></span>'
+                    . $fieldHtml
+                    . '</div>';
+            }
+            $html .= '<div class="' . $this->columnClasses($column) . '">' . $fieldHtml . '</div>';
         }
         return $html . '</div>';
     }

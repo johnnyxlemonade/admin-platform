@@ -190,6 +190,13 @@
     min-width: 0;
 }
 
+.admin-shell .admin-editor[data-lemonade-admin-editor^="cms."] .admin-editor-tabs > .admin-editor-layout > .admin-editor-main {
+    padding: clamp(16px, 1.5vw, 24px);
+    border: 1px solid var(--lm-card-border);
+    border-radius: var(--lm-radius-lg);
+    background: var(--lm-surface);
+}
+
 .admin-shell .admin-editor-layout {
     display: flex;
     align-items: start;
@@ -295,6 +302,68 @@
 
 .admin-shell .admin-editor-field-group > [class*="col-"] > .lm-form-group {
     margin-bottom: 0 !important;
+}
+
+.admin-shell .admin-editor-field-card {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-3);
+    height: 100%;
+    min-height: 78px;
+    padding: var(--lm-space-3) var(--lm-space-4);
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius-lg);
+    background: var(--lm-surface);
+}
+
+.admin-shell .admin-editor-field-card-icon {
+    display: inline-flex;
+    flex: 0 0 44px;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--lm-radius-lg);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 21px;
+}
+
+.admin-shell .admin-editor-field-card > .lm-form-group {
+    display: grid;
+    flex: 1 1 auto;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--lm-space-3);
+    min-width: 0;
+    margin-bottom: 0 !important;
+}
+
+.admin-shell .admin-editor-field-card .lm-form-label {
+    grid-column: 1;
+    font-size: 14px;
+}
+
+.admin-shell .admin-editor-field-card .form-switch {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-shell .admin-editor-field-card .form-switch .form-check-input {
+    float: none;
+    margin: 0;
+}
+
+.admin-shell .admin-editor-field-card .lm-form-help:not(.is-error) {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.admin-shell .admin-editor-field-card .lm-form-help.is-error {
+    grid-column: 1 / -1;
 }
 
 .admin-shell .admin-editor-section > .card-body > .lm-form-group:last-child,
