@@ -79,18 +79,29 @@
 .admin-shell .lm-dashboard-widget-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
+    gap: 12px 18px;
+    align-items: start;
+}
+
+.admin-shell .lm-dashboard.has-packed-widgets .lm-dashboard-widget-grid {
+    grid-auto-rows: 8px;
+    grid-auto-flow: row dense;
+}
+
+.admin-shell .lm-dashboard.is-customizing .lm-dashboard-widget-grid {
+    grid-auto-flow: row;
 }
 
 .admin-shell .lm-dashboard-widget {
     display: flex;
     grid-column: span 2;
     flex-direction: column;
+    align-self: start;
     min-width: 0;
     border: 1px solid var(--lm-card-border);
     border-radius: var(--lm-radius-lg);
     background: var(--lm-surface);
-    box-shadow: 0 4px 14px rgba(31, 52, 105, .04);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--lm-text-strong) 5%, transparent);
 }
 
 .admin-shell .lm-dashboard-widget--small {
@@ -114,8 +125,8 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    min-height: 70px;
-    padding: 16px 20px;
+    min-height: 58px;
+    padding: 10px 18px;
     border-bottom: 1px solid var(--lm-line);
 }
 
@@ -138,11 +149,12 @@
 
 .admin-shell .lm-dashboard-widget-icon {
     display: inline-flex;
-    flex: 0 0 34px;
+    flex: 0 0 40px;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
     font-size: 17px;
@@ -195,12 +207,13 @@
 }
 
 .admin-shell .lm-dashboard-widget-body {
-    min-height: 124px;
-    padding: 20px;
+    min-height: 0;
+    padding: 14px 18px;
+    container: dashboard-widget-body / inline-size;
 }
 
 .admin-shell .lm-dashboard-widget-footer {
-    padding: 13px 20px;
+    padding: 12px 18px;
     border-top: 1px solid var(--lm-line);
 }
 
@@ -213,10 +226,71 @@
 
 .admin-shell .lm-dashboard-kpi {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 116px;
+    overflow: hidden;
+    text-align: left;
+}
+
+.admin-shell .lm-dashboard-kpi-copy {
+    position: relative;
+    z-index: 1;
+    display: flex;
     flex-direction: column;
-    justify-content: center;
-    min-height: 84px;
-    text-align: center;
+    min-width: 0;
+}
+
+.admin-shell .lm-dashboard-kpi-decoration {
+    position: relative;
+    flex: 0 1 126px;
+    width: 126px;
+    min-width: 82px;
+    height: 94px;
+    color: var(--lm-primary);
+}
+
+.admin-shell .lm-dashboard-kpi-decoration::before {
+    position: absolute;
+    inset: 6px 0 0;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, var(--lm-primary-soft), transparent 72%);
+    content: "";
+}
+
+.admin-shell .lm-dashboard-kpi-decoration i {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--lm-primary-soft) 80%, var(--lm-surface));
+    font-size: 34px;
+    line-height: 1;
+}
+
+.admin-shell .lm-dashboard-kpi-decoration i:first-child {
+    top: 31px;
+    left: 4%;
+    opacity: .6;
+}
+
+.admin-shell .lm-dashboard-kpi-decoration i:nth-child(2) {
+    z-index: 1;
+    top: 8px;
+    left: 34%;
+    width: 54px;
+    height: 54px;
+    background: var(--lm-primary-soft);
+    font-size: 42px;
+}
+
+.admin-shell .lm-dashboard-kpi-decoration i:last-child {
+    top: 31px;
+    right: 0;
+    opacity: .6;
 }
 
 .admin-shell .lm-dashboard-kpi-value {
@@ -228,7 +302,7 @@
 }
 
 .admin-shell .lm-dashboard-kpi-label {
-    margin-top: 10px;
+    margin-top: 6px;
     color: var(--lm-text-muted);
     font-size: 13px;
     font-weight: 600;
@@ -345,7 +419,7 @@
     align-items: center;
     gap: 12px;
     min-width: 0;
-    padding: 10px 0;
+    padding: 5px 8px;
     border-top: 1px solid var(--lm-line-subtle);
 }
 
@@ -355,17 +429,19 @@
 
 .admin-shell .lm-dashboard-module-icon {
     display: inline-flex;
-    flex: 0 0 32px;
+    flex: 0 0 30px;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
     font-size: 16px;
 }
 
 .admin-shell .lm-dashboard-module-content {
+    flex: 1 1 auto;
     min-width: 0;
 }
 
@@ -382,6 +458,283 @@
 
 .admin-shell .lm-dashboard-module-content a:hover, .admin-shell .lm-dashboard-module-content a:focus-visible {
     color: var(--lm-primary);
+}
+
+.admin-shell .lm-dashboard-module-groups {
+    gap: 14px;
+}
+
+.admin-shell .lm-dashboard-module-groups .lm-permission-section-header {
+    min-height: 32px;
+    padding: 5px 9px;
+    border: 0;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--lm-primary-soft) 70%, var(--lm-surface));
+}
+
+.admin-shell .lm-dashboard-module-groups .lm-permission-section h3 {
+    color: var(--lm-text-heading);
+    font-size: 13px;
+}
+
+.admin-shell .lm-dashboard-module-group-icon {
+    display: inline-flex;
+    flex: 0 0 24px;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: 14px;
+}
+
+.admin-shell .lm-dashboard-module-list {
+    margin-top: 4px;
+}
+
+.admin-shell .lm-dashboard-module-list li {
+    border-color: var(--lm-line-subtle);
+}
+
+.admin-shell .lm-dashboard-module-list li:hover {
+    background: color-mix(in srgb, var(--lm-primary-soft) 28%, var(--lm-surface));
+}
+
+.admin-shell .lm-dashboard-module-chevron {
+    flex: 0 0 6px;
+    width: 6px;
+    height: 6px;
+    margin-right: 4px;
+    border-top: 1px solid var(--lm-text-muted);
+    border-right: 1px solid var(--lm-text-muted);
+    transform: rotate(45deg);
+}
+
+.admin-shell .lm-dashboard-login-list {
+    gap: 6px;
+}
+
+.admin-shell .lm-dashboard-login-content, .admin-shell .lm-dashboard-audit-content {
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-shell .lm-dashboard-login-list, .admin-shell .lm-dashboard-audit-list {
+    position: relative;
+    z-index: 1;
+}
+
+.admin-shell .lm-dashboard-login-list {
+    padding-right: 170px;
+}
+
+.admin-shell .lm-dashboard-login-list .lm-activity-item {
+    align-items: center;
+    gap: 10px;
+    min-height: 32px;
+}
+
+.admin-shell .lm-dashboard-login-list .lm-activity-icon {
+    flex-basis: 30px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.admin-shell .lm-dashboard-login-list .lm-activity-message {
+    font-size: 12px;
+    line-height: 1.25;
+}
+
+.admin-shell .lm-dashboard-login-art {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 160px;
+    height: 145px;
+    background: radial-gradient(ellipse at 65% 85%, var(--lm-primary-soft), transparent 70%);
+    pointer-events: none;
+}
+
+.admin-shell .lm-dashboard-login-art::after {
+    position: absolute;
+    right: 5px;
+    bottom: 17px;
+    width: 150px;
+    height: 10px;
+    border-radius: 2px 2px 8px 8px;
+    background: color-mix(in srgb, var(--lm-primary) 58%, var(--lm-primary-soft));
+    clip-path: polygon(13% 0, 87% 0, 100% 100%, 0 100%);
+    content: "";
+}
+
+.admin-shell .lm-dashboard-login-screen {
+    position: absolute;
+    right: 19px;
+    bottom: 29px;
+    display: grid;
+    place-items: center;
+    width: 122px;
+    height: 84px;
+    border: 6px solid color-mix(in srgb, var(--lm-primary) 67%, var(--lm-primary-soft));
+    border-radius: 7px;
+    color: var(--lm-primary);
+    background: color-mix(in srgb, var(--lm-primary-soft) 50%, var(--lm-surface));
+    box-shadow: var(--lm-primary-shadow);
+    transform: rotate(3deg);
+}
+
+.admin-shell .lm-dashboard-login-screen i {
+    font-size: 39px;
+    line-height: 1;
+}
+
+.admin-shell .lm-dashboard-audit-list {
+    padding-right: 150px;
+}
+
+.admin-shell .lm-dashboard-audit-art {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 138px;
+    height: 140px;
+    color: color-mix(in srgb, var(--lm-primary) 70%, var(--lm-primary-soft));
+    background: radial-gradient(ellipse at 70% 80%, var(--lm-primary-soft), transparent 72%);
+    pointer-events: none;
+}
+
+.admin-shell .lm-dashboard-audit-document {
+    position: absolute;
+    right: 28px;
+    bottom: 2px;
+    font-size: 98px;
+    line-height: 1;
+    opacity: .7;
+}
+
+.admin-shell .lm-dashboard-audit-clock {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    font-size: 58px;
+    line-height: 1;
+}
+
+.admin-shell .lm-dashboard-audit-list {
+    gap: 0;
+}
+
+.admin-shell .lm-dashboard-audit-list .lm-activity-item {
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--lm-line-subtle);
+}
+
+.admin-shell .lm-dashboard-audit-list .lm-activity-item:last-child {
+    border-bottom: 0;
+}
+
+.admin-shell .lm-dashboard-audit-list .lm-activity-icon {
+    flex-basis: 30px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.admin-shell .lm-dashboard-audit-list .lm-activity-message {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 12px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.admin-shell .lm-dashboard-audit-list .lm-activity-message strong {
+    flex: 0 1 126px;
+    color: var(--lm-text-strong);
+}
+
+.admin-shell .lm-dashboard-audit-list .lm-activity-message span {
+    flex: 1 1 180px;
+    min-width: 0;
+}
+
+.admin-shell .lm-dashboard-audit-list .lm-activity-meta {
+    margin-top: 1px;
+    font-size: 10px;
+}
+
+.admin-shell .lm-dashboard-audit-list .lm-activity-time {
+    font-variant-numeric: tabular-nums;
+}
+
+@container dashboard-widget-body (max-width: 600px) {
+    .admin-shell .lm-dashboard-audit-list {
+        padding-right: 0;
+    }
+
+    .admin-shell .lm-dashboard-audit-art {
+        display: none;
+    }
+
+    .admin-shell .lm-dashboard-audit-list .lm-activity-item {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .admin-shell .lm-dashboard-audit-list .lm-activity-message strong {
+        flex-basis: auto;
+    }
+
+    .admin-shell .lm-dashboard-audit-list .lm-activity-message span {
+        flex-basis: 100%;
+    }
+
+    .admin-shell .lm-dashboard-audit-list .lm-activity-trailing {
+        margin-left: 40px;
+    }
+}
+
+@container dashboard-widget-body (max-width: 500px) {
+    .admin-shell .lm-dashboard-login-list {
+        padding-right: 0;
+    }
+
+    .admin-shell .lm-dashboard-login-art {
+        display: none;
+    }
+}
+
+@container dashboard-widget-body (max-width: 350px) {
+    .admin-shell .lm-dashboard-kpi-decoration {
+        flex-basis: 94px;
+        height: 78px;
+    }
+
+    .admin-shell .lm-dashboard-kpi-decoration i {
+        width: 36px;
+        height: 36px;
+        font-size: 27px;
+    }
+
+    .admin-shell .lm-dashboard-kpi-decoration i:nth-child(2) {
+        width: 44px;
+        height: 44px;
+        font-size: 34px;
+    }
+}
+
+@container dashboard-widget-body (max-width: 220px) {
+    .admin-shell .lm-dashboard-kpi-decoration {
+        display: none;
+    }
 }
 
 @keyframes lm-dashboard-widget-spin {

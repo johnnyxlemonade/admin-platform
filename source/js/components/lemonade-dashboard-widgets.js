@@ -22,6 +22,8 @@ import { LoadingSkeleton } from "./lemonade-loading-skeleton.js";
             this.generations = new Map();
             this.listenerRemovers = [];
             this.delayTimers = new Map();
+            this.layoutFrame = null;
+            this.layoutObserver = null;
             this.destroyed = false;
             this.loadingText = element.getAttribute("data-lemonade-dashboard-loading") || "Loading…";
             this.errorText = element.getAttribute("data-lemonade-dashboard-error") || "Unable to load widget.";
@@ -29,6 +31,11 @@ import { LoadingSkeleton } from "./lemonade-loading-skeleton.js";
 
         init() {
             this.element.lemonadeDashboardWidgets = this;
+            this.element.classList.add("has-packed-widgets");
+            if (typeof window.ResizeObserver === "function") {
+                this.layoutObserver = new window.ResizeObserver(() => this.scheduleLayout());
+            }
+            this.listenerRemovers.push(EventHelper.on(window, "resize", () => this.scheduleLayout()));
             void this.loadAll();
             this.listenerRemovers.push(EventHelper.on(this.element, "click", (event) => {
                 void this.handleClick(event);
@@ -63,6 +70,7 @@ import { LoadingSkeleton } from "./lemonade-loading-skeleton.js";
             }
 
             const widgets = DomHelper.queryAll("[data-lemonade-dashboard-widget]", this.element);
+            this.observeLayout(widgets);
 
             for (const widget of widgets) {
                 await this.load(widget, { minimumDelayMs: 0 });
@@ -130,6 +138,7 @@ import { LoadingSkeleton } from "./lemonade-loading-skeleton.js";
                         refresh.disabled = false;
                     }
                 }
+                this.scheduleLayout();
             }
         }
 
@@ -146,6 +155,39 @@ import { LoadingSkeleton } from "./lemonade-loading-skeleton.js";
             }
             widget.setAttribute("data-lemonade-dashboard-widget-ready", "true");
             this.renderFooter(widget, response && response.footer ? response.footer : null);
+        }
+
+        observeLayout(widgets) {
+            this.layoutObserver?.disconnect();
+            widgets.forEach((widget) => this.layoutObserver?.observe(widget));
+            this.scheduleLayout();
+        }
+
+        scheduleLayout() {
+            if (this.destroyed || this.layoutFrame !== null) {
+                return;
+            }
+            this.layoutFrame = window.requestAnimationFrame(() => {
+                this.layoutFrame = null;
+                this.layoutWidgets();
+            });
+        }
+
+        layoutWidgets() {
+            const grid = this.element.querySelector(".lm-dashboard-widget-grid");
+            if (!grid) {
+                return;
+            }
+            const styles = window.getComputedStyle(grid);
+            const row = parseFloat(styles.gridAutoRows);
+            const gap = parseFloat(styles.rowGap);
+            if (!row || !Number.isFinite(gap)) {
+                return;
+            }
+            grid.querySelectorAll(":scope > [data-lemonade-dashboard-widget]").forEach((widget) => {
+                const span = Math.max(1, Math.ceil((widget.offsetHeight + gap) / (row + gap)));
+                widget.style.gridRowEnd = `span ${span}`;
+            });
         }
 
         isCurrentRequest(code, generation, locale, widget) {
@@ -197,6 +239,12 @@ import { LoadingSkeleton } from "./lemonade-loading-skeleton.js";
             }
 
             this.destroyed = true;
+            this.element.classList.remove("has-packed-widgets");
+            this.layoutObserver?.disconnect();
+            if (this.layoutFrame !== null) {
+                window.cancelAnimationFrame(this.layoutFrame);
+                this.layoutFrame = null;
+            }
             this.listenerRemovers.forEach(function (remove) { remove(); });
             this.listenerRemovers = [];
             this.delayTimers.forEach(function (resolve, timer) {
