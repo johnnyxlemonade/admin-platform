@@ -92,7 +92,9 @@ final class LanguagesAdminEditorDefinitionFactoryTest extends TestCase
         foreach ($editor->blocks() as $block) {
             self::assertInstanceOf(FieldGroupBlock::class, $block);
             foreach ($block->columns() as $column) {
-                $fields[$column->field()->name()] = $column->field();
+                $field = $column->field();
+                self::assertInstanceOf(\Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition::class, $field);
+                $fields[$field->name()] = $field;
             }
         }
 
@@ -109,7 +111,9 @@ final class LanguagesAdminEditorDefinitionFactoryTest extends TestCase
             foreach ($block->columns() as $column) {
                 $span = $column->md();
                 self::assertNotNull($span);
-                $row[$column->field()->name()] = $span;
+                $field = $column->field();
+                self::assertInstanceOf(\Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition::class, $field);
+                $row[$field->name()] = $span;
             }
             $rows[] = $row;
         }

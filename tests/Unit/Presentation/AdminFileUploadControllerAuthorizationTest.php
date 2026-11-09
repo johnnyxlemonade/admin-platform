@@ -136,6 +136,7 @@ final class AdminFileUploadControllerAuthorizationTest extends TestCase
     {
         yield 'gallery' => ['gallery'];
         yield 'attachments' => ['attachment'];
+        yield 'custom field' => ['field_67'];
     }
 
     /**
@@ -165,6 +166,7 @@ final class AdminFileUploadControllerAuthorizationTest extends TestCase
         $store->append($session, 'data');
         $controller = $this->controller(true, new AdminFileUsageRegistry(), $this->chunks($store));
 
+        self::assertSame(422, $controller->append($session->uploadId(), new ServerRequest('PATCH', '/admin/file'))->getStatusCode());
         self::assertSame(422, $controller->complete($session->uploadId())->getStatusCode());
         self::assertNotNull($store->load($session->uploadId()));
         self::assertSame(4, $store->payloadSize($session->uploadId()));

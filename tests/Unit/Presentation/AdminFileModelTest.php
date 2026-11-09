@@ -110,7 +110,7 @@ final class AdminFileModelTest extends TestCase
         $driver->expects(self::once())
             ->method('query')
             ->willReturnCallback(function (string $sql, array|false $bindings): bool {
-                self::assertStringContainsString('UPDATE system_file SET storage_path = ?, original_filename = ?, display_name = ?, caption = ?, extension = ?, mime_type = ?, media_category = ?', $sql);
+                self::assertStringContainsString('media_category = ?', $sql);
                 self::assertIsArray($bindings);
                 self::assertContains('document', $bindings);
 

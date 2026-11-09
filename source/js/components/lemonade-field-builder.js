@@ -41,35 +41,13 @@ export class FieldBuilder {
         this.translationPrefix = root.dataset.translationPrefix;
         this.refreshTranslations();
         this.state = JSON.parse(this.input.value);
-        this.manualCodes = new Set(this.state.fields.filter((field) => field.code).map((field) => field.key));
         this.selected = this.state.fields.find((field) => !field.archived)?.key;
         this.list = root.querySelector("[data-builder-list]");
         this.layout = root.querySelector("[data-builder-layout]");
         this.inspector = root.querySelector("[data-builder-inspector]");
-        this.preview = root.querySelector("[data-builder-preview]");
         this.status = root.querySelector("[data-builder-status]");
         this.abort = new AbortController();
         this.inspectorQueue = Promise.resolve();
-        // Follow the resolved Bootstrap theme, including changes in system mode.
-        this.themeObserver = new MutationObserver(() => {
-            for (const frame of this.preview.querySelectorAll("[data-builder-rich-preview]")) {
-                const field = this.field(frame.dataset.builderRichPreview);
-                if (field) frame.srcdoc = this.richPreviewDocument(field.default_value);
-            }
-        });
-        this.themeObserver.observe(document.documentElement, {
-            attributes: true, attributeFilter: ["data-bs-theme"]
-        });
-        const previewModes = root.querySelectorAll("[data-builder-preview-mode]");
-        const viewport = root.querySelector("[data-builder-preview-viewport]");
-        previewModes.forEach((button) => button.addEventListener("click", () => {
-            viewport.dataset.builderPreviewViewport = button.dataset.builderPreviewMode;
-            previewModes.forEach((option) => {
-                const active = option === button;
-                option.classList.toggle("active", active);
-                option.setAttribute("aria-pressed", String(active));
-            });
-        }, { signal: this.abort.signal }));
         document.addEventListener("lemonade:locale:changed", () => {
             this.refreshTranslations();
             this.status.textContent = "";
@@ -100,7 +78,6 @@ export class FieldBuilder {
         form.addEventListener("lemonade:dirty-state:discard", () => {
             this.modal?.close();
             this.state = JSON.parse(this.input.value);
-            this.manualCodes = new Set(this.state.fields.filter((field) => field.code).map((field) => field.key));
             this.selected = this.state.fields.find((field) => !field.archived)?.key;
             this.render();
             this.showInspector();
@@ -137,8 +114,18 @@ export class FieldBuilder {
 
     field(id) { return this.state.fields.find((field) => field.key === id); }
 
+    uniqueFieldCode(kind) {
+        const used = new Set(this.state.fields.map((field) => String(field.code || "").trim()));
+        let code = kind;
+        let suffix = 2;
+        while (used.has(code)) code = `${kind}_${suffix++}`;
+        return code;
+    }
+
     add(kind, position = this.state.rows.length) {
-        const field = { key: key(), name: this.kinds[kind], code: "", kind, required: 0, localized: 1, help: "", default_value: "", span: 12, options: [], archived: false };
+        const template = this.root.querySelector(`[data-builder-inspector-template="${kind}"]`);
+        const localizable = template.content.querySelector('[name="localized"]') !== null;
+        const field = { key: key(), name: this.kinds[kind], code: this.uniqueFieldCode(kind), kind, required: 0, localized: localizable ? 1 : 0, help: "", default_value: "", span: 12, options: [], archived: false };
         if (kind === "decimal") field.decimal_places = 2;
         this.state.fields.push(field);
         this.state.rows.splice(position, 0, { columns: [{ field: field.key, span: 12 }] });
@@ -249,13 +236,17 @@ export class FieldBuilder {
         Sortable.destroy(this.layout);
         this.list.replaceChildren();
         this.layout.replaceChildren();
-        this.preview.replaceChildren();
         const archived = this.state.fields.filter((field) => field.archived);
         this.root.querySelector("[data-builder-archived]").hidden = archived.length === 0;
-        for (const field of archived) this.list.append(button(field.name, () => this.select(field), "lm-form-editor-field"));
+        for (const field of archived) {
+            const select = button("", () => this.select(field), "lm-form-editor-field");
+            const icon = element("i", `bi bi-${this.icons[field.kind] || "input-cursor-text"}`);
+            icon.setAttribute("aria-hidden", "true");
+            select.append(icon, element("span", "lm-form-editor-field-copy", field.name));
+            this.list.append(select);
+        }
         if (!this.state.rows.length) {
             this.layout.append(this.emptyState("window-plus", "empty_title", "empty", true));
-            this.preview.append(this.emptyState("eye", "preview_empty_title", "preview_empty"));
             return;
         }
         const dropZone = (position) => {
@@ -279,7 +270,6 @@ export class FieldBuilder {
             columns.dataset.builderRow = index;
             columns.dataset.lemonadeSortable = "";
             columns.dataset.lemonadeSortableGroup = this.input.id;
-            const previewRow = element("div", "row g-3");
             for (const column of row.columns) {
                 const field = this.field(column.field);
                 field.span = column.span;
@@ -327,61 +317,12 @@ export class FieldBuilder {
                 card.append(handle, select, width, menu);
                 node.append(card);
                 columns.append(node);
-                previewRow.append(this.previewField(field, column.span));
             }
             shell.append(columns);
             this.layout.append(shell);
-            this.preview.append(previewRow);
             dropZone(index + 1);
         });
         Sortable.mount(this.layout);
-        void I18n.apply(this.preview).catch((error) => console.error("Unable to translate field preview.", error));
-    }
-
-    // Preview controls do not submit values. Rich HTML uses an isolated, non-scripted document.
-    previewField(field, span) {
-        const node = element("div", `col-${span}`);
-        const label = element("label", "lm-form-label", field.name + (Number(field.required) ? " *" : ""));
-        node.append(label, this.root.querySelector(`[data-builder-preview-template="${field.kind}"]`).content.cloneNode(true));
-        const control = node.querySelector("input:not([type=hidden]),textarea,select");
-        node.querySelectorAll("[id]").forEach((child) => { child.id += `-${field.key}`; });
-        control.id = `lm-preview-${field.html_id || `field-${field.code || field.key}`}`;
-        label.htmlFor = control.id;
-        if (field.css_class) {
-            const classes = field.css_class.trim().split(/\s+/).filter((name) => /^-?[_a-zA-Z][_a-zA-Z0-9-]*$/.test(name));
-            control.classList.add(...classes);
-        }
-        node.querySelectorAll("[name]").forEach((child) => child.removeAttribute("name"));
-        node.querySelectorAll("[data-lemonade-date-time]").forEach((child) => child.removeAttribute("data-lemonade-date-time"));
-        if (control.tagName === "SELECT") {
-            control.classList.remove("form-select");
-            control.classList.add("form-control");
-        }
-        // Preview is never mounted as a second interactive editor or upload target.
-        node.querySelectorAll("[data-lemonade-admin-rich-text]").forEach((child) => child.removeAttribute("data-lemonade-admin-rich-text"));
-        if (control.tagName === "SELECT" && field.kind === "select") this.populateOptions(control, field);
-        control.value = field.default_value ?? "";
-        if (control.type === "checkbox") control.checked = String(field.default_value) === "1";
-        control.disabled = true;
-        if (field.kind === "richtext") {
-            const frame = document.createElement("iframe");
-            frame.className = "w-100 border rounded lm-field-builder-rich-preview";
-            frame.id = control.id;
-            frame.title = field.name;
-            frame.setAttribute("sandbox", "");
-            frame.dataset.builderRichPreview = field.key;
-            frame.srcdoc = this.richPreviewDocument(field.default_value);
-            control.replaceWith(frame);
-        }
-        node.append(element("small", "lm-form-help", field.help || ""));
-        return node;
-    }
-
-    // Native document colors keep the sandbox readable without allowing styles or scripts.
-    richPreviewDocument(value) {
-        const scheme = document.documentElement.getAttribute("data-bs-theme") === "dark" ? "dark" : "light";
-        return '<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'">' +
-            `<meta name="color-scheme" content="${scheme}"></head><body>` + (value || "") + '</body></html>';
     }
 
     populateOptions(control, field) {
@@ -477,17 +418,10 @@ export class FieldBuilder {
             }
             row.columns.find((column) => column.field === field.key).span = span;
         }
-        if (property === "code") this.manualCodes.add(field.key);
-        if (property === "name" && !field.id && !this.manualCodes.has(field.key)) {
-            field.code = normalizeUrlSegment(event.target.value, 64).replace(/-/g, "_");
-            this.inspector.querySelector('[data-builder-property="code"]').value = field.code;
-            this.inspector.querySelector('[data-builder-property="html_id"]').placeholder = `field-${field.code}`;
-        }
         const value = event.target.type === "checkbox"
             ? (event.target.checked ? 1 : 0)
             : (event.target.lemonadeJoditRichText?.editor?.value ?? event.target.value);
-        // Jodit emits both native input/change and its own change event.
-        // Keep a single state update so the sandbox preview is not repeatedly reset.
+        // Jodit emits both native input/change and its own change event; ignore duplicate values.
         if (String(field[property] ?? "") === String(value)) return;
         field[property] = value;
         this.status.textContent = "";
@@ -573,7 +507,6 @@ export class FieldBuilder {
 
     async destroy() {
         this.abort.abort();
-        this.themeObserver.disconnect();
         this.modal?.destroy();
         await this.inspectorQueue;
         this.unbindRichText?.();

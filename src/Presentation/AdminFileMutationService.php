@@ -66,7 +66,21 @@ final readonly class AdminFileMutationService
         string $sourceVersion,
         ImageOriginalMetadata $metadata,
     ): int {
-        $existing = $this->files->findActiveImageForEntity($module, $entityId, $usage);
+        return $this->files->withSingleTargetLock($module, $entityId, $usage, fn(): int => $this->persistSingleImageUpload($module, $entityId, $usage, $assetId, $sourceVersion, $metadata));
+    }
+
+    /**
+     * Nahradi single original pod zamkem targetu vcetne zmeny storage druhu
+     */
+    private function persistSingleImageUpload(
+        string $module,
+        int $entityId,
+        string $usage,
+        string $assetId,
+        string $sourceVersion,
+        ImageOriginalMetadata $metadata,
+    ): int {
+        $existing = $this->files->findForEntity($module, $entityId, $usage);
         $actor = $this->actors->requireLocalUser();
         $replacement = $existing !== null;
         $oldSourceVersion = $existing === null ? null : $this->sourceVersion($existing);
@@ -79,7 +93,7 @@ final readonly class AdminFileMutationService
                     ? (int) $existing['id']
                     : $this->files->createIdentity($module, $entityId, $usage, 'image');
                 $this->files->updateImageSource($fileId, $assetId, $sourceVersion, $metadata);
-                if ($replacement && $existing !== null && $oldSourceVersion !== $sourceVersion) {
+                if ($replacement && $existing !== null && ($existing['kind'] !== 'image' || $oldSourceVersion !== $sourceVersion)) {
                     $this->afterCommitDelete($existing);
                 }
                 $events->record(new DomainEvent(
@@ -115,6 +129,30 @@ final readonly class AdminFileMutationService
         UploadedFile $uploaded,
         bool $multiple,
     ): int {
+        if ($multiple) {
+            return $this->persistGenericUpload($module, $entityId, $usage, $originalFilename, $uploaded, true);
+        }
+        try {
+            return $this->files->withSingleTargetLock($module, $entityId, $usage, fn(): int => $this->persistGenericUpload($module, $entityId, $usage, $originalFilename, $uploaded, false));
+        } catch (AdminFilePhysicalCleanupException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            $this->filesystem->delete($uploaded->storedPath());
+            throw $exception;
+        }
+    }
+
+    /**
+     * Zapise generic original a audit uvnitr zvolene single nebo multiple operace
+     */
+    private function persistGenericUpload(
+        string $module,
+        int $entityId,
+        string $usage,
+        string $originalFilename,
+        UploadedFile $uploaded,
+        bool $multiple,
+    ): int {
         $actor = $this->actors->requireLocalUser();
         $extension = strtolower(pathinfo($originalFilename, PATHINFO_EXTENSION));
         $existing = $multiple ? null : $this->files->findForEntity($module, $entityId, $usage);
@@ -124,9 +162,6 @@ final readonly class AdminFileMutationService
                 AuditActor::user($actor->id()),
                 function (TransactionalEventCollector $events) use ($module, $entityId, $usage, $originalFilename, $extension, $uploaded, $existing): int {
                     if ($existing !== null) {
-                        if ($existing['kind'] !== 'file') {
-                            throw new \LogicException('Single file usage has an incompatible existing file kind.');
-                        }
                         $fileId = (int) $existing['id'];
                         $this->files->updateFile($fileId, $originalFilename, $extension, $uploaded->mimeType(), $uploaded->sizeBytes(), $this->storageKey($uploaded));
                         $this->afterCommitDelete($existing);

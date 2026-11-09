@@ -17,7 +17,7 @@ final readonly class FieldColumn
      * Nastavuje zavislosti a overuje vstupni hodnoty objektu
      */
     public function __construct(
-        private AdminEditorFieldDefinition $field,
+        private AdminEditorFieldDefinition|CustomViewBlock $field,
         private ?int $sm = null,
         private ?int $md = null,
         private ?int $lg = null,
@@ -41,7 +41,7 @@ final readonly class FieldColumn
     /**
      * Zpracovava hodnotu field v konfiguraci editoru
      */
-    public function field(): AdminEditorFieldDefinition
+    public function field(): AdminEditorFieldDefinition|CustomViewBlock
     {
         return $this->field;
     }

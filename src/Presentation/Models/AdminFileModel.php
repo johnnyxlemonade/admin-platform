@@ -10,6 +10,7 @@ use Lemonade\Admin\File\FileMetadata;
 use Lemonade\Admin\File\FileReadModel;
 use Lemonade\Admin\Presentation\MediaCategory;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
+use Lemonade\Framework\Database\DatabaseResultInterface;
 use Lemonade\Framework\Database\Model;
 use Lemonade\Image\ImageOriginalMetadata;
 use RuntimeException;
@@ -54,6 +55,27 @@ final class AdminFileModel extends Model
         private readonly FileReadModel $readModel,
     ) {
         parent::__construct($database);
+    }
+
+    /**
+     * Serializuje zapis single kolekce i pred vznikem prvniho souboru
+     *
+     * @template T
+     * @param callable():T $mutation
+     * @return T
+     */
+    public function withSingleTargetLock(string $module, int $entityId, string $usage, callable $mutation): mixed
+    {
+        $key = hash('sha256', $module . ':' . $entityId . ':' . $usage);
+        $result = $this->db->query('SELECT GET_LOCK(?, 10) AS acquired', [$key]);
+        if (!$result instanceof DatabaseResultInterface || (int) ($result->row_array()['acquired'] ?? 0) !== 1) {
+            throw new RuntimeException('Single file collection is busy.');
+        }
+        try {
+            return $mutation();
+        } finally {
+            $this->db->query('SELECT RELEASE_LOCK(?)', [$key]);
+        }
     }
 
     /**
@@ -161,7 +183,7 @@ final class AdminFileModel extends Model
     /**
      * Hleda nejnovejsi aktivni file identity pro single slot podle modulu, vlastnika a usage
      *
-     * @return array{id:int,module_code:string,entity_id:int,usage:string,kind:string,original_filename:string,display_name:string|null,caption:string|null,extension:string,mime_type:string,file_size:int,width:int|null,height:int|null}|null
+     * @return array<string,mixed>|null
      */
     public function findForEntity(string $module, int $entityId, string $usage): ?array
     {
@@ -196,6 +218,8 @@ final class AdminFileModel extends Model
     public function updateImageSource(int $id, string $assetId, string $sourceVersion, \Lemonade\Image\ImageOriginalMetadata $metadata): void
     {
         $this->update($id, [
+            'kind' => 'image',
+            'storage_path' => null,
             'asset_id' => $assetId,
             'source_version' => $sourceVersion,
             'original_filename' => $metadata->originalFilename(),
@@ -283,6 +307,9 @@ final class AdminFileModel extends Model
     public function updateFile(int $id, string $originalFilename, string $extension, string $mimeType, int $fileSize, string $storagePath): void
     {
         $this->update($id, [
+            'kind' => 'file',
+            'asset_id' => null,
+            'source_version' => null,
             'storage_path' => $storagePath,
             'original_filename' => $originalFilename,
             'display_name' => null,

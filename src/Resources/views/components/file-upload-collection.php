@@ -9,9 +9,10 @@ use Lemonade\Framework\View\ViewHelpers;
 /**
  * @var ViewHelpers $helpers
  * @var AdminFileUploadCollection $uploadCollection
+ * @var bool|null $singleImageLayout
  */
 
-$isSingle = $uploadCollection->singleImage();
+$isSingle = $uploadCollection->singleImage() && ($singleImageLayout ?? true);
 $files = $uploadCollection->files();
 $hasFile = $files !== [];
 ?>

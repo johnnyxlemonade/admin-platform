@@ -313,7 +313,9 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
                 continue;
             }
             foreach ($block->columns() as $column) {
-                $fields[$column->field()->name()] = $column->field();
+                $field = $column->field();
+                self::assertInstanceOf(\Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition::class, $field);
+                $fields[$field->name()] = $field;
             }
         }
 

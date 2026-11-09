@@ -326,7 +326,9 @@ final readonly class AdminEditorRenderer
                 $html .= $this->fields->render($field, $context, $editor->id(), $form);
                 continue;
             }
-            $fieldHtml = $this->fields->render($field, $context, $editor->id(), $form);
+            $fieldHtml = $field instanceof CustomViewBlock
+                ? $this->customView($field)
+                : $this->fields->render($field, $context, $editor->id(), $form);
             $cardIcon = $column->cardIcon();
             if ($cardIcon !== null) {
                 $fieldHtml = '<div class="admin-editor-field-card">'

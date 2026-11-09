@@ -43,10 +43,14 @@ final class SeoSectionTest extends TestCase
 
         $group = $section->blocks()[0];
         self::assertInstanceOf(FieldGroupBlock::class, $group);
-        self::assertSame('admin.seo.page_title', $group->columns()[0]->field()->labelTranslationKey());
-        self::assertSame('admin.seo.page_title_help', $group->columns()[0]->field()->helpTranslationKey());
-        self::assertSame('admin.seo.meta_description', $group->columns()[1]->field()->labelTranslationKey());
-        self::assertSame('admin.seo.meta_description_help', $group->columns()[1]->field()->helpTranslationKey());
+        $title = $group->columns()[0]->field();
+        $description = $group->columns()[1]->field();
+        self::assertInstanceOf(\Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition::class, $title);
+        self::assertInstanceOf(\Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition::class, $description);
+        self::assertSame('admin.seo.page_title', $title->labelTranslationKey());
+        self::assertSame('admin.seo.page_title_help', $title->helpTranslationKey());
+        self::assertSame('admin.seo.meta_description', $description->labelTranslationKey());
+        self::assertSame('admin.seo.meta_description_help', $description->helpTranslationKey());
 
         $url = $group->columns()[2]->field();
         self::assertInstanceOf(UrlSegmentField::class, $url);

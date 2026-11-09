@@ -233,7 +233,7 @@ final readonly class AdminFileUploadController
         }
 
         try {
-            if (($response = $this->authorizeSession($session->context)) !== null) {
+            if (($response = $this->authorizeSession($session->context, requireUsage: false)) !== null) {
                 return $response;
             }
             $this->chunks->abort($uploadId);
@@ -436,9 +436,12 @@ final readonly class AdminFileUploadController
      *
      * @param array<string,mixed> $context
      */
-    private function authorizeSession(array $context): ?ResponseInterface
+    private function authorizeSession(array $context, bool $requireUsage = true): ?ResponseInterface
     {
         $target = $this->targetContext($context);
+        if ($requireUsage) {
+            $this->usages->require($target['module'], $target['usage']);
+        }
 
         return $this->authorize($target['module'], $target['entity']);
     }
