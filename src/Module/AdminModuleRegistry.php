@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Module;
 
 use InvalidArgumentException;
+use Lemonade\Admin\Authorization\PermissionSection;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use RuntimeException;
@@ -70,6 +71,21 @@ final class AdminModuleRegistry
         }
 
         return $this->definitions[$moduleCode];
+    }
+
+    /**
+     * Respektuje explicitni sekci modulu a zachovava dosavadni systemove cleneni
+     */
+    public function permissionSection(string $moduleCode): PermissionSection
+    {
+        if ($this->has($moduleCode)) {
+            $section = $this->definition($moduleCode)->adminMetadata()->permissionSection();
+            if ($section !== null) {
+                return $section;
+            }
+        }
+
+        return str_starts_with($moduleCode, 'system.') ? PermissionSection::System : PermissionSection::Modules;
     }
 
     /**

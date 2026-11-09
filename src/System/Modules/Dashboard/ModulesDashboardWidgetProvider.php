@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Modules\Dashboard;
 
+use Lemonade\Admin\Authorization\PermissionSection;
 use Lemonade\Admin\Dashboard\Contract\DashboardWidgetProviderInterface;
 use Lemonade\Admin\Dashboard\DashboardWidgetAccess;
 use Lemonade\Admin\Dashboard\DashboardWidgetContent;
@@ -13,6 +14,7 @@ use Lemonade\Admin\Dashboard\DashboardWidgetLayout;
 use Lemonade\Admin\Dashboard\DashboardWidgetPresentation;
 use Lemonade\Admin\Dashboard\DashboardWidgetSize;
 use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Navigation\AdminNavigation;
 use Lemonade\Admin\Navigation\AdminNavigationGroup;
 use Lemonade\Admin\Navigation\AdminNavigationItem;
@@ -23,9 +25,12 @@ use Lemonade\Admin\Navigation\AdminNavigationItem;
 final readonly class ModulesDashboardWidgetProvider implements DashboardWidgetProviderInterface
 {
     /**
-     * Nastavuje navigaci filtrovou autorizaci pred vytvorenim widgetu
+     * Nastavuje autorizovanou navigaci a registr se sdilenym clenenim modulu
      */
-    public function __construct(private readonly AdminNavigation $navigation) {}
+    public function __construct(
+        private AdminNavigation $navigation,
+        private AdminModuleRegistry $registry,
+    ) {}
 
     /**
      * Deklaruje widget odkazu na dostupne administracni moduly
@@ -63,15 +68,16 @@ final readonly class ModulesDashboardWidgetProvider implements DashboardWidgetPr
     ): DashboardWidgetContent {
         unset($context, $definition);
 
-        $modules = [];
+        $sections = [];
         foreach ($this->navigation->items() as $entry) {
             $items = $entry instanceof AdminNavigationGroup ? $entry->items() : ($entry instanceof AdminNavigationItem ? [$entry] : []);
             foreach ($items as $item) {
-                if ($item->moduleCode() === null) {
+                $moduleCode = $item->moduleCode();
+                if ($moduleCode === null) {
                     continue;
                 }
 
-                $modules[] = [
+                $sections[$this->registry->permissionSection($moduleCode)->value][] = [
                     'label' => $item->label(),
                     'icon' => $item->icon()?->value,
                     'route' => $item->route(),
@@ -80,10 +86,17 @@ final readonly class ModulesDashboardWidgetProvider implements DashboardWidgetPr
             }
         }
 
-        if ($modules === []) {
+        if ($sections === []) {
             return DashboardWidgetContent::empty();
         }
 
-        return DashboardWidgetContent::ready(['modules' => $modules]);
+        $groups = [];
+        foreach (PermissionSection::cases() as $section) {
+            if (isset($sections[$section->value])) {
+                $groups[] = ['section' => $section->value, 'modules' => $sections[$section->value]];
+            }
+        }
+
+        return DashboardWidgetContent::ready(['groups' => $groups]);
     }
 }

@@ -13,6 +13,11 @@ return [
             'title' => 'Dostupné moduly',
             'description' => 'Přehled modulů dostupných v administraci.',
             'empty' => 'Pro váš účet nejsou dostupné žádné moduly.',
+            'groups' => [
+                'system' => 'Systémové moduly',
+                'modules' => 'CMS moduly',
+                'content-types' => 'Vlastní obsahové typy',
+            ],
         ],
     ],
 

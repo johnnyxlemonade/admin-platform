@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Tests\Unit\Dashboard;
 
+use Lemonade\Admin\Authorization\PermissionSection;
 use PHPUnit\Framework\TestCase;
 
 final class DashboardWidgetLocalizationContractTest extends TestCase
@@ -25,6 +26,9 @@ final class DashboardWidgetLocalizationContractTest extends TestCase
             self::assertIsString($modules['widgets']['active']['title'] ?? null);
             self::assertIsString($modules['widgets']['active']['description'] ?? null);
             self::assertIsString($modules['widgets']['active']['empty'] ?? null);
+            foreach (PermissionSection::cases() as $section) {
+                self::assertIsString($modules['widgets']['active']['groups'][$section->value] ?? null);
+            }
         }
     }
 

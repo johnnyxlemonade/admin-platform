@@ -48,7 +48,7 @@ final readonly class EffectivePermissionGroupViewModelFactory
                 [$label, $labelKey, $description, $descriptionKey, $icon, $sortOrder] = $this->modulePresentation($moduleCode);
                 $groups[$moduleCode] = [
                     'moduleCode' => $moduleCode,
-                    'section' => $this->section($moduleCode)->value,
+                    'section' => $this->modules->permissionSection($moduleCode)->value,
                     'label' => $label,
                     'labelKey' => $labelKey,
                     'description' => $description,
@@ -99,7 +99,7 @@ final readonly class EffectivePermissionGroupViewModelFactory
                 [$label, $labelKey, $description, $descriptionKey, $icon, $sortOrder] = $this->modulePresentation($moduleCode);
                 $groups[$moduleCode] = [
                     'moduleCode' => $moduleCode,
-                    'section' => $this->section($moduleCode)->value,
+                    'section' => $this->modules->permissionSection($moduleCode)->value,
                     'label' => $label,
                     'labelKey' => $labelKey,
                     'description' => $description,
@@ -125,21 +125,6 @@ final readonly class EffectivePermissionGroupViewModelFactory
 
             return $group;
         }, array_values($groups));
-    }
-
-    /**
-     * Respektuje explicitni sekci modulu a zachovava dosavadni systemove cleneni
-     */
-    private function section(string $moduleCode): PermissionSection
-    {
-        if ($this->modules->has($moduleCode)) {
-            $section = $this->modules->definition($moduleCode)->adminMetadata()->permissionSection();
-            if ($section !== null) {
-                return $section;
-            }
-        }
-
-        return str_starts_with($moduleCode, 'system.') ? PermissionSection::System : PermissionSection::Modules;
     }
 
     /**

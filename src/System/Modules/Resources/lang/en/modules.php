@@ -13,6 +13,11 @@ return [
             'title' => 'Available modules',
             'description' => 'Overview of modules available in the administration.',
             'empty' => 'No modules are available for your account.',
+            'groups' => [
+                'system' => 'System modules',
+                'modules' => 'CMS modules',
+                'content-types' => 'Custom content types',
+            ],
         ],
     ],
 
