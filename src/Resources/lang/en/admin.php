@@ -3,6 +3,15 @@
 declare(strict_types=1);
 
 return [
+    'cms_validation' => [
+        'invalid' => 'Enter a valid value.',
+        'locale_invalid' => 'Select a valid content language.',
+        'publication_invalid' => 'Select a valid publication state.',
+        'date_invalid' => 'Enter a valid date and time.',
+        'required' => 'Complete the required value before publishing.',
+        'required_help' => 'Required when published. May remain empty in a draft.',
+    ],
+
     'cms_display' => [
         'tabs' => [
             'settings' => 'Settings',

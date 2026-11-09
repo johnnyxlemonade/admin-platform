@@ -312,7 +312,7 @@ import { Message } from "./lemonade-message.js";
             (field.closest(".lm-form-group") || field.parentElement).appendChild(message);
         }
 
-        static validateRequiredField(field) {
+        static validateRequiredField(field, showError = true) {
             const messageKey = field.getAttribute("data-lemonade-required-message");
             if (!messageKey || field.disabled || field.readOnly) {
                 return;
@@ -324,6 +324,11 @@ import { Message } from "./lemonade-message.js";
                 ? state.value === field.getAttribute("data-lemonade-required-value")
                 : field.getAttribute("data-lemonade-required-active") === "1";
             const group = field.closest(".lm-form-group");
+            field.required = required;
+            group?.querySelector("label")?.classList.toggle("required", required);
+            if (!showError) {
+                return;
+            }
             const existing = group?.querySelector("[data-lemonade-field-error]");
             // Do not replace server-side range/type errors with the optional live check.
             if (existing && !existing.hasAttribute("data-lemonade-live-required-error") && existing.textContent !== I18n.t(messageKey)) {
@@ -465,6 +470,9 @@ import { Message } from "./lemonade-message.js";
         }
 
         static initAll(context) {
+            DomHelper.queryAll("[data-lemonade-required-message]", context || document).forEach(function (field) {
+                Action.validateRequiredField(field, false);
+            });
             if (this.isBound) {
                 return;
             }
@@ -478,9 +486,9 @@ import { Message } from "./lemonade-message.js";
                         Action.validateRequiredField(field);
                     }
                     if (eventName === "change") {
-                        DomHelper.queryAll("[data-lemonade-required-when][data-lemonade-required-touched]", field.form).forEach(function (dependent) {
+                        DomHelper.queryAll("[data-lemonade-required-when]", field.form).forEach(function (dependent) {
                             if (dependent.getAttribute("data-lemonade-required-when") === field.name) {
-                                Action.validateRequiredField(dependent);
+                                Action.validateRequiredField(dependent, dependent.hasAttribute("data-lemonade-required-touched"));
                             }
                         });
                     }

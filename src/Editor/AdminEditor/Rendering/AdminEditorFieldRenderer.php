@@ -48,6 +48,16 @@ final readonly class AdminEditorFieldRenderer
             return $this->hidden($field, $context, $editorId);
         }
 
+        if ($field instanceof AdminEditorInputFieldDefinition && isset($field->inputAttributes()['data-lemonade-required-message'])) {
+            $attributes = $field->inputAttributes();
+            $condition = $attributes['data-lemonade-required-when'] ?? null;
+            $value = is_string($condition) ? ($context->oldInput()[$condition] ?? $context->values()[$condition] ?? null) : null;
+            $required = $value !== null && is_scalar($value)
+                ? (string) $value === ($attributes['data-lemonade-required-value'] ?? '')
+                : ($attributes['data-lemonade-required-active'] ?? '0') === '1';
+            $field = $field->required($required);
+        }
+
         $customId = $field instanceof AdminEditorInputFieldDefinition ? ($field->inputAttributes()['id'] ?? null) : null;
         $inputId = is_string($customId) && $customId !== '' ? $this->escape($customId) : $this->id($editorId . '-' . $field->name());
         $errorId = $inputId . '-error';

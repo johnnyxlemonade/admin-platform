@@ -36,6 +36,42 @@ final class AdminEditorFieldRendererTest extends TestCase
         self::assertSame(['form-control', 'custom', 'wide'], explode(' ', $input->getAttribute('class')));
     }
 
+    /**
+     * Podminena povinnost respektuje stary vstup i publikaci bez selectu
+     */
+    public function testPublicationRequirementUsesRenderContextWithoutBlockingDraft(): void
+    {
+        foreach ([[1, true, [], false], [2, true, [], true], [2, true, ['publication_state' => '1'], false], [1, true, ['publication_state' => '2'], true], [2, false, [], true]] as [$state, $canPublish, $oldInput, $required]) {
+            $field = Field::text('title', 'Title')->required()->attributes(
+                \Lemonade\Admin\Editor\AdminEditor\Layout\CmsPublicationSection::requiredAttributes($state, $canPublish),
+            );
+            $html = (new AdminEditorFieldRenderer())->render($field, new AdminEditorRenderContext(values: ['publication_state' => (string) $state], oldInput: $oldInput), 'article');
+            $document = new \DOMDocument();
+            $document->loadHTML($html);
+            self::assertSame($required, $document->getElementsByTagName('input')->item(0)?->hasAttribute('required'));
+        }
+    }
+
+    /**
+     * Chyby konkretnich poli zustanou u prislusnych ovladacich prvku
+     */
+    public function testFieldErrorsAndUntitledPlaceholderDoNotReplaceContent(): void
+    {
+        $context = new AdminEditorRenderContext(values: ['title' => ''], errors: ['title' => 'Title is required', 'template_key' => 'Template is required']);
+        $renderer = new AdminEditorFieldRenderer();
+        $html = $renderer->render(Field::text('title', 'Title')->placeholder('Untitled'), $context, 'page');
+        $html .= $renderer->render(Field::select('template_key', 'Template')->options(['' => 'No template']), $context, 'page');
+        $document = new \DOMDocument();
+        $document->loadHTML($html);
+        $input = $document->getElementsByTagName('input')->item(0);
+        self::assertInstanceOf(\DOMElement::class, $input);
+        self::assertSame('', $input->getAttribute('value'));
+        self::assertSame('Untitled', $input->getAttribute('placeholder'));
+        self::assertSame('true', $input->getAttribute('aria-invalid'));
+        self::assertStringContainsString('Title is required', $document->textContent);
+        self::assertStringContainsString('Template is required', $document->textContent);
+    }
+
     public function testRichTextUploadRequiresUploadComponentForEntityContext(): void
     {
         $this->expectException(LogicException::class);

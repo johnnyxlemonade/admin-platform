@@ -3,6 +3,15 @@
 declare(strict_types=1);
 
 return [
+    'cms_validation' => [
+        'invalid' => 'Vyplňte platnou hodnotu.',
+        'locale_invalid' => 'Vyberte platný jazyk obsahu.',
+        'publication_invalid' => 'Vyberte platný stav publikace.',
+        'date_invalid' => 'Vyplňte platné datum a čas.',
+        'required' => 'Vyplňte povinnou hodnotu před publikací.',
+        'required_help' => 'Povinné při publikaci. V konceptu může zůstat prázdné.',
+    ],
+
     'cms_display' => [
         'tabs' => [
             'settings' => 'Nastavení',

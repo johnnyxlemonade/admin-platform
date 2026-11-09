@@ -18,6 +18,29 @@ final class CmsPublicationSection
     private function __construct() {}
 
     /**
+     * Popise podminenou povinnost vcetne ochrany sdilene hodnoty
+     *
+     * @return array<string,string>
+     */
+    public static function requiredAttributes(
+        int $state,
+        bool $canPublish,
+        bool $globallyRequired = false,
+        string $messageKey = 'admin.cms_validation.required',
+    ): array {
+        $attributes = [
+            'data-lemonade-required-message' => $messageKey,
+            'data-lemonade-required-active' => $globallyRequired || $state === CmsPublicationState::Published->value ? '1' : '0',
+        ];
+        if ($canPublish && !$globallyRequired) {
+            $attributes['data-lemonade-required-when'] = 'publication_state';
+            $attributes['data-lemonade-required-value'] = (string) CmsPublicationState::Published->value;
+        }
+
+        return $attributes;
+    }
+
+    /**
      * Vytvori publikacni pole pouze pri opravneni k publikovani
      */
     public static function create(string $module, bool $canPublish): ?SectionBlock
