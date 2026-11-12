@@ -6,7 +6,7 @@ Admin package vlastni canonical `source`, Vite vstupy, SCSS, fonty, ikony, obraz
 
 Release nebo CI nejdriv v package rootu spusti `npm ci` a `npm run build`; tim vytvori `src/Resources/public`. Host nevlastni Admin zdroje ani jejich build. Jeho public root je pouze deploy destination: `admin:assets:publish` validuje hotovy package manifest, zkopiruje celou distribuci do hostem nastaveneho `public/assets/admin` a pred kopii odstrani pouze zastarale soubory teto destination. Prikaz sam Node ani Vite nespousti.
 
-`AdminAssetConfiguration` je hostem vlastneny kontrakt pro verejnou URL a relativni destination v public rootu. Vychodzi host muze poskytnout `/assets/admin/` a `assets/admin`; jiny host muze pouzit jinou verejnou cestu. `AdminAssetManifest` cte pouze hostem publikovany manifest. Admin, Auth i Installer z nej pouzivaji stejne stabilni entry a staticke pre-paint assety.
+`AdminAssetConfiguration` ma vychozi verejnou URL `/assets/admin/` a destination `assets/admin` v public rootu. Host muze oboji volitelne zmenit. `AdminAssetManifest` cte pouze hostem publikovany manifest. Admin, Auth i Installer z nej pouzivaji stejne stabilni entry a staticke pre-paint assety.
 
 ## Vyvoj
 

@@ -26,6 +26,18 @@ use PHPUnit\Framework\TestCase;
 
 final class AdminRoutingConfigurationTest extends TestCase
 {
+    /**
+     * Pouziva vychozi cestu pro routy administrace
+     */
+    public function testDefaultPathIsUsedForAdminRoutes(): void
+    {
+        $configuration = new AdminRoutingConfiguration();
+
+        self::assertSame('/admin/login', $configuration->path('login'));
+        self::assertTrue($configuration->contains('/admin/login'));
+        self::assertFalse($configuration->contains('/administrator'));
+    }
+
     #[DataProvider('basePaths')]
     public function testItPrefixesAdminRoutesWithoutChangingTheirLogicalNames(string $basePath): void
     {

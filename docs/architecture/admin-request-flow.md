@@ -2,7 +2,7 @@
 
 ## Base path administrace
 
-`AdminRoutingConfiguration` je hostem vlastněný kontrakt pro základní cestu administrace. Host jej registruje s hodnotou `/admin`; jde o příklad výchozí konfigurace, nikoli invariant Admin package. Jiný host může předat například `/backoffice` nebo `/management`.
+`AdminRoutingConfiguration` určuje základní cestu administrace a výchozí hodnotou je `/admin`. Host může registrací vlastní konfigurace zvolit například `/backoffice` nebo `/management`.
 
 `AdminRoutePrefixRegistrar` aplikuje tuto cestu jednou na registry `AdminRouteRegistrarInterface`. Jednotlivé Admin capability a externí moduly proto deklarují pouze relativní segmenty, například `news` nebo `api/datagrid/{module}`, a zachovávají své stávající named routes. Renderované endpointy a redirecty generují URL podle named routes, takže API i UI automaticky používají hostem zvolený prefix.
 

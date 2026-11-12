@@ -60,7 +60,7 @@ final class AdminAssetPublisherTest extends TestCase
         file_put_contents($public . '/assets/admin/stale.js', 'stale');
         file_put_contents($public . '/assets/frontend/keep.js', 'frontend');
 
-        $configuration = new AdminAssetConfiguration('/assets/admin/', 'assets/admin');
+        $configuration = new AdminAssetConfiguration();
         $context = (new ApplicationContextFactory())->create($root, ['APP_ENV' => 'testing']);
         (new AdminAssetPublisher($context, $configuration, $distribution))->publish();
 

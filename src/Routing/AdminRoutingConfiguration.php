@@ -16,7 +16,7 @@ final readonly class AdminRoutingConfiguration
     /**
      * Normalizuje zakladni cestu bez trailing slash a URL casti
      */
-    public function __construct(string $basePath)
+    public function __construct(string $basePath = '/admin')
     {
         $basePath = trim($basePath);
         if ($basePath === '' || $basePath === '/' || !str_starts_with($basePath, '/') || str_contains($basePath, '?') || str_contains($basePath, '#')) {

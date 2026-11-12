@@ -19,8 +19,8 @@ final readonly class AdminAssetConfiguration
      * Normalizuje verejnou URL a relativni cil pod host public rootem
      */
     public function __construct(
-        string $publicBaseUrl,
-        string $publicDirectory,
+        string $publicBaseUrl = '/assets/admin/',
+        string $publicDirectory = 'assets/admin',
     ) {
         if (
             !str_starts_with($publicBaseUrl, '/')
