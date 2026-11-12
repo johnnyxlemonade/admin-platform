@@ -46,7 +46,7 @@ $currentDateTime = date(DATE_ATOM);
     <meta name="csrf-token" content="<?= e($helpers->csrfToken()) ?>">
     <title><?= e($title) ?></title>
     <link rel="icon" href="<?= e($adminMarkUrl) ?>">
-    <?php if ($branding->themeColor !== null && $branding->themeColor !== ''): ?><meta name="theme-color" content="<?= e($branding->themeColor) ?>">
+    <?php if ($branding->themeColor() !== null && $branding->themeColor() !== ''): ?><meta name="theme-color" content="<?= e($branding->themeColor()) ?>">
     <?php endif; ?>
     <script src="<?= e($adminAssets->staticUrl('js/core/lemonade-theme-init.js')) ?>"></script>
     <?php foreach (array_merge($vendorStyles, $authStyles, $installerStyles) as $style): ?><link rel="stylesheet" href="<?= e($style) ?>">
@@ -56,13 +56,13 @@ $currentDateTime = date(DATE_ATOM);
     <main class="lemonade-auth"<?= $isInstaller ? ' data-lemonade-install-shell data-lemonade-locale="' . e($locale) . '"' : ' data-lemonade-admin-shell data-lemonade-locale="' . e($locale) . '" data-lemonade-i18n-resource-map-source="' . e($helpers->url('admin.resources.i18n.index')) . '" data-lemonade-i18n-namespace="auth" data-lemonade-i18n-namespace-source="' . e($helpers->url('admin.resources.i18n', ['group' => 'auth'])) . '?locale={locale}&amp;v={version}" data-lemonade-i18n-namespace-versions="' . e(json_encode($clientTranslationVersion->versions('auth'), JSON_THROW_ON_ERROR)) . '"' ?>>
         <section class="lemonade-auth-layout<?= $isInstaller ? ' lemonade-auth-layout--installer' : '' ?>" aria-labelledby="auth-title">
             <div class="lemonade-auth-panel">
-                <?php if ($branding->homeUrl !== null): ?><a class="lemonade-auth-brand" href="<?= e($branding->homeUrl) ?>" aria-label="<?= e($branding->applicationName) ?>"><?php else: ?><div class="lemonade-auth-brand"><?php endif; ?><img class="lemonade-auth-brand-mark" src="<?= e($adminMarkUrl) ?>" alt="" aria-hidden="true"><span class="lemonade-auth-brand-copy"><span class="lemonade-auth-brand-title"><?= e($branding->applicationName) ?></span><span class="lemonade-auth-brand-subtitle" data-lemonade-i18n="<?= e($brandSubtitleKey) ?>"><?= e($helpers->lang($brandSubtitleKey)) ?></span></span><?php if ($branding->homeUrl !== null): ?></a><?php else: ?></div><?php endif; ?>
+                <a class="lemonade-auth-brand" href="<?= e($branding->homeUrl()) ?>" aria-label="<?= e($branding->applicationName()) ?>"><img class="lemonade-auth-brand-mark" src="<?= e($adminMarkUrl) ?>" alt="" aria-hidden="true"><span class="lemonade-auth-brand-copy"><span class="lemonade-auth-brand-title"><?= e($branding->applicationName()) ?></span><span class="lemonade-auth-brand-subtitle" data-lemonade-i18n="<?= e($brandSubtitleKey) ?>"><?= e($helpers->lang($brandSubtitleKey)) ?></span></span></a>
                 <div class="lemonade-auth-content">
                     <?= $content ?>
                 </div>
                 <footer class="lemonade-auth-footer">
                     <div class="lemonade-auth-footer-copy">
-                        <span><?= e($branding->applicationName) ?> · v1.0</span>
+                        <span><?= e($branding->applicationName()) ?> · v1.0</span>
                         <a class="lemonade-auth-framework" href="https://lemonadeframework.cz/" target="_blank" rel="noopener noreferrer">
                             <img src="<?= e($adminAssets->staticUrl('images/branding/lemonade-framework.svg')) ?>" alt="" aria-hidden="true">
                                 <span data-lemonade-i18n="<?= e($poweredByKey) ?>">
@@ -122,7 +122,7 @@ $currentDateTime = date(DATE_ATOM);
                 </aside>
             <?php endif; ?>
         </section>
-        <?php if ($branding->hasPartner()): ?><div class="lm-auth-partner"><a href="<?= e($branding->partnerUrl) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= e($branding->partnerLabel) ?>"><img src="<?= e($branding->partnerLogoUrl) ?>" alt="<?= e($branding->partnerLabel) ?>"></a></div><?php endif; ?>
+        <?php if ($branding->hasPartner()): ?><div class="lm-auth-partner"><a href="<?= e($branding->partnerUrl()) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= e($branding->partnerLabel()) ?>"><img src="<?= e($branding->partnerLogoUrl()) ?>" alt="<?= e($branding->partnerLabel()) ?>"></a></div><?php endif; ?>
     </main>
     <?php if ($installerScript !== ''): ?><script type="module" src="<?= e($installerScript) ?>"></script><?php endif; ?>
     <?php if ($authScript !== ''): ?><script type="module" src="<?= e($authScript) ?>"></script><?php endif; ?>

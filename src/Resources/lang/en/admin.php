@@ -308,8 +308,6 @@ return [
     ],
 
     'topbar' => [
-        'search' => 'Search administration...',
-        'help' => 'Help',
         'viewWebsite' => 'View website',
         'account' => 'User account',
     ],

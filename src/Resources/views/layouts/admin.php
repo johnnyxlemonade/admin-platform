@@ -59,9 +59,9 @@ if ($currentUser !== null) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<?= e($helpers->csrfToken()) ?>">
-    <title><?= e($this->section('title', $title)) ?> | <?= e($branding->applicationName) ?></title>
+    <title><?= e($this->section('title', $title)) ?> | <?= e($branding->applicationName()) ?></title>
     <link rel="icon" href="<?= e($adminMarkUrl) ?>">
-    <?php if ($branding->themeColor !== null && $branding->themeColor !== ''): ?><meta name="theme-color" content="<?= e($branding->themeColor) ?>">
+    <?php if ($branding->themeColor() !== null && $branding->themeColor() !== ''): ?><meta name="theme-color" content="<?= e($branding->themeColor()) ?>">
     <?php endif; ?>
     <script src="<?= e($adminAssets->staticUrl('js/core/lemonade-theme-init.js')) ?>"></script>
     <script src="<?= e($adminAssets->staticUrl('js/core/lemonade-sidebar-init.js')) ?>"></script>
@@ -79,20 +79,14 @@ if ($currentUser !== null) {
         <span hidden data-lemonade-i18n-namespace="auth" data-lemonade-i18n-namespace-source="<?= e($helpers->url('admin.resources.i18n', ['group' => 'auth'])) ?>?locale={locale}&amp;v={version}" data-lemonade-i18n-namespace-versions="<?= e(json_encode($clientTranslationVersion->versions('auth'), JSON_THROW_ON_ERROR)) ?>"></span>
         <?php if ($currentUser !== null): ?><span hidden data-lemonade-session-identity data-name="<?= e($sessionIdentityName) ?>" data-initials="<?= e($sessionIdentityInitials) ?>"></span><?php endif; ?>
         <aside class="sidebar" aria-label="<?= e($helpers->lang('admin.sidebar.mainNavigation')) ?>" data-lemonade-i18n-aria-label="admin.sidebar.mainNavigation" data-lemonade-sidebar data-lemonade-storage-key="<?= e($sidebarStorageKey) ?>">
-            <a class="brand" href="<?= e($helpers->url('admin.dashboard')) ?>"><img class="brand-mark" src="<?= e($adminMarkUrl) ?>" alt="" aria-hidden="true"><span class="brand-copy"><span class="brand-title"><?= e($branding->applicationName) ?></span><span class="brand-subtitle" data-lemonade-i18n="admin.brand.subtitle"><?= e($helpers->lang('admin.brand.subtitle')) ?></span></span></a>
+            <a class="brand" href="<?= e($helpers->url('admin.dashboard')) ?>"><img class="brand-mark" src="<?= e($adminMarkUrl) ?>" alt="" aria-hidden="true"><span class="brand-copy"><span class="brand-title"><?= e($branding->applicationName()) ?></span><span class="brand-subtitle" data-lemonade-i18n="admin.brand.subtitle"><?= e($helpers->lang('admin.brand.subtitle')) ?></span></span></a>
             <?= $this->partial('admin::navigation.sidebar', ['navigation' => $navigation, 'activeAdminModule' => $activeAdminModule ?? null]) ?>
             <div class="sidebar-footer"><button class="collapse-link" type="button" data-lemonade-sidebar-toggle aria-expanded="true" aria-label="<?= e($helpers->lang('admin.sidebar.collapseNavigation')) ?>" data-lemonade-i18n-aria-label="admin.sidebar.collapseNavigation"><i class="<?= e(AdminIcon::ChevronBarLeft->cssClass()) ?>" data-lemonade-sidebar-toggle-icon aria-hidden="true"></i><span data-lemonade-i18n="admin.sidebar.collapse"><?= e($helpers->lang('admin.sidebar.collapse')) ?></span></button></div>
         </aside>
         <div class="admin-frame">
             <header class="topbar">
-                <form class="global-search lm-search" role="search">
-                    <i class="<?= e(AdminIcon::Search->cssClass()) ?> lm-search-icon" aria-hidden="true"></i>
-                    <input class="form-control" type="search" aria-label="<?= e($helpers->lang('admin.topbar.search')) ?>" placeholder="<?= e($helpers->lang('admin.topbar.search')) ?>" data-lemonade-i18n-placeholder="admin.topbar.search" data-lemonade-i18n-aria-label="admin.topbar.search">
-                    <kbd>⌘ K</kbd>
-                </form>
                 <div class="topbar-actions">
-                    <button class="icon-button" type="button" aria-label="<?= e($helpers->lang('admin.topbar.help')) ?>" data-lemonade-i18n-aria-label="admin.topbar.help"><i class="<?= e(AdminIcon::QuestionCircle->cssClass()) ?>" aria-hidden="true"></i></button>
-                    <?php if ($branding->homeUrl !== null): ?><a class="icon-button" href="<?= e($branding->homeUrl) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= e($helpers->lang('admin.topbar.viewWebsite')) ?>" title="<?= e($helpers->lang('admin.topbar.viewWebsite')) ?>" data-lemonade-i18n-aria-label="admin.topbar.viewWebsite" data-lemonade-i18n-title="admin.topbar.viewWebsite"><i class="<?= e(AdminIcon::BoxArrowUpRight->cssClass()) ?>" aria-hidden="true"></i></a><?php endif; ?>
+                    <a class="icon-button" href="<?= e($branding->homeUrl()) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= e($helpers->lang('admin.topbar.viewWebsite')) ?>" title="<?= e($helpers->lang('admin.topbar.viewWebsite')) ?>" data-lemonade-i18n-aria-label="admin.topbar.viewWebsite" data-lemonade-i18n-title="admin.topbar.viewWebsite"><i class="<?= e(AdminIcon::BoxArrowUpRight->cssClass()) ?>" aria-hidden="true"></i></a>
                     <div class="lm-theme-control" data-lemonade-dropdown>
                         <button class="icon-button lm-theme-toggle" type="button" data-lemonade-dropdown-trigger aria-expanded="false" aria-label="<?= e($helpers->lang('admin.theme.appearance')) ?>" title="<?= e($helpers->lang('admin.theme.appearance')) ?>" data-lemonade-i18n-aria-label="admin.theme.appearance" data-lemonade-i18n-title="admin.theme.appearance">
                             <i class="<?= e(AdminIcon::MoonStars->cssClass()) ?>" data-lemonade-theme-icon="moon" aria-hidden="true"></i>

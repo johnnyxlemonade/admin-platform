@@ -77,7 +77,7 @@ final readonly class SessionLockController
         }
 
         return $this->pages->render('admin-auth::session-lock', [
-            'title' => $this->branding->applicationName . ' – Session locked',
+            'title' => $this->branding->applicationName() . ' – Session locked',
             'locale' => $this->uiLocale->activate(null, (string) (new RequestData($request))->cookie('lemonade_locale', '')),
             'clientTranslationVersion' => $this->translationVersion,
             'returnUrl' => $destination,

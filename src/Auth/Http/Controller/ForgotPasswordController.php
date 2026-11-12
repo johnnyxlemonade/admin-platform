@@ -71,7 +71,7 @@ final readonly class ForgotPasswordController
     ): ResponseInterface {
         $status ??= HttpStatusCode::OK->value;
         return $this->pages->render('admin-auth::forgot-password', [
-            'title' => $this->branding->applicationName . ' – ' . $this->translator->get('auth.forgot.title'),
+            'title' => $this->branding->applicationName() . ' – ' . $this->translator->get('auth.forgot.title'),
             'email' => $email,
             'locale' => $this->uiLocale->activate(null, (string) (new RequestData($request))->cookie('lemonade_locale', '')),
             'messageKey' => $messageKey,

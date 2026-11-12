@@ -308,8 +308,6 @@ return [
     ],
 
     'topbar' => [
-        'search' => 'Hledat v administraci...',
-        'help' => 'Nápověda',
         'viewWebsite' => 'Zobrazit web',
         'account' => 'Uživatelský účet',
     ],

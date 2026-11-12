@@ -228,7 +228,7 @@ final readonly class LoginController
     ): ResponseInterface {
         $status ??= HttpStatusCode::OK->value;
         return $this->pages->render('admin-auth::login', [
-            'title' => $this->branding->applicationName . ' – ' . $this->translator->get('auth.login.page_title'),
+            'title' => $this->branding->applicationName() . ' – ' . $this->translator->get('auth.login.page_title'),
             'errorKey' => $errorKey,
             'errorMessage' => $errorMessage,
             'email' => $email,

@@ -309,7 +309,7 @@ final readonly class MfaController
     {
         return $this->pages->render($view, [
             ...$data,
-            'title' => $this->branding->applicationName . ' – ' . $this->translator->get('auth.mfa.title'),
+            'title' => $this->branding->applicationName() . ' – ' . $this->translator->get('auth.mfa.title'),
             'locale' => $this->uiLocale->activate(null, (string) (new RequestData($request))->cookie('lemonade_locale', '')),
             'clientTranslationVersion' => $this->translationVersion,
         ], $status);

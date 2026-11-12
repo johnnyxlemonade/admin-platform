@@ -22,20 +22,20 @@ final class AdminBrandingTest extends TestCase
             themeColor: '#d6f458',
         );
 
-        self::assertSame('Example Console', $branding->applicationName);
-        self::assertSame('https://example.test/', $branding->homeUrl);
-        self::assertSame('Example Identity', $branding->oidcProviderDisplayName);
-        self::assertSame('#d6f458', $branding->themeColor);
+        self::assertSame('Example Console', $branding->applicationName());
+        self::assertSame('https://example.test/', $branding->homeUrl());
+        self::assertSame('Example Identity', $branding->oidcProviderDisplayName());
+        self::assertSame('#d6f458', $branding->themeColor());
         self::assertTrue($branding->hasPartner());
     }
 
-    public function testItAllowsAnAdminWithoutHostHomeOrPartnerPresentation(): void
+    public function testItDefaultsToTheHostHomeWithoutPartnerPresentation(): void
     {
         $branding = new AdminBranding('Example Console');
 
-        self::assertNull($branding->homeUrl);
-        self::assertNull($branding->oidcProviderDisplayName);
-        self::assertNull($branding->themeColor);
+        self::assertSame('/', $branding->homeUrl());
+        self::assertNull($branding->oidcProviderDisplayName());
+        self::assertNull($branding->themeColor());
         self::assertFalse($branding->hasPartner());
     }
 

@@ -8,18 +8,13 @@
 .admin-shell .topbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: clamp(17px, 1.15vw, 24px);
     height: var(--lm-header-height);
     padding: 0 clamp(27px, 1.8vw, 42px) 0 clamp(16px, 1.3vw, 28px);
     overflow: visible;
     border-bottom: 1px solid var(--lm-line);
     background: var(--lm-topbar-surface);
-}
-
-.admin-shell .global-search {
-    flex: 1 1 auto;
-    min-width: 0;
 }
 
 .admin-shell .topbar-actions {
@@ -91,14 +86,5 @@
         width: 100%;
         justify-content: flex-end;
         gap: 12px;
-    }
-    .admin-shell .topbar .global-search {
-        order: 2;
-        flex: 1 1 100%;
-        width: 100%;
-        min-width: 0;
-    }
-    .admin-shell .global-search kbd {
-        display: none;
     }
 }

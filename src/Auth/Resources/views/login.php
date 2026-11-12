@@ -14,7 +14,7 @@ use Lemonade\Framework\View\ViewHelpers;
 /** @var bool $oidcEnabled */
 /** @var AdminBranding $branding */
 
-$oidcProviderDisplayName = $branding->oidcProviderDisplayName;
+$oidcProviderDisplayName = $branding->oidcProviderDisplayName();
 $descriptionKey = $oidcEnabled && $oidcProviderDisplayName !== null
     ? 'auth.login.description.local_or_provider'
     : ($oidcEnabled
@@ -46,4 +46,4 @@ $descriptionKey = $oidcEnabled && $oidcProviderDisplayName !== null
     <div class="lm-auth-options"><div class="form-check"><input class="form-check-input" id="login-remember" name="remember" type="checkbox"><label class="form-check-label" for="login-remember" data-lemonade-i18n="auth.login.remember"><?= e($helpers->lang('auth.login.remember')) ?></label></div><a href="<?= e($helpers->url('admin.login.forgot')) ?>" data-lemonade-i18n="auth.login.forgot"><?= e($helpers->lang('auth.login.forgot')) ?></a></div>
     <button class="btn lm-auth-submit<?= $oidcEnabled ? ' lm-auth-submit--secondary' : '' ?>" type="submit" data-lemonade-i18n="auth.login.submit"><?= e($helpers->lang('auth.login.submit')) ?></button>
 </form>
-<?php if ($branding->homeUrl !== null): ?><a class="lm-auth-link" href="<?= e($branding->homeUrl) ?>"><i class="<?= e(AdminIcon::ArrowLeft->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="auth.login.back"><?= e($helpers->lang('auth.login.back')) ?></span></a><?php endif; ?>
+<a class="lm-auth-link" href="<?= e($branding->homeUrl()) ?>"><i class="<?= e(AdminIcon::ArrowLeft->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="auth.login.back"><?= e($helpers->lang('auth.login.back')) ?></span></a>
