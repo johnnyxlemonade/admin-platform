@@ -19,9 +19,16 @@ use Lemonade\Framework\Container\ContainerInterface;
 use Lemonade\Framework\Core\BootableServiceProviderInterface;
 use Lemonade\Framework\Core\DependentServiceProviderInterface;
 use Lemonade\Framework\Core\ServiceProviderInterface;
+use Lemonade\Framework\Image\Value\ImageDimensions;
+use Lemonade\Framework\Image\Value\ImageFormat;
+use Lemonade\Framework\Image\Value\ImageQuality;
+use Lemonade\Framework\Image\Value\ImageScalePolicy;
+use Lemonade\Framework\Image\Value\ImageVariantDefinition;
+use Lemonade\Framework\Image\Value\ImageVariantMode;
 use Lemonade\Framework\Localization\TranslationResourceRegistry;
 use Lemonade\Framework\View\ViewResourceRegistry;
 use Lemonade\Image\Contract\ImageAssetResolverInterface;
+use Lemonade\Image\ImageVariantRegistry;
 
 /**
  * Registruje sdileny rendering, odpovedi a zdroje administracni prezentace
@@ -58,6 +65,40 @@ final readonly class AdminPresentationServiceProvider implements ServiceProvider
      */
     public function boot(ContainerInterface $container): void
     {
+        $variants = $container->get(ImageVariantRegistry::class);
+
+        // Compact square thumbnail for tables and lists
+        $variants->register(
+            variant: 'admin-datagrid',
+            definition: new ImageVariantDefinition(
+                dimensions: new ImageDimensions(width: 36, height: 36),
+                format: ImageFormat::Webp,
+                quality: ImageQuality::fromInt(value: 82),
+            ),
+        );
+
+        // General-purpose thumbnail for media pickers and other compact views
+        $variants->register(
+            variant: 'admin-thumb',
+            definition: new ImageVariantDefinition(
+                dimensions: new ImageDimensions(width: 160, height: 160),
+                format: ImageFormat::Webp,
+                quality: ImageQuality::fromInt(value: 82),
+            ),
+        );
+
+        // Larger Admin preview without upscaling smaller originals
+        $variants->register(
+            variant: 'admin-preview',
+            definition: new ImageVariantDefinition(
+                dimensions: new ImageDimensions(width: 960, height: 540),
+                format: ImageFormat::Webp,
+                quality: ImageQuality::fromInt(value: 85),
+                mode: ImageVariantMode::Contain,
+                scalePolicy: ImageScalePolicy::DownscaleOnly,
+            ),
+        );
+
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(AdminRouteRegistrar::class));
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(AdminErrorRouteRegistrar::class));
         $container->get(AdminRouteRegistrarRegistry::class)->register($container->get(AdminFileUploadRouteRegistrar::class));

@@ -21,8 +21,7 @@ final class AdminThumbnailComponentTest extends TestCase
     public function testItBuildsAThumbnailFromRegisteredImageIdentity(): void
     {
         $thumbnail = $this->component()->image(
-            module: 'system.users',
-            imageId: '42',
+            fileId: 42,
             alt: 'Ada Lovelace',
             fallback: 'AL',
             size: 'compact',
@@ -30,7 +29,7 @@ final class AdminThumbnailComponentTest extends TestCase
             presentation: 'datagrid',
         );
 
-        self::assertSame('/api/image/system.users/datagrid/42', $thumbnail->url());
+        self::assertSame('/api/image/admin-datagrid/42', $thumbnail->url());
         self::assertSame('Ada Lovelace', $thumbnail->alt());
         self::assertSame('AL', $thumbnail->fallback());
         self::assertSame('compact', $thumbnail->size());
@@ -57,11 +56,10 @@ final class AdminThumbnailComponentTest extends TestCase
     public function testItBuildsSharedThumbnailUrl(): void
     {
         $thumbnail = $this->component()->image(
-            module: 'system.users',
-            imageId: '42',
+            fileId: 42,
         );
 
-        self::assertSame('/api/image/system.users/thumbnail/42', $thumbnail->url());
+        self::assertSame('/api/image/admin-thumb/42', $thumbnail->url());
     }
 
     private function component(): AdminThumbnailComponent
@@ -69,12 +67,12 @@ final class AdminThumbnailComponentTest extends TestCase
         $router = new Router();
         $router->getNamed(
             'api.image.show',
-            '/api/image/{module}/{variant}/{image}',
+            '/api/image/{variant}/{fileId}',
             ControllerAction::for('TestController', 'show'),
         );
         $variants = new ImageVariantRegistry();
         $variants->register(
-            variant: 'datagrid',
+            variant: 'admin-datagrid',
             definition: new ImageVariantDefinition(
                 dimensions: new ImageDimensions(32, 32),
                 format: ImageFormat::Webp,
@@ -82,7 +80,7 @@ final class AdminThumbnailComponentTest extends TestCase
             ),
         );
         $variants->register(
-            variant: 'thumbnail',
+            variant: 'admin-thumb',
             definition: new ImageVariantDefinition(
                 dimensions: new ImageDimensions(160, 160),
                 format: ImageFormat::Webp,

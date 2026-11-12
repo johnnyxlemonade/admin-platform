@@ -172,8 +172,7 @@ final readonly class UsersDataGrid implements DataGridProviderInterface
                         value: $email,
                         thumbnail: isset($avatars[(int) $user['id']])
                             ? $this->thumbnails->image(
-                                module: 'system.users',
-                                imageId: (string) $avatars[(int) $user['id']]['id'],
+                                fileId: (int) $avatars[(int) $user['id']]['id'],
                                 fallback: strtoupper(substr($email, 0, 1)),
                                 size: 'compact',
                                 shape: 'circle',

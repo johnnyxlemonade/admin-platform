@@ -149,6 +149,23 @@ final class FileReadModel extends Model
     }
 
     /**
+     * Nacte vice kolekci vice vlastniku jednim dotazem
+     *
+     * @param list<int> $entityIds
+     * @param list<string> $usages
+     * @return list<FileMetadata>
+     */
+    public function listForEntitiesUsages(string $moduleCode, array $entityIds, array $usages): array
+    {
+        if ($entityIds === [] || $usages === []) {
+            return [];
+        }
+        return $this->metadataList($this->query()
+            ->where('module_code', $moduleCode)->whereIn('entity_id', $entityIds)->whereIn('usage', $usages)
+            ->orderBy('sort_order', 'ASC')->orderBy('id', 'ASC')->getArray());
+    }
+
+    /**
      * Vrati soubor jen pokud patri explicitnimu owner usage targetu
      */
     public function findForTarget(

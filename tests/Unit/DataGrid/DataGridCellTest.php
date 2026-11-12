@@ -105,7 +105,7 @@ final class DataGridCellTest extends TestCase
     private static function thumbnail(): AdminThumbnail
     {
         return new AdminThumbnail(
-            url: '/api/image/system.users/datagrid/1',
+            url: '/api/image/admin-datagrid/1',
             alt: '',
             fallback: 'U',
             size: 'compact',

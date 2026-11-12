@@ -17,11 +17,10 @@ final readonly class AdminThumbnailComponent
     public function __construct(private ImageUrlGenerator $images) {}
 
     /**
-     * Vytvori thumbnail s URL odvozenou z modulove image identity
+     * Vytvori thumbnail s URL podle globalniho ID souboru
      */
     public function image(
-        string $module,
-        string $imageId,
+        int $fileId,
         string $alt = '',
         ?string $fallback = null,
         string $size = 'compact',
@@ -29,7 +28,7 @@ final readonly class AdminThumbnailComponent
         string $presentation = 'thumbnail',
     ): AdminThumbnail {
         return new AdminThumbnail(
-            url: $this->images->url($module, $this->variant($presentation), $imageId),
+            url: $this->images->url($this->variant($presentation), $fileId),
             alt: $alt,
             fallback: $fallback,
             size: $size,
@@ -42,11 +41,12 @@ final readonly class AdminThumbnailComponent
      */
     private function variant(string $presentation): string
     {
-        if (!in_array($presentation, ['datagrid', 'thumbnail', 'preview'], true)) {
-            throw new \InvalidArgumentException('Admin thumbnail presentation is invalid.');
-        }
-
-        return $presentation;
+        return match ($presentation) {
+            'datagrid' => 'admin-datagrid',
+            'thumbnail' => 'admin-thumb',
+            'preview' => 'admin-preview',
+            default => throw new \InvalidArgumentException('Admin thumbnail presentation is invalid.'),
+        };
     }
 
     /**

@@ -81,8 +81,7 @@ final readonly class AdminPageRenderer
         }
 
         return $this->thumbnails->image(
-            module: 'system.users',
-            imageId: (string) $file['id'],
+            fileId: (int) $file['id'],
             fallback: $fallback,
             size: 'compact',
             shape: 'circle',

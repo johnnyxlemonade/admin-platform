@@ -165,8 +165,7 @@ final readonly class MediaDataGrid implements DataGridProviderInterface
                 value: $name,
                 thumbnail: $kind === 'image'
                     ? $this->thumbnails->image(
-                        module: (string) $file['module_code'],
-                        imageId: (string) $id,
+                        fileId: $id,
                         alt: $name,
                         fallback: $fallback,
                         presentation: 'datagrid',

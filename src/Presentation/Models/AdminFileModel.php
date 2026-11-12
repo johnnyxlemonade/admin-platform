@@ -203,16 +203,6 @@ final class AdminFileModel extends Model
     }
 
     /**
-     * Hleda aktivni image file podle public identity a vlastniciho modulu
-     *
-     * @return array<string, mixed>|null
-     */
-    public function findActiveImage(string $module, int $id): ?array
-    {
-        return $this->readModel->findById($module, $id, 'image')?->toArray();
-    }
-
-    /**
      * Prepina aktivni image source na novou Framework asset a immutable source version
      */
     public function updateImageSource(int $id, string $assetId, string $sourceVersion, \Lemonade\Image\ImageOriginalMetadata $metadata): void

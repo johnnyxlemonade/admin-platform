@@ -136,10 +136,10 @@ final readonly class AdminFileUploadComponent
             if ($file['kind'] === 'image' && is_string($file['source_version'] ?? null)) {
                 $definition = $this->usages->require($module, $usage);
                 $presentation = $definition->presentation() === AdminFilePresentation::Landscape ? 'preview' : 'thumbnail';
-                $url = $this->thumbnails->image($module, (string) $file['id'], presentation: $presentation)->url();
+                $url = $this->thumbnails->image((int) $file['id'], presentation: $presentation)->url();
                 $file['preview_url'] = $url === null ? null : $this->versionedUrl($url, $file['source_version']);
                 $file['original_url'] = $this->versionedUrl(
-                    $this->images->originalUrl($module, (string) $file['id']),
+                    $this->images->originalUrl((int) $file['id']),
                     $file['source_version'],
                 );
             }
