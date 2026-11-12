@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Localization;
 
-use Lemonade\Framework\Localization\Config\LocalizationConfig;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Session\Contract\SessionInterface;
 
@@ -13,13 +12,14 @@ use Lemonade\Framework\Session\Contract\SessionInterface;
  */
 final readonly class AdminUiLocale
 {
+    public const array SUPPORTED_LOCALES = ['cs', 'en'];
+
     private const string SESSION_KEY = 'admin.ui.locale';
 
     /**
-     * Nastavuje konfiguraci podporovanych jazyku, relaci a prekladac
+     * Nastavuje relaci a prekladac administrace
      */
     public function __construct(
-        private LocalizationConfig $config,
         private SessionInterface $session,
         private TranslatorInterface $translator,
     ) {}
@@ -57,30 +57,17 @@ final readonly class AdminUiLocale
     }
 
     /**
-     * Vraci normalizovane podporovane jazyky bez duplicit
+     * Vraci podporovane jazyky rozhrani administrace
      *
      * @return list<string>
      */
     public function supportedLocales(): array
     {
-        $locales = [];
-
-        foreach ($this->config->supportedLocales as $locale) {
-            if (!is_string($locale)) {
-                continue;
-            }
-
-            $normalized = strtolower(trim($locale));
-            if ($normalized !== '' && !in_array($normalized, $locales, true)) {
-                $locales[] = $normalized;
-            }
-        }
-
-        return $locales;
+        return self::SUPPORTED_LOCALES;
     }
 
     /**
-     * Rozhoduje, zda je predany jazyk podporovan konfiguraci
+     * Rozhoduje, zda je predany jazyk podporovan administraci
      */
     public function supports(string $locale): bool
     {
@@ -88,13 +75,11 @@ final readonly class AdminUiLocale
     }
 
     /**
-     * Vraci podporovany vychozi jazyk konfigurace
+     * Vraci vychozi jazyk administrace
      */
     private function defaultLocale(): string
     {
-        $default = $this->normalizeSupportedLocale($this->config->defaultLocale);
-
-        return $default ?? $this->supportedLocales()[0];
+        return self::SUPPORTED_LOCALES[0];
     }
 
     /**

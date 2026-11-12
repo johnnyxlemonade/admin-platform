@@ -25,8 +25,6 @@ use Lemonade\Framework\Database\Database;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
 use Lemonade\Framework\Http\Request\HttpRequestInspector;
 use Lemonade\Framework\Http\Response\Responses;
-use Lemonade\Framework\Localization\Config\LocalizationConfig;
-use Lemonade\Framework\Localization\Config\LocalizationUrlConfig;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\RateLimit\RateLimiterInterface;
 use Lemonade\Framework\RateLimit\RateLimitResult;
@@ -142,7 +140,6 @@ final class LoginControllerTest extends TestCase
         }
 
         return new AdminUiLocale(
-            new LocalizationConfig('cs', 'cs', ['cs'], new LocalizationUrlConfig(false, '', '', 'locale', false)),
             $session,
             $translator,
         );

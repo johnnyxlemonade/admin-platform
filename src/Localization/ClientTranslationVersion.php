@@ -32,14 +32,14 @@ final class ClientTranslationVersion
     }
 
     /**
-     * Vraci verze skupiny pro vsechny podporovane jazyky
+     * Vraci verze skupiny pro oba jazyky administrace
      *
      * @return array<string, string>
      */
     public function versions(string $group): array
     {
         $versions = [];
-        foreach ($this->config->supportedLocales as $locale) {
+        foreach (AdminUiLocale::SUPPORTED_LOCALES as $locale) {
             $versions[$locale] = $this->version($group, $locale);
         }
 
