@@ -46,7 +46,8 @@ export function uploadValidationErrorMessage(error, profile, invalidMessage, fal
         return I18n.t("admin.file_upload.extension_not_allowed");
     }
     if (reason === "invalid_file") {
-        return invalidMessage;
+        const message = error.response?.errors?.file;
+        return typeof message === "string" && message.trim() !== "" ? message : invalidMessage;
     }
 
     return fallbackMessage;

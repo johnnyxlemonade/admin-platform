@@ -472,7 +472,10 @@ final readonly class AdminFileUploadController
         if ($exception instanceof ChunkUploadQuotaExceededException) {
             return $this->uploadFailure('quota_exceeded', HttpStatusCode::TOO_MANY_REQUESTS);
         }
-        if ($exception instanceof UploadValidationException || $exception instanceof \InvalidArgumentException || $exception instanceof \OutOfBoundsException) {
+        if ($exception instanceof UploadValidationException) {
+            return $this->uploadFailure('invalid_file', HttpStatusCode::UNPROCESSABLE_ENTITY, $exception->getMessage());
+        }
+        if ($exception instanceof \InvalidArgumentException || $exception instanceof \OutOfBoundsException) {
             return $this->uploadFailure('invalid_file', HttpStatusCode::UNPROCESSABLE_ENTITY);
         }
 
@@ -535,9 +538,9 @@ final readonly class AdminFileUploadController
     }
 
     /**
-     * Vraci strukturovanou upload chybu se zachovanym klientskym payload kontraktem
+     * Returns a structured upload failure with specific validation feedback when available
      */
-    private function uploadFailure(string $reason, HttpStatusCode $status): ResponseInterface
+    private function uploadFailure(string $reason, HttpStatusCode $status, ?string $message = null): ResponseInterface
     {
         return $this->responses->json([
             'success' => false,
@@ -545,7 +548,7 @@ final readonly class AdminFileUploadController
                 'code' => AdminErrorCode::VALIDATION_FAILED->value,
                 'reason' => $reason,
             ],
-            'errors' => ['file' => $this->translator->get('admin.file_upload.failed')],
+            'errors' => ['file' => $message ?? $this->translator->get('admin.file_upload.failed')],
         ], $status->value);
     }
 
