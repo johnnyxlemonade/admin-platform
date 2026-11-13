@@ -117,7 +117,7 @@ final readonly class AdminFileUploadComponent
             appendUrlTemplate: $this->urls->route('admin.file.chunk.append', ['uploadId' => $placeholder]),
             completeUrlTemplate: $this->urls->route('admin.file.chunk.complete', ['uploadId' => $placeholder]),
             abortUrlTemplate: $this->urls->route('admin.file.chunk.abort', ['uploadId' => $placeholder]),
-            publicDownloadUrlTemplate: $this->urls->route('api.file.download', ['file' => $placeholder]),
+            publicDownloadUrlTemplate: $this->urls->route('api.file.download', ['fileId' => $placeholder]),
             profile: $this->profile($definition),
         );
     }

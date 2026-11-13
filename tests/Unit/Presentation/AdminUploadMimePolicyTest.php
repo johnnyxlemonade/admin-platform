@@ -7,20 +7,19 @@ namespace Lemonade\Admin\Tests\Unit\Presentation;
 use Lemonade\Framework\Mime\MimeRisk;
 use Lemonade\Framework\Mime\MimeTypeCatalog;
 use Lemonade\Framework\Upload\UploadRiskPolicy;
-use Lemonade\Framework\Upload\UploadVisibility;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Overuje public risk policy formatu deklarovanych v admin-file profilu Portalu
+ * Verifies the private storage policy for the host attachment profile
  */
 final class AdminUploadMimePolicyTest extends TestCase
 {
     /**
-     * Overuje katalog, canonical MIME a povoleni public uloziste bez custom risk vyjimky
+     * Verifies catalog MIME types and the explicit container allowance for private storage
      */
     #[DataProvider('documentFormats')]
-    public function testSupportedDocumentFormatRemainsAllowedInPublicStorage(
+    public function testSupportedDocumentFormatRemainsAllowedInPrivateStorage(
         string $extension,
         string $mimeType,
         MimeRisk $risk,
@@ -32,12 +31,12 @@ final class AdminUploadMimePolicyTest extends TestCase
         self::assertSame($risk, $definition->risk());
         self::assertTrue((new UploadRiskPolicy())->allows(
             $definition->risk(),
-            UploadVisibility::Public,
+            [MimeRisk::Container],
         ));
     }
 
     /**
-     * Vraci dokumentove formaty soucasneho Portal admin-file profilu
+     * Returns the document formats supported by the host attachment profile
      *
      * @return iterable<string,array{string,string,MimeRisk}>
      */

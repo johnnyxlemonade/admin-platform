@@ -349,8 +349,8 @@ final class AdminFileUploadControllerAuthorizationTest extends TestCase
             currentOffset: 0,
             createdAt: $createdAt,
             expiresAt: $createdAt + 3600,
-            context: ['module_code' => 'system.users', 'entity_id' => 7, 'usage' => $usage],
             publicationToken: bin2hex(random_bytes(32)),
+            context: ['module_code' => 'system.users', 'entity_id' => 7, 'usage' => $usage],
         );
     }
 

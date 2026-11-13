@@ -18,17 +18,16 @@ use Lemonade\Framework\Image\ImageVariantPathResolver;
 use Lemonade\Framework\Image\Value\ImageAsset;
 use Lemonade\Framework\Image\Value\ImageDimensions;
 use Lemonade\Framework\Image\Value\ImageFormat;
-use Lemonade\Framework\Image\Value\ImageOriginalStorage;
 use Lemonade\Framework\Upload\ValueObject\UploadedFile;
 use Lemonade\Image\ImageOriginalMetadata;
 
 /**
- * Provadi auditovane ukladani a neobnovitelne odstraneni shared system_file zaznamu
+ * Persists shared file metadata and audits permanent file removal
  */
 final readonly class AdminFileMutationService
 {
     /**
-     * Nastavuje shared file metadata, auditni transakci a Framework storage contract
+     * Connects file metadata, audit transactions, and Framework storage
      */
     public function __construct(
         private AdminFileModel $files,
@@ -42,7 +41,7 @@ final readonly class AdminFileMutationService
     ) {}
 
     /**
-     * Vraci stabilni asset identitu pro zapis nove immutable image source version
+     * Returns the stable asset identity for a new immutable image source version
      */
     public function imageAssetId(string $module, int $entityId, string $usage): string
     {
@@ -56,7 +55,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Ulozi image metadata a audit po uspesnem fyzickem zapisu originalu
+     * Persists image metadata and audit after the original has been written
      */
     public function saveImageUpload(
         string $module,
@@ -70,7 +69,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Nahradi single original pod zamkem targetu vcetne zmeny storage druhu
+     * Replaces a single original under its target lock, including changes of file kind
      */
     private function persistSingleImageUpload(
         string $module,
@@ -119,7 +118,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Persistuje jeden finalizovany generic upload pod sdilenou owner usage identitou
+     * Binds a completed generic upload to its owner and usage
      */
     public function saveGenericUpload(
         string $module,
@@ -143,7 +142,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Zapise generic original a audit uvnitr zvolene single nebo multiple operace
+     * Persists generic file metadata and audit for a single or multiple usage
      */
     private function persistGenericUpload(
         string $module,
@@ -211,7 +210,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Persistuje novou image identity pro multiple usage po canonical image finalizaci
+     * Creates an image identity for a multiple usage after original finalization
      */
     public function saveAdditionalImageUpload(
         string $module,
@@ -242,14 +241,13 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Odstrani canonical image original vytvoreny pred neuspesnym persistence bindem
+     * Removes the original created before a failed metadata bind
      */
     public function discardImageOriginal(string $assetId, string $sourceVersion, ImageOriginalMetadata $metadata): void
     {
         $original = $this->paths->originalReference(
             $assetId,
             $sourceVersion,
-            ImageOriginalStorage::Storage,
             $metadata->format(),
             new ImageDimensions($metadata->width(), $metadata->height()),
         );
@@ -257,7 +255,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Odstrani existujici soubor centralnim managementem bez soft-delete nebo restore
+     * Permanently removes a file through central media management
      */
     public function removeForManagement(int $fileId): void
     {
@@ -275,7 +273,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Odstrani jeden soubor jen pokud patri autorizovanemu shared targetu.
+     * Removes a file only when it belongs to the authorized target
      */
     public function removeTargetFile(string $module, int $entityId, string $usage, int $fileId): void
     {
@@ -289,7 +287,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Ulozi presentation metadata souboru, ktery patri autorizovanemu targetu
+     * Updates presentation metadata for a file owned by the authorized target
      *
      * @return array<string,mixed>
      */
@@ -328,7 +326,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Ulozi pouze uplne a jednoznacne poradi existujici shared collection.
+     * Persists a complete and unambiguous ordering of an existing collection
      *
      * @param list<int> $fileIds
      */
@@ -359,10 +357,10 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Odstrani existujici vyber v jedne DB auditni transakci a preskoci chybejici ID
+     * Removes the existing selection in one audited transaction and skips missing IDs
      *
      * @param list<int> $fileIds
-     * @return int Pocet skutecne odstranenych souboru
+     * @return int Number of files actually removed
      */
     public function removeManyForManagement(array $fileIds): int
     {
@@ -397,7 +395,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Vytvari allowlistovany audit payload bez storage cesty nebo obsahu souboru
+     * Creates an allowlisted audit payload without file paths or contents
      *
      * @return array<string,int|string|null>
      */
@@ -430,7 +428,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Vraci drive ulozenou source version jen pokud je soucasti aktivni identity
+     * Returns the persisted source version when it belongs to the active identity
      *
      * @param array<string,mixed> $file
      */
@@ -442,7 +440,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Smaze varianty a canonical original az po committed odstraneni metadata
+     * Deletes variants and the original after metadata removal has committed
      *
      * @param array<string,mixed> $file
      */
@@ -473,7 +471,6 @@ final readonly class AdminFileMutationService
             $original = $this->paths->originalReference(
                 $assetId,
                 $sourceVersion,
-                ImageOriginalStorage::Storage,
                 $format,
                 $dimensions,
             );
@@ -484,7 +481,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Odstrani pouze jednu immutable image source version vcetne jejich variant
+     * Removes one immutable source version and its variants
      */
     private function deleteImageAsset(ImageAsset $asset): void
     {
@@ -493,7 +490,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Odstrani metadata a az po commitu provede neobnovitelne physical cleanup
+     * Removes metadata and schedules permanent physical cleanup after commit
      *
      * @param array<string,mixed> $file
      */
@@ -513,7 +510,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Zajisti, ze selhani post-commit cleanupu nelze zamenit za neuspesny DB bind.
+     * Distinguishes a post-commit cleanup failure from a failed metadata bind
      *
      * @param array<string,mixed> $file
      */
@@ -529,7 +526,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Prevadi Framework relative public reference na storage key relativni k upload rootu.
+     * Converts a private Framework upload reference to an upload-root-relative storage key
      */
     private function storageKey(UploadedFile $uploaded): string
     {
@@ -543,7 +540,7 @@ final readonly class AdminFileMutationService
     }
 
     /**
-     * Zachyti metadata pred DB delete pro canonical shared file audit udalost
+     * Captures metadata before deletion for the shared file audit event
      *
      * @param array<string,mixed> $file
      */

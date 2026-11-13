@@ -24,21 +24,20 @@ use Lemonade\Framework\Image\Value\EncodedImage;
 use Lemonade\Framework\Image\Value\ImageAsset;
 use Lemonade\Framework\Image\Value\ImageDimensions;
 use Lemonade\Framework\Image\Value\ImageFormat;
-use Lemonade\Framework\Image\Value\ImageOriginalStorage;
 use Lemonade\Framework\Image\Value\ImageQuality;
 use Lemonade\Framework\Image\Value\ImageVariantDefinition;
 use Lemonade\Image\ImageOriginalMetadata;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Overuje fyzicky cleanup jedne immutable image source version
+ * Verifies cleanup of one immutable image source version
  */
 final class AdminFileMutationServiceTest extends TestCase
 {
     private string $root = '';
 
     /**
-     * Pripravi izolovany storage a public upload root
+     * Prepares isolated storage and a separate public root
      */
     protected function setUp(): void
     {
@@ -48,7 +47,7 @@ final class AdminFileMutationServiceTest extends TestCase
     }
 
     /**
-     * Odstrani pouze testem vytvoreny filesystem
+     * Removes only the filesystem created by this test
      */
     protected function tearDown(): void
     {
@@ -56,7 +55,7 @@ final class AdminFileMutationServiceTest extends TestCase
     }
 
     /**
-     * Overuje rollback cleanup originalu a variant bez zasahu do jine source version
+     * Verifies rollback cleanup without affecting another source version
      */
     public function testDiscardRemovesOriginalAndOnlyMatchingVariants(): void
     {
@@ -95,7 +94,7 @@ final class AdminFileMutationServiceTest extends TestCase
     }
 
     /**
-     * Sestavi mutation service s realnym image filesystemem a nepouzitymi DB zavislostmi
+     * Builds the mutation service with real image storage and unused database dependencies
      *
      * @return array{AdminFileMutationService,Filesystem,ImageVariantPathResolver,ImageVariantCache}
      */
@@ -129,7 +128,7 @@ final class AdminFileMutationServiceTest extends TestCase
     }
 
     /**
-     * Vytvori bezpecnou image referenci pro jednu testovaci source version
+     * Creates an image reference for one source version
      */
     private function asset(ImageVariantPathResolver $paths, string $sourceVersion): ImageAsset
     {
@@ -138,7 +137,6 @@ final class AdminFileMutationServiceTest extends TestCase
             $paths->originalReference(
                 'asset-123',
                 $sourceVersion,
-                ImageOriginalStorage::Storage,
                 ImageFormat::Png,
                 new ImageDimensions(1, 1),
             ),
@@ -146,7 +144,7 @@ final class AdminFileMutationServiceTest extends TestCase
     }
 
     /**
-     * Vytvori nepouzitou zavislost bez spusteni jeji infrastruktury
+     * Creates an unused dependency without starting its infrastructure
      *
      * @template T of object
      * @param class-string<T> $class

@@ -9,15 +9,14 @@ use Lemonade\Framework\Image\ImageVariantPathResolver;
 use Lemonade\Framework\Image\Value\ImageAsset;
 use Lemonade\Framework\Image\Value\ImageDimensions;
 use Lemonade\Framework\Image\Value\ImageFormat;
-use Lemonade\Framework\Image\Value\ImageOriginalStorage;
 
 /**
- * Prevadi ulozena system_file metadata na canonical original path
+ * Resolves stored file metadata to the single private original location
  */
 final readonly class AdminFileOriginalPathResolver
 {
     /**
-     * Nastavuje Framework resolvery image a generic upload storage
+     * Connects the Framework image resolver and application storage roots
      */
     public function __construct(
         private ImageVariantPathResolver $images,
@@ -25,7 +24,7 @@ final readonly class AdminFileOriginalPathResolver
     ) {}
 
     /**
-     * Vrati original path jen pro uplna a platna image nebo generic file metadata
+     * Resolves complete image or generic file metadata to its canonical original path
      *
      * @param array<string,mixed> $metadata
      */
@@ -34,9 +33,11 @@ final readonly class AdminFileOriginalPathResolver
         if (($metadata['kind'] ?? null) === 'file') {
             $storagePath = $metadata['storage_path'] ?? null;
 
-            return is_string($storagePath) && $storagePath !== '' && !str_starts_with($storagePath, '/')
-                ? $this->context->uploadPath($storagePath)
-                : null;
+            if (!is_string($storagePath) || $storagePath === '' || str_starts_with($storagePath, '/')) {
+                return null;
+            }
+
+            return $this->context->uploadPath($storagePath);
         }
         if (($metadata['kind'] ?? null) !== 'image') {
             return null;
@@ -47,7 +48,12 @@ final readonly class AdminFileOriginalPathResolver
             if ($assetId === '' || $sourceVersion === '' || $metadata['width'] === null || $metadata['height'] === null) {
                 return null;
             }
-            $original = $this->images->originalReference($assetId, $sourceVersion, ImageOriginalStorage::Storage, ImageFormat::fromMimeType((string) $metadata['mime_type']), new ImageDimensions((int) $metadata['width'], (int) $metadata['height']));
+            $original = $this->images->originalReference(
+                assetId: $assetId,
+                sourceVersion: $sourceVersion,
+                format: ImageFormat::fromMimeType((string) $metadata['mime_type']),
+                dimensions: new ImageDimensions((int) $metadata['width'], (int) $metadata['height']),
+            );
 
             return $this->images->originalPath(new ImageAsset($assetId, $original));
         } catch (\InvalidArgumentException) {

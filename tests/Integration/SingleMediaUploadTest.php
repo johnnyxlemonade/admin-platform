@@ -39,14 +39,13 @@ use Lemonade\Framework\Image\ImageVariantCache;
 use Lemonade\Framework\Image\ImageVariantPathResolver;
 use Lemonade\Framework\Image\Value\ImageDimensions;
 use Lemonade\Framework\Image\Value\ImageFormat;
-use Lemonade\Framework\Image\Value\ImageOriginalStorage;
 use Lemonade\Framework\Upload\ValueObject\UploadedFile;
 use Lemonade\Image\ImageOriginalMetadata;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
 /**
- * Overuje realne single replacementy, audit, cleanup a soubezne procesy v izolovane DB
+ * Verifies replacements, audit, cleanup, and concurrent processes in an isolated database
  */
 final class SingleMediaUploadTest extends TestCase
 {
@@ -65,7 +64,7 @@ final class SingleMediaUploadTest extends TestCase
     private ImageVariantPathResolver $paths;
 
     /**
-     * Pripravi pouze vyhrazenou testovaci databazi a docasne originaly
+     * Prepares the dedicated test database and temporary originals
      */
     protected function setUp(): void
     {
@@ -77,7 +76,7 @@ final class SingleMediaUploadTest extends TestCase
     }
 
     /**
-     * Odstrani jen filesystem vytvoreny timto testem
+     * Removes only the filesystem created by this test
      */
     protected function tearDown(): void
     {
@@ -85,7 +84,7 @@ final class SingleMediaUploadTest extends TestCase
     }
 
     /**
-     * Sestavi produkcni persistence a mutace na samostatnem spojeni
+     * Builds persistence and mutations using a separate connection
      */
     private function connect(): void
     {
@@ -126,7 +125,7 @@ final class SingleMediaUploadTest extends TestCase
     }
 
     /**
-     * Vytvori vystup existujici generic upload pipeline
+     * Creates the result of the existing attachment upload pipeline
      */
     private function upload(string $name): UploadedFile
     {
@@ -136,14 +135,14 @@ final class SingleMediaUploadTest extends TestCase
     }
 
     /**
-     * Obe zmeny druhu zachovaji jedinou file identitu a uklidi stary original
+     * Preserves file identity and removes old originals when changing file kind
      */
     public function testSingleReplacementAcrossKindsAndOtherTargets(): void
     {
         $first = $this->upload('first.pdf');
         $id = $this->service->saveGenericUpload('cms.type_1', 1, 'field_1', 'first.pdf', $first, false);
         $other = $this->service->saveGenericUpload('cms.type_1', 1, 'field_2', 'other.pdf', $this->upload('other.pdf'), false);
-        $imagePath = $this->paths->originalPath(new \Lemonade\Framework\Image\Value\ImageAsset('asset', $this->paths->originalReference('asset', 'version', ImageOriginalStorage::Storage, ImageFormat::Png, new ImageDimensions(1, 1))));
+        $imagePath = $this->paths->originalPath(new \Lemonade\Framework\Image\Value\ImageAsset('asset', $this->paths->originalReference('asset', 'version', ImageFormat::Png, new ImageDimensions(1, 1))));
         $this->filesystem->write($imagePath, 'image', 0600);
         self::assertSame($id, $this->service->saveImageUpload('cms.type_1', 1, 'field_1', 'asset', 'version', new ImageOriginalMetadata('image.png', ImageFormat::Png, 5, 1, 1)));
         self::assertFileDoesNotExist($first->storedPath());
@@ -172,7 +171,7 @@ final class SingleMediaUploadTest extends TestCase
     }
 
     /**
-     * Multiple kolekce prijme vice originalu a povoli pouze uplne poradi sveho targetu
+     * Accepts multiple originals and validates complete target ordering
      */
     public function testMultipleOrderAndInvalidTarget(): void
     {
@@ -193,7 +192,7 @@ final class SingleMediaUploadTest extends TestCase
     }
 
     /**
-     * Dva procesy cekaji na stejny prazdny target a po uvolneni vytvori jedinou identitu
+     * Creates one identity when two processes wait for the same empty target
      */
     public function testConcurrentSingleUploadsKeepOneFileAndReleaseLockOnFailure(): void
     {
@@ -232,7 +231,7 @@ final class SingleMediaUploadTest extends TestCase
     }
 
     /**
-     * Spusti samostatny PHP proces bez zdedeneho databazoveho spojeni
+     * Starts a separate PHP process without an inherited database connection
      */
     public static function uploadWorker(string $root, int $index): void
     {

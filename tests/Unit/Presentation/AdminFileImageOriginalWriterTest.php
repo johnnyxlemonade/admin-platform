@@ -19,30 +19,28 @@ use Lemonade\Framework\Image\ImageVariantPathResolver;
 use Lemonade\Framework\Image\Value\ImageAsset;
 use Lemonade\Framework\Image\Value\ImageDimensions;
 use Lemonade\Framework\Image\Value\ImageFormat;
-use Lemonade\Framework\Image\Value\ImageOriginalStorage;
 use Lemonade\Framework\Mime\MimeTypeDetector;
 use Lemonade\Framework\Upload\ValueObject\UploadedImage;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Overuje canonical zapis jiz finalizovaneho Framework image uploadu
+ * Verifies canonical persistence of a finalized Framework image upload
  */
 final class AdminFileImageOriginalWriterTest extends TestCase
 {
     private string $root = '';
 
     /**
-     * Pripravi oddeleny public a storage root pro fyzicky image zapis
+     * Prepares separate public and storage roots for image writes
      */
     protected function setUp(): void
     {
         $this->root = sys_get_temp_dir() . '/lemonade-admin-image-original-' . bin2hex(random_bytes(8));
-        mkdir($this->root . '/public/uploads/admin/images', 0775, true);
-        mkdir($this->root . '/storage', 0775, true);
+        mkdir($this->root . '/storage/uploads/admin/images', 0775, true);
     }
 
     /**
-     * Odstrani pouze izolovany testovaci filesystem
+     * Removes only the isolated test filesystem
      */
     protected function tearDown(): void
     {
@@ -50,11 +48,11 @@ final class AdminFileImageOriginalWriterTest extends TestCase
     }
 
     /**
-     * Overuje zachovani validovanych bajtu, rozmeru, MIME a puvodniho nazvu bez revalidace
+     * Verifies preservation of validated bytes, dimensions, MIME, and original filename
      */
     public function testItPublishesFinalizedImageAsCanonicalOriginal(): void
     {
-        $sourcePath = $this->root . '/public/uploads/admin/images/finalized.png';
+        $sourcePath = $this->root . '/storage/uploads/admin/images/finalized.png';
         $image = imagecreatetruecolor(1, 1);
         self::assertNotFalse($image);
         ob_start();
@@ -79,7 +77,6 @@ final class AdminFileImageOriginalWriterTest extends TestCase
         $original = $paths->originalReference(
             'asset-123',
             $written['sourceVersion'],
-            ImageOriginalStorage::Storage,
             ImageFormat::Png,
             new ImageDimensions(1, 1),
         );
@@ -94,17 +91,17 @@ final class AdminFileImageOriginalWriterTest extends TestCase
         self::assertSame(1, $metadata->height());
         self::assertFileExists($sourcePath);
         if (DIRECTORY_SEPARATOR !== '\\') {
-            self::assertSame(0644, fileperms($canonicalPath) & 0777);
-            self::assertSame(0755, fileperms(dirname($canonicalPath)) & 0777);
+            self::assertSame(0600, fileperms($canonicalPath) & 0777);
+            self::assertSame(0700, fileperms(dirname($canonicalPath)) & 0777);
         }
     }
 
     /**
-     * Overuje odmitnuti souboru zmeneneho po Framework finalizaci
+     * Verifies rejection of files changed after Framework finalization
      */
     public function testItRejectsChangedFinalizedImageSize(): void
     {
-        $sourcePath = $this->root . '/public/uploads/admin/images/changed.png';
+        $sourcePath = $this->root . '/storage/uploads/admin/images/changed.png';
         file_put_contents($sourcePath, 'changed');
         $uploaded = new UploadedImage(
             storedFilename: 'changed.png',
@@ -124,7 +121,7 @@ final class AdminFileImageOriginalWriterTest extends TestCase
     }
 
     /**
-     * Vytvori writer nad izolovanym skutecnym filesystemem
+     * Creates a writer using the isolated filesystem
      *
      * @return array{AdminFileImageOriginalWriter,ImageVariantPathResolver}
      */
@@ -153,7 +150,7 @@ final class AdminFileImageOriginalWriterTest extends TestCase
     }
 
     /**
-     * Rekurzivne odstrani pouze testem vytvoreny adresar
+     * Recursively removes only the directory created by this test
      */
     private function remove(string $path): void
     {

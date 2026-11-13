@@ -11,17 +11,16 @@ use Lemonade\Framework\Image\Value\EncodedImage;
 use Lemonade\Framework\Image\Value\ImageAsset;
 use Lemonade\Framework\Image\Value\ImageDimensions;
 use Lemonade\Framework\Image\Value\ImageFormat;
-use Lemonade\Framework\Image\Value\ImageOriginalStorage;
 use Lemonade\Framework\Upload\ValueObject\UploadedImage;
 use Lemonade\Image\ImageOriginalMetadata;
 
 /**
- * Zapisuje bezpecne finalizovany image upload do canonical original storage
+ * Writes a finalized image upload to private canonical original storage
  */
 final readonly class AdminFileImageOriginalWriter
 {
     /**
-     * Nastavuje cteni finalizovaneho uploadu, canonical path resolver a writer
+     * Connects finalized upload reads, the canonical path resolver, and the writer
      */
     public function __construct(
         private Filesystem $filesystem,
@@ -30,7 +29,7 @@ final readonly class AdminFileImageOriginalWriter
     ) {}
 
     /**
-     * Zapise jiz validovany a dekodovany Framework image vysledek bez dalsi upload validace
+     * Writes an already validated and decoded image without repeating upload validation
      *
      * @return array{sourceVersion:string,metadata:ImageOriginalMetadata}
      */
@@ -48,7 +47,6 @@ final readonly class AdminFileImageOriginalWriter
         $original = $this->paths->originalReference(
             $assetId,
             $sourceVersion,
-            ImageOriginalStorage::Storage,
             $format,
             $dimensions,
         );

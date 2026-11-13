@@ -30,30 +30,30 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 /**
- * Overuje download generic system_file z canonical upload storage
+ * Verifies attachment downloads from canonical private storage
  */
 final class MediaDownloadControllerTest extends TestCase
 {
     /**
-     * Odstrani docasny upload root po testu
+     * Removes the temporary upload root after the test
      */
     protected function tearDown(): void
     {
         $basePath = sys_get_temp_dir() . '/lemonade-media-download-controller-test';
-        if (is_file($basePath . '/public/uploads/admin/files/program.pdf')) {
-            unlink($basePath . '/public/uploads/admin/files/program.pdf');
+        if (is_file($basePath . '/storage/uploads/admin/files/program.pdf')) {
+            unlink($basePath . '/storage/uploads/admin/files/program.pdf');
         }
-        if (is_dir($basePath . '/public/uploads/admin/files')) {
-            rmdir($basePath . '/public/uploads/admin/files');
+        if (is_dir($basePath . '/storage/uploads/admin/files')) {
+            rmdir($basePath . '/storage/uploads/admin/files');
         }
-        if (is_dir($basePath . '/public/uploads/admin')) {
-            rmdir($basePath . '/public/uploads/admin');
+        if (is_dir($basePath . '/storage/uploads/admin')) {
+            rmdir($basePath . '/storage/uploads/admin');
         }
-        if (is_dir($basePath . '/public/uploads')) {
-            rmdir($basePath . '/public/uploads');
+        if (is_dir($basePath . '/storage/uploads')) {
+            rmdir($basePath . '/storage/uploads');
         }
-        if (is_dir($basePath . '/public')) {
-            rmdir($basePath . '/public');
+        if (is_dir($basePath . '/storage')) {
+            rmdir($basePath . '/storage');
         }
         if (is_dir($basePath)) {
             rmdir($basePath);
@@ -61,13 +61,13 @@ final class MediaDownloadControllerTest extends TestCase
     }
 
     /**
-     * Generic system_file se stahuje z ulozene relativni storage cesty
+     * Downloads an attachment using its stored relative path
      */
     public function testDownloadsGenericFileUsingStoredPathNameAndMimeType(): void
     {
         $basePath = sys_get_temp_dir() . '/lemonade-media-download-controller-test';
-        mkdir($basePath . '/public/uploads/admin/files', 0777, true);
-        file_put_contents($basePath . '/public/uploads/admin/files/program.pdf', 'PDF content');
+        mkdir($basePath . '/storage/uploads/admin/files', 0777, true);
+        file_put_contents($basePath . '/storage/uploads/admin/files/program.pdf', 'PDF content');
         $controller = new MediaDownloadController(
             authorization: $this->authorization(),
             adminResponses: (new ReflectionClass(AdminResponseFactory::class))->newInstanceWithoutConstructor(),
@@ -87,7 +87,7 @@ final class MediaDownloadControllerTest extends TestCase
     }
 
     /**
-     * Vytvori autorizaci s opravnenim pro Media katalog
+     * Creates authorization for the media catalog
      */
     private function authorization(): AuthorizationService
     {
@@ -105,7 +105,7 @@ final class MediaDownloadControllerTest extends TestCase
     }
 
     /**
-     * Vytvori database driver vracejici generic file metadata
+     * Creates a database driver returning attachment metadata
      */
     private function driver(): DatabaseDriverInterface
     {
@@ -117,7 +117,7 @@ final class MediaDownloadControllerTest extends TestCase
     }
 
     /**
-     * Vrati ulozene metadata generic prilohy
+     * Returns stored attachment metadata
      */
     private function metadataResult(): DatabaseResultInterface
     {
@@ -145,7 +145,7 @@ final class MediaDownloadControllerTest extends TestCase
     }
 
     /**
-     * Vytvori frameworkovou odpoved pro download souboru
+     * Creates Framework responses for file downloads
      */
     private function responses(): Responses
     {

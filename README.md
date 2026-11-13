@@ -280,3 +280,20 @@ CMS counting/pagination without replacing ownership, locale or deletion scopes.
 DataGrid columns/filters can have literal labels. Explicit scalar filters use a
 bounded server-side pattern; existing static select filters retain their allowlists.
 `DataGridIndexViewModel` can separate the UI translation group from runtime identity.
+
+## Upload storage
+
+All user uploads are private. Generic files keep an upload-root-relative
+`system_file.storage_path`, and images keep their existing `asset_id` and
+`source_version`. The Framework owns physical roots and sharding. Admin readers,
+replacement cleanup, rollback, and removal use the same paths as writers.
+
+`fileId` is assigned after physical upload completion. Generic file sharding uses
+the already generated upload filename stem (the stable publication token for chunk
+completion), without introducing another identifier or an early database row.
+Image sharding remains based on `assetId`.
+
+The document upload profile must explicitly allow the existing `container` MIME risk
+for its allowlisted Office formats. Access permissions and download endpoints do not
+change. Existing records and files must be migrated together before serving the new
+code; there is no lookup in the old public directory.

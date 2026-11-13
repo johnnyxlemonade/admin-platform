@@ -9,21 +9,20 @@ use Lemonade\Framework\Image\ImageVariantPathResolver;
 use Lemonade\Framework\Image\Value\ImageAsset;
 use Lemonade\Framework\Image\Value\ImageDimensions;
 use Lemonade\Framework\Image\Value\ImageFormat;
-use Lemonade\Framework\Image\Value\ImageOriginalStorage;
 use Lemonade\Image\Contract\ImageAssetResolverInterface;
 
 /**
- * Sestavuje Framework image asset pouze z aktivniho shared system_file zaznamu
+ * Builds a Framework image asset from active shared file metadata
  */
 final readonly class AdminFileImageAssetResolver implements ImageAssetResolverInterface
 {
     /**
-     * Nastavuje shared file metadata a Framework canonical original path resolver
+     * Connects shared file metadata and the canonical original path resolver
      */
     public function __construct(private FileReadModel $files, private ImageVariantPathResolver $paths) {}
 
     /**
-     * Nacte image metadata vcetne vlastniciho modulu podle globalniho ID souboru
+     * Reads image metadata and its owner by global file ID
      */
     public function resolve(int $fileId): ?ImageAsset
     {
@@ -35,7 +34,12 @@ final readonly class AdminFileImageAssetResolver implements ImageAssetResolverIn
         try {
             $format = ImageFormat::fromMimeType($file->mimeType());
             $dimensions = new ImageDimensions($file->width(), $file->height());
-            $original = $this->paths->originalReference($file->assetId(), $file->sourceVersion(), ImageOriginalStorage::Storage, $format, $dimensions);
+            $original = $this->paths->originalReference(
+                assetId: $file->assetId(),
+                sourceVersion: $file->sourceVersion(),
+                format: $format,
+                dimensions: $dimensions,
+            );
         } catch (\InvalidArgumentException) {
             return null;
         }
