@@ -92,7 +92,7 @@ final class MfaControllerContractTest extends TestCase
             $recentPrimary->remember(42);
         }
         $connection = new MfaModalConnectionDouble();
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
         $configuration = new AdminMfaConfiguration($requirement, 'Admin', base64_encode(str_repeat('a', 32)));
         $credentials = new TotpCredentialService(
             $database,
@@ -106,12 +106,12 @@ final class MfaControllerContractTest extends TestCase
         $this->set($controller, 'currentUser', $this->currentUser($session));
         $this->set($controller, 'recentPrimary', $recentPrimary);
         $this->set($controller, 'credentials', $credentials);
-        $this->set($controller, 'mfa', new MfaAuthenticationService($configuration, $credentials, $database, $this->createMock(AuditLogWriterInterface::class)));
+        $this->set($controller, 'mfa', new MfaAuthenticationService($configuration, $credentials, $database, self::createStub(AuditLogWriterInterface::class)));
         $this->set($controller, 'routing', new AdminRoutingConfiguration('/admin'));
         $this->set($controller, 'challenges', new MfaLoginChallengeStore($session, new AdminRoutingConfiguration('/admin')));
         $factory = new Psr17Factory();
         $this->set($controller, 'responses', new Responses(new ResponseBuilder($factory, $factory)));
-        $views = $this->createMock(ViewRendererInterface::class);
+        $views = self::createStub(ViewRendererInterface::class);
         $views->method('content')->willReturn('<div></div>');
         $this->set($controller, 'views', $views);
 
@@ -134,7 +134,7 @@ final class MfaControllerContractTest extends TestCase
 
     private function clock(): ClockInterface
     {
-        $clock = $this->createMock(ClockInterface::class);
+        $clock = self::createStub(ClockInterface::class);
         $clock->method('now')->willReturn(new DateTimeImmutable('@1767225600'));
 
         return $clock;

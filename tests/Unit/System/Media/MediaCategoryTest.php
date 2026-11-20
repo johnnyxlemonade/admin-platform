@@ -33,7 +33,7 @@ final class MediaCategoryTest extends TestCase
     public function testManagementFilterUsesStoredMediaCategory(): void
     {
         $queries = [];
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
         $driver->method('query')->willReturnCallback(function (string $sql, array|false $bindings) use (&$queries): DatabaseResultInterface {
             $queries[] = ['sql' => $sql, 'bindings' => $bindings === false ? [] : array_values($bindings)];
@@ -90,7 +90,7 @@ final class MediaCategoryTest extends TestCase
      */
     private function databaseResult(): DatabaseResultInterface
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $result->method('row_array')->willReturn(['numrows' => 0]);
         $result->method('result_array')->willReturn([]);
 

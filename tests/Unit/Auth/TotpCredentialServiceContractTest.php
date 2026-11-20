@@ -133,10 +133,10 @@ final class TotpCredentialServiceContractTest extends TestCase
 
     private function service(ConnectionInterface $connection, MfaSecretCipher $cipher, int $timestamp): TotpCredentialService
     {
-        $clock = $this->createMock(ClockInterface::class);
+        $clock = self::createStub(ClockInterface::class);
         $clock->method('now')->willReturn(new DateTimeImmutable('@' . $timestamp));
 
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
 
         return new TotpCredentialService(
             $database,

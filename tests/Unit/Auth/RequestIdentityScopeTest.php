@@ -37,7 +37,7 @@ final class RequestIdentityScopeTest extends TestCase
         $container->instance(LocalAuthenticationProvider::class, $this->withoutConstructor(LocalAuthenticationProvider::class));
         $container->instance(Database::class, $this->withoutConstructor(Database::class));
         $container->instance(CsrfTokenManager::class, $this->withoutConstructor(CsrfTokenManager::class));
-        $container->instance(AuditLogWriterInterface::class, $this->createMock(AuditLogWriterInterface::class));
+        $container->instance(AuditLogWriterInterface::class, self::createStub(AuditLogWriterInterface::class));
         $container->scoped(SessionInterface::class, RequestIdentitySessionStub::class);
         $container->freeze();
 

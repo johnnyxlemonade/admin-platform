@@ -26,7 +26,7 @@ final class TransactionalEventProcessorTest extends TestCase
     public function testAuditIsWrittenBeforeCommitAndNotificationRunsAfterCommit(): void
     {
         $connection = new TransactionConnection(false);
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $dispatcher = new DomainEventDispatcher($logger);
         $listener = new class ($connection) implements DomainEventListenerInterface {
             public ?DomainEvent $event = null;
@@ -62,7 +62,7 @@ final class TransactionalEventProcessorTest extends TestCase
     public function testAuditFailureRollsBackAndDoesNotDispatchNotification(): void
     {
         $connection = new TransactionConnection(true);
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $dispatcher = new DomainEventDispatcher($logger);
         $dispatcher->listen(new class implements DomainEventListenerInterface {
             public function handle(DomainEvent $event): void
@@ -87,7 +87,7 @@ final class TransactionalEventProcessorTest extends TestCase
     public function testThrowingAuditWriterRollsBackWithoutCommitOrPostCommitDispatch(): void
     {
         $connection = new TransactionConnection(false);
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $dispatcher = new DomainEventDispatcher($logger);
         $dispatcher->listen(new class ($connection) implements DomainEventListenerInterface {
             public function __construct(private readonly TransactionConnection $connection) {}
@@ -144,7 +144,7 @@ final class TransactionalEventProcessorTest extends TestCase
     public function testMissingAuditEventRollsBackMutation(): void
     {
         $connection = new TransactionConnection(false);
-        $processor = $this->processor($connection, new DomainEventDispatcher($this->createMock(LoggerInterface::class)));
+        $processor = $this->processor($connection, new DomainEventDispatcher(self::createStub(LoggerInterface::class)));
 
         $this->expectException(MissingAuditEventException::class);
         try {
@@ -159,7 +159,7 @@ final class TransactionalEventProcessorTest extends TestCase
     public function testExplicitNoOpCommitsWithoutAuditOrDispatch(): void
     {
         $connection = new TransactionConnection(false);
-        $dispatcher = new DomainEventDispatcher($this->createMock(LoggerInterface::class));
+        $dispatcher = new DomainEventDispatcher(self::createStub(LoggerInterface::class));
         $processor = $this->processor($connection, $dispatcher);
 
         $processor->execute($this->actor(), function (TransactionalEventCollector $events) use ($connection): void {
@@ -172,7 +172,7 @@ final class TransactionalEventProcessorTest extends TestCase
 
     private function processor(TransactionConnection $connection, DomainEventDispatcher $dispatcher, AuditLogWriterInterface|null $writer = null): TransactionalEventProcessor
     {
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
 
         return new TransactionalEventProcessor($database, $writer ?? new AuditLogService($database), $dispatcher);
     }

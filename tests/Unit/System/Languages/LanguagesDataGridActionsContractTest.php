@@ -158,7 +158,7 @@ final class LanguagesDataGridActionsContractTest extends TestCase
 
     private function translator(): TranslatorInterface
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnCallback(static function (string $key, array $parameters = []): string {
             return $key . ($parameters === [] ? '' : ':' . implode(',', $parameters));
         });
@@ -168,8 +168,8 @@ final class LanguagesDataGridActionsContractTest extends TestCase
 
     private function authorization(bool $canManage): AuthorizationService
     {
-        $principalProvider = $this->createMock(CurrentPrincipalProviderInterface::class);
-        $connection = $this->createMock(ConnectionInterface::class);
+        $principalProvider = self::createStub(CurrentPrincipalProviderInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturn($canManage ? [['id' => 1]] : []);
         if ($canManage) {
             $user = new AuthenticatedUser(7, 'admin@example.test');
@@ -182,16 +182,14 @@ final class LanguagesDataGridActionsContractTest extends TestCase
 
         return new AuthorizationService(
             currentUser: $principalProvider,
-            database: new Database($connection, $this->createMock(DatabaseDriverInterface::class)),
+            database: new Database($connection, self::createStub(DatabaseDriverInterface::class)),
         );
     }
 
     /** @param list<string> $availableActions */
     private function actionPresentation(array $availableActions): ModuleActionPresentationFactory
     {
-        $presentation = $this->getMockBuilder(ModuleActionPresentationFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $presentation = self::createStub(ModuleActionPresentationFactory::class);
         $presentation->method('rowAction')->willReturnCallback(
             static function (string $moduleCode, string $action, int $entityId, DataGridRowActionPlacement $placement) use ($availableActions): ?DataGridRowActionDefinition {
                 if ($moduleCode !== 'system.languages' || !in_array($action, $availableActions, true)) {

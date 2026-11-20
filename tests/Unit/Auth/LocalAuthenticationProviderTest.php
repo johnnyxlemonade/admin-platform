@@ -101,7 +101,7 @@ final class LocalAuthenticationProviderTest extends TestCase
     {
         return new LocalAuthenticationProvider(new Database(
             $connection,
-            $this->createMock(DatabaseDriverInterface::class),
+            self::createStub(DatabaseDriverInterface::class),
         ));
     }
 }

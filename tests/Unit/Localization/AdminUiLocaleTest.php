@@ -39,8 +39,8 @@ final class AdminUiLocaleTest extends TestCase
      */
     public function testUnsupportedUiLocaleFallsBackToCzech(): void
     {
-        $session = $this->createMock(SessionInterface::class);
-        $translator = $this->createMock(TranslatorInterface::class);
+        $session = self::createStub(SessionInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $locale = new AdminUiLocale($session, $translator);
 
         self::assertFalse($locale->supports('de'));

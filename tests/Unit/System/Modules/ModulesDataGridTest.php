@@ -26,7 +26,7 @@ final class ModulesDataGridTest extends TestCase
     {
         [$catalog, $cleanup] = $this->catalog();
         try {
-            $translator = $this->createMock(TranslatorInterface::class);
+            $translator = self::createStub(TranslatorInterface::class);
             $translator->method('get')->willReturnCallback(
                 static fn(string $key): string => str_ends_with($key, '.name') ? 'Same name' : $key,
             );

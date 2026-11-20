@@ -20,17 +20,16 @@ use Lemonade\Framework\Session\Contract\SessionInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\Response;
 use Nyholm\Psr7\ServerRequest;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Server\RequestHandlerInterface;
 
 final class AdminAnonymousMiddlewareTest extends TestCase
 {
-    /**
-     * @dataProvider authenticatedAuthEndpoints
-     */
+    #[DataProvider('authenticatedAuthEndpoints')]
     public function testItRedirectsAnAuthenticatedLocalPrincipalBeforeAnonymousAuthHandlersRun(string $method, string $uri): void
     {
-        $principal = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principal = self::createStub(CurrentPrincipalProviderInterface::class);
         $principal->method('currentUser')->willReturn(new AuthenticatedUser(1, 'root@example.test'));
         $principal->method('currentPrincipal')->willReturn(new LocalAdminPrincipal(new AuthenticatedUser(1, 'root@example.test')));
         $handler = $this->createMock(RequestHandlerInterface::class);
@@ -51,7 +50,7 @@ final class AdminAnonymousMiddlewareTest extends TestCase
 
     public function testItPassesAnonymousPrincipalsToTheAnonymousAuthHandler(): void
     {
-        $principal = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principal = self::createStub(CurrentPrincipalProviderInterface::class);
         $principal->method('currentUser')->willReturn(null);
         $principal->method('currentPrincipal')->willReturn(null);
         $handler = $this->createMock(RequestHandlerInterface::class);
@@ -87,8 +86,8 @@ final class AdminAnonymousMiddlewareTest extends TestCase
     private function authentication(SessionInterface $session): AuthenticationService
     {
         $database = new Database(
-            $this->createMock(ConnectionInterface::class),
-            $this->createMock(DatabaseDriverInterface::class),
+            self::createStub(ConnectionInterface::class),
+            self::createStub(DatabaseDriverInterface::class),
         );
 
         return new AuthenticationService(
@@ -96,7 +95,7 @@ final class AdminAnonymousMiddlewareTest extends TestCase
             $session,
             $database,
             new CsrfTokenManager($session),
-            $this->createMock(AuditLogWriterInterface::class),
+            self::createStub(AuditLogWriterInterface::class),
         );
     }
 

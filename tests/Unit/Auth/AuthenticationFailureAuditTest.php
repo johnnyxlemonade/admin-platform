@@ -70,7 +70,7 @@ final class AuthenticationFailureAuditTest extends TestCase
     public function testLoginFailureDoesNotPersistInvalidRawIdentifier(): void
     {
         $recorded = [];
-        $audit = $this->createMock(AuditLogWriterInterface::class);
+        $audit = self::createStub(AuditLogWriterInterface::class);
         $audit->method('record')->willReturnCallback(static function (DomainEvent $event) use (&$recorded): void {
             $recorded = $event->payload();
         });

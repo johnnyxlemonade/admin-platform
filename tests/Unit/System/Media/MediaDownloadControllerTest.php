@@ -91,16 +91,16 @@ final class MediaDownloadControllerTest extends TestCase
      */
     private function authorization(): AuthorizationService
     {
-        $principal = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principal = self::createStub(CurrentPrincipalProviderInterface::class);
         $user = new AuthenticatedUser(7, 'admin@example.test');
         $principal->method('currentUser')->willReturn($user);
         $principal->method('currentPrincipal')->willReturn(new LocalAdminPrincipal($user));
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturn([['id' => 1]]);
 
         return new AuthorizationService(
             currentUser: $principal,
-            database: new Database($connection, $this->createMock(DatabaseDriverInterface::class)),
+            database: new Database($connection, self::createStub(DatabaseDriverInterface::class)),
         );
     }
 
@@ -109,7 +109,7 @@ final class MediaDownloadControllerTest extends TestCase
      */
     private function driver(): DatabaseDriverInterface
     {
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
         $driver->method('query')->willReturn($this->metadataResult());
 
@@ -121,7 +121,7 @@ final class MediaDownloadControllerTest extends TestCase
      */
     private function metadataResult(): DatabaseResultInterface
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $metadata = [
             'id' => 16,
             'module_code' => 'cms.page',

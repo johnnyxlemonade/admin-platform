@@ -96,7 +96,7 @@ final class AuthorizationHypotheticalRolePermissionsTest extends TestCase
      */
     private function database(ConnectionInterface $connection): Database
     {
-        return new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        return new Database($connection, self::createStub(DatabaseDriverInterface::class));
     }
 }
 

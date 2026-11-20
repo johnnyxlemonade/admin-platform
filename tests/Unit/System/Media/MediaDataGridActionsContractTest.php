@@ -83,11 +83,11 @@ final class MediaDataGridActionsContractTest extends TestCase
 
     private function authorization(bool $canEdit): AuthorizationService
     {
-        $principals = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principals = self::createStub(CurrentPrincipalProviderInterface::class);
         $user = new AuthenticatedUser(7, 'admin@example.test');
         $principals->method('currentUser')->willReturn($user);
         $principals->method('currentPrincipal')->willReturn(new LocalAdminPrincipal($user));
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturnCallback(static function (string $sql) use ($canEdit): array {
             if (str_contains($sql, 'r.is_super_admin=1')) {
                 return [];
@@ -105,13 +105,13 @@ final class MediaDataGridActionsContractTest extends TestCase
 
         return new AuthorizationService(
             currentUser: $principals,
-            database: new Database($connection, $this->createMock(DatabaseDriverInterface::class)),
+            database: new Database($connection, self::createStub(DatabaseDriverInterface::class)),
         );
     }
 
     private function translator(): TranslatorInterface
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnArgument(0);
 
         return $translator;

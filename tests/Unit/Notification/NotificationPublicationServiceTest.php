@@ -29,7 +29,7 @@ final class NotificationPublicationServiceTest extends TestCase
     public function testIdenticalUpdateDoesNotWriteResetDisplayOrAudit(): void
     {
         $queries = [];
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
         $driver->method('query')->willReturnCallback(function (string $sql, array|false $bindings) use (&$queries): DatabaseResultInterface {
             $queries[] = $sql;
@@ -45,9 +45,9 @@ final class NotificationPublicationServiceTest extends TestCase
 
             return $this->databaseResult([['id' => 11, 'type' => 'info', 'title' => 'Údržba', 'message' => 'Dnes večer', 'active' => 1, 'deleted_at' => null]]);
         });
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturn([['exists' => 1]]);
-        $authorization = new AuthorizationService($this->createMock(CurrentPrincipalProviderInterface::class), new Database($connection, $driver));
+        $authorization = new AuthorizationService(self::createStub(CurrentPrincipalProviderInterface::class), new Database($connection, $driver));
         $catalog = new PermissionCatalogRegistry();
         $service = new NotificationPublicationService(
             new NotificationModel($driver),
@@ -70,7 +70,7 @@ final class NotificationPublicationServiceTest extends TestCase
      */
     private function databaseResult(array $rows): DatabaseResultInterface
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $result->method('result_array')->willReturn($rows);
 
         return $result;

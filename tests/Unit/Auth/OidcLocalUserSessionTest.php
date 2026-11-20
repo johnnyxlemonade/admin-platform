@@ -62,14 +62,14 @@ final class OidcLocalUserSessionTest extends TestCase
             [['id' => 42, 'email' => 'before@example.test']],
             [['id' => 42, 'email' => 'after@example.test']],
         );
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
         $provider = new CurrentUserProvider(
             new AuthenticationService(
                 new LocalAuthenticationProvider($database),
                 $session,
                 $database,
                 new CsrfTokenManager($session),
-                $this->createMock(AuditLogWriterInterface::class),
+                self::createStub(AuditLogWriterInterface::class),
             ),
             $database,
         );
@@ -95,13 +95,13 @@ final class OidcLocalUserSessionTest extends TestCase
             [],
             [['id' => 42, 'email' => 'restored@example.test']],
         );
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
         $authentication = new AuthenticationService(
             new LocalAuthenticationProvider($database),
             $session,
             $database,
             new CsrfTokenManager($session),
-            $this->createMock(AuditLogWriterInterface::class),
+            self::createStub(AuditLogWriterInterface::class),
         );
 
         self::assertNull((new CurrentUserProvider($authentication, $database))->currentUser());
@@ -118,13 +118,13 @@ final class OidcLocalUserSessionTest extends TestCase
         $connection->expects(self::exactly(2))->method('select')->willReturn([
             ['id' => 42, 'email' => 'admin@example.test'],
         ]);
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
         $authentication = new AuthenticationService(
             new LocalAuthenticationProvider($database),
             $session,
             $database,
             new CsrfTokenManager($session),
-            $this->createMock(AuditLogWriterInterface::class),
+            self::createStub(AuditLogWriterInterface::class),
         );
 
         self::assertNotNull((new CurrentUserProvider($authentication, $database))->currentUser());
@@ -179,15 +179,15 @@ final class OidcLocalUserSessionTest extends TestCase
             $session,
             $database,
             new CsrfTokenManager($session),
-            $this->createMock(AuditLogWriterInterface::class),
+            self::createStub(AuditLogWriterInterface::class),
         );
     }
 
     private function database(): Database
     {
         return new Database(
-            $this->createMock(ConnectionInterface::class),
-            $this->createMock(DatabaseDriverInterface::class),
+            self::createStub(ConnectionInterface::class),
+            self::createStub(DatabaseDriverInterface::class),
         );
     }
 

@@ -128,11 +128,11 @@ final class TranslationsDataGridActionsContractTest extends TestCase
      */
     private function grid(bool $canEdit): TranslationsDataGrid
     {
-        $sources = $this->createMock(TranslationSourceCatalogInterface::class);
+        $sources = self::createStub(TranslationSourceCatalogInterface::class);
         $sources->method('entries')->willReturn([]);
-        $overrides = $this->createMock(TranslationOverrideProviderInterface::class);
+        $overrides = self::createStub(TranslationOverrideProviderInterface::class);
         $overrides->method('group')->willReturn([]);
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnCallback(static fn(string $key): string => $key);
         $translator->method('group')->willReturn([
             'status.default' => 'Výchozí',
@@ -155,8 +155,8 @@ final class TranslationsDataGridActionsContractTest extends TestCase
      */
     private function authorization(bool $canEdit): AuthorizationService
     {
-        $principals = $this->createMock(CurrentPrincipalProviderInterface::class);
-        $connection = $this->createMock(ConnectionInterface::class);
+        $principals = self::createStub(CurrentPrincipalProviderInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturn($canEdit ? [['id' => 1]] : []);
         if ($canEdit) {
             $user = new AuthenticatedUser(7, 'admin@example.test');
@@ -169,7 +169,7 @@ final class TranslationsDataGridActionsContractTest extends TestCase
 
         return new AuthorizationService(
             currentUser: $principals,
-            database: new Database($connection, $this->createMock(DatabaseDriverInterface::class)),
+            database: new Database($connection, self::createStub(DatabaseDriverInterface::class)),
         );
     }
 
@@ -178,9 +178,7 @@ final class TranslationsDataGridActionsContractTest extends TestCase
      */
     private function actionPresentation(bool $canEdit): ModuleActionPresentationFactory
     {
-        $presentation = $this->getMockBuilder(ModuleActionPresentationFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $presentation = self::createStub(ModuleActionPresentationFactory::class);
         $presentation->method('rowAction')->willReturnCallback(static function (
             string $moduleCode,
             string $action,

@@ -39,6 +39,7 @@ use Lemonade\Framework\Database\Sql\IdentifierProtector;
 use Lemonade\Framework\Routing\Router;
 use Lemonade\Framework\Support\Slug\Slugger;
 use Nyholm\Psr7\ServerRequest;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use ReflectionMethod;
@@ -48,10 +49,8 @@ use ReflectionMethod;
  */
 final class CmsModuleLifecycleTest extends TestCase
 {
-    /**
-     * @dataProvider modules
-     * @param array<string,mixed> $domainInput
-     */
+    /** @param array<string,mixed> $domainInput */
+    #[DataProvider('modules')]
     public function testFreshModuleSchemaAndSharedLifecycle(
         string $manifestClass,
         string $dataClass,

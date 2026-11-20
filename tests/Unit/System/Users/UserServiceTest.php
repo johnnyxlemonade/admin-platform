@@ -48,7 +48,7 @@ final class UserServiceTest extends TestCase
     public function testIdenticalEditorUpdateDoesNotWriteOrAudit(): void
     {
         $queries = [];
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
         $driver->method('query')->willReturnCallback(function (string $sql, array|false $bindings) use (&$queries): DatabaseResultInterface {
             $queries[] = $sql;
@@ -90,7 +90,7 @@ final class UserServiceTest extends TestCase
                 return $this->actor;
             }
         };
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturn([]);
         $database = new Database($connection, $driver);
         $catalog = new PermissionCatalogRegistry();
@@ -126,7 +126,7 @@ final class UserServiceTest extends TestCase
 
     public function testMfaResetUsesAuthorizationTargetPolicyBeforeRevokingTheCredential(): void
     {
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
         $driver->method('query')->willReturn($this->databaseResult([[
             'id' => 42,
@@ -140,7 +140,7 @@ final class UserServiceTest extends TestCase
         $connection = $this->createMock(ConnectionInterface::class);
         $connection->expects(self::never())->method('statement');
         $database = new Database($connection, $driver);
-        $principal = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principal = self::createStub(CurrentPrincipalProviderInterface::class);
         $authorization = new AuthorizationService($principal, $database);
         $this->set($authorization, 'superAdminUsers', [7 => false, 42 => false]);
         $this->set($authorization, 'effectiveUserPermissions', [
@@ -149,7 +149,7 @@ final class UserServiceTest extends TestCase
         ]);
         $dependencies = new PermissionDependencyResolver(new PermissionCatalogRegistry());
         $credentials = new TotpCredentialService($database, new \Lemonade\Admin\Auth\Mfa\TotpCredentialModel($database), MfaSecretCipher::fromKey(str_repeat('a', 32)), new TotpSecretGenerator(), new TotpVerifier($this->clock()));
-        $mfa = new MfaAuthenticationService(new AdminMfaConfiguration('optional', 'Admin', base64_encode(str_repeat('a', 32))), $credentials, $database, $this->createMock(AuditLogWriterInterface::class));
+        $mfa = new MfaAuthenticationService(new AdminMfaConfiguration('optional', 'Admin', base64_encode(str_repeat('a', 32))), $credentials, $database, self::createStub(AuditLogWriterInterface::class));
         $service = new UserService(
             new UserModel($driver),
             new UserRoleModel($driver),
@@ -174,7 +174,7 @@ final class UserServiceTest extends TestCase
 
     private function clock(): ClockInterface
     {
-        $clock = $this->createMock(ClockInterface::class);
+        $clock = self::createStub(ClockInterface::class);
         $clock->method('now')->willReturn(new DateTimeImmutable('@1767225600'));
 
         return $clock;
@@ -192,7 +192,7 @@ final class UserServiceTest extends TestCase
      */
     private function databaseResult(array $rows): DatabaseResultInterface
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $result->method('result_array')->willReturn($rows);
 
         return $result;

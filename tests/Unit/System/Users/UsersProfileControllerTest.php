@@ -17,7 +17,7 @@ final class UsersProfileControllerTest extends TestCase
      */
     public function testItResolvesProfileTargetOnlyFromCurrentSessionUser(): void
     {
-        $principals = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principals = self::createStub(CurrentPrincipalProviderInterface::class);
         $principals->method('currentUser')->willReturn(new AuthenticatedUser(17, 'profile@example.test'));
         $controller = (new \ReflectionClass(UsersProfileController::class))->newInstanceWithoutConstructor();
         (new \ReflectionProperty(UsersProfileController::class, 'currentUser'))->setValue($controller, $principals);

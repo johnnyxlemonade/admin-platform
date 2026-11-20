@@ -121,7 +121,7 @@ final class OidcShadowUserProvisionerTest extends TestCase
             'lastInsertId' => 100,
             'roleWrites' => 0,
         ];
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturnCallback(static function (string $sql, array $bindings) use ($state): array {
             if (str_contains($sql, 'FROM system_user_identity')) {
                 $userId = $state->identities[$bindings[0] . "\0" . $bindings[1]] ?? null;
@@ -172,7 +172,7 @@ final class OidcShadowUserProvisionerTest extends TestCase
         $connection->method('lastInsertId')->willReturnCallback(static fn(): int => $state->lastInsertId);
 
         return [
-            new OidcShadowUserProvisioner(new ExternalIdentityRepository(new Database($connection, $this->createMock(DatabaseDriverInterface::class)))),
+            new OidcShadowUserProvisioner(new ExternalIdentityRepository(new Database($connection, self::createStub(DatabaseDriverInterface::class)))),
             $state,
         ];
     }

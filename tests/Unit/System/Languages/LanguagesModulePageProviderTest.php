@@ -27,7 +27,7 @@ final class LanguagesModulePageProviderTest extends TestCase
 {
     public function testCreatePrimaryActionUsesExplicitModalMetadata(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnCallback(static fn(string $key): string => $key);
         $urls = $this->urls();
         $authorization = $this->authorization();
@@ -35,9 +35,7 @@ final class LanguagesModulePageProviderTest extends TestCase
             languages: (new \ReflectionClass(LanguageModel::class))->newInstanceWithoutConstructor(),
             translator: $translator,
             authorization: $authorization,
-            actionPresentation: $this->getMockBuilder(ModuleActionPresentationFactory::class)
-                ->disableOriginalConstructor()
-                ->getMock(),
+            actionPresentation: self::createStub(ModuleActionPresentationFactory::class),
             urls: $urls,
         );
         $provider = new LanguagesModulePageProvider(
@@ -61,17 +59,17 @@ final class LanguagesModulePageProviderTest extends TestCase
     private function authorization(): AuthorizationService
     {
         $user = new AuthenticatedUser(7, 'admin@example.test');
-        $principals = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principals = self::createStub(CurrentPrincipalProviderInterface::class);
         $principals->method('currentUser')->willReturn($user);
         $principals->method('currentPrincipal')->willReturn(new LocalAdminPrincipal($user));
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturn([['id' => 1]]);
 
         return new AuthorizationService(
             currentUser: $principals,
             database: new Database(
                 $connection,
-                $this->createMock(DatabaseDriverInterface::class),
+                self::createStub(DatabaseDriverInterface::class),
             ),
         );
     }

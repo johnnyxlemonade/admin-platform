@@ -105,7 +105,7 @@ final class SingleMediaUploadTest extends TestCase
         $this->database->statement('CREATE TABLE IF NOT EXISTS system_audit_log (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, event_code VARCHAR(255), module_code VARCHAR(255), entity_type VARCHAR(255), entity_key VARCHAR(255), actor_type VARCHAR(30), actor_key VARCHAR(255), actor_user_id BIGINT UNSIGNED, payload TEXT, created_at DATETIME) ENGINE=InnoDB');
         $this->files = new AdminFileModel($driver, new FileReadModel($driver));
         $actor = new AuthenticatedUser(7, 'editor@example.test');
-        $principals = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principals = self::createStub(CurrentPrincipalProviderInterface::class);
         $principals->method('currentUser')->willReturn($actor);
         $principals->method('currentPrincipal')->willReturn(new LocalAdminPrincipal($actor));
         $directory = new DirectoryManager();

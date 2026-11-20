@@ -49,7 +49,7 @@ final class OidcAuthenticationServiceTest extends TestCase
             'raw-id-token',
         ));
 
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturnOnConsecutiveCalls(
             [[
                 'user_id' => 42,
@@ -60,7 +60,7 @@ final class OidcAuthenticationServiceTest extends TestCase
             [['active' => 1, 'deleted_at' => null]],
             [],
         );
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
         $authentication = $this->authentication($session, $database);
         $provisioner = new OidcShadowUserProvisioner(new ExternalIdentityRepository($database));
         $service = new OidcAuthenticationService(
@@ -95,7 +95,7 @@ final class OidcAuthenticationServiceTest extends TestCase
             $session,
             $database,
             new CsrfTokenManager($session),
-            $this->createMock(AuditLogWriterInterface::class),
+            self::createStub(AuditLogWriterInterface::class),
         );
     }
 

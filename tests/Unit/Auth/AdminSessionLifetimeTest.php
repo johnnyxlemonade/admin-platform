@@ -94,10 +94,10 @@ final class AdminSessionLifetimeTest extends TestCase
     private function authentication(SessionInterface $session, int $timestamp): AuthenticationService
     {
         $database = new Database(
-            $this->createMock(ConnectionInterface::class),
-            $this->createMock(DatabaseDriverInterface::class),
+            self::createStub(ConnectionInterface::class),
+            self::createStub(DatabaseDriverInterface::class),
         );
-        $clock = $this->createMock(ClockInterface::class);
+        $clock = self::createStub(ClockInterface::class);
         $clock->method('now')->willReturn(new DateTimeImmutable('@' . $timestamp));
 
         return new AuthenticationService(
@@ -105,7 +105,7 @@ final class AdminSessionLifetimeTest extends TestCase
             $session,
             $database,
             new CsrfTokenManager($session),
-            $this->createMock(AuditLogWriterInterface::class),
+            self::createStub(AuditLogWriterInterface::class),
             clock: $clock,
         );
     }

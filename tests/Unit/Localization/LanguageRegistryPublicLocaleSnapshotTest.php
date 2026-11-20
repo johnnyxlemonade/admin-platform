@@ -79,7 +79,7 @@ final class LanguageRegistryPublicLocaleSnapshotTest extends TestCase
      */
     private function registry(int &$reads): LanguageRegistry
     {
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturnCallback(function (string $sql) use (&$reads): array {
             ++$reads;
             self::assertSame('SELECT code, enabled, is_default FROM system_language', $sql);
@@ -92,7 +92,7 @@ final class LanguageRegistryPublicLocaleSnapshotTest extends TestCase
         });
 
         return new LanguageRegistry(
-            new Database($connection, $this->createMock(DatabaseDriverInterface::class)),
+            new Database($connection, self::createStub(DatabaseDriverInterface::class)),
             new CacheManager(new ArrayCacheItemPool()),
         );
     }

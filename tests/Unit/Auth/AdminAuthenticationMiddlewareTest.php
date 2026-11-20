@@ -44,7 +44,7 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
         $session = $this->session();
         $response = $this->middleware($session)->process(
             new ServerRequest('GET', '/admin/users?filter=active'),
-            $this->createMock(RequestHandlerInterface::class),
+            self::createStub(RequestHandlerInterface::class),
         );
 
         self::assertSame(302, $response->getStatusCode());
@@ -57,7 +57,7 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
         $session = $this->session();
         $response = $this->middleware($session)->process(
             new ServerRequest('GET', '/admin/api/datagrid/users'),
-            $this->createMock(RequestHandlerInterface::class),
+            self::createStub(RequestHandlerInterface::class),
         );
 
         self::assertSame(401, $response->getStatusCode());
@@ -70,7 +70,7 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
     {
         $response = $this->middleware($this->session())->process(
             new ServerRequest('POST', '/admin/languages/ajax/1'),
-            $this->createMock(RequestHandlerInterface::class),
+            self::createStub(RequestHandlerInterface::class),
         );
 
         self::assertSame(401, $response->getStatusCode());
@@ -90,7 +90,7 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
 
         $response = $this->middleware($session, new AuthenticatedUser(42, 'admin@example.test'))->process(
             new ServerRequest('POST', '/admin/api/session/heartbeat'),
-            $this->createMock(RequestHandlerInterface::class),
+            self::createStub(RequestHandlerInterface::class),
         );
 
         self::assertSame(423, $response->getStatusCode());
@@ -106,7 +106,7 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
 
         $response = $this->middleware($session, new AuthenticatedUser(42, 'admin@example.test'))->process(
             new ServerRequest('GET', '/admin/?filter=active'),
-            $this->createMock(RequestHandlerInterface::class),
+            self::createStub(RequestHandlerInterface::class),
         );
 
         self::assertSame(302, $response->getStatusCode());
@@ -116,7 +116,7 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
 
     private function middleware(SessionInterface $session, ?AuthenticatedUser $user = null): AdminAuthenticationMiddleware
     {
-        $principal = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principal = self::createStub(CurrentPrincipalProviderInterface::class);
         $principal->method('currentUser')->willReturn($user);
 
         return new AdminAuthenticationMiddleware(
@@ -138,8 +138,8 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
     private function authentication(SessionInterface $session): AuthenticationService
     {
         $database = new Database(
-            $this->createMock(ConnectionInterface::class),
-            $this->createMock(DatabaseDriverInterface::class),
+            self::createStub(ConnectionInterface::class),
+            self::createStub(DatabaseDriverInterface::class),
         );
 
         return new AuthenticationService(
@@ -147,7 +147,7 @@ final class AdminAuthenticationMiddlewareTest extends TestCase
             $session,
             $database,
             new CsrfTokenManager($session),
-            $this->createMock(AuditLogWriterInterface::class),
+            self::createStub(AuditLogWriterInterface::class),
         );
     }
 

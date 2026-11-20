@@ -18,7 +18,7 @@ final class AuthPageRendererTest extends TestCase
     public function testItMakesHostBrandingAvailableToTheAuthLayoutAndPage(): void
     {
         $branding = new AdminBranding(applicationName: 'Example Console');
-        $response = $this->createMock(ResponseInterface::class);
+        $response = self::createStub(ResponseInterface::class);
         $views = $this->createMock(ViewRendererInterface::class);
         $views->expects(self::once())
             ->method('content')

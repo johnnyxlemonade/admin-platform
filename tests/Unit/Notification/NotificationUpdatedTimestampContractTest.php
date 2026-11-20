@@ -7,7 +7,7 @@ namespace Lemonade\Admin\Tests\Unit\Notification;
 use Lemonade\Admin\Notification\Models\NotificationModel;
 use Lemonade\Admin\Notification\NotificationType;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 final class NotificationUpdatedTimestampContractTest extends TestCase
@@ -16,8 +16,8 @@ final class NotificationUpdatedTimestampContractTest extends TestCase
     {
         /** @var list<mixed> $bindings */
         $bindings = [];
-        /** @var DatabaseDriverInterface&MockObject $driver */
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        /** @var DatabaseDriverInterface&Stub $driver */
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $this->configureDriver($driver, static function (string $sql, array|false $values) use (&$bindings): bool {
             if (is_array($values)) {
                 $bindings = $values;
@@ -43,8 +43,8 @@ final class NotificationUpdatedTimestampContractTest extends TestCase
     {
         /** @var list<array{0:string,1:array<int|string, mixed>}> $queries */
         $queries = [];
-        /** @var DatabaseDriverInterface&MockObject $driver */
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        /** @var DatabaseDriverInterface&Stub $driver */
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $this->configureDriver($driver, static function (string $sql, array|false $values) use (&$queries): bool {
             $queries[] = [$sql, is_array($values) ? $values : []];
 
@@ -63,7 +63,7 @@ final class NotificationUpdatedTimestampContractTest extends TestCase
     }
 
     /** @param callable(string, array<int|string, mixed>|false): bool $query */
-    private function configureDriver(DatabaseDriverInterface&MockObject $driver, callable $query): void
+    private function configureDriver(DatabaseDriverInterface&Stub $driver, callable $query): void
     {
         $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
         $driver->method('query')->willReturnCallback($query);

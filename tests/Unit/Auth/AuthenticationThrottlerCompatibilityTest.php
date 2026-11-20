@@ -140,7 +140,7 @@ final class AuthenticationThrottlerCompatibilityTest extends TestCase
      */
     public function testStorageFailureForExistingSchemaIsNotBypassed(): void
     {
-        $limiter = $this->createMock(RateLimiterInterface::class);
+        $limiter = self::createStub(RateLimiterInterface::class);
         $limiter->method('status')->willThrowException(DatabaseException::queryFailed(
             'SELECT attempts, expires_at FROM framework_rate_limit WHERE key_hash = ? LIMIT 1',
             'MySQL server has gone away.',
@@ -157,7 +157,7 @@ final class AuthenticationThrottlerCompatibilityTest extends TestCase
      */
     public function testTableAvailabilityFailureIsNotBypassed(): void
     {
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('tableExists')->willThrowException(DatabaseException::queryFailed(
             'SELECT 1 FROM information_schema.tables',
             'MySQL server has gone away.',
@@ -167,10 +167,10 @@ final class AuthenticationThrottlerCompatibilityTest extends TestCase
         $this->expectException(DatabaseException::class);
 
         new AuthenticationThrottler(
-            limiter: $this->createMock(RateLimiterInterface::class),
+            limiter: self::createStub(RateLimiterInterface::class),
             configuration: $this->configuration(),
             requests: new HttpRequestInspector(),
-            database: new Database($this->createMock(ConnectionInterface::class), $driver),
+            database: new Database(self::createStub(ConnectionInterface::class), $driver),
         );
     }
 
@@ -192,11 +192,11 @@ final class AuthenticationThrottlerCompatibilityTest extends TestCase
      */
     private function database(bool $tableExists): Database
     {
-        $driver = $this->createMock(DatabaseDriverInterface::class);
-        $driver->method('tableExists')->with('framework_rate_limit')->willReturn($tableExists);
+        $driver = self::createStub(DatabaseDriverInterface::class);
+        $driver->method('tableExists')->willReturn($tableExists);
 
         return new Database(
-            $this->createMock(ConnectionInterface::class),
+            self::createStub(ConnectionInterface::class),
             $driver,
         );
     }

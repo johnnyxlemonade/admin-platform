@@ -101,7 +101,7 @@ final class AdminModuleAccessPolicyTest extends TestCase
         };
         $authorization = new AuthorizationService(
             $principal,
-            new Database($connection, $this->createMock(DatabaseDriverInterface::class)),
+            new Database($connection, self::createStub(DatabaseDriverInterface::class)),
         );
 
         return new AdminModuleAccessPolicy($authorization, $principal);

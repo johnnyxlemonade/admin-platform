@@ -36,7 +36,7 @@ final class NotificationsExportControllerTest extends TestCase
     public function testExportReturnsCsvAttachmentForExistingSelection(): void
     {
         $queryNumber = 0;
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
         $driver->method('query')->willReturnCallback(function (string $sql, array|false $bindings) use (&$queryNumber): DatabaseResultInterface {
             unset($sql, $bindings);
@@ -51,7 +51,7 @@ final class NotificationsExportControllerTest extends TestCase
         });
         $factory = new Psr17Factory();
         $responses = new Responses(new ResponseBuilder($factory, $factory));
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnCallback(static function (string $key, array $parameters = []): string {
             return str_replace('{audience}', (string) ($parameters['audience'] ?? ''), $key);
         });
@@ -79,16 +79,16 @@ final class NotificationsExportControllerTest extends TestCase
      */
     private function authorization(): AuthorizationService
     {
-        $principal = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principal = self::createStub(CurrentPrincipalProviderInterface::class);
         $user = new AuthenticatedUser(7, 'admin@example.test');
         $principal->method('currentUser')->willReturn($user);
         $principal->method('currentPrincipal')->willReturn(new LocalAdminPrincipal($user));
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturn([['id' => 1]]);
 
         return new AuthorizationService(
             currentUser: $principal,
-            database: new Database($connection, $this->createMock(DatabaseDriverInterface::class)),
+            database: new Database($connection, self::createStub(DatabaseDriverInterface::class)),
         );
     }
 
@@ -99,7 +99,7 @@ final class NotificationsExportControllerTest extends TestCase
      */
     private function databaseResult(array $rows): DatabaseResultInterface
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $result->method('result_array')->willReturn($rows);
 
         return $result;

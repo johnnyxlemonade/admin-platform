@@ -54,7 +54,7 @@ final class AuthorizationRequestCacheTest extends TestCase
     {
         $permissionState = new MutablePermissionState();
         $selects = 0;
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturnCallback(
             static function (string $sql) use ($permissionState, &$selects): array {
                 ++$selects;
@@ -100,7 +100,7 @@ final class AuthorizationRequestCacheTest extends TestCase
 
     public function testEntityOwnershipRequiresMatchingCurrentUserForOwnPermission(): void
     {
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturnCallback(
             static function (string $sql): array {
                 if (str_contains($sql, 'system_role_permission')) {
@@ -119,7 +119,7 @@ final class AuthorizationRequestCacheTest extends TestCase
 
     public function testGlobalEntityPermissionIgnoresOwnership(): void
     {
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturnCallback(
             static function (string $sql): array {
                 if (str_contains($sql, 'system_role_permission')) {
@@ -159,7 +159,7 @@ final class AuthorizationRequestCacheTest extends TestCase
 
     private function database(ConnectionInterface $connection): Database
     {
-        return new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        return new Database($connection, self::createStub(DatabaseDriverInterface::class));
     }
 }
 

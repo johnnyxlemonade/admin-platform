@@ -219,7 +219,7 @@ final class AdminFileUploadControllerAuthorizationTest extends TestCase
         $reflection->getProperty('usages')->setValue($controller, $usages);
         $factory = new Psr17Factory();
         $reflection->getProperty('responses')->setValue($controller, new Responses(new ResponseBuilder($factory, $factory)));
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnArgument(0);
         $reflection->getProperty('translator')->setValue($controller, $translator);
         if ($chunks !== null) {
@@ -319,9 +319,9 @@ final class AdminFileUploadControllerAuthorizationTest extends TestCase
      */
     private function emptyUploads(): AdminFileUploadComponent
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $result->method('result_array')->willReturn([]);
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('protect_identifiers')->willReturnArgument(0);
         $driver->method('query')->willReturn($result);
         $files = new AdminFileModel($driver, new FileReadModel($driver));

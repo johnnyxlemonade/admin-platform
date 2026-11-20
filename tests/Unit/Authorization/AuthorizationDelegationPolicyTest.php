@@ -19,7 +19,7 @@ final class AuthorizationDelegationPolicyTest extends TestCase
     {
         $resolver = $this->createMock(AuthorizationResolverInterface::class);
         $resolver->method('isSuperAdmin')->willReturn(true);
-        $resolver->method('roleExists')->with(7)->willReturn(true);
+        $resolver->expects(self::once())->method('roleExists')->with(7)->willReturn(true);
         $catalog = new PermissionCatalogRegistry();
         $catalog->register(new PermissionDefinition('system.users.disable', 'system.users', 'users.permissions.disable'));
         $policy = new AuthorizationDelegationPolicy($resolver, $catalog, new PermissionDependencyResolver($catalog));
@@ -31,7 +31,7 @@ final class AuthorizationDelegationPolicyTest extends TestCase
 
     public function testNonSuperAdminCanDelegateOnlyAPermissionSubset(): void
     {
-        $resolver = $this->createMock(AuthorizationResolverInterface::class);
+        $resolver = self::createStub(AuthorizationResolverInterface::class);
         $resolver->method('isSuperAdmin')->willReturn(false);
         $resolver->method('effectivePermissionsForUser')->willReturn(['system.users.view', 'system.users.edit']);
         $catalog = new PermissionCatalogRegistry();
@@ -46,7 +46,7 @@ final class AuthorizationDelegationPolicyTest extends TestCase
 
     public function testDelegationRejectsUnknownPermissionEvenForSuperAdmin(): void
     {
-        $resolver = $this->createMock(AuthorizationResolverInterface::class);
+        $resolver = self::createStub(AuthorizationResolverInterface::class);
         $catalog = new PermissionCatalogRegistry();
         $policy = new AuthorizationDelegationPolicy($resolver, $catalog, new PermissionDependencyResolver($catalog));
 
@@ -55,7 +55,7 @@ final class AuthorizationDelegationPolicyTest extends TestCase
 
     public function testNonSuperAdminCannotAssignSuperAdminOrBroaderRole(): void
     {
-        $resolver = $this->createMock(AuthorizationResolverInterface::class);
+        $resolver = self::createStub(AuthorizationResolverInterface::class);
         $resolver->method('isSuperAdmin')->willReturn(false);
         $resolver->method('roleExists')->willReturn(true);
         $resolver->method('effectivePermissionsForUser')->willReturn(['system.users.view']);
@@ -74,7 +74,7 @@ final class AuthorizationDelegationPolicyTest extends TestCase
 
     public function testOnlySuperAdminCanDelegateASuperAdminOnlyPermission(): void
     {
-        $resolver = $this->createMock(AuthorizationResolverInterface::class);
+        $resolver = self::createStub(AuthorizationResolverInterface::class);
         $resolver->method('isSuperAdmin')->willReturn(false);
         $resolver->method('effectivePermissionsForUser')->willReturn(['system.audit.view']);
         $catalog = new PermissionCatalogRegistry();
@@ -89,9 +89,9 @@ final class AuthorizationDelegationPolicyTest extends TestCase
         $resolver = $this->createMock(AuthorizationResolverInterface::class);
         $resolver->method('isSuperAdmin')->willReturn(false);
         $resolver->method('effectivePermissionsForUser')->willReturn(['system.users.view']);
-        $resolver->method('roleExists')->with(12)->willReturn(true);
-        $resolver->method('isSuperAdminRole')->with(12)->willReturn(false);
-        $resolver->method('effectivePermissionsForRole')->with(12)->willReturn(['system.users.view', 'system.users.delete']);
+        $resolver->expects(self::once())->method('roleExists')->with(12)->willReturn(true);
+        $resolver->expects(self::once())->method('isSuperAdminRole')->with(12)->willReturn(false);
+        $resolver->expects(self::once())->method('effectivePermissionsForRole')->with(12)->willReturn(['system.users.view', 'system.users.delete']);
         $catalog = new PermissionCatalogRegistry();
         $catalog->register(new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'));
         $catalog->register(new PermissionDefinition('system.users.delete', 'system.users', 'users.permissions.delete'));
@@ -104,7 +104,7 @@ final class AuthorizationDelegationPolicyTest extends TestCase
 
     public function testDelegationValidatesTheWholeKnownSetAndItsDependencies(): void
     {
-        $resolver = $this->createMock(AuthorizationResolverInterface::class);
+        $resolver = self::createStub(AuthorizationResolverInterface::class);
         $resolver->method('isSuperAdmin')->willReturn(false);
         $resolver->method('effectivePermissionsForUser')->willReturn(['system.users.view', 'system.users.edit']);
         $catalog = new PermissionCatalogRegistry();
@@ -125,7 +125,7 @@ final class AuthorizationDelegationPolicyTest extends TestCase
 
     public function testDependencyMustAlsoBePartOfTheActorsEffectiveAuthority(): void
     {
-        $resolver = $this->createMock(AuthorizationResolverInterface::class);
+        $resolver = self::createStub(AuthorizationResolverInterface::class);
         $resolver->method('isSuperAdmin')->willReturn(false);
         $resolver->method('effectivePermissionsForUser')->willReturn(['system.users.edit']);
         $catalog = new PermissionCatalogRegistry();

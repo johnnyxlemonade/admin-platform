@@ -66,7 +66,7 @@ final class BaselineAuditColumnsTest extends TestCase
     private function createStatements(): array
     {
         $statements = [];
-        $database = $this->createMock(DatabaseDriverInterface::class);
+        $database = self::createStub(DatabaseDriverInterface::class);
         $database
             ->method('query')
             ->willReturnCallback(static function (string $statement) use (&$statements): bool {

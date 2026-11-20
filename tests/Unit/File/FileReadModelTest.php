@@ -21,7 +21,7 @@ final class FileReadModelTest extends TestCase
      */
     public function testListsEntityUsagesInCanonicalOrder(): void
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $result->method('result_array')->willReturn([
             $this->file([
                 'id' => 14,
@@ -72,7 +72,7 @@ final class FileReadModelTest extends TestCase
      */
     public function testFindsLatestImagesForEntitiesWithoutNPlusOneQueries(): void
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $result->method('result_array')->willReturn([
             $this->file(['id' => 9, 'entity_id' => 3]),
             $this->file(['id' => 7, 'entity_id' => 3]),

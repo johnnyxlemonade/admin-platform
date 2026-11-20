@@ -116,7 +116,7 @@ final class NotificationsDataGridActionsContractTest extends TestCase
 
     private function translator(): TranslatorInterface
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnCallback(static fn(string $key): string => $key);
 
         return $translator;
@@ -124,8 +124,8 @@ final class NotificationsDataGridActionsContractTest extends TestCase
 
     private function authorization(bool $canPublish): AuthorizationService
     {
-        $principals = $this->createMock(CurrentPrincipalProviderInterface::class);
-        $connection = $this->createMock(ConnectionInterface::class);
+        $principals = self::createStub(CurrentPrincipalProviderInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturn($canPublish ? [['id' => 1]] : []);
         if ($canPublish) {
             $user = new AuthenticatedUser(7, 'admin@example.test');
@@ -138,16 +138,14 @@ final class NotificationsDataGridActionsContractTest extends TestCase
 
         return new AuthorizationService(
             currentUser: $principals,
-            database: new Database($connection, $this->createMock(DatabaseDriverInterface::class)),
+            database: new Database($connection, self::createStub(DatabaseDriverInterface::class)),
         );
     }
 
     /** @param list<string> $availableActions */
     private function actionPresentation(array $availableActions): ModuleActionPresentationFactory
     {
-        $presentation = $this->getMockBuilder(ModuleActionPresentationFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $presentation = self::createStub(ModuleActionPresentationFactory::class);
         $presentation->method('rowAction')->willReturnCallback(static function (string $moduleCode, string $action, int $entityId, DataGridRowActionPlacement $placement) use ($availableActions): ?DataGridRowActionDefinition {
             if ($moduleCode !== 'system.notifications' || !in_array($action, $availableActions, true)) {
                 return null;

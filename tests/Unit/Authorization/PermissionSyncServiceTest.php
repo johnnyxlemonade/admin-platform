@@ -89,11 +89,11 @@ final class PermissionSyncServiceTest extends TestCase
 
     private function database(PermissionSyncState $state): Database
     {
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturnCallback($state->select(...));
         $connection->method('statement')->willReturnCallback($state->statement(...));
 
-        return new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        return new Database($connection, self::createStub(DatabaseDriverInterface::class));
     }
 }
 

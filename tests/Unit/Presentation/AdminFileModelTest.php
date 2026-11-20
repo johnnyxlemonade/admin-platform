@@ -14,7 +14,7 @@ final class AdminFileModelTest extends TestCase
 {
     public function testListsMultipleOwnerUsagesInOneOrderedQuery(): void
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $result->method('result_array')->willReturn([
             [
                 'id' => 14,

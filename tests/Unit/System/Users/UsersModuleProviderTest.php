@@ -213,7 +213,7 @@ final class UsersModuleProviderTest extends TestCase
 
                 $interface = $matches[1];
                 self::assertTrue(interface_exists($interface));
-                $container->instance($interface, $this->createMock($interface));
+                $container->instance($interface, self::createStub($interface));
             }
         }
     }

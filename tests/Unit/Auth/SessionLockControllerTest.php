@@ -85,7 +85,7 @@ final class SessionLockControllerTest extends TestCase
     public function testScreenReceivesRetryDelayForInitialRender(): void
     {
         $controller = $this->controller(new RateLimitResult(false, 0, 125));
-        $renderedResponse = $this->createMock(ResponseInterface::class);
+        $renderedResponse = self::createStub(ResponseInterface::class);
         $views = $this->createMock(ViewRendererInterface::class);
         $views->expects(self::once())
             ->method('content')
@@ -104,7 +104,7 @@ final class SessionLockControllerTest extends TestCase
         $this->set($controller, 'routing', new AdminRoutingConfiguration('/admin'));
         $this->set($controller, 'translationVersion', (new ReflectionClass(ClientTranslationVersion::class))->newInstanceWithoutConstructor());
         $session = $this->session();
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('setLocale')->willReturnSelf();
         $this->set($controller, 'uiLocale', new AdminUiLocale(
             $session,
@@ -121,7 +121,7 @@ final class SessionLockControllerTest extends TestCase
      */
     private function controller(RateLimitResult $result): SessionLockController
     {
-        $limiter = $this->createMock(RateLimiterInterface::class);
+        $limiter = self::createStub(RateLimiterInterface::class);
         $limiter->method('status')->willReturn($result);
 
         return $this->controllerWithLimiter($limiter);
@@ -135,7 +135,7 @@ final class SessionLockControllerTest extends TestCase
         $session = $this->session();
         $authentication = (new ReflectionClass(AuthenticationService::class))->newInstanceWithoutConstructor();
         $this->set($authentication, 'session', $session);
-        $clock = $this->createMock(ClockInterface::class);
+        $clock = self::createStub(ClockInterface::class);
         $clock->method('now')->willReturn(new DateTimeImmutable('@1700000000'));
         $this->set($authentication, 'clock', $clock);
 
@@ -145,13 +145,13 @@ final class SessionLockControllerTest extends TestCase
         $this->set($currentUser, 'resolvedCurrentUser', new AuthenticatedUser(42, 'admin@example.test'));
         $this->set($currentUser, 'resolvedSessionUserId', 42);
 
-        $driver = $this->createMock(DatabaseDriverInterface::class);
-        $driver->method('tableExists')->with('framework_rate_limit')->willReturn(true);
+        $driver = self::createStub(DatabaseDriverInterface::class);
+        $driver->method('tableExists')->willReturn(true);
         $throttler = new AuthenticationThrottler(
             limiter: $limiter,
             configuration: AdminAuthenticationThrottleConfiguration::defaults(),
             requests: new HttpRequestInspector(),
-            database: new Database($this->createMock(ConnectionInterface::class), $driver),
+            database: new Database(self::createStub(ConnectionInterface::class), $driver),
         );
         $factory = new Psr17Factory();
         $controller = (new ReflectionClass(SessionLockController::class))->newInstanceWithoutConstructor();
@@ -173,7 +173,7 @@ final class SessionLockControllerTest extends TestCase
             'admin.auth.authenticated_at' => 1_699_990_000,
             'admin.auth.last_activity_at' => 1_699_998_700,
         ];
-        $session = $this->createMock(SessionInterface::class);
+        $session = self::createStub(SessionInterface::class);
         $session->method('get')->willReturnCallback(static fn(string $key, mixed $default = null): mixed => $values[$key] ?? $default);
 
         return $session;

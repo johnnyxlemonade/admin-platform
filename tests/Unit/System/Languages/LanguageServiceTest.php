@@ -25,7 +25,7 @@ final class LanguageServiceTest extends TestCase
     public function testIdenticalUpdateDoesNotWriteOrAudit(): void
     {
         $queries = [];
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
         $driver->method('query')->willReturnCallback(function (string $sql, array|false $bindings) use (&$queries): DatabaseResultInterface {
             $queries[] = [
@@ -61,7 +61,7 @@ final class LanguageServiceTest extends TestCase
     public function testCreateRejectsAnUppercaseVariantOfAnExistingLanguageCode(): void
     {
         $queries = [];
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
         $driver->method('query')->willReturnCallback(function (string $sql, array|false $bindings) use (&$queries): DatabaseResultInterface {
             $queries[] = [
@@ -96,7 +96,7 @@ final class LanguageServiceTest extends TestCase
      */
     private function databaseResult(array $rows): DatabaseResultInterface
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $result->method('result_array')->willReturn($rows);
 
         return $result;

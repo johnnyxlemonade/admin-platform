@@ -23,7 +23,7 @@ final class NotificationModelEditorTest extends TestCase
         ]]);
         $roles = $this->databaseResult([['role_id' => 4]]);
         $users = $this->databaseResult([['id' => 7, 'email' => 'reader@example.test']]);
-        $driver = $this->createMock(DatabaseDriverInterface::class);
+        $driver = self::createStub(DatabaseDriverInterface::class);
         $driver->method('protect_identifiers')->willReturnCallback(static fn(string $identifier): string => $identifier);
         $driver->method('query')->willReturnOnConsecutiveCalls($notification, $roles, $users);
 
@@ -40,7 +40,7 @@ final class NotificationModelEditorTest extends TestCase
     /** @param list<array<string, mixed>> $rows */
     private function databaseResult(array $rows): DatabaseResultInterface
     {
-        $result = $this->createMock(DatabaseResultInterface::class);
+        $result = self::createStub(DatabaseResultInterface::class);
         $result->method('result_array')->willReturn($rows);
 
         return $result;

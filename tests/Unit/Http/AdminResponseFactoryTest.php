@@ -109,7 +109,7 @@ final class AdminResponseFactoryTest extends TestCase
             ),
             pages: $pages,
             locale: $locale,
-            translator: $this->createMock(TranslatorInterface::class),
+            translator: self::createStub(TranslatorInterface::class),
             flash: $flash,
             urls: $urls,
             responses: new Responses(new ResponseBuilder($responseFactory, $responseFactory)),

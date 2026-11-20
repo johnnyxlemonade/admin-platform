@@ -92,7 +92,7 @@ final class MyLoginsDashboardWidgetProviderTest extends TestCase
 
     private function translator(): TranslatorInterface
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnCallback(
             static fn(string $key): string => match ($key) {
                 'audit.widgets.my_logins.methods.oidc' => 'OIDC',

@@ -23,7 +23,7 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
     public function testItGroupsPermissionsByModuleAndUsesRegisteredModuleMetadataForTheLabel(): void
     {
         $modules = $this->usersModules();
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnCallback(static function (string $key, array $replacements = [], ?string $locale = null): string {
             unset($replacements, $locale);
 
@@ -59,14 +59,14 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
 
     public function testItHandlesAnEmptyEffectivePermissionSet(): void
     {
-        $factory = new EffectivePermissionGroupViewModelFactory($this->emptyModules(), new PermissionCatalogRegistry(), $this->createMock(TranslatorInterface::class));
+        $factory = new EffectivePermissionGroupViewModelFactory($this->emptyModules(), new PermissionCatalogRegistry(), self::createStub(TranslatorInterface::class));
 
         self::assertSame([], $factory->create([]));
     }
 
     public function testItOmitsPermissionsMissingFromTheRuntimeCatalog(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnArgument(0);
         $factory = new EffectivePermissionGroupViewModelFactory($this->emptyModules(), new PermissionCatalogRegistry(), $translator);
 
@@ -79,9 +79,9 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
     {
         $permissions = [['code' => 'system.users.view', 'name_key' => 'users.permissions.view', 'module_code' => 'system.users']];
 
-        $czech = $this->createMock(TranslatorInterface::class);
+        $czech = self::createStub(TranslatorInterface::class);
         $czech->method('get')->willReturnCallback(static fn(string $key): string => $key === 'users.permissions.view' ? 'Zobrazit uživatele' : 'Uživatelé');
-        $english = $this->createMock(TranslatorInterface::class);
+        $english = self::createStub(TranslatorInterface::class);
         $english->method('get')->willReturnCallback(static fn(string $key): string => $key === 'users.permissions.view' ? 'View users' : 'Users');
 
         $modules = $this->usersModules();
@@ -117,7 +117,7 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
                 return [];
             }
         });
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnArgument(0);
         $catalog = new PermissionCatalogRegistry();
         $catalog->register(new PermissionDefinition('system.example.view', 'system.example', 'example.permissions.view'));
@@ -136,7 +136,7 @@ final class EffectivePermissionGroupViewModelFactoryTest extends TestCase
         $modules = $this->emptyModules();
         $modules->register(new UsersModuleDefinition());
         $modules->register(new LanguagesModuleDefinition());
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnArgument(0);
 
         $groups = (new EffectivePermissionGroupViewModelFactory($modules, $this->usersAndLanguagesCatalog(), $translator))->create([

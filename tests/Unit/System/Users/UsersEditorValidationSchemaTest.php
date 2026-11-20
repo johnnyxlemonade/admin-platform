@@ -12,7 +12,7 @@ final class UsersEditorValidationSchemaTest extends TestCase
 {
     public function testItDefinesOnlyTheUsersEditorFieldsWithFrameworkRules(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnCallback(static fn(string $key): string => $key);
 
         $schema = (new UsersEditorValidationSchema($translator))->forUpdate(42);
@@ -31,7 +31,7 @@ final class UsersEditorValidationSchemaTest extends TestCase
 
     public function testCreateRequiresOneRoleAndALocalPassword(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnCallback(static fn(string $key): string => $key);
 
         $fields = (new UsersEditorValidationSchema($translator))->forCreate()->fields();

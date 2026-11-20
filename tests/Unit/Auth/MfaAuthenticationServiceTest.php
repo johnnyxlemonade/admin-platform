@@ -28,7 +28,7 @@ final class MfaAuthenticationServiceTest extends TestCase
     #[DataProvider('policyMatrix')]
     public function testItSelectsTheApprovedLocalMfaPolicy(string $requirement, bool $activeCredential, string $expected): void
     {
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = self::createStub(ConnectionInterface::class);
         $connection->method('select')->willReturnCallback(static function () use ($activeCredential): array {
             return $activeCredential ? [[
                 'secret_ciphertext' => 'active',
@@ -36,7 +36,7 @@ final class MfaAuthenticationServiceTest extends TestCase
                 'enrollment_expires_at' => null,
             ]] : [];
         });
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
         $credentials = new TotpCredentialService(
             $database,
             new TotpCredentialModel($database),
@@ -48,7 +48,7 @@ final class MfaAuthenticationServiceTest extends TestCase
             new AdminMfaConfiguration($requirement, $requirement === 'disabled' ? null : 'Admin', $requirement === 'disabled' ? null : base64_encode(str_repeat('a', 32))),
             $credentials,
             $database,
-            $this->createMock(AuditLogWriterInterface::class),
+            self::createStub(AuditLogWriterInterface::class),
         );
 
         self::assertSame($expected, $service->loginRequirement(new AuthenticatedUser(42, 'admin@example.test')));
@@ -75,8 +75,8 @@ final class MfaAuthenticationServiceTest extends TestCase
                 $events[$event->code()] = [$event->payload(), $actor->userId()];
             },
         );
-        $connection = $this->createMock(ConnectionInterface::class);
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $connection = self::createStub(ConnectionInterface::class);
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
         $credentials = new TotpCredentialService($database, new TotpCredentialModel($database), MfaSecretCipher::fromKey(str_repeat('a', 32)), new TotpSecretGenerator(), new TotpVerifier($this->clock()));
         $service = new MfaAuthenticationService(new AdminMfaConfiguration('optional', 'Admin', base64_encode(str_repeat('a', 32))), $credentials, $database, $audit);
 
@@ -96,9 +96,9 @@ final class MfaAuthenticationServiceTest extends TestCase
     {
         $connection = $this->createMock(ConnectionInterface::class);
         $connection->expects(self::exactly(2))->method('select')->willReturn([]);
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
         $credentials = new TotpCredentialService($database, new TotpCredentialModel($database), MfaSecretCipher::fromKey(str_repeat('a', 32)), new TotpSecretGenerator(), new TotpVerifier($this->clock()));
-        $service = new MfaAuthenticationService(new AdminMfaConfiguration('all', 'Admin', base64_encode(str_repeat('a', 32))), $credentials, $database, $this->createMock(AuditLogWriterInterface::class));
+        $service = new MfaAuthenticationService(new AdminMfaConfiguration('all', 'Admin', base64_encode(str_repeat('a', 32))), $credentials, $database, self::createStub(AuditLogWriterInterface::class));
 
         self::assertNull($service->eligibleUser(42));
         self::assertNull($service->eligibleUser(43));
@@ -106,7 +106,7 @@ final class MfaAuthenticationServiceTest extends TestCase
 
     private function clock(): ClockInterface
     {
-        $clock = $this->createMock(ClockInterface::class);
+        $clock = self::createStub(ClockInterface::class);
         $clock->method('now')->willReturn(new DateTimeImmutable('@1767225600'));
 
         return $clock;

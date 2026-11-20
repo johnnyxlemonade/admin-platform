@@ -49,7 +49,7 @@ final class LoginControllerTest extends TestCase
     public function testThrottledLoginReturnsLocalizedRetryTime(int $retryAfterSeconds, string $message): void
     {
         $session = new LoginControllerMemorySession();
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('setLocale')->willReturnSelf();
         $translator->method('get')->willReturnCallback(static function (string $key, array $replacements = []): string {
             return match ($key) {
@@ -90,13 +90,13 @@ final class LoginControllerTest extends TestCase
     {
         $session = new LoginControllerMemorySession();
         $connection = new LoginControllerConnectionDouble();
-        $database = new Database($connection, $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
         $authentication = new AuthenticationService(
             new LocalAuthenticationProvider($database),
             $session,
             $database,
             new CsrfTokenManager($session),
-            $this->createMock(AuditLogWriterInterface::class),
+            self::createStub(AuditLogWriterInterface::class),
         );
         $credentials = new TotpCredentialService(
             $database,
@@ -113,7 +113,7 @@ final class LoginControllerTest extends TestCase
             new AdminMfaConfiguration('optional', 'Admin', base64_encode(str_repeat('a', 32))),
             $credentials,
             $database,
-            $this->createMock(AuditLogWriterInterface::class),
+            self::createStub(AuditLogWriterInterface::class),
         ));
         $this->set($controller, 'mfaChallenges', new MfaLoginChallengeStore($session, $routing));
         $this->set($controller, 'uiLocale', $this->locale($session));
@@ -135,7 +135,7 @@ final class LoginControllerTest extends TestCase
     private function locale(SessionInterface $session, ?TranslatorInterface $translator = null): AdminUiLocale
     {
         if ($translator === null) {
-            $translator = $this->createMock(TranslatorInterface::class);
+            $translator = self::createStub(TranslatorInterface::class);
             $translator->method('setLocale')->willReturnSelf();
         }
 
@@ -147,7 +147,7 @@ final class LoginControllerTest extends TestCase
 
     private function clock(): ClockInterface
     {
-        $clock = $this->createMock(ClockInterface::class);
+        $clock = self::createStub(ClockInterface::class);
         $clock->method('now')->willReturn(new DateTimeImmutable('@1767225600'));
 
         return $clock;
@@ -155,17 +155,17 @@ final class LoginControllerTest extends TestCase
 
     private function throttler(?RateLimitResult $status = null): AuthenticationThrottler
     {
-        $limiter = $this->createMock(RateLimiterInterface::class);
+        $limiter = self::createStub(RateLimiterInterface::class);
         $limiter->method('status')->willReturn($status ?? new RateLimitResult(true, 20, 0));
         $limiter->method('hit')->willReturn(new RateLimitResult(true, 20, 0));
-        $driver = $this->createMock(DatabaseDriverInterface::class);
-        $driver->method('tableExists')->with('framework_rate_limit')->willReturn(true);
+        $driver = self::createStub(DatabaseDriverInterface::class);
+        $driver->method('tableExists')->willReturn(true);
 
         return new AuthenticationThrottler(
             limiter: $limiter,
             configuration: AdminAuthenticationThrottleConfiguration::defaults(),
             requests: new HttpRequestInspector(),
-            database: new Database($this->createMock(ConnectionInterface::class), $driver),
+            database: new Database(self::createStub(ConnectionInterface::class), $driver),
         );
     }
 

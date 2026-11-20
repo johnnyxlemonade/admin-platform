@@ -129,8 +129,8 @@ final class AuthenticationServiceAuditTest extends TestCase
     private function authentication(SessionInterface $session, AuditLogWriterInterface $audit, ?EditorLockOwnerReleaserInterface $locks = null): AuthenticationService
     {
         $database = new Database(
-            $this->createMock(ConnectionInterface::class),
-            $this->createMock(DatabaseDriverInterface::class),
+            self::createStub(ConnectionInterface::class),
+            self::createStub(DatabaseDriverInterface::class),
         );
 
         return new AuthenticationService(
@@ -139,7 +139,7 @@ final class AuthenticationServiceAuditTest extends TestCase
             $database,
             new CsrfTokenManager($session),
             $audit,
-            $locks ?? $this->createMock(EditorLockOwnerReleaserInterface::class),
+            $locks ?? self::createStub(EditorLockOwnerReleaserInterface::class),
         );
     }
 }

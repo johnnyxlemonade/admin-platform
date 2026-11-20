@@ -37,13 +37,13 @@ final class UsersSelfServiceEditorContractTest extends TestCase
 
     public function testOnlyTheCurrentUsersSafeProfilePayloadCanBypassAForeignLock(): void
     {
-        $principal = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principal = self::createStub(CurrentPrincipalProviderInterface::class);
         $principal->method('currentUser')->willReturn(new AuthenticatedUser(2, 'user@example.test'));
         $authorization = new AuthorizationService(
             $principal,
             new Database(
-                $this->createMock(ConnectionInterface::class),
-                $this->createMock(DatabaseDriverInterface::class),
+                self::createStub(ConnectionInterface::class),
+                self::createStub(DatabaseDriverInterface::class),
             ),
         );
         $policy = new UsersEditorAccessPolicy($authorization);

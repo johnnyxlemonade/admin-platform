@@ -235,7 +235,7 @@ final class AdminNavigationTest extends TestCase
                 return new AuthenticatedUser(1, 'administrator@example.test');
             }
         };
-        $database = new Database($this->connection($superAdmin), $this->createMock(DatabaseDriverInterface::class));
+        $database = new Database($this->connection($superAdmin), self::createStub(DatabaseDriverInterface::class));
         $authorization = new AuthorizationService($principal, $database);
 
         return new AdminNavigation(

@@ -133,11 +133,11 @@ final class UsersMfaDataGridPresentationTest extends TestCase
     private function mfaResetEligible(bool $mfaActive, array $actorPermissions, array $targetPermissions): bool
     {
         $actor = new AuthenticatedUser(7, 'actor@example.test');
-        $principals = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principals = self::createStub(CurrentPrincipalProviderInterface::class);
         $principals->method('currentUser')->willReturn($actor);
         $authorization = new AuthorizationService(
             currentUser: $principals,
-            database: new Database($this->createMock(ConnectionInterface::class), $this->createMock(DatabaseDriverInterface::class)),
+            database: new Database(self::createStub(ConnectionInterface::class), self::createStub(DatabaseDriverInterface::class)),
         );
         $this->set($authorization, 'superAdminUsers', [7 => false, 15 => false]);
         $this->set($authorization, 'effectiveUserPermissions', [
@@ -198,7 +198,7 @@ final class UsersMfaDataGridPresentationTest extends TestCase
      */
     private function translator(): TranslatorInterface
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = self::createStub(TranslatorInterface::class);
         $translator->method('get')->willReturnCallback(static fn(string $key): string => $key);
 
         return $translator;
@@ -209,12 +209,12 @@ final class UsersMfaDataGridPresentationTest extends TestCase
      */
     private function authorizationWithoutPermissions(): AuthorizationService
     {
-        $principals = $this->createMock(CurrentPrincipalProviderInterface::class);
+        $principals = self::createStub(CurrentPrincipalProviderInterface::class);
         $principals->method('currentUser')->willReturn(null);
 
         return new AuthorizationService(
             currentUser: $principals,
-            database: new Database($this->createMock(ConnectionInterface::class), $this->createMock(DatabaseDriverInterface::class)),
+            database: new Database(self::createStub(ConnectionInterface::class), self::createStub(DatabaseDriverInterface::class)),
         );
     }
 
@@ -223,9 +223,7 @@ final class UsersMfaDataGridPresentationTest extends TestCase
      */
     private function actionPresentation(): ModuleActionPresentationFactory
     {
-        $presentation = $this->getMockBuilder(ModuleActionPresentationFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $presentation = self::createStub(ModuleActionPresentationFactory::class);
         $presentation->method('rowAction')->willReturnCallback(static function (string $moduleCode, string $action, int $entityId): ?DataGridRowActionDefinition {
             if ($moduleCode !== 'system.users' || $action !== 'mfa-reset') {
                 return null;

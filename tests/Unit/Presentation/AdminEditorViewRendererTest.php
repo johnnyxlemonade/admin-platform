@@ -22,7 +22,7 @@ final class AdminEditorViewRendererTest extends TestCase
     public function testItAddsScopedFieldRendererToBothRenderingPaths(): void
     {
         $fields = (new ReflectionClass(AdminEditorFieldRenderer::class))->newInstanceWithoutConstructor();
-        $response = $this->createMock(ResponseInterface::class);
+        $response = self::createStub(ResponseInterface::class);
         $inner = $this->createMock(ViewRendererInterface::class);
         $inner->expects(self::once())->method('render')->with('admin::page', ['value' => 1, 'adminEditorFields' => $fields], 201)->willReturn($response);
         $inner->expects(self::once())->method('content')->with('admin::partial', ['adminEditorFields' => $fields])->willReturn('content');

@@ -28,7 +28,7 @@ final class OidcLogoutServiceTest extends TestCase
 
     public function testItFallsBackToLocalLogoutWhenProviderDoesNotAdvertiseAnEndSessionEndpoint(): void
     {
-        $client = $this->createMock(OpenIdConnectClientInterface::class);
+        $client = self::createStub(OpenIdConnectClientInterface::class);
         $client->method('discover')->willReturn($this->metadata(null));
 
         self::assertNull((new OidcLogoutService($this->configuration(), $client))->providerLogoutUrl('raw-id-token'));
