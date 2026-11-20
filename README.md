@@ -1,9 +1,9 @@
 # Lemonade Admin Platform
 
-[![PHPStan](https://github.com/johnnyxlemonade/admin-platform/actions/workflows/phpstan.yml/badge.svg)](https://github.com/johnnyxlemonade/admin-platform/actions/workflows/phpstan.yml)
-[![Tests](https://github.com/johnnyxlemonade/admin-platform/actions/workflows/phpunit.yml/badge.svg)](https://github.com/johnnyxlemonade/admin-platform/actions/workflows/phpunit.yml)
-[![Coding Standards](https://github.com/johnnyxlemonade/admin-platform/actions/workflows/coding-standards.yml/badge.svg)](https://github.com/johnnyxlemonade/admin-platform/actions/workflows/coding-standards.yml)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](composer.json)
+[![Tests](https://img.shields.io/github/actions/workflow/status/johnnyxlemonade/admin-platform/phpunit.yml?branch=main&label=Tests&logo=githubactions&logoColor=white&labelColor=0f766e)](https://github.com/johnnyxlemonade/admin-platform/actions/workflows/phpunit.yml)
+[![PHP 8.3–8.6](https://img.shields.io/badge/PHP-8.3%20%7C%208.4%20%7C%208.5%20%7C%208.6-777BB4?logo=php&logoColor=white)](#requirements)
+[![PHPStan](https://img.shields.io/github/actions/workflow/status/johnnyxlemonade/admin-platform/phpstan.yml?branch=main&label=PHPStan&logo=php&logoColor=white&labelColor=5b4baf)](https://github.com/johnnyxlemonade/admin-platform/actions/workflows/phpstan.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
 
 `johnnyxlemonade/admin-platform` contains the Admin HTTP runtime and built-in
 System modules used by Lemonade applications. It runs on
@@ -142,6 +142,11 @@ is an error.
   integration. Admin Platform owns shared file metadata and Admin file UI.
 - `johnnyxlemonade/admin-cms-news` is a concrete Composer CMS News module, not
   built-in Admin Platform functionality.
+
+## Requirements
+
+PHP 8.3 or newer with the `fileinfo`, `mbstring`, `openssl` and `PDO`
+extensions. CI verifies the package on PHP 8.3, 8.4, 8.5 and 8.6.
 
 ## Installation and host integration
 
