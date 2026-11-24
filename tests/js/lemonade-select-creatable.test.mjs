@@ -14,7 +14,15 @@ class FakeElement {
     }
 
     appendChild(child) {
+        if (child.parentNode) child.parentNode.children = child.parentNode.children.filter((item) => item !== child);
         this.children.push(child);
+        child.parentNode = this;
+        return child;
+    }
+
+    insertBefore(child, reference) {
+        if (child.parentNode) child.parentNode.children = child.parentNode.children.filter((item) => item !== child);
+        this.children.splice(this.children.indexOf(reference), 0, child);
         child.parentNode = this;
         return child;
     }
@@ -71,12 +79,14 @@ class FakeSelect extends FakeElement {
 globalThis.document = { createElement: (tagName) => new FakeElement(tagName) };
 globalThis.Option = FakeOption;
 globalThis.Event = class { constructor(type) { this.type = type; } };
+globalThis.CustomEvent = class { constructor(type) { this.type = type; } };
+globalThis.window = { location: { origin: "https://example.test" } };
 
 const source = (await readFile(new URL("../../source/js/components/lemonade-select.js", import.meta.url), "utf8"))
     .replace(/^import .*;\n/gm, "")
     .replace(
         "export class Select",
-        "const BootstrapIcons = { className: () => 'icon' };\nconst DomHelper = { queryAll: () => [] };\nconst EventHelper = { debounce: (callback) => callback, on: () => () => {}, animationFrame: () => ({ cancel() {} }) };\nconst HttpHelper = {};\nconst I18n = { t: (key, params = {}) => key.replace('{name}', params.name || '{name}') };\nexport class Select",
+        "const BootstrapIcons = { className: () => 'icon' };\nconst DomHelper = { queryAll: () => [] };\nconst EventHelper = { debounce: (callback) => callback, on: () => () => {}, animationFrame: () => ({ cancel() {} }) };\nconst HttpHelper = { get: (...args) => globalThis.selectTestGet(...args) };\nconst I18n = { t: (key, params = {}) => key.replace('{name}', params.name || '{name}') };\nexport class Select",
     );
 const { Select } = await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}`);
 
@@ -157,6 +167,98 @@ test("clicking create adds a selected native option and emits change", () => {
     assert.equal(select.element.options[0].selected, true);
     assert.equal(select.element.changeCount, 1);
     assert.equal(select.searchInput.value, "");
+});
+
+test("ordered async select preserves and changes native submission order", () => {
+    const select = selectFor([option("a", true), option("b", true)]);
+    select.allowCreate = false;
+    select.ordered = true;
+    select.clearable = false;
+    select.setOptions([{ value: "b", label: "B" }, { value: "a", label: "A" }, { value: "c", label: "C" }], "empty");
+    assert.deepEqual(select.selectedOptions().map((item) => item.value), ["a", "b"]);
+    const add = select.element.options.find((item) => item.value === "c");
+    select.selectOption(add);
+    assert.deepEqual(select.selectedOptions().map((item) => item.value), ["a", "b", "c"]);
+    const secondToken = select.trigger.children[1];
+    secondToken.children[1].dispatchEvent({ type: "click", preventDefault() {}, stopPropagation() {} });
+    assert.deepEqual(select.selectedOptions().map((item) => item.value), ["b", "a", "c"]);
+    assert.equal(select.trigger.children[0].children[1].disabled, true);
+    select.trigger.children[0].children[2].dispatchEvent({ type: "click", preventDefault() {}, stopPropagation() {} });
+    assert.deepEqual(select.selectedOptions().map((item) => item.value), ["a", "b", "c"]);
+});
+
+test("clearable async single select offers an empty value after search", () => {
+    const select = selectFor([option("a", true)]);
+    select.element.multiple = false;
+    select.allowCreate = false;
+    select.ordered = false;
+    select.clearable = true;
+    select.setOptions([{ value: "b", label: "B" }], "empty");
+    const blank = select.element.options.find((item) => item.value === "");
+    assert.ok(blank);
+    select.close = () => {};
+    select.selectOption(blank);
+    assert.equal(select.selectedOptions()[0].value, "");
+});
+
+test("async filter preserves its all-values option after search", () => {
+    const select = selectFor([option("", true)]);
+    select.element.multiple = false;
+    select.allowCreate = false;
+    select.ordered = false;
+    select.clearable = true;
+    select.emptyOptionLabel = "Všechny hodnoty";
+    select.setOptions([{ value: "42", label: "Praha" }], "empty");
+
+    assert.equal(select.element.options[0].value, "");
+    assert.equal(select.element.options[0].text, "Všechny hodnoty");
+});
+
+test("async filter resolves its selected record label without changing search results", async () => {
+    const select = selectFor([option("42", true)]);
+    select.element.multiple = false;
+    select.element.value = "42";
+    select.sourceType = "async";
+    select.source = "/relations?field=3";
+    select.searchParam = "q";
+    select.allowCreate = false;
+    select.destroyed = false;
+    let resolved = false;
+    select.element.addEventListener("lemonade:select:label-resolved", () => { resolved = true; });
+    globalThis.selectTestGet = async (url) => {
+        assert.equal(new URL(url).searchParams.get("selected"), "42");
+        return { items: [{ value: "42", label: "Praha" }] };
+    };
+
+    await select.resolveSelectedValue();
+
+    assert.equal(select.element.options[0].text, "Praha");
+    assert.equal(select.element.value, "42");
+    assert.equal(resolved, true);
+    assert.deepEqual(select.resultOptions, [{ value: "42", label: "42" }]);
+});
+
+test("async filter retries label resolution after a failed request", async () => {
+    const select = selectFor([option("42", true)]);
+    select.element.multiple = false;
+    select.element.value = "42";
+    select.sourceType = "async";
+    select.source = "/relations?field=3";
+    select.destroyed = false;
+    let requests = 0;
+    globalThis.selectTestGet = async () => {
+        requests += 1;
+        if (requests === 1) {
+            throw new Error("Temporary failure");
+        }
+        return { items: [{ value: "42", label: "Praha" }] };
+    };
+
+    await select.resolveSelectedValue();
+    await select.resolveSelectedValue();
+
+    assert.equal(requests, 2);
+    assert.equal(select.element.options[0].text, "Praha");
 });
 
 test("Enter creates a candidate when no option result is available", () => {

@@ -573,11 +573,20 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             this.update({ filters: this.normalizeFilters(filters), page: 1 });
         }
 
+        /**
+         * Restores filter values and resolves labels for remote selections
+         */
         syncFilterControls() {
             this.controls.filters.forEach(function (control) {
-                control.value = this.getFilterControlValue(control);
+                const value = this.getFilterControlValue(control);
+                if (value && control.getAttribute("data-lemonade-option-source") === "async"
+                    && !Array.from(control.options).some((option) => option.value === value)) {
+                    control.appendChild(new Option(value, value));
+                }
+                control.value = value;
                 if (control.lemonadeSelect) {
                     control.lemonadeSelect.render();
+                    void control.lemonadeSelect.resolveSelectedValue();
                 }
             }, this);
         }
@@ -624,6 +633,7 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             }
 
             this.syncFilterControls();
+            EventHelper.on(this.element, "lemonade:select:label-resolved", () => this.renderChips());
 
             this.controls.filterTriggers.forEach(function (trigger) {
                 Dropdown.create(trigger.closest("[data-lemonade-dropdown]"), {

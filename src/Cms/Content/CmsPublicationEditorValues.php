@@ -27,11 +27,11 @@ final class CmsPublicationEditorValues
             $date = (string) ($translation['published_at'] ?? '');
 
             return [
-                'publication_state' => CmsPublicationState::from((int) $translation['publication_state'])->editorValue(),
+                'publication_state' => CmsPublicationState::from((int) $translation['publication_state'])->getEditorValue(),
                 'published_at' => $date === '' ? '' : str_replace(' ', 'T', substr($date, 0, 16)),
             ];
         }
 
-        return ['publication_state' => CmsPublicationState::New->editorValue(), 'published_at' => ''];
+        return ['publication_state' => CmsPublicationState::New->getEditorValue(), 'published_at' => ''];
     }
 }

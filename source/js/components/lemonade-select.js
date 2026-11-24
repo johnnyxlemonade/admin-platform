@@ -22,6 +22,9 @@ import { I18n } from "../core/lemonade-i18n.js";
             this.minLength = Number(element.getAttribute("data-lemonade-min-length") || 0);
             this.searchable = this.sourceType === "async" || element.hasAttribute("data-lemonade-searchable");
             this.allowCreate = element.multiple && element.hasAttribute("data-lemonade-allow-create");
+            this.ordered = element.multiple && element.hasAttribute("data-lemonade-ordered");
+            this.clearable = !element.multiple && element.hasAttribute("data-lemonade-clearable");
+            this.emptyOptionLabel = Array.from(element.options).find((option) => option.value === "")?.text || null;
             this.createLabelKey = element.getAttribute("data-lemonade-create-label-key") || "admin.select.create";
             this.noResultsKey = element.getAttribute("data-lemonade-no-results-key") || "admin.select.no_results";
             this.page = 1;
@@ -100,6 +103,9 @@ import { I18n } from "../core/lemonade-i18n.js";
                 viewportChange.cancel,
             );
             this.render();
+            if (this.sourceType === "async" && this.element.hasAttribute("data-lemonade-filter")) {
+                void this.resolveSelectedValue();
+            }
         }
 
         toggle() { this.dropdown.hidden ? this.open() : this.close(); }
@@ -259,19 +265,71 @@ import { I18n } from "../core/lemonade-i18n.js";
             }
         }
         nextPage() { void this.loadPage(this.page + 1, this.query); }
+        /**
+         * Replaces remote options while keeping selected values and their order
+         */
         setOptions(items, emptyStateKey) {
             const selected = this.selectedOptions();
+            const selectedByValue = new Map(selected.map((option) => [option.value, option]));
+            const availableValues = new Set(items.map((item) => item.value));
             this.resultOptions = items;
-            this.element.replaceChildren();
-            items.forEach(function (item) {
-                const option = new Option(item.label, item.value, false, selected.some(function (value) { return value.value === item.value; }));
-                this.element.appendChild(option);
-            }, this);
-            selected.filter(function (value) { return !items.some(function (item) { return item.value === value.value; }); }).forEach(function (option) { this.element.appendChild(option); }, this);
-            this.stateKey = items.length === 0 && !this.canCreateValue() ? emptyStateKey : "";
+            this.element.replaceChildren(...(this.ordered ? selected : []));
+            if (this.clearable) {
+                const emptyLabel = this.emptyOptionLabel || I18n.t("records.fields.empty_value");
+                const emptySelected = selected.length === 0 || selected[0].value === "";
+                this.element.appendChild(new Option(emptyLabel, "", false, emptySelected));
+                this.resultOptions = [{ value: "", label: emptyLabel }, ...items];
+            }
+            for (const item of items) {
+                const chosen = selectedByValue.get(item.value);
+                if (chosen && this.ordered) {
+                    chosen.text = item.label;
+                    continue;
+                }
+                this.element.appendChild(new Option(item.label, item.value, false, Boolean(chosen)));
+            }
+            if (!this.ordered) {
+                for (const option of selected) {
+                    if (!availableValues.has(option.value) && (!this.clearable || option.value !== "")) {
+                        this.element.appendChild(option);
+                    }
+                }
+            }
+            this.stateKey = this.resultOptions.length === 0 && !this.canCreateValue() ? emptyStateKey : "";
             this.render();
         }
         selectedOptions() { return Array.from(this.element.options).filter(function (option) { return option.selected; }); }
+
+        /**
+         * Resolves the selected remote value without replacing search results
+         */
+        async resolveSelectedValue() {
+            if (this.sourceType !== "async" || !this.source) { return; }
+            const value = this.element.value;
+            if (!value) {
+                this.resolvedValue = null;
+                return;
+            }
+            if (this.resolvedValue === value) { return; }
+            const url = new URL(this.source, window.location.origin);
+            url.searchParams.set("selected", value);
+            url.searchParams.set("page", "1");
+            try {
+                const response = await HttpHelper.get(url.toString());
+                if (this.destroyed || this.element.value !== value) { return; }
+                const item = (response.items || []).find((candidate) => candidate.value === value);
+                if (!item) { return; }
+                const option = Array.from(this.element.options).find((candidate) => candidate.value === value);
+                if (option) {
+                    option.text = item.label;
+                    this.resolvedValue = value;
+                    this.render();
+                    this.element.dispatchEvent(new CustomEvent("lemonade:select:label-resolved", { bubbles: true }));
+                }
+            } catch (_error) {
+                // Keep the record ID visible and allow the next sync to retry
+            }
+        }
 
         emptyStateKey(query) {
             if (this.resultOptions.length !== 0 || this.canCreateValue()) {
@@ -319,7 +377,7 @@ import { I18n } from "../core/lemonade-i18n.js";
                 if (!option.selected && this.hasSelectedNormalizedValue(option.value, option)) {
                     return;
                 }
-                if (!option.selected && this.allowCreate) {
+                if (!option.selected && (this.allowCreate || this.ordered)) {
                     this.element.appendChild(option);
                 }
                 option.selected = !option.selected;
@@ -332,6 +390,27 @@ import { I18n } from "../core/lemonade-i18n.js";
             this.element.dispatchEvent(new Event("change", { bubbles: true }));
             this.render();
         }
+        /**
+         * Moves one selected option in the native form submission order
+         */
+        moveSelectedOption(option, direction) {
+            const selected = this.selectedOptions();
+            const position = selected.indexOf(option);
+            const neighbor = selected[position + direction];
+            if (!neighbor) {
+                return;
+            }
+            if (direction < 0) {
+                this.element.insertBefore(option, neighbor);
+            } else {
+                this.element.insertBefore(neighbor, option);
+            }
+            this.element.dispatchEvent(new Event("change", { bubbles: true }));
+            this.render();
+        }
+        /**
+         * Renders the selected option labels and ordered controls
+         */
         render() {
             const selected = this.selectedOptions();
             this.trigger.replaceChildren();
@@ -350,9 +429,29 @@ import { I18n } from "../core/lemonade-i18n.js";
                 value.textContent = selected[0].text;
                 this.trigger.appendChild(value);
             } else {
-                selected.forEach(function (option) {
+                selected.forEach(function (option, position) {
                     const token = document.createElement("span"); token.className = "lm-select-token";
                     const label = document.createElement("span"); label.className = "lm-select-token-label"; label.textContent = option.text; token.appendChild(label);
+                    if (this.ordered) {
+                        const moves = [
+                            { symbol: "↑", direction: -1, label: "records.relations.move_earlier" },
+                            { symbol: "↓", direction: 1, label: "records.relations.move_later" },
+                        ];
+                        for (const move of moves) {
+                            const button = document.createElement("button");
+                            button.type = "button";
+                            button.className = "lm-select-token-move";
+                            button.textContent = move.symbol;
+                            button.disabled = position + move.direction < 0 || position + move.direction >= selected.length;
+                            button.setAttribute("aria-label", I18n.t(move.label));
+                            button.addEventListener("click", (event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                this.moveSelectedOption(option, move.direction);
+                            });
+                            token.appendChild(button);
+                        }
+                    }
                     const remove = document.createElement("span"); remove.className = "lm-select-token-remove"; remove.textContent = "×"; token.appendChild(remove);
                     token.addEventListener("click", function (event) { event.preventDefault(); event.stopPropagation(); option.selected = false; this.element.dispatchEvent(new Event("change", { bubbles: true })); this.render(); }.bind(this));
                     this.trigger.appendChild(token);

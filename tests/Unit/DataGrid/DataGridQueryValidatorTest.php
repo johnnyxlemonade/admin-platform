@@ -28,6 +28,29 @@ final class DataGridQueryValidatorTest extends TestCase
         $validator->validate($definition, ['price' => '1 OR 1=1']);
     }
 
+    public function testAsyncSelectAcceptsOnlyConfiguredRecordIds(): void
+    {
+        $filter = new DataGridFilterDefinition(
+            'relation',
+            new StaticSelectOptionSource([]),
+            valuePattern: '/^[1-9][0-9]{0,18}$/D',
+            asyncUrl: '/relations',
+        );
+        $definition = new DataGridDefinition('test', [], false, [$filter]);
+        $validator = new DataGridQueryValidator();
+
+        self::assertSame('42', $validator->validate($definition, ['relation' => '42'])->filter('relation'));
+        self::assertSame('/relations', $filter->asyncUrl());
+        foreach (['0', '01', '42 OR 1=1', '99999999999999999999'] as $invalid) {
+            try {
+                $validator->validate($definition, ['relation' => $invalid]);
+                self::fail('Invalid relation ID accepted.');
+            } catch (InvalidArgumentException) {
+                // The grid rejects forged or malformed record IDs.
+            }
+        }
+    }
+
     public function testItNormalizesAValidQuery(): void
     {
         $query = (new DataGridQueryValidator())->validate($this->definition(), ['page' => '2', 'pageSize' => '25', 'sort' => 'email', 'direction' => 'desc', 'q' => ' user ', 'status' => 'active']);

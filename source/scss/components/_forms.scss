@@ -114,6 +114,19 @@
     white-space: nowrap;
 }
 
+.admin-shell .lm-select-token-move {
+    border: 0;
+    padding: 0 2px;
+    color: inherit;
+    background: transparent;
+    cursor: pointer;
+
+    &:disabled {
+        opacity: .4;
+        cursor: default;
+    }
+}
+
 .admin-shell .lm-select-token-remove {
     font-size: 15px;
     line-height: 1;

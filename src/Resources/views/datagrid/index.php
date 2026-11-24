@@ -45,13 +45,14 @@ $configurableColumns = array_values(array_filter($grid->columns(), static fn($co
                             <span data-lemonade-i18n="admin.datagrid.filters"><?= e($helpers->lang('admin.datagrid.filters')) ?></span>
                         </button>
                         <div class="lm-dropdown-menu lm-filter-menu" data-lemonade-dropdown-panel hidden data-lemonade-select-floating-root="local">
-                            <?php foreach ($filters as $filter): $key = $filter->key(); ?>
+                            <?php foreach ($filters as $filter): $key = $filter->key();
+                                $asyncUrl = $filter->asyncUrl(); ?>
                                 <div class="lm-filter-group">
                                     <label class="form-label" for="filter-<?= e($grid->id() . '-' . $key) ?>" <?= $filter->label() === null ? 'data-lemonade-i18n="' . e($moduleCode . '.filters.' . $key) . '"' : '' ?>><?= e($filter->label() ?? $helpers->lang($moduleCode . '.filters.' . $key)) ?></label>
                                     <?php if ($filter->inputType() !== null): ?>
                                         <input class="form-control" type="<?= e($filter->inputType()) ?>" id="filter-<?= e($grid->id() . '-' . $key) ?>" data-lemonade-filter="<?= e($key) ?>"<?= $filter->inputType() === 'number' ? ' step="any"' : '' ?>>
                                     <?php else: ?>
-                                    <select class="form-select" id="filter-<?= e($grid->id() . '-' . $key) ?>" data-lemonade-filter="<?= e($key) ?>" data-lemonade-option-source="static">
+                                    <select class="form-select" id="filter-<?= e($grid->id() . '-' . $key) ?>" data-lemonade-filter="<?= e($key) ?>"<?php if ($asyncUrl !== null): ?> data-lemonade-select data-lemonade-option-source="async" data-lemonade-source="<?= e($asyncUrl) ?>" data-lemonade-min-length="0" data-lemonade-clearable<?php endif; ?>>
                                         <option value="" data-lemonade-i18n="<?= e($filter->allLabelKey() ?? $moduleCode . '.filters.all_' . $key . 's') ?>"><?= e($helpers->lang($filter->allLabelKey() ?? $moduleCode . '.filters.all_' . $key . 's')) ?></option>
                                         <?php foreach ($filter->optionSource()->options() as $option): ?>
                                             <option value="<?= e($option->value()) ?>"><?= e($option->label()) ?></option>

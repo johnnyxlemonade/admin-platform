@@ -75,7 +75,7 @@ final readonly class CmsContentDataGrid
     {
         $projections = new CmsContentQueries($this->database, $this->content);
         $builder = $projections->withCanonicalRoute($projections->root()
-            ->joinOn($this->content->translationTable . ' t', 't.' . $this->content->translationForeignKey, '=', 'a.id'))
+            ->joinOn($this->content->getTranslationTable() . ' t', 't.' . $this->content->getTranslationForeignKey(), '=', 'a.id'))
             ->where('t.locale', $locale);
         if ($ownerId !== null) {
             $builder = $builder->where('a.owner_id', $ownerId);
@@ -112,7 +112,7 @@ final readonly class CmsContentDataGrid
      */
     private function properties(): array
     {
-        $columns = (new CmsDomainMapping($this->content->dataClass))->columns();
+        $columns = (new CmsDomainMapping($this->content->getDataClass()))->columns();
         $properties = ['createdAt' => 'a.created_at'];
         foreach (['root' => 'a', 'localized' => 't'] as $scope => $alias) {
             foreach ($columns[$scope] as $property => $column) {

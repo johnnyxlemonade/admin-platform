@@ -29,7 +29,7 @@ final class LanguageRegistryPublicLocaleSnapshotTest extends TestCase
 
         $snapshot = $registry->publicLocaleSnapshot();
 
-        self::assertSame('cs', $snapshot->defaultLocale());
+        self::assertSame('cs', $snapshot->getDefaultLocale());
         self::assertTrue($snapshot->isEnabledNonDefault('en'));
         self::assertFalse($snapshot->isEnabledNonDefault('cs'));
         self::assertTrue($snapshot->isKnownLocale('de'));
