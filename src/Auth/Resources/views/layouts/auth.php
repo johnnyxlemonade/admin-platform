@@ -6,6 +6,7 @@ use Lemonade\Admin\Assets\AdminAssetManifest;
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Admin\Presentation\AdminBranding;
+use Lemonade\Admin\Presentation\AdminPartner;
 use Lemonade\Framework\View\View;
 use Lemonade\Framework\View\ViewHelpers;
 
@@ -36,6 +37,12 @@ $authScript = $isInstaller ? '' : $adminAssets->script('auth');
 $installerStyles = $isInstaller ? $adminAssets->styles('installer') : [];
 $installerScript = $isInstaller ? $adminAssets->script('installer') : '';
 $adminMarkUrl = $adminAssets->staticUrl('images/branding/admin-mark.svg');
+$applicationVersion = $branding->getApplicationVersion();
+$applicationSignature = $branding->applicationName();
+if ($applicationVersion !== null) {
+    $applicationSignature .= ' · v' . $applicationVersion;
+}
+$partner = AdminPartner::Dcuk;
 $currentDateTime = date(DATE_ATOM);
 ?>
 <!doctype html>
@@ -62,10 +69,15 @@ $currentDateTime = date(DATE_ATOM);
                 </div>
                 <footer class="lemonade-auth-footer">
                     <div class="lemonade-auth-footer-copy">
-                        <span><?= e($branding->applicationName()) ?> · v1.0</span>
-                        <a class="lemonade-auth-framework" href="https://lemonadeframework.cz/" target="_blank" rel="noopener noreferrer">
+                        <span><?= e($applicationSignature) ?></span>
+                        <a
+                            class="lemonade-auth-framework"
+                            href="https://lemonadeframework.cz/?utm_source=admin-platform&amp;utm_medium=referral&amp;utm_campaign=powered-by-lemonade&amp;utm_content=auth-footer"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             <img src="<?= e($adminAssets->staticUrl('images/branding/lemonade-framework.svg')) ?>" alt="" aria-hidden="true">
-                                <span data-lemonade-i18n="<?= e($poweredByKey) ?>">
+                            <span data-lemonade-i18n="<?= e($poweredByKey) ?>">
                                 <?= e($helpers->lang($poweredByKey)) ?>
                             </span>
                         </a>
@@ -122,7 +134,16 @@ $currentDateTime = date(DATE_ATOM);
                 </aside>
             <?php endif; ?>
         </section>
-        <?php if ($branding->hasPartner()): ?><div class="lm-auth-partner"><a href="<?= e($branding->partnerUrl()) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= e($branding->partnerLabel()) ?>"><img src="<?= e($branding->partnerLogoUrl()) ?>" alt="<?= e($branding->partnerLabel()) ?>"></a></div><?php endif; ?>
+        <div class="lm-auth-partner">
+            <a
+                href="<?= e($partner->getUrl()) ?>"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="<?= e($partner->getLabel()) ?>"
+            >
+                <img src="<?= e($partner->getLogoUrl()) ?>" alt="<?= e($partner->getLabel()) ?>">
+            </a>
+        </div>
     </main>
     <?php if ($installerScript !== ''): ?><script type="module" src="<?= e($installerScript) ?>"></script><?php endif; ?>
     <?php if ($authScript !== ''): ?><script type="module" src="<?= e($authScript) ?>"></script><?php endif; ?>

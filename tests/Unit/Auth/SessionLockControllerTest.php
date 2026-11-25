@@ -99,8 +99,9 @@ final class SessionLockControllerTest extends TestCase
             (new ApplicationContextFactory())->create(sys_get_temp_dir(), ['APP_ENV' => 'testing']),
             new AdminAssetConfiguration('/assets/admin/', 'assets/admin'),
         );
-        $this->set($controller, 'pages', new AuthPageRenderer($views, new AdminBranding(), $assets));
-        $this->set($controller, 'branding', new AdminBranding());
+        $branding = new AdminBranding();
+        $this->set($controller, 'pages', new AuthPageRenderer($views, $branding, $assets));
+        $this->set($controller, 'branding', $branding);
         $this->set($controller, 'routing', new AdminRoutingConfiguration('/admin'));
         $this->set($controller, 'translationVersion', (new ReflectionClass(ClientTranslationVersion::class))->newInstanceWithoutConstructor());
         $session = $this->session();

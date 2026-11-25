@@ -7,38 +7,35 @@ namespace Lemonade\Admin\Presentation;
 use InvalidArgumentException;
 
 /**
- * Popisuje hostem dodane hodnoty vykreslovane administraci
+ * Describes host-provided values displayed by the administration
  */
 final readonly class AdminBranding
 {
     /**
-     * Nastavuje nazev aplikace, odkazy a browser barvu hosta v administraci
+     * Creates the host-controlled administration branding
      */
     public function __construct(
         private string $applicationName = 'Administration',
         private string $homeUrl = '/',
-        private ?string $partnerUrl = null,
-        private ?string $partnerLogoUrl = null,
-        private ?string $partnerLabel = null,
         private ?string $oidcProviderDisplayName = null,
         private ?string $themeColor = null,
+        private ?string $applicationVersion = '1.0',
     ) {
         if (trim($this->applicationName) === '') {
             throw new InvalidArgumentException('Admin branding application name must not be empty.');
         }
 
-        $partnerValues = [$this->partnerUrl, $this->partnerLogoUrl, $this->partnerLabel];
-        $configuredPartnerValues = count(array_filter(
-            $partnerValues,
-            static fn(?string $value): bool => $value !== null,
-        ));
-        if ($configuredPartnerValues !== 0 && $configuredPartnerValues !== count($partnerValues)) {
-            throw new InvalidArgumentException('Admin branding partner presentation requires URL, logo URL and label.');
+        if (trim($this->homeUrl) === '') {
+            throw new InvalidArgumentException('Admin branding home URL must not be empty.');
+        }
+
+        if ($this->applicationVersion !== null && trim($this->applicationVersion) === '') {
+            throw new InvalidArgumentException('Admin branding application version must not be empty.');
         }
     }
 
     /**
-     * Vrati nazev aplikace zobrazovany v administraci
+     * Returns the application name displayed in the administration
      */
     public function applicationName(): string
     {
@@ -46,7 +43,15 @@ final readonly class AdminBranding
     }
 
     /**
-     * Vrati odkaz na hlavni web hosta
+     * Returns the application version displayed in the administration
+     */
+    public function getApplicationVersion(): ?string
+    {
+        return $this->applicationVersion;
+    }
+
+    /**
+     * Returns the host application home URL
      */
     public function homeUrl(): string
     {
@@ -54,31 +59,7 @@ final readonly class AdminBranding
     }
 
     /**
-     * Vrati adresu partnerskeho webu
-     */
-    public function partnerUrl(): ?string
-    {
-        return $this->partnerUrl;
-    }
-
-    /**
-     * Vrati adresu loga partnera
-     */
-    public function partnerLogoUrl(): ?string
-    {
-        return $this->partnerLogoUrl;
-    }
-
-    /**
-     * Vrati nazev partnera
-     */
-    public function partnerLabel(): ?string
-    {
-        return $this->partnerLabel;
-    }
-
-    /**
-     * Vrati zobrazovany nazev OIDC providera
+     * Returns the displayed OIDC provider name
      */
     public function oidcProviderDisplayName(): ?string
     {
@@ -86,18 +67,10 @@ final readonly class AdminBranding
     }
 
     /**
-     * Vrati barvu hlavicky prohlizece
+     * Returns the browser theme color
      */
     public function themeColor(): ?string
     {
         return $this->themeColor;
-    }
-
-    /**
-     * Rozhoduje, zda ma layout zobrazit odkaz na partnera hosta
-     */
-    public function hasPartner(): bool
-    {
-        return $this->partnerUrl !== null;
     }
 }
