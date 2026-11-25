@@ -362,7 +362,10 @@ final readonly class AdminEditorRenderer
         if ($this->view === null) {
             throw new \LogicException('AdminEditorRenderer requires a View to render CustomViewBlock.');
         }
-        return $this->view->partial($block->view(), $block->context());
+        return $this->view->partial($block->view(), [
+            ...$block->context(),
+            'adminEditorFields' => $this->fields,
+        ]);
     }
 
     /**

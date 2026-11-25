@@ -125,7 +125,7 @@ export class FieldBuilder {
     add(kind, position = this.state.rows.length) {
         const template = this.root.querySelector(`[data-builder-inspector-template="${kind}"]`);
         const localizable = template.content.querySelector('[name="localized"]') !== null;
-        const field = { key: key(), name: this.kinds[kind], code: this.uniqueFieldCode(kind), kind, required: 0, localized: localizable ? 1 : 0, help: "", default_value: "", span: 12, options: [], archived: false };
+        const field = { key: key(), name: this.kinds[kind], code: this.uniqueFieldCode(kind), kind, required: 0, localized: localizable ? 1 : 0, help: "", default_value: "", span: 12, options: [], children: [], archived: false };
         if (kind === "decimal") field.decimal_places = 2;
         this.state.fields.push(field);
         this.state.rows.splice(position, 0, { columns: [{ field: field.key, span: 12 }] });
@@ -374,6 +374,7 @@ export class FieldBuilder {
             }
             const actions = this.inspector.querySelector("[data-builder-field-actions]");
             if (field.kind === "select") actions.append(this.action("options", () => this.editOptions(field), "btn btn-outline-primary btn-sm", "list-ul"));
+            if (field.kind === "repeater") actions.append(this.action("repeater_fields", () => this.editRepeaterFields(field), "btn btn-outline-primary btn-sm", "list-ul"));
             actions.append(this.action(field.id ? "archive" : "remove_field", () => {
                 field.archived = true;
                 this.state.rows.forEach((row) => { row.columns = row.columns.filter((column) => column.field !== field.key); });
@@ -490,6 +491,93 @@ export class FieldBuilder {
             }
             field.options = options;
             if (!options.some((option) => option.code === field.default_value)) field.default_value = "";
+            this.changed();
+            this.showInspector();
+            modal.close();
+        }, "btn btn-primary btn-sm"));
+        content.append(heading, error, list, actions);
+        modal.setContent(content);
+        Sortable.mount(list);
+        modal.element.addEventListener("close", () => {
+            Sortable.destroy(list);
+            modal.destroy();
+            if (this.modal === modal) this.modal = null;
+        }, { once: true });
+        modal.open();
+    }
+
+    /**
+     * Edits the limited child schema of one repeatable group
+     *
+     * @param {object} field
+     * @returns {void}
+     */
+    editRepeaterFields(field) {
+        const modal = Modal.create({ size: "large", scrollable: true });
+        this.modal = modal;
+        const content = element("div", "lm-field-builder-options");
+        const heading = element("div", "lm-field-builder-modal-heading");
+        const title = this.textNode("h2", "repeater_fields", "h5");
+        const close = button("", () => modal.close(), "btn lm-field-builder-icon-button");
+        close.append(element("i", "bi bi-x-lg"), this.textNode("span", "cancel", "visually-hidden"));
+        heading.append(title, close);
+        title.dataset.lemonadeModalTitle = "";
+        const list = element("div", "lm-form-editor-option-list");
+        list.dataset.lemonadeSortable = "";
+        const error = element("p", "text-danger");
+        error.setAttribute("role", "alert");
+        const append = (child = { name: "", code: "", kind: "text", localized: 1, required: 0 }) => {
+            const fragment = this.root.querySelector("[data-builder-repeater-field-template]").content.cloneNode(true);
+            const item = fragment.firstElementChild;
+            const uid = key();
+            item.dataset.lemonadeSortableItem = uid;
+            item.fieldIdentity = child.id;
+            for (const control of item.querySelectorAll("input, select")) {
+                const name = control.name;
+                const oldId = control.id;
+                control.id = `${oldId}-${uid}`;
+                item.querySelector(`label[for="${oldId}"]`)?.setAttribute("for", control.id);
+                control.removeAttribute("name");
+                control.dataset.repeaterFieldProperty = name;
+                if (control.type === "checkbox") {
+                    control.checked = String(child[name] ?? 0) === "1";
+                } else {
+                    control.value = child[name] ?? "";
+                }
+                if (name === "code") control.readOnly = Boolean(child.id);
+                if (name === "kind") control.disabled = Boolean(child.id);
+            }
+            const nameInput = item.querySelector('[data-repeater-field-property="name"]');
+            const codeInput = item.querySelector('[data-repeater-field-property="code"]');
+            let customCode = Boolean(child.code);
+            codeInput.addEventListener("input", () => { customCode = true; });
+            nameInput.addEventListener("input", () => {
+                if (!customCode) codeInput.value = normalizeUrlSegment(nameInput.value, 64).replace(/-/g, "_");
+            });
+            item.querySelector("[data-option-remove]").addEventListener("click", () => item.remove());
+            list.append(item);
+            void I18n.apply(item).catch((loadError) => console.error("Unable to translate repeater fields.", loadError));
+        };
+        field.children.forEach(append);
+        const actions = element("div", "lm-field-builder-modal-footer");
+        actions.append(this.action("add_repeater_field", () => append(), "btn btn-outline-primary btn-sm", "plus-lg"), this.action("cancel", () => modal.close()), this.action("apply", () => {
+            const children = [...list.children].map((item) => {
+                const value = (name) => item.querySelector(`[data-repeater-field-property="${name}"]`);
+                return {
+                    ...(item.fieldIdentity ? { id: item.fieldIdentity } : {}),
+                    name: value("name").value.trim(),
+                    code: value("code").value.trim(),
+                    kind: value("kind").value,
+                    localized: value("localized").checked ? 1 : 0,
+                    required: value("required").checked ? 1 : 0,
+                };
+            });
+            if (!children.length || children.some((child) => !child.name || !/^[a-z][a-z0-9_]{0,63}$/.test(child.code)) || new Set(children.map((child) => child.code)).size !== children.length) {
+                error.textContent = this.labels.invalid_repeater_fields;
+                error.dataset.lemonadeI18n = `${this.translationPrefix}.builder.invalid_repeater_fields`;
+                return;
+            }
+            field.children = children;
             this.changed();
             this.showInspector();
             modal.close();

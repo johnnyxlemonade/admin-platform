@@ -8,9 +8,13 @@ use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorBlock;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorBuilder;
 use Lemonade\Admin\Editor\AdminEditor\Field\Field;
+use Lemonade\Admin\Editor\AdminEditor\Layout\CustomViewBlock;
 use Lemonade\Admin\Editor\AdminEditor\Layout\FieldColumn;
+use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorFieldRenderer;
 use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderContext;
 use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorRenderer;
+use Lemonade\Framework\View\View;
+use Lemonade\Framework\View\ViewResourceRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class AdminEditorRendererTest extends TestCase
@@ -40,5 +44,20 @@ final class AdminEditorRendererTest extends TestCase
         $this->expectExceptionMessage('Unsupported AdminEditor block');
 
         (new AdminEditorRenderer())->render($editor, new AdminEditorRenderContext());
+    }
+
+    public function testCustomViewCanReuseTheActiveFieldRenderer(): void
+    {
+        $resources = new ViewResourceRegistry();
+        $resources->register('fixtures', dirname(__DIR__, 3) . '/Fixtures/Editor');
+        $editor = AdminEditorBuilder::create('example-editor')
+            ->form(new AdminActionFormDefinition('example-form', '/admin/example', csrf: false))
+            ->block(new CustomViewBlock('fixtures::custom-field-renderer'))
+            ->build();
+
+        $html = (new AdminEditorRenderer(new View(resources: $resources)))
+            ->render($editor, new AdminEditorRenderContext());
+
+        self::assertStringContainsString(AdminEditorFieldRenderer::class, $html);
     }
 }
