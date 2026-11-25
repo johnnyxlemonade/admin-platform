@@ -230,7 +230,7 @@
     margin-top: var(--lm-space-5);
 }
 
-.admin-shell .admin-editor-tabs .lm-tabs-list {
+.admin-shell .admin-editor-tabs > .lm-tabs-list {
     flex-wrap: nowrap;
     min-width: 100%;
     gap: var(--lm-space-2);
@@ -240,7 +240,7 @@
     background: transparent;
 }
 
-.admin-shell .admin-editor-tabs .lm-tab {
+.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab {
     min-height: 42px;
     padding: 8px var(--lm-space-4) 5px;
     border: 0;
@@ -251,19 +251,19 @@
     transition: color .16s ease;
 }
 
-.admin-shell .admin-editor-tabs .lm-tab:hover {
+.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab:hover {
     color: var(--lm-text-heading);
     background: transparent;
 }
 
-.admin-shell .admin-editor-tabs .lm-tab:focus-visible {
+.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab:focus-visible {
     outline: 2px solid var(--lm-form-border-focus);
     outline-offset: -3px;
     box-shadow: none;
 }
 
-.admin-shell .admin-editor-tabs .lm-tab.is-active,
-.admin-shell .admin-editor-tabs .lm-tab.is-active:hover {
+.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab.is-active,
+.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab.is-active:hover {
     border-bottom-color: var(--lm-primary);
     border-radius: 0;
     color: var(--lm-primary-dark);
