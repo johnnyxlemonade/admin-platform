@@ -119,7 +119,11 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                     submenu.hidden = true;
                     group.classList.toggle("is-expanded", isExpanded);
                     groupToggle.setAttribute("aria-expanded", "false");
-                    Dropdown.create(group, { placement: "right-start", closeOnInsideClick: false });
+                    Dropdown.create(group, {
+                        placement: "right-start",
+                        closeOnInsideClick: false,
+                        onOpen: function () { this.closeOtherGroups(group); }.bind(this),
+                    });
                     return;
                 }
 
@@ -150,8 +154,38 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
                 if (this.isCollapsed || DomHelper.closest(event.target, "[data-lemonade-sidebar-group-toggle]") !== groupToggle) {
                     return;
                 }
-                this.setGroupExpanded(group, group.lemonadeCollapse?.isOpen() === true);
+                const isExpanded = group.lemonadeCollapse?.isOpen() === true;
+                if (isExpanded) {
+                    this.closeOtherGroups(group);
+                }
+                this.setGroupExpanded(group, isExpanded);
             }.bind(this)));
+        }
+
+        /**
+         * Closes every open navigation group except the newly opened group
+         *
+         * @param {HTMLElement} activeGroup
+         * @returns {void}
+         */
+        closeOtherGroups(activeGroup) {
+            this.groups.forEach(function (group) {
+                if (group === activeGroup) {
+                    return;
+                }
+
+                if (this.isCollapsed) {
+                    group.lemonadeDropdown?.close("switch");
+                    return;
+                }
+
+                if (group.lemonadeCollapse?.isOpen() !== true) {
+                    return;
+                }
+
+                group.lemonadeCollapse.close();
+                this.setGroupExpanded(group, false);
+            }, this);
         }
 
         setGroupExpanded(group, isExpanded) {
