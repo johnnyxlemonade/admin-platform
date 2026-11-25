@@ -221,9 +221,6 @@
 .admin-shell .admin-editor-tabs {
     max-width: 100%;
     margin: 0 0 var(--lm-space-5);
-    overflow-x: auto;
-    overflow-y: hidden;
-    @include mixins.lemonade-scrollbar;
 }
 
 .admin-shell .admin-editor-tabs > .admin-editor-layout {
@@ -231,6 +228,14 @@
 }
 
 .admin-shell .admin-editor-tabs > .lm-tabs-list {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    @include mixins.lemonade-scrollbar;
+}
+
+.admin-shell .admin-editor-tabs > .lm-tabs-list,
+.admin-shell .admin-editor-tabs .lm-tabs-navigation .lm-tabs-list {
     flex-wrap: nowrap;
     min-width: 100%;
     gap: var(--lm-space-2);
@@ -240,7 +245,28 @@
     background: transparent;
 }
 
-.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab {
+.admin-shell .admin-editor-tabs .lm-tabs-navigation {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    gap: var(--lm-space-2);
+    min-width: 0;
+}
+
+.admin-shell .admin-editor-tabs .lm-tabs-primary {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    @include mixins.lemonade-scrollbar;
+}
+
+.admin-shell .admin-editor-tabs .lm-tabs-navigation .lm-tabs-list {
+    width: max-content;
+}
+
+.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab,
+.admin-shell .admin-editor-tabs .lm-tabs-navigation .lm-tabs-list > .lm-tab {
     min-height: 42px;
     padding: 8px var(--lm-space-4) 5px;
     border: 0;
@@ -251,24 +277,72 @@
     transition: color .16s ease;
 }
 
-.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab:hover {
+.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab:hover,
+.admin-shell .admin-editor-tabs .lm-tabs-navigation .lm-tabs-list > .lm-tab:hover {
     color: var(--lm-text-heading);
     background: transparent;
 }
 
-.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab:focus-visible {
+.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab:focus-visible,
+.admin-shell .admin-editor-tabs .lm-tabs-navigation .lm-tabs-list > .lm-tab:focus-visible {
     outline: 2px solid var(--lm-form-border-focus);
     outline-offset: -3px;
     box-shadow: none;
 }
 
 .admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab.is-active,
-.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab.is-active:hover {
+.admin-shell .admin-editor-tabs > .lm-tabs-list > .lm-tab.is-active:hover,
+.admin-shell .admin-editor-tabs .lm-tabs-navigation .lm-tabs-list > .lm-tab.is-active,
+.admin-shell .admin-editor-tabs .lm-tabs-navigation .lm-tabs-list > .lm-tab.is-active:hover {
     border-bottom-color: var(--lm-primary);
     border-radius: 0;
     color: var(--lm-primary-dark);
     background: transparent;
     font-weight: 700;
+}
+
+.admin-shell .admin-editor-tabs .lm-tabs-overflow {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.admin-shell .admin-editor-tabs .lm-tabs-overflow-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 42px;
+    gap: 7px;
+    padding: 8px var(--lm-space-3);
+    border: 1px solid var(--lm-line);
+    border-radius: var(--lm-radius);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.admin-shell .admin-editor-tabs .lm-tabs-overflow-trigger:hover,
+.admin-shell .admin-editor-tabs .lm-tabs-overflow-trigger:focus-visible,
+.admin-shell .admin-editor-tabs .lm-tabs-overflow.is-open .lm-tabs-overflow-trigger {
+    border-color: var(--lm-line-strong);
+    color: var(--lm-text-heading);
+    background: var(--lm-surface-hover);
+}
+
+.admin-shell .admin-editor-tabs .lm-tabs-overflow-trigger:focus-visible {
+    @include mixins.lm-focus-ring;
+    outline: 0;
+}
+
+.admin-shell .admin-editor-tabs .lm-tabs-overflow-menu {
+    min-width: 190px;
+    max-width: min(320px, calc(100vw - (2 * var(--lm-space-4))));
+}
+
+.admin-shell .admin-editor-tabs .lm-tabs-overflow-menu .lm-dropdown-item {
+    justify-content: flex-start;
+    white-space: normal;
 }
 
 .admin-shell .admin-editor-section > .card-body {
@@ -471,9 +545,10 @@
 }
 
 @media (max-width: 767.98px) {
-    .admin-shell .admin-editor-tabs {
-        margin-right: calc(var(--lm-space-4) * -1);
-        padding-right: var(--lm-space-4);
+    .admin-shell .admin-editor-tabs .lm-tabs-navigation .lm-tabs-list > .lm-tab {
+        min-width: 0;
+        padding-right: var(--lm-space-3);
+        padding-left: var(--lm-space-3);
     }
 
     .admin-shell .admin-editor-section > .card-body {

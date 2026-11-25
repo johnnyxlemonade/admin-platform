@@ -297,6 +297,7 @@ return [
         'language_versions_count' => '{existing} z {total} překladů',
         'language_versions_search' => 'Hledat jazyk nebo kód',
         'language_versions_empty' => 'Žádný jazyk neodpovídá hledání.',
+        'more_sections' => 'Další',
     ],
 
     'sidebar' => [

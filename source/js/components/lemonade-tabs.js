@@ -8,10 +8,22 @@
  * @copyright Copyright (c) 2026 Honza Mudrak. All rights reserved.
  * @license   Apache-2.0 - see LICENSE
  */
+import { BootstrapIcons } from "../core/lemonade-bootstrap-icons.js";
+import { I18n } from "../core/lemonade-i18n.js";
+import { Dropdown } from "./lemonade-dropdown.js";
+
 export class Tabs {
     constructor(root) {
         this.root = root;
         this.tabs = [];
+        this.tabList = null;
+        this.navigation = null;
+        this.primaryTabs = null;
+        this.overflow = null;
+        this.overflowMenu = null;
+        this.overflowFrame = null;
+        this.resizeObserver = null;
+        this.dropdown = null;
         this.listenerRemovers = [];
         this.destroyed = false;
     }
@@ -36,6 +48,7 @@ export class Tabs {
             );
         }, this);
         this.activate(activeTab);
+        this.setupOverflow();
 
         return true;
     }
@@ -64,6 +77,8 @@ export class Tabs {
             activeTab.focus();
         }
 
+        this.scheduleOverflow();
+
         return activeTab;
     }
 
@@ -80,9 +95,157 @@ export class Tabs {
 
         this.listenerRemovers.forEach(function (remove) { remove(); });
         this.listenerRemovers = [];
+        this.resizeObserver?.disconnect();
+        this.dropdown?.destroy();
+        if (this.overflowFrame !== null) {
+            window.cancelAnimationFrame(this.overflowFrame);
+        }
+        this.restoreTabList();
         this.tabs = [];
         delete this.root.lemonadeTabs;
         this.destroyed = true;
+    }
+
+    setupOverflow() {
+        if (!this.root.hasAttribute("data-lemonade-tabs-overflow")) {
+            return;
+        }
+
+        this.tabList = this.tabs[0]?.closest('[role="tablist"]') || null;
+        if (!this.tabList || this.tabList.parentElement !== this.root) {
+            return;
+        }
+
+        this.navigation = document.createElement("div");
+        this.navigation.className = "lm-tabs-navigation";
+        this.primaryTabs = document.createElement("div");
+        this.primaryTabs.className = "lm-tabs-primary";
+        this.tabList.insertAdjacentElement("beforebegin", this.navigation);
+        this.navigation.appendChild(this.primaryTabs);
+        this.primaryTabs.appendChild(this.tabList);
+
+        this.overflow = document.createElement("div");
+        this.overflow.className = "lm-tabs-overflow";
+        this.overflow.hidden = true;
+
+        const trigger = document.createElement("button");
+        trigger.className = "lm-tabs-overflow-trigger";
+        trigger.type = "button";
+        trigger.setAttribute("data-lemonade-dropdown-trigger", "");
+        trigger.setAttribute("aria-expanded", "false");
+
+        const label = document.createElement("span");
+        const labelKey = "admin.editor.more_sections";
+        const translatedLabel = I18n.t(labelKey);
+        label.textContent = translatedLabel === labelKey ? "More" : translatedLabel;
+        label.setAttribute("data-lemonade-i18n", labelKey);
+        trigger.appendChild(label);
+
+        const icon = document.createElement("i");
+        BootstrapIcons.set(icon, "chevron-down");
+        icon.setAttribute("aria-hidden", "true");
+        trigger.appendChild(icon);
+
+        this.overflowMenu = document.createElement("div");
+        this.overflowMenu.className = "lm-dropdown-menu lm-tabs-overflow-menu";
+        this.overflowMenu.setAttribute("data-lemonade-dropdown-panel", "");
+        this.overflowMenu.setAttribute("role", "tablist");
+        this.overflowMenu.setAttribute("aria-label", label.textContent);
+        this.overflowMenu.setAttribute("data-lemonade-i18n-aria-label", labelKey);
+        this.overflowMenu.hidden = true;
+        this.overflow.append(trigger, this.overflowMenu);
+        this.navigation.appendChild(this.overflow);
+        this.dropdown = Dropdown.create(this.overflow, { placement: "bottom-end" });
+
+        if ("ResizeObserver" in window) {
+            this.resizeObserver = new ResizeObserver(this.scheduleOverflow.bind(this));
+            this.resizeObserver.observe(this.navigation);
+        }
+
+        this.scheduleOverflow();
+    }
+
+    scheduleOverflow() {
+        if (!this.navigation || this.overflowFrame !== null) {
+            return;
+        }
+
+        this.overflowFrame = window.requestAnimationFrame(function () {
+            this.overflowFrame = null;
+            this.updateOverflow();
+        }.bind(this));
+    }
+
+    updateOverflow() {
+        if (!this.tabList || !this.primaryTabs || !this.overflow || !this.overflowMenu) {
+            return;
+        }
+
+        this.tabs.forEach(function (tab) {
+            this.moveTab(tab, false);
+        }, this);
+        this.overflow.hidden = true;
+
+        if (this.tabList.scrollWidth <= this.navigation.clientWidth) {
+            return;
+        }
+
+        this.overflow.hidden = false;
+        this.overflow.style.visibility = "hidden";
+
+        let primaryTabs = this.getPrimaryTabs();
+        while (primaryTabs.length > 1 && this.tabList.scrollWidth > this.primaryTabs.clientWidth) {
+            const activeTab = this.activeTab();
+            const tabToMove = primaryTabs.slice().reverse().find(function (tab) {
+                return tab !== activeTab;
+            }) || primaryTabs[primaryTabs.length - 1];
+            this.moveTab(tabToMove, true);
+            primaryTabs = this.getPrimaryTabs();
+        }
+
+        this.overflow.style.visibility = "";
+        if (!this.overflowMenu.children.length) {
+            this.overflow.hidden = true;
+        }
+    }
+
+    getPrimaryTabs() {
+        return this.tabs.filter(function (tab) {
+            return tab.parentElement === this.tabList;
+        }, this);
+    }
+
+    moveTab(tab, toOverflow) {
+        tab.classList.toggle("lm-tab", !toOverflow);
+        tab.classList.toggle("lm-dropdown-item", toOverflow);
+        tab.tabIndex = toOverflow || tab === this.activeTab() ? 0 : -1;
+
+        if (toOverflow) {
+            this.overflowMenu.prepend(tab);
+            return;
+        }
+
+        this.tabList.appendChild(tab);
+    }
+
+    restoreTabList() {
+        if (!this.tabList || !this.navigation) {
+            return;
+        }
+
+        this.tabs.forEach(function (tab) {
+            tab.classList.add("lm-tab");
+            tab.classList.remove("lm-dropdown-item");
+            this.tabList.appendChild(tab);
+        }, this);
+        this.navigation.insertAdjacentElement("beforebegin", this.tabList);
+        this.navigation.remove();
+        this.tabList = null;
+        this.navigation = null;
+        this.primaryTabs = null;
+        this.overflow = null;
+        this.overflowMenu = null;
+        this.dropdown = null;
     }
 
     panelFor(tab) {

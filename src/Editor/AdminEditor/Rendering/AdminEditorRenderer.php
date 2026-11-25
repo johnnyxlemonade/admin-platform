@@ -215,7 +215,7 @@ final readonly class AdminEditorRenderer
 
         $tabs = $this->tabs($editor);
         $panels = $this->tabContent($editor, $context, $form);
-        return '<div class="lm-tabs admin-editor-tabs" data-lemonade-tabs>' . $tabs . $this->layout($panels, $sidebar, $editor, $context, $form, afterTabs: true) . '</div>';
+        return '<div class="lm-tabs admin-editor-tabs" data-lemonade-tabs data-lemonade-tabs-overflow>' . $tabs . $this->layout($panels, $sidebar, $editor, $context, $form, afterTabs: true) . '</div>';
     }
 
     /**

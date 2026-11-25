@@ -297,6 +297,7 @@ return [
         'language_versions_count' => '{existing} of {total} translations',
         'language_versions_search' => 'Search by language or code',
         'language_versions_empty' => 'No languages match your search.',
+        'more_sections' => 'More',
     ],
 
     'sidebar' => [

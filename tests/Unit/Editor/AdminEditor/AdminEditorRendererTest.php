@@ -8,6 +8,7 @@ use Lemonade\Admin\Action\Presentation\AdminActionFormDefinition;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorBlock;
 use Lemonade\Admin\Editor\AdminEditor\AdminEditorBuilder;
 use Lemonade\Admin\Editor\AdminEditor\Field\Field;
+use Lemonade\Admin\Editor\AdminEditor\Layout\AdminEditorTab;
 use Lemonade\Admin\Editor\AdminEditor\Layout\CustomViewBlock;
 use Lemonade\Admin\Editor\AdminEditor\Layout\FieldColumn;
 use Lemonade\Admin\Editor\AdminEditor\Rendering\AdminEditorFieldRenderer;
@@ -59,5 +60,18 @@ final class AdminEditorRendererTest extends TestCase
             ->render($editor, new AdminEditorRenderContext());
 
         self::assertStringContainsString(AdminEditorFieldRenderer::class, $html);
+    }
+
+    public function testTabbedEditorEnablesResponsiveOverflowNavigation(): void
+    {
+        $editor = AdminEditorBuilder::create('example-editor')
+            ->form(new AdminActionFormDefinition('example-form', '/admin/example', csrf: false))
+            ->tab(new AdminEditorTab('content', 'Content', blocks: [], default: true))
+            ->tab(new AdminEditorTab('settings', 'Settings', blocks: []))
+            ->build();
+
+        $html = (new AdminEditorRenderer())->render($editor, new AdminEditorRenderContext());
+
+        self::assertStringContainsString('data-lemonade-tabs data-lemonade-tabs-overflow', $html);
     }
 }
