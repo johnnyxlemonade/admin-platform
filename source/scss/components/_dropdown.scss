@@ -20,12 +20,12 @@
     gap: 10px;
     padding: 9px 10px;
     border: 0;
-    border-radius: 7px;
+    border-radius: var(--lm-radius);
     color: var(--lm-text-secondary);
     background: transparent;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.3;
+    font-size: var(--lm-font-size-14);
+    font-weight: var(--lm-font-weight-regular);
+    line-height: var(--lm-line-height-dense);
     text-align: left;
     text-decoration: none;
     cursor: pointer;
@@ -35,11 +35,12 @@
     flex: 0 0 16px;
     width: 16px;
     color: var(--lm-text-muted);
-    font-size: 16px;
+    font-size: var(--lm-icon-size-16);
     text-align: center;
 }
 
-.lm-dropdown-item:hover, .lm-dropdown-item:focus-visible {
+.lm-dropdown-item:hover,
+.lm-dropdown-item:focus-visible {
     color: var(--lm-text-secondary);
     background: var(--lm-surface-hover);
 }
@@ -49,10 +50,11 @@
     outline: 0;
 }
 
-.lm-dropdown-item.is-active, .lm-dropdown-item.active {
+.lm-dropdown-item.is-active,
+.lm-dropdown-item.active {
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .lm-dropdown-divider {
@@ -70,7 +72,7 @@
 
 .lm-dropdown [data-lemonade-dropdown-panel] {
     position: absolute;
-    z-index: 1000;
+    z-index: var(--lm-z-index-dropdown);
 }
 
 .lm-dropdown[data-lemonade-dropdown-placement="bottom-end"] [data-lemonade-dropdown-panel] {

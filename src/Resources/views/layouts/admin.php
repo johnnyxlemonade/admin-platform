@@ -54,7 +54,7 @@ if ($currentUser !== null) {
 }
 ?>
 <!doctype html>
-<html class="no-js" lang="<?= e($locale) ?>" data-bs-theme="light" data-lemonade-sidebar-storage-key="<?= e($sidebarStorageKey) ?>">
+<html class="no-js" lang="<?= e($locale) ?>" data-bs-theme="light" data-lemonade-admin data-lemonade-sidebar-storage-key="<?= e($sidebarStorageKey) ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -83,6 +83,7 @@ if ($currentUser !== null) {
             <?= $this->partial('admin::navigation.sidebar', ['navigation' => $navigation, 'activeAdminModule' => $activeAdminModule ?? null]) ?>
             <div class="sidebar-footer"><button class="collapse-link" type="button" data-lemonade-sidebar-toggle aria-expanded="true" aria-label="<?= e($helpers->lang('admin.sidebar.collapseNavigation')) ?>" data-lemonade-i18n-aria-label="admin.sidebar.collapseNavigation"><i class="<?= e(AdminIcon::ChevronBarLeft->cssClass()) ?>" data-lemonade-sidebar-toggle-icon aria-hidden="true"></i><span data-lemonade-i18n="admin.sidebar.collapse"><?= e($helpers->lang('admin.sidebar.collapse')) ?></span></button></div>
         </aside>
+        <button class="sidebar-backdrop" type="button" tabindex="-1" data-lemonade-sidebar-dismiss aria-label="<?= e($helpers->lang('admin.sidebar.collapseNavigation')) ?>" data-lemonade-i18n-aria-label="admin.sidebar.collapseNavigation" hidden></button>
         <div class="admin-frame">
             <header class="topbar">
                 <div class="topbar-actions">

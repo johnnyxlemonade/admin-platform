@@ -20,10 +20,10 @@
     justify-content: center;
     width: 38px;
     height: 38px;
-    border-radius: 10px;
+    border-radius: var(--lm-radius-lg);
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
-    font-size: 19px;
+    font-size: var(--lm-icon-size-19);
 }
 
 .lm-modal[data-lemonade-modal-kind="confirm"] .lm-confirm-copy {
@@ -33,16 +33,16 @@
 .lm-modal[data-lemonade-modal-kind="confirm"] .lm-confirm-copy h2 {
     margin: 1px 0 6px;
     color: var(--lm-text-heading);
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.3;
+    font-size: var(--lm-font-size-18);
+    font-weight: var(--lm-font-weight-bold);
+    line-height: var(--lm-line-height-dense);
 }
 
 .lm-modal[data-lemonade-modal-kind="confirm"] .lm-confirm-copy p {
     margin: 0;
     color: var(--lm-text-muted);
-    font-size: 14px;
-    line-height: 1.55;
+    font-size: var(--lm-font-size-14);
+    line-height: var(--lm-line-height-spacious);
 }
 
 .lm-modal[data-lemonade-modal-kind="confirm"] .lm-modal-footer {

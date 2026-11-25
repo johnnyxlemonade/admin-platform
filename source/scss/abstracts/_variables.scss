@@ -1,2 +1,19 @@
 $lm-primary: #3048f5;
-$lm-breakpoint-compact: 1199px;
+$lm-admin-design-width: 1920px;
+$lm-admin-wide-design-width: 2560px;
+$lm-admin-maximum-scale: 8;
+$lm-breakpoints-down: (
+    narrow: 360px,
+    compact: 479.98px,
+    sm: 575.98px,
+    md: 767.98px,
+    lg: 991.98px,
+    xl: 1199.98px,
+    xxl: 1399.98px,
+);
+$lm-breakpoints-only: (
+    md: (
+        min: 768px,
+        max: 991.98px,
+    ),
+);

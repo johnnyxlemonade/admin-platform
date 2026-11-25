@@ -1,6 +1,37 @@
+@use "sass:map";
+@use "variables";
+
 @mixin lm-focus-ring {
     border-color: var(--lm-primary);
     box-shadow: var(--lm-focus-shadow);
+}
+
+@mixin lm-breakpoint-down($breakpoint) {
+    @if not map.has-key(variables.$lm-breakpoints-down, $breakpoint) {
+        @error "Unknown Lemonade breakpoint: #{$breakpoint}";
+    }
+
+    @media (max-width: map.get(variables.$lm-breakpoints-down, $breakpoint)) {
+        @content;
+    }
+}
+
+@mixin lm-breakpoint-only($breakpoint) {
+    @if not map.has-key(variables.$lm-breakpoints-only, $breakpoint) {
+        @error "Unknown Lemonade breakpoint range: #{$breakpoint}";
+    }
+
+    $range: map.get(variables.$lm-breakpoints-only, $breakpoint);
+
+    @media (min-width: map.get($range, min)) and (max-width: map.get($range, max)) {
+        @content;
+    }
+}
+
+@mixin lm-reduced-motion {
+    @media (prefers-reduced-motion: reduce) {
+        @content;
+    }
 }
 
 // Apply only to intentional, component-owned scroll containers.
@@ -20,7 +51,7 @@
 
     &::-webkit-scrollbar-thumb {
         background: var(--lm-scrollbar-thumb);
-        border-radius: 999px;
+        border-radius: var(--lm-radius-pill);
     }
 
     &::-webkit-scrollbar-thumb:hover {

@@ -3,7 +3,7 @@
     border: 1px solid var(--lm-card-border);
     border-radius: var(--lm-radius-lg);
     background: var(--lm-surface);
-    box-shadow: 0 4px 14px rgba(31, 52, 105, .04);
+    box-shadow: var(--lm-shadow-sm);
 }
 
 .admin-shell .lm-accordion-trigger {
@@ -30,7 +30,7 @@
 }
 
 .admin-shell .lm-accordion-chevron {
-    transition: transform .16s ease;
+    transition: transform var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
 .admin-shell .lm-accordion-trigger[aria-expanded="true"] .lm-accordion-chevron {

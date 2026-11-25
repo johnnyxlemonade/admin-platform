@@ -9,7 +9,8 @@
     width: clamp(320px, 18vw, 380px);
 }
 
-.admin-shell .datagrid-search, .admin-shell .datagrid-filter {
+.admin-shell .datagrid-search,
+.admin-shell .datagrid-filter {
     height: 44px;
 }
 
@@ -45,8 +46,8 @@
 .admin-shell .lm-column-menu-title {
     padding: 6px 8px 8px;
     color: var(--lm-text-muted);
-    font-size: 12px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-12);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-column-option {
@@ -54,7 +55,7 @@
     align-items: center;
     gap: 9px;
     padding: 7px 8px;
-    border-radius: 5px;
+    border-radius: var(--lm-radius-control);
     color: var(--lm-text);
     cursor: pointer;
 }
@@ -78,12 +79,12 @@
     height: 17px;
     padding: 0 4px;
     border: 2px solid var(--lm-surface);
-    border-radius: 999px;
+    border-radius: var(--lm-radius-pill);
     color: var(--lm-on-primary);
     background: var(--lm-primary);
-    font-size: 10px;
-    font-weight: 700;
-    line-height: 1;
+    font-size: var(--lm-font-size-10);
+    font-weight: var(--lm-font-weight-bold);
+    line-height: var(--lm-line-height-icon);
 }
 
 .admin-shell .data-card {
@@ -116,7 +117,10 @@
     @include mixins.lemonade-scrollbar;
 }
 
-.admin-shell .data-grid table, .admin-shell .data-grid tbody, .admin-shell .data-grid tbody tr, .admin-shell .data-grid tbody td {
+.admin-shell .data-grid table,
+.admin-shell .data-grid tbody,
+.admin-shell .data-grid tbody tr,
+.admin-shell .data-grid tbody td {
     background: var(--lm-surface);
 }
 
@@ -128,7 +132,7 @@
     width: 100%;
     table-layout: auto;
     color: var(--lm-text-secondary);
-    font-size: clamp(13px, .76vw, 14px);
+    font-size: var(--lm-font-size-table-heading);
 }
 
 .admin-shell .lm-datagrid-table .check-col {
@@ -148,8 +152,8 @@
     border-color: var(--lm-line);
     color: var(--lm-text-muted);
     background: var(--lm-surface-soft);
-    font-size: clamp(12px, .72vw, 13px);
-    font-weight: 600;
+    font-size: var(--lm-font-size-table-cell);
+    font-weight: var(--lm-font-weight-semibold);
     white-space: nowrap;
 }
 
@@ -170,7 +174,8 @@
     text-align: inherit;
 }
 
-.admin-shell .lm-datagrid-sort:hover, .admin-shell .lm-datagrid-sort.is-sorted {
+.admin-shell .lm-datagrid-sort:hover,
+.admin-shell .lm-datagrid-sort.is-sorted {
     color: var(--lm-text-heading);
 }
 
@@ -193,7 +198,7 @@
 
 .admin-shell .lm-datagrid-table td {
     height: clamp(64px, 4vw, 76px);
-    padding: clamp(10px, .625vw, 12px) 14px;
+    padding: clamp(10px, 0.625vw, 12px) 14px;
     border-color: var(--lm-line);
     background: var(--lm-surface);
     white-space: nowrap;
@@ -208,7 +213,7 @@
     display: block;
     margin-top: 3px;
     color: var(--lm-text-soft);
-    font-size: clamp(12px, .7vw, 13px);
+    font-size: var(--lm-font-size-compact);
     text-overflow: ellipsis;
 }
 
@@ -216,8 +221,8 @@
     overflow: hidden;
     display: block;
     color: var(--lm-text);
-    font-size: clamp(14px, .82vw, 15px);
-    font-weight: 600;
+    font-size: var(--lm-font-size-button);
+    font-weight: var(--lm-font-weight-semibold);
     text-overflow: ellipsis;
 }
 
@@ -237,7 +242,8 @@
     min-width: 0;
 }
 
-.admin-shell .lm-datagrid-profile-copy strong, .admin-shell .lm-datagrid-profile-copy small {
+.admin-shell .lm-datagrid-profile-copy strong,
+.admin-shell .lm-datagrid-profile-copy small {
     display: block;
 }
 
@@ -269,7 +275,8 @@
     padding-left: 56px;
 }
 
-.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="1"]::before, .admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"]::before {
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="1"]::before,
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"]::before {
     position: absolute;
     top: -24px;
     bottom: -24px;
@@ -283,7 +290,8 @@
     left: 41px;
 }
 
-.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="1"]::after, .admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"]::after {
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="1"]::after,
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"]::after {
     position: absolute;
     top: 50%;
     left: 13px;
@@ -306,14 +314,15 @@
     height: 26px;
     margin-right: 12px;
     border: 1px solid var(--lm-primary);
-    border-radius: 5px;
+    border-radius: var(--lm-radius-control);
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
-    font-size: 17px;
+    font-size: var(--lm-icon-size-17);
 }
 
-.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="1"] .lm-datagrid-hierarchy-icon, .admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"] .lm-datagrid-hierarchy-icon {
-    opacity: .72;
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="1"] .lm-datagrid-hierarchy-icon,
+.admin-shell .lm-datagrid-hierarchy[data-lemonade-tree-level="2"] .lm-datagrid-hierarchy-icon {
+    opacity: 0.72;
 }
 
 .admin-shell .lm-datagrid-tree-content {
@@ -323,7 +332,8 @@
     padding-left: calc(var(--lm-tree-depth, 0) * 24px);
 }
 
-.admin-shell .lm-datagrid-tree-toggle, .admin-shell .lm-datagrid-tree-spacer {
+.admin-shell .lm-datagrid-tree-toggle,
+.admin-shell .lm-datagrid-tree-spacer {
     display: inline-flex;
     flex: 0 0 24px;
     align-items: center;
@@ -336,12 +346,13 @@
 .admin-shell .lm-datagrid-tree-toggle {
     padding: 0;
     border: 0;
-    border-radius: 4px;
+    border-radius: var(--lm-radius-xs);
     color: var(--lm-text-muted);
     background: transparent;
 }
 
-.admin-shell .lm-datagrid-tree-toggle:hover, .admin-shell .lm-datagrid-tree-toggle:focus-visible {
+.admin-shell .lm-datagrid-tree-toggle:hover,
+.admin-shell .lm-datagrid-tree-toggle:focus-visible {
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
 }
@@ -351,10 +362,10 @@
     align-items: center;
     gap: 6px;
     padding: 4px 9px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.2;
+    border-radius: var(--lm-radius-pill);
+    font-size: var(--lm-font-size-12);
+    font-weight: var(--lm-font-weight-medium);
+    line-height: var(--lm-line-height-heading);
 }
 
 .admin-shell .lm-datagrid-type--accent {
@@ -372,10 +383,11 @@
     background: var(--lm-surface-soft);
 }
 
-.admin-shell .lm-datagrid-thumb, .admin-shell .lm-datagrid-thumb-placeholder {
+.admin-shell .lm-datagrid-thumb,
+.admin-shell .lm-datagrid-thumb-placeholder {
     width: clamp(78px, 4.5vw, 92px);
     height: clamp(44px, 2.6vw, 52px);
-    border-radius: 6px;
+    border-radius: var(--lm-radius-sm);
 }
 
 .admin-shell .lm-datagrid-thumb {
@@ -390,7 +402,7 @@
     border: 1px solid var(--lm-line);
     color: var(--lm-text-muted);
     background: var(--lm-surface-soft);
-    font-size: 20px;
+    font-size: var(--lm-icon-size-20);
 }
 
 .admin-shell .lm-datagrid-file-preview {
@@ -399,10 +411,10 @@
     justify-content: center;
     width: clamp(78px, 4.5vw, 92px);
     height: clamp(44px, 2.6vw, 52px);
-    border-radius: 6px;
+    border-radius: var(--lm-radius-sm);
     color: var(--lm-text-muted);
     background: var(--lm-surface-soft);
-    font-size: 24px;
+    font-size: var(--lm-icon-size-24);
 }
 
 .admin-shell .lm-datagrid-file-preview--document {
@@ -431,7 +443,7 @@
 
 .admin-shell .data-grid .action-button > .bi {
     color: var(--lm-text-secondary);
-    font-size: 18px;
+    font-size: var(--lm-icon-size-18);
 }
 
 .admin-shell .lm-row-action-group {
@@ -452,7 +464,7 @@
 }
 
 .admin-shell .data-grid .lm-row-inline-action {
-    --bs-btn-font-size: 13px;
+    --bs-btn-font-size: var(--lm-font-size-13);
     --bs-btn-padding-x: 10px;
     --bs-btn-padding-y: 6px;
     display: inline-flex;
@@ -461,7 +473,8 @@
     min-height: 34px;
 }
 
-.admin-shell .data-grid .lm-row-primary-action, .admin-shell .data-grid .lm-row-actions-toggle {
+.admin-shell .data-grid .lm-row-primary-action,
+.admin-shell .data-grid .lm-row-actions-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -471,7 +484,9 @@
     padding: 0;
 }
 
-.admin-shell .data-grid .lm-row-inline-action:focus-visible, .admin-shell .data-grid .lm-row-primary-action:focus-visible, .admin-shell .data-grid .lm-row-actions-toggle:focus-visible {
+.admin-shell .data-grid .lm-row-inline-action:focus-visible,
+.admin-shell .data-grid .lm-row-primary-action:focus-visible,
+.admin-shell .data-grid .lm-row-actions-toggle:focus-visible {
     @include mixins.lm-focus-ring;
     outline: 0;
 }
@@ -489,7 +504,9 @@
     min-width: 168px;
 }
 
-.admin-shell .lm-row-actions-menu .lm-row-actions-delete, .admin-shell .lm-row-actions-menu .lm-row-actions-delete:hover, .admin-shell .lm-row-actions-menu .lm-row-actions-delete:focus {
+.admin-shell .lm-row-actions-menu .lm-row-actions-delete,
+.admin-shell .lm-row-actions-menu .lm-row-actions-delete:hover,
+.admin-shell .lm-row-actions-menu .lm-row-actions-delete:focus {
     color: var(--lm-danger);
 }
 
@@ -554,11 +571,12 @@
     border-radius: var(--lm-radius);
     color: var(--lm-text-secondary);
     background: var(--lm-surface);
-    font-size: 13px;
-    line-height: 1.3;
+    font-size: var(--lm-font-size-13);
+    line-height: var(--lm-line-height-dense);
 }
 
-.admin-shell .lm-filter-chip:hover, .admin-shell .lm-filter-chip:focus-visible {
+.admin-shell .lm-filter-chip:hover,
+.admin-shell .lm-filter-chip:focus-visible {
     border-color: var(--lm-primary);
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
@@ -569,10 +587,11 @@
     border: 0;
     color: var(--lm-text-muted);
     background: transparent;
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
-.admin-shell .lm-filter-chips-clear:hover, .admin-shell .lm-filter-chips-clear:focus-visible {
+.admin-shell .lm-filter-chips-clear:hover,
+.admin-shell .lm-filter-chips-clear:focus-visible {
     color: var(--lm-text-heading);
 }
 
@@ -588,7 +607,8 @@
     background: var(--lm-surface-selected);
 }
 
-.admin-shell .lm-datagrid-selection-main, .admin-shell .lm-datagrid-selection-actions {
+.admin-shell .lm-datagrid-selection-main,
+.admin-shell .lm-datagrid-selection-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -600,8 +620,8 @@
     display: inline-flex;
     align-items: center;
     color: var(--lm-text-secondary);
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-medium);
     white-space: nowrap;
 }
 
@@ -623,16 +643,19 @@
     border-radius: var(--lm-radius);
     color: var(--lm-text-secondary);
     background: var(--lm-surface);
-    font-size: 13px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
-.admin-shell .lm-datagrid-bulk-action:hover, .admin-shell .lm-datagrid-bulk-action:focus-visible {
+.admin-shell .lm-datagrid-bulk-action:hover,
+.admin-shell .lm-datagrid-bulk-action:focus-visible {
     color: var(--lm-text-heading);
     background: var(--lm-surface-hover);
 }
 
-.admin-shell .lm-datagrid-bulk-action--danger, .admin-shell .lm-datagrid-bulk-action--danger:hover, .admin-shell .lm-datagrid-bulk-action--danger:focus-visible {
+.admin-shell .lm-datagrid-bulk-action--danger,
+.admin-shell .lm-datagrid-bulk-action--danger:hover,
+.admin-shell .lm-datagrid-bulk-action--danger:focus-visible {
     color: var(--lm-danger);
 }
 
@@ -651,15 +674,16 @@
     border: 0;
     color: var(--lm-text-muted);
     background: transparent;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-medium);
 }
 
-.admin-shell .lm-datagrid-selection-clear:hover, .admin-shell .lm-datagrid-selection-clear:focus-visible {
+.admin-shell .lm-datagrid-selection-clear:hover,
+.admin-shell .lm-datagrid-selection-clear:focus-visible {
     color: var(--lm-text-heading);
 }
 
-@media (max-width: 767.98px) {
+@include mixins.lm-breakpoint-down(md) {
     .admin-shell .lm-datagrid-selection-bar {
         flex-wrap: wrap;
         align-items: flex-start;
@@ -694,7 +718,7 @@
     border-top: 1px solid var(--lm-line);
     color: var(--lm-text-muted);
     background: var(--lm-surface);
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
     text-align: center;
 }
 
@@ -705,13 +729,13 @@
     width: 36px;
     height: 36px;
     color: var(--lm-text-muted);
-    font-size: 26px;
+    font-size: var(--lm-icon-size-26);
 }
 
 .admin-shell .lm-grid-state-spinner {
     width: 1.8rem;
     height: 1.8rem;
-    border-width: .18em;
+    border-width: 0.18em;
     color: var(--lm-primary);
 }
 
@@ -729,8 +753,8 @@
 
 .admin-shell .lm-grid-state-copy strong {
     color: var(--lm-text-heading);
-    font-size: 15px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-15);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-grid-state-copy span {
@@ -743,7 +767,7 @@
 
 .admin-shell .lm-grid-busy-overlay {
     position: absolute;
-    z-index: 2;
+    z-index: var(--lm-z-index-overlay);
     inset: 0;
     display: flex;
     align-items: center;
@@ -757,7 +781,7 @@
 .admin-shell .lm-grid-busy-overlay .spinner-border {
     width: 1.15rem;
     height: 1.15rem;
-    border-width: .16em;
+    border-width: 0.16em;
 }
 
 .admin-shell [data-lemonade-grid].is-initial-loading .data-grid > .table-responsive,
@@ -777,7 +801,7 @@
 
 .admin-shell .table-footer [data-lemonade-grid-bulk-apply]:disabled {
     cursor: not-allowed;
-    opacity: .55;
+    opacity: 0.55;
 }
 
 .admin-shell .lm-ajax-select-search {
@@ -787,7 +811,7 @@
 .admin-shell .lm-ajax-select-search.is-loading {
     background-image: none;
     cursor: progress;
-    opacity: .7;
+    opacity: 0.7;
 }
 
 .admin-shell .table-footer {
@@ -807,7 +831,7 @@
 .admin-shell .table-footer .form-select {
     width: 198px;
     min-height: 40px;
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
 }
 
 .admin-shell .toolbar {
@@ -871,22 +895,23 @@
     border-bottom: 2px solid transparent;
     color: var(--lm-text-control);
     background: var(--lm-surface-soft);
-    font-size: clamp(14px, .82vw, 16px);
+    font-size: var(--lm-font-size-navigation-control);
     text-align: center;
     text-decoration: none;
     white-space: nowrap;
 }
 
 .admin-shell .lm-datagrid-view-item:first-child .lm-datagrid-view {
-    border-radius: 6px 0 0 0;
+    border-radius: var(--lm-radius-sm) 0 0 0;
 }
 
 .admin-shell .lm-datagrid-view-item:last-child .lm-datagrid-view {
     border-right: 0;
-    border-radius: 0 6px 0 0;
+    border-radius: 0 var(--lm-radius-sm) 0 0;
 }
 
-.admin-shell .lm-datagrid-view:hover, .admin-shell .lm-datagrid-view:focus-visible {
+.admin-shell .lm-datagrid-view:hover,
+.admin-shell .lm-datagrid-view:focus-visible {
     color: var(--lm-text-secondary);
     background: var(--lm-surface);
 }
@@ -900,7 +925,7 @@
     border-bottom-color: var(--lm-primary);
     color: var(--lm-primary);
     background: var(--lm-surface);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-datagrid-views-more {
@@ -914,17 +939,19 @@
     justify-content: center;
     gap: 7px;
     min-height: 100%;
-    padding: 10px clamp(15px, .95vw, 20px);
+    padding: 10px clamp(15px, 0.95vw, 20px);
     border: 1px solid var(--lm-line-subtle);
-    border-radius: 6px;
+    border-radius: var(--lm-radius-sm);
     color: var(--lm-text-control);
     background: var(--lm-surface-soft);
-    font-size: clamp(14px, .82vw, 16px);
-    line-height: 1.2;
+    font-size: var(--lm-font-size-navigation-control);
+    line-height: var(--lm-line-height-heading);
     white-space: nowrap;
 }
 
-.admin-shell .lm-datagrid-views-more-toggle:hover, .admin-shell .lm-datagrid-views-more-toggle:focus-visible, .admin-shell .lm-datagrid-views-more.is-active .lm-datagrid-views-more-toggle {
+.admin-shell .lm-datagrid-views-more-toggle:hover,
+.admin-shell .lm-datagrid-views-more-toggle:focus-visible,
+.admin-shell .lm-datagrid-views-more.is-active .lm-datagrid-views-more-toggle {
     border-color: var(--lm-line-strong);
     color: var(--lm-text-secondary);
     background: var(--lm-surface);
@@ -947,7 +974,7 @@
     flex: 0 0 16px;
     width: 16px;
     color: var(--lm-primary);
-    font-size: 15px;
+    font-size: var(--lm-font-size-15);
     text-align: center;
     visibility: hidden;
 }
@@ -956,7 +983,8 @@
     visibility: visible;
 }
 
-.admin-shell .datagrid-toolbar .toolbar-controls, .admin-shell .datagrid-toolbar .datagrid-toolbar-actions {
+.admin-shell .datagrid-toolbar .toolbar-controls,
+.admin-shell .datagrid-toolbar .datagrid-toolbar-actions {
     display: flex;
     flex: 1 1 420px;
     flex-wrap: nowrap;
@@ -1013,7 +1041,8 @@
     white-space: nowrap;
 }
 
-.admin-shell .table-footer .pagination-wrap nav, .admin-shell .table-footer [data-lemonade-grid-pagination] {
+.admin-shell .table-footer .pagination-wrap nav,
+.admin-shell .table-footer [data-lemonade-grid-pagination] {
     flex: 0 0 auto;
 }
 
@@ -1022,7 +1051,7 @@
     flex-wrap: nowrap;
 }
 
-@media (max-width: 767.98px) {
+@include mixins.lm-breakpoint-down(md) {
     .admin-shell .datagrid-toolbar {
         flex-direction: column;
         flex-wrap: nowrap;
@@ -1034,7 +1063,8 @@
         flex: 0 0 auto;
         width: 100%;
     }
-    .admin-shell .datagrid-toolbar .toolbar-controls, .admin-shell .datagrid-toolbar .datagrid-toolbar-actions {
+    .admin-shell .datagrid-toolbar .toolbar-controls,
+    .admin-shell .datagrid-toolbar .datagrid-toolbar-actions {
         order: 2;
         flex: 0 0 auto;
         flex-wrap: wrap;
@@ -1047,7 +1077,10 @@
         flex: 0 0 100%;
         width: 100%;
     }
-    .admin-shell .datagrid-toolbar .lm-filter-dropdown, .admin-shell .datagrid-toolbar .lm-column-dropdown, .admin-shell .datagrid-toolbar [data-lemonade-grid-reload], .admin-shell .datagrid-toolbar [data-lemonade-grid-reset] {
+    .admin-shell .datagrid-toolbar .lm-filter-dropdown,
+    .admin-shell .datagrid-toolbar .lm-column-dropdown,
+    .admin-shell .datagrid-toolbar [data-lemonade-grid-reload],
+    .admin-shell .datagrid-toolbar [data-lemonade-grid-reset] {
         order: 2;
         flex: 0 0 auto;
     }

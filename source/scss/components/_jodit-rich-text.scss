@@ -1,4 +1,5 @@
 @use "jodit/es2021/jodit.min.css" as *;
+@use "../abstracts/mixins" as mixins;
 
 .admin-shell :is(.jodit-container, .jodit-popup-container, .jodit-context-menu-container, .jodit-dialog) {
     --jd-font-default: var(--lm-font-family);
@@ -42,8 +43,15 @@
 }
 
 .admin-shell :is(.jodit-container, .jodit-popup-container, .jodit-context-menu-container) {
-    :is(.jodit-toolbar-button, .jodit-toolbar-button__button, .jodit-toolbar-button__trigger,
-        .jodit-toolbar-select, .jodit-toolbar-select__button, .jodit-toolbar-select__trigger, .jodit-ui-button_variant_initial) {
+    :is(
+        .jodit-toolbar-button,
+        .jodit-toolbar-button__button,
+        .jodit-toolbar-button__trigger,
+        .jodit-toolbar-select,
+        .jodit-toolbar-select__button,
+        .jodit-toolbar-select__trigger,
+        .jodit-ui-button_variant_initial
+    ) {
         --jd-color-icon: var(--lm-text-control);
         --jd-color-text: var(--lm-text);
         color: var(--lm-text-control);
@@ -95,8 +103,12 @@
     color: var(--lm-text);
 }
 
-.admin-shell .jodit-popup-container .jodit-tabs .jodit-tabs__buttons
-    .jodit-ui-button:is(:active, [aria-pressed="true"]) .jodit-ui-button__text {
+.admin-shell
+    .jodit-popup-container
+    .jodit-tabs
+    .jodit-tabs__buttons
+    .jodit-ui-button:is(:active, [aria-pressed="true"])
+    .jodit-ui-button__text {
     color: var(--lm-text-heading);
 }
 
@@ -105,7 +117,8 @@
     color: var(--lm-text-muted);
 }
 
-.admin-shell :is(.jodit-container, .jodit-popup-container, .jodit-dialog)
+.admin-shell
+    :is(.jodit-container, .jodit-popup-container, .jodit-dialog)
     :is(.jodit-input, .jodit-select, .jodit-form textarea, .jodit-form input[type="text"], .jodit-form input[type="url"]) {
     border-color: var(--lm-form-border);
     background: var(--lm-surface);
@@ -118,13 +131,13 @@
     color: var(--lm-text);
     background: var(--lm-surface);
     font-family: var(--lm-font-family);
-    font-size: .9375rem;
-    line-height: 1.6;
+    font-size: var(--lm-font-size-rich-text);
+    line-height: var(--lm-line-height-rich-text);
     overflow-wrap: break-word;
     overflow-x: auto;
 }
 
-@media (max-width: 575px) {
+@include mixins.lm-breakpoint-down(sm) {
     .admin-shell .jodit-wysiwyg {
         padding: var(--lm-space-4);
     }
@@ -138,15 +151,25 @@
     margin-block: var(--lm-space-5) var(--lm-space-3);
     color: inherit;
     font-family: inherit;
-    font-weight: 600;
-    line-height: 1.35;
+    font-weight: var(--lm-font-weight-semibold);
+    line-height: var(--lm-line-height-default);
 }
 
-.admin-shell .jodit-wysiwyg h2 { font-size: 1.5rem; }
-.admin-shell .jodit-wysiwyg h3 { font-size: 1.25rem; }
-.admin-shell .jodit-wysiwyg h4 { font-size: 1.125rem; }
-.admin-shell .jodit-wysiwyg h5 { font-size: 1rem; }
-.admin-shell .jodit-wysiwyg h6 { font-size: .875rem; }
+.admin-shell .jodit-wysiwyg h2 {
+    font-size: var(--lm-font-size-rich-text-h2);
+}
+.admin-shell .jodit-wysiwyg h3 {
+    font-size: var(--lm-font-size-rich-text-h3);
+}
+.admin-shell .jodit-wysiwyg h4 {
+    font-size: var(--lm-font-size-rich-text-h4);
+}
+.admin-shell .jodit-wysiwyg h5 {
+    font-size: var(--lm-font-size-rich-text-h5);
+}
+.admin-shell .jodit-wysiwyg h6 {
+    font-size: var(--lm-font-size-rich-text-h6);
+}
 
 .admin-shell .jodit-wysiwyg > :first-child {
     margin-block-start: 0;
@@ -161,7 +184,7 @@
 }
 
 .admin-shell .jodit-wysiwyg li + li {
-    margin-block-start: .375rem;
+    margin-block-start: 0.375rem;
 }
 
 .admin-shell .jodit-wysiwyg li > p {
@@ -169,12 +192,12 @@
 }
 
 .admin-shell .jodit-wysiwyg li > :is(ul, ol) {
-    margin-block: .375rem 0;
+    margin-block: 0.375rem 0;
 }
 
 .admin-shell .jodit-wysiwyg blockquote {
     margin-inline: 0;
-    padding: .125rem 0 .125rem var(--lm-space-4);
+    padding: 0.125rem 0 0.125rem var(--lm-space-4);
     border-inline-start: 2px solid var(--lm-line);
 }
 
@@ -188,7 +211,7 @@
 }
 
 .admin-shell .jodit-wysiwyg :is(th, td) {
-    padding: .625rem .75rem;
+    padding: 0.625rem 0.75rem;
     border: 1px solid var(--lm-line);
     vertical-align: top;
 }
@@ -198,7 +221,7 @@
 }
 
 .admin-shell .jodit-wysiwyg th {
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
     text-align: start;
 }
 
@@ -224,10 +247,18 @@
     margin-left: var(--lm-space-4);
 }
 
-.admin-shell .jodit-wysiwyg img[data-width="25"] { width: 25%; }
-.admin-shell .jodit-wysiwyg img[data-width="50"] { width: 50%; }
-.admin-shell .jodit-wysiwyg img[data-width="75"] { width: 75%; }
-.admin-shell .jodit-wysiwyg img[data-width="100"] { width: 100%; }
+.admin-shell .jodit-wysiwyg img[data-width="25"] {
+    width: 25%;
+}
+.admin-shell .jodit-wysiwyg img[data-width="50"] {
+    width: 50%;
+}
+.admin-shell .jodit-wysiwyg img[data-width="75"] {
+    width: 75%;
+}
+.admin-shell .jodit-wysiwyg img[data-width="100"] {
+    width: 100%;
+}
 
 .admin-shell .jodit-wysiwyg iframe {
     display: block;
@@ -252,20 +283,20 @@
 .admin-shell .jodit-wysiwyg a[data-file-id] {
     display: inline-flex;
     align-items: center;
-    gap: .375rem;
-    padding: .1875rem .5rem;
+    gap: 0.375rem;
+    padding: 0.1875rem 0.5rem;
     color: var(--lm-text-heading);
     text-decoration: none;
     vertical-align: baseline;
     background: var(--lm-surface-soft);
     border: 1px solid var(--lm-line);
-    border-radius: 999px;
+    border-radius: var(--lm-radius-pill);
 }
 
 .admin-shell .jodit-wysiwyg a[data-file-id]::before {
     content: "📎";
-    font-size: .875em;
-    line-height: 1;
+    font-size: var(--lm-font-size-rich-text-attachment-icon);
+    line-height: var(--lm-line-height-icon);
 }
 
 .admin-shell .jodit-wysiwyg a[data-file-id]:hover {
@@ -277,7 +308,7 @@
 .admin-shell .jodit-wysiwyg a[data-file-id]:focus-visible {
     outline: 0;
     border-color: var(--lm-primary);
-    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--lm-primary) 20%, transparent);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--lm-primary) 20%, transparent);
 }
 
 .admin-shell .lm-rich-text-upload-action {
@@ -296,14 +327,14 @@
 
 .admin-shell .lm-rich-text-upload-rules .lm-file-upload-rules-title {
     color: var(--lm-text-muted);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-rich-text-upload-rules .lm-file-upload-chip {
     padding: 2px 7px;
     color: var(--lm-text-muted);
     background: var(--lm-surface-soft);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-rich-text-upload-existing-title {
@@ -350,8 +381,8 @@
     color: var(--lm-text-heading);
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: .8125rem;
-    font-weight: 600;
+    font-size: var(--lm-font-size-rich-text-picker-name);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-rich-text-image-picker-remove {
@@ -361,7 +392,7 @@
     width: 2rem;
     height: 2rem;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--lm-radius-pill);
     color: var(--lm-text-control);
     background: color-mix(in srgb, var(--lm-surface) 88%, transparent);
 }

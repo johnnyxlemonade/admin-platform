@@ -1,3 +1,5 @@
+@use "../abstracts/mixins" as mixins;
+
 .admin-shell .lm-user-editor-summary {
     display: flex;
     align-items: center;
@@ -64,7 +66,7 @@
     position: absolute;
     top: -6px;
     left: 50%;
-    z-index: 2;
+    z-index: var(--lm-z-index-overlay);
     width: 172px;
     height: 172px;
     overflow: visible;
@@ -87,7 +89,7 @@
 }
 
 .admin-shell .lm-avatar-upload-progress.is-indeterminate {
-    animation: lm-avatar-upload-progress-spin 900ms linear infinite;
+    animation: lm-avatar-upload-progress-spin var(--lm-motion-duration-loop-fast) var(--lm-motion-easing-linear) infinite;
 }
 
 .admin-shell .lm-avatar-upload-progress.is-indeterminate circle {
@@ -98,6 +100,12 @@
 @keyframes lm-avatar-upload-progress-spin {
     to {
         transform: translateX(-50%) rotate(270deg);
+    }
+}
+
+@include mixins.lm-reduced-motion {
+    .admin-shell .lm-avatar-upload-progress.is-indeterminate {
+        animation: none;
     }
 }
 
@@ -116,13 +124,13 @@
 
 .admin-shell .lm-user-editor-summary-name {
     color: var(--lm-text-heading);
-    font-size: 18px;
+    font-size: var(--lm-font-size-18);
 }
 
 .admin-shell .lm-user-editor-summary-role {
     margin-top: var(--lm-space-1);
     color: var(--lm-text-muted);
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .lm-user-editor-summary-status {
@@ -131,11 +139,11 @@
     min-height: 28px;
     padding: 3px 10px;
     margin-top: var(--lm-space-3);
-    border-radius: 999px;
+    border-radius: var(--lm-radius-pill);
     color: var(--lm-text-muted);
     background: var(--lm-surface-soft);
-    font-size: 13px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-user-editor-summary-status.is-active {
@@ -147,7 +155,7 @@
     width: 8px;
     height: 8px;
     margin-right: 7px;
-    border-radius: 50%;
+    border-radius: var(--lm-radius-circle);
     background: currentColor;
     content: "";
 }
@@ -173,7 +181,7 @@
 .admin-shell .lm-user-editor-summary-metadata dt,
 .admin-shell .lm-user-editor-summary-metadata dd {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .lm-user-editor-summary-metadata dt {
@@ -182,7 +190,7 @@
 
 .admin-shell .lm-user-editor-summary-metadata dd {
     color: var(--lm-text-secondary);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
     text-align: right;
 }
 
@@ -203,5 +211,5 @@
 .admin-shell .lm-access-mfa-status > .bi,
 .admin-shell .lm-user-editor-summary-mfa-status > .bi {
     flex: 0 0 auto;
-    line-height: 1;
+    line-height: var(--lm-line-height-icon);
 }

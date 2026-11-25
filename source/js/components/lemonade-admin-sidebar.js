@@ -20,6 +20,10 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             this.sidebar = sidebar;
             this.shell = DomHelper.closest(sidebar, "[data-lemonade-admin-shell]");
             this.toggle = sidebar.querySelector("[data-lemonade-sidebar-toggle]");
+            this.dismiss = this.shell?.querySelector("[data-lemonade-sidebar-dismiss]") || null;
+            this.mobileMedia = typeof window.matchMedia === "function"
+                ? window.matchMedia("(max-width: 767.98px)")
+                : null;
             this.storageKey = sidebar.getAttribute("data-lemonade-storage-key") || "lemonade-admin-sidebar";
             this.groups = DomHelper.queryAll("[data-lemonade-sidebar-group]", sidebar);
             this.isCollapsed = false;
@@ -32,6 +36,13 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             if (this.toggle) {
                 this.listenerRemovers.push(EventHelper.on(this.toggle, "click", this.handleToggle.bind(this)));
             }
+            if (this.dismiss) {
+                this.listenerRemovers.push(EventHelper.on(this.dismiss, "click", this.closeMobile.bind(this)));
+            }
+            if (this.mobileMedia) {
+                this.listenerRemovers.push(EventHelper.on(this.mobileMedia, "change", this.handleViewportChange.bind(this)));
+            }
+            this.listenerRemovers.push(EventHelper.on(document, "keydown", this.handleDocumentKeydown.bind(this)));
             this.groups.forEach(function (group) { this.bindGroup(group); }, this);
             this.configureGroups(this.isCollapsed);
             this.updateMainToggle(this.isCollapsed);
@@ -58,7 +69,16 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             this.destroyed = true;
         }
 
+        /**
+         * Resolves the initial state without opening the mobile drawer on page load
+         *
+         * @returns {boolean}
+         */
         getInitialCollapsed() {
+            if (this.isMobile()) {
+                return true;
+            }
+
             const earlyState = document.documentElement.getAttribute("data-lemonade-sidebar-state");
 
             if (earlyState === "collapsed" || earlyState === "expanded") {
@@ -68,8 +88,70 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
             return false;
         }
 
+        /**
+         * Reports whether the sidebar currently uses the mobile drawer layout
+         *
+         * @returns {boolean}
+         */
+        isMobile() {
+            return this.mobileMedia?.matches === true;
+        }
+
+        /**
+         * Reads the persisted desktop sidebar preference
+         *
+         * @returns {boolean}
+         */
+        getStoredCollapsed() {
+            return StorageHelper.get(this.storageKey) === true;
+        }
+
+        /**
+         * Toggles the sidebar and persists the state only on desktop
+         *
+         * @returns {void}
+         */
         handleToggle() {
-            this.setCollapsed(!this.isCollapsed, true);
+            this.setCollapsed(!this.isCollapsed, !this.isMobile());
+        }
+
+        /**
+         * Closes the mobile drawer and returns focus to its toggle
+         *
+         * @returns {void}
+         */
+        closeMobile() {
+            if (!this.isMobile() || this.isCollapsed) {
+                return;
+            }
+
+            this.setCollapsed(true, false);
+            this.toggle?.focus();
+        }
+
+        /**
+         * Closes the mobile drawer with the Escape key
+         *
+         * @param {KeyboardEvent} event
+         * @returns {void}
+         */
+        handleDocumentKeydown(event) {
+            if (event.key !== "Escape" || !this.isMobile() || this.isCollapsed) {
+                return;
+            }
+
+            event.preventDefault();
+            this.closeMobile();
+        }
+
+        /**
+         * Switches between the temporary mobile state and persisted desktop state
+         *
+         * @param {MediaQueryListEvent} event
+         * @returns {void}
+         */
+        handleViewportChange(event) {
+            this.setCollapsed(event.matches ? true : this.getStoredCollapsed(), false);
         }
 
         setCollapsed(isCollapsed, shouldPersist) {
@@ -88,6 +170,10 @@ import { StorageHelper } from "../core/lemonade-storage-helper.js";
 
             if (this.shell) {
                 this.shell.classList.toggle("is-sidebar-collapsed", this.isCollapsed);
+            }
+
+            if (this.dismiss) {
+                this.dismiss.hidden = !this.isMobile() || this.isCollapsed;
             }
 
             document.documentElement.setAttribute("data-lemonade-sidebar-state", this.isCollapsed ? "collapsed" : "expanded");

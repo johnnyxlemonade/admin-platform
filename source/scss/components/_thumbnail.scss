@@ -7,23 +7,23 @@
     border: 1px solid var(--lm-line-subtle);
     color: var(--lm-text-secondary);
     background: var(--lm-surface-soft);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-thumbnail--compact {
     width: 32px;
     height: 32px;
-    font-size: 11px;
+    font-size: var(--lm-font-size-11);
 }
 
 .admin-shell .lm-thumbnail--detail {
     width: 160px;
     height: 160px;
-    font-size: 24px;
+    font-size: var(--lm-icon-size-24);
 }
 
 .admin-shell .lm-thumbnail--circle {
-    border-radius: 50%;
+    border-radius: var(--lm-radius-circle);
 }
 
 .admin-shell .lm-thumbnail--rounded {

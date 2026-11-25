@@ -1,3 +1,5 @@
+@use "../abstracts/mixins" as mixins;
+
 .admin-shell .lm-loading-skeleton {
     display: flex;
     min-height: 124px;
@@ -31,7 +33,7 @@
     flex: 0 0 32px;
     width: 32px;
     height: 32px;
-    border-radius: 50%;
+    border-radius: var(--lm-radius-circle);
     background: var(--lm-surface-soft);
 }
 
@@ -47,10 +49,10 @@
     display: block;
     width: 100%;
     height: 11px;
-    border-radius: 999px;
+    border-radius: var(--lm-radius-pill);
     background: linear-gradient(100deg, var(--lm-surface-soft) 20%, var(--lm-surface-hover) 40%, var(--lm-surface-soft) 60%);
     background-size: 220% 100%;
-    animation: lm-loading-skeleton-shimmer 1.35s ease-in-out infinite;
+    animation: lm-loading-skeleton-shimmer var(--lm-motion-duration-loop-slow) var(--lm-motion-easing-pulse) infinite;
 }
 
 .admin-shell .lm-loading-skeleton-block--short {
@@ -77,5 +79,11 @@
 @keyframes lm-loading-skeleton-shimmer {
     to {
         background-position: -220% 0;
+    }
+}
+
+@include mixins.lm-reduced-motion {
+    .admin-shell .lm-loading-skeleton-block {
+        animation: none;
     }
 }

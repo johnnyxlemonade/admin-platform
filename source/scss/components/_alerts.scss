@@ -1,7 +1,7 @@
 .admin-shell .alert {
     border-radius: var(--lm-radius);
     border-width: 1px;
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .alert-info {

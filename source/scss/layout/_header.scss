@@ -1,6 +1,8 @@
+@use "../abstracts/mixins" as mixins;
+
 .admin-shell .admin-frame {
     min-width: 0;
-    min-height: 100vh;
+    min-height: var(--lm-viewport-height);
     margin-left: var(--lm-sidebar-width);
     background: var(--lm-main-surface);
 }
@@ -25,22 +27,23 @@
     gap: clamp(17px, 1.15vw, 24px);
 }
 
-.admin-shell .icon-button, .admin-shell .action-button {
+.admin-shell .icon-button,
+.admin-shell .action-button {
     position: relative;
     padding: 0;
     border: 0;
     color: var(--lm-text-secondary);
     background: transparent;
-    font-weight: 700;
+    font-weight: var(--lm-font-weight-bold);
 }
 
 .admin-shell .icon-button {
     width: 32px;
-    font-size: clamp(20px, 1.25vw, 25px);
+    font-size: var(--lm-font-size-header-action);
 }
 
 .admin-shell .topbar .icon-button .bi {
-    line-height: 1;
+    line-height: var(--lm-line-height-icon);
 }
 
 .admin-shell .has-notification::after {
@@ -49,8 +52,8 @@
     right: 2px;
     width: 7px;
     height: 7px;
-    border-radius: 50%;
-    background: #f12b58;
+    border-radius: var(--lm-radius-circle);
+    background: var(--lm-notification-indicator);
     content: "";
 }
 
@@ -71,7 +74,7 @@
     height: 100%;
 }
 
-@media (max-width: 767.98px) {
+@include mixins.lm-breakpoint-down(md) {
     .admin-shell .topbar {
         flex-wrap: wrap;
         align-items: center;

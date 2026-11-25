@@ -58,3 +58,33 @@ test("opening a collapsed navigation flyout closes the previous flyout", () => {
     assert.deepEqual(active.dropdownCloseReasons, []);
     assert.equal(previous.collapseCloses.length, 0);
 });
+
+test("mobile navigation always starts collapsed", () => {
+    const sidebar = Object.create(AdminSidebar.prototype);
+    sidebar.isMobile = () => true;
+
+    assert.equal(sidebar.getInitialCollapsed(), true);
+});
+
+test("mobile toggle does not overwrite the desktop preference", () => {
+    const states = [];
+    const sidebar = Object.create(AdminSidebar.prototype);
+    sidebar.isCollapsed = true;
+    sidebar.isMobile = () => true;
+    sidebar.setCollapsed = (isCollapsed, shouldPersist) => states.push({ isCollapsed, shouldPersist });
+
+    sidebar.handleToggle();
+
+    assert.deepEqual(states, [{ isCollapsed: false, shouldPersist: false }]);
+});
+
+test("leaving mobile restores the persisted desktop preference", () => {
+    const states = [];
+    const sidebar = Object.create(AdminSidebar.prototype);
+    sidebar.getStoredCollapsed = () => false;
+    sidebar.setCollapsed = (isCollapsed, shouldPersist) => states.push({ isCollapsed, shouldPersist });
+
+    sidebar.handleViewportChange({ matches: false });
+
+    assert.deepEqual(states, [{ isCollapsed: false, shouldPersist: false }]);
+});

@@ -46,7 +46,7 @@ $partner = AdminPartner::Dcuk;
 $currentDateTime = date(DATE_ATOM);
 ?>
 <!doctype html>
-<html class="no-js" lang="<?= e($locale) ?>" data-bs-theme="light">
+<html class="no-js" lang="<?= e($locale) ?>" data-bs-theme="light" data-lemonade-admin>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

@@ -12,5 +12,5 @@
 .admin-shell .card.lm-card > .card-header {
     padding: 16px 20px;
     border-bottom: var(--bs-card-border-width) solid var(--lm-line);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
 }

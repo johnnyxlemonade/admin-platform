@@ -14,13 +14,13 @@
 }
 
 .admin-shell .lm-search-icon.bi {
-    font-size: 16px;
-    line-height: 1;
+    font-size: var(--lm-icon-size-16);
+    line-height: var(--lm-line-height-icon);
 }
 
 .admin-shell .lm-search-icon.bi::before {
     display: block;
-    line-height: 1;
+    line-height: var(--lm-line-height-icon);
     vertical-align: 0;
 }
 

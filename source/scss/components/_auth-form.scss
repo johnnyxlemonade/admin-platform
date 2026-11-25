@@ -3,18 +3,18 @@
 .lemonade-auth .lm-auth-title {
     margin: 0;
     color: var(--lm-text);
-    font-size: clamp(24px, 2.1vw, 30px);
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -.55px;
+    font-size: var(--lm-font-size-auth-title);
+    font-weight: var(--lm-font-weight-bold);
+    line-height: var(--lm-line-height-heading);
+    letter-spacing: -0.55px;
 }
 
 .lemonade-auth .lm-auth-description {
     max-width: 390px;
     margin: 8px 0 24px;
     color: var(--lm-text-muted);
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: var(--lm-font-size-14);
+    line-height: var(--lm-line-height-control);
 }
 
 .lemonade-auth .lm-auth-mfa-qr {
@@ -56,7 +56,7 @@
     color: var(--lm-text-control);
     background: var(--lm-surface);
     box-shadow: none;
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
 }
 
 .lemonade-auth .lm-auth-field .form-control:focus {
@@ -74,7 +74,7 @@
     width: 42px;
     color: var(--lm-text-muted);
     pointer-events: none;
-    font-size: 16px;
+    font-size: var(--lm-icon-size-16);
 }
 
 .lemonade-auth .lm-auth-password-toggle {
@@ -103,7 +103,7 @@
     min-height: 20px;
     gap: 16px;
     margin-top: 1px;
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .lemonade-auth .lm-auth-options .form-check {
@@ -140,30 +140,34 @@
     margin-bottom: 14px;
 }
 
-.lemonade-auth .lm-auth-submit, .lemonade-auth .lm-auth-keycloak {
+.lemonade-auth .lm-auth-submit,
+.lemonade-auth .lm-auth-keycloak {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--lm-space-2);
     width: 100%;
     min-height: 47px;
-    padding: .375rem .75rem;
+    padding: 0.375rem 0.75rem;
     border-radius: var(--lm-radius);
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
     white-space: nowrap;
 }
 
 .lemonade-auth .lm-auth-submit {
     margin-top: 2px;
-    color: #fff;
+    color: var(--lm-on-primary);
     background: var(--lm-primary);
     border-color: var(--lm-primary);
     box-shadow: var(--lm-primary-shadow);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
 }
 
-.lemonade-auth .lm-auth-submit:not(.lm-auth-submit--secondary):hover, .lemonade-auth .lm-auth-submit:not(.lm-auth-submit--secondary):focus, .lemonade-auth .lm-auth-keycloak--primary:hover, .lemonade-auth .lm-auth-keycloak--primary:focus {
-    color: #fff;
+.lemonade-auth .lm-auth-submit:not(.lm-auth-submit--secondary):hover,
+.lemonade-auth .lm-auth-submit:not(.lm-auth-submit--secondary):focus,
+.lemonade-auth .lm-auth-keycloak--primary:hover,
+.lemonade-auth .lm-auth-keycloak--primary:focus {
+    color: var(--lm-on-primary);
     background: var(--lm-primary-dark);
     border-color: var(--lm-primary-dark);
 }
@@ -175,7 +179,8 @@
     box-shadow: none;
 }
 
-.lemonade-auth .lm-auth-submit--secondary:hover, .lemonade-auth .lm-auth-submit--secondary:focus {
+.lemonade-auth .lm-auth-submit--secondary:hover,
+.lemonade-auth .lm-auth-submit--secondary:focus {
     border-color: var(--lm-primary);
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
@@ -184,13 +189,14 @@
 .lemonade-auth .lm-auth-submit-danger {
     background: var(--lm-danger);
     border-color: var(--lm-danger);
-    box-shadow: 0 5px 10px rgba(233, 64, 95, .12);
+    box-shadow: var(--lm-danger-shadow);
 }
 
-.lemonade-auth .lm-auth-submit-danger:hover, .lemonade-auth .lm-auth-submit-danger:focus {
-    color: #fff;
-    background: #c83f50;
-    border-color: #c83f50;
+.lemonade-auth .lm-auth-submit-danger:hover,
+.lemonade-auth .lm-auth-submit-danger:focus {
+    color: var(--lm-on-primary);
+    background: var(--lm-danger-dark);
+    border-color: var(--lm-danger-dark);
 }
 
 .lemonade-auth .lm-auth-divider {
@@ -198,11 +204,12 @@
     align-items: center;
     gap: 10px;
     color: var(--lm-text-muted);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
     text-align: center;
 }
 
-.lemonade-auth .lm-auth-divider::before, .lemonade-auth .lm-auth-divider::after {
+.lemonade-auth .lm-auth-divider::before,
+.lemonade-auth .lm-auth-divider::after {
     flex: 1 1 auto;
     height: 1px;
     background: var(--lm-line);
@@ -217,19 +224,20 @@
 
 .lemonade-auth .lm-auth-keycloak--primary {
     border-color: var(--lm-primary);
-    color: #fff;
+    color: var(--lm-on-primary);
     background: var(--lm-primary);
     box-shadow: var(--lm-primary-shadow);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .lemonade-auth .lm-auth-keycloak:focus-visible {
     @include mixins.lm-focus-ring;
 }
 
-.lemonade-auth .lm-auth-keycloak--primary:active, .lemonade-auth .lm-auth-keycloak--primary.active {
+.lemonade-auth .lm-auth-keycloak--primary:active,
+.lemonade-auth .lm-auth-keycloak--primary.active {
     border-color: var(--lm-primary-dark);
-    color: #fff;
+    color: var(--lm-on-primary);
     background: var(--lm-primary-dark);
 }
 
@@ -244,7 +252,7 @@
     width: fit-content;
     margin-top: 24px;
     color: var(--lm-primary);
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .lemonade-auth .lm-auth-partner {
@@ -258,11 +266,12 @@
     display: inline-flex;
     position: relative;
     width: fit-content;
-    opacity: .72;
-    transition: opacity .16s ease;
+    opacity: 0.72;
+    transition: opacity var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
-.lemonade-auth .lm-auth-partner a:hover, .lemonade-auth .lm-auth-partner a:focus-visible {
+.lemonade-auth .lm-auth-partner a:hover,
+.lemonade-auth .lm-auth-partner a:focus-visible {
     opacity: 1;
 }
 
@@ -281,14 +290,14 @@
     padding: 15px;
     color: var(--lm-text-muted);
     background: var(--lm-surface-soft);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .lemonade-auth .lm-password-requirements strong {
     display: block;
     margin-bottom: 8px;
     color: var(--lm-text-control);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .lemonade-auth .lm-password-requirements ul {
@@ -308,7 +317,7 @@
 
 .lemonade-auth .lm-password-requirements .bi {
     color: var(--lm-text-muted);
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .lemonade-auth .lm-auth-user {
@@ -326,23 +335,24 @@
     height: 46px;
     color: var(--lm-text-secondary);
     background: var(--lm-surface-soft);
-    font-size: 15px;
-    font-weight: 700;
+    font-size: var(--lm-font-size-15);
+    font-weight: var(--lm-font-weight-bold);
 }
 
-.lemonade-auth .lm-auth-user strong, .lemonade-auth .lm-auth-user span {
+.lemonade-auth .lm-auth-user strong,
+.lemonade-auth .lm-auth-user span {
     display: block;
 }
 
 .lemonade-auth .lm-auth-user strong {
     color: var(--lm-text-heading);
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
 }
 
 .lemonade-auth .lm-auth-user span {
     margin-top: 3px;
     color: var(--lm-text-muted);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .lemonade-auth .lm-auth-logout-icon {
@@ -354,7 +364,7 @@
     margin-bottom: 20px;
     color: var(--lm-danger);
     background: var(--lm-danger-soft);
-    font-size: 27px;
+    font-size: var(--lm-icon-size-27);
 }
 
 .lemonade-auth .lm-auth-logout-actions {
@@ -370,7 +380,7 @@
     min-width: 0;
     min-height: 43px;
     padding: 9px 18px;
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
     white-space: nowrap;
 }
 
@@ -380,7 +390,7 @@
     background: var(--lm-surface-soft);
 }
 
-@media (max-width: 767.98px) {
+@include mixins.lm-breakpoint-down(md) {
     .lemonade-auth .lm-auth-description {
         max-width: none;
     }

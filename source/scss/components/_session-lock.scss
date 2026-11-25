@@ -1,3 +1,5 @@
+@use "../abstracts/mixins" as mixins;
+
 .lemonade-session-lock {
     align-items: center;
     background: color-mix(in srgb, var(--lm-canvas) 68%, transparent);
@@ -7,7 +9,7 @@
     overflow-y: auto;
     padding: 1.5rem;
     position: fixed;
-    z-index: 2147483647;
+    z-index: var(--lm-z-index-session-lock);
 }
 
 .lemonade-session-lock__card {
@@ -17,7 +19,7 @@
     box-shadow: var(--lm-shadow-lg);
     color: var(--lm-text);
     margin: auto;
-    max-height: calc(100dvh - 3rem);
+    max-height: calc(var(--lm-dynamic-viewport-height) - 3rem);
     max-width: 32rem;
     overflow-y: auto;
     padding: 1.75rem 2.25rem 2rem;
@@ -27,13 +29,13 @@
 .lemonade-session-lock__emblem {
     align-items: center;
     background: var(--lm-primary-soft);
-    border-radius: 50%;
+    border-radius: var(--lm-radius-circle);
     color: var(--lm-primary);
     display: flex;
-    font-size: 2rem;
+    font-size: var(--lm-font-size-session-lock-emblem);
     height: 4.75rem;
     justify-content: center;
-    margin: .5rem auto 1rem;
+    margin: 0.5rem auto 1rem;
     width: 4.75rem;
 }
 
@@ -45,13 +47,13 @@
 
 .lemonade-session-lock__card h1 {
     color: var(--lm-text-heading);
-    font-size: 1.65rem;
-    font-weight: 700;
+    font-size: var(--lm-font-size-session-lock-title);
+    font-weight: var(--lm-font-weight-bold);
 }
 
 .lemonade-session-lock__lead {
     color: var(--lm-text-muted);
-    margin: .4rem auto 1.25rem;
+    margin: 0.4rem auto 1.25rem;
     max-width: 28rem;
 }
 
@@ -62,18 +64,18 @@
     border-radius: var(--lm-radius);
     color: var(--lm-text-heading);
     display: flex;
-    gap: .75rem;
-    padding: .85rem 1rem;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
 }
 
 .lemonade-session-lock__avatar {
     align-items: center;
     background: var(--lm-category-life-bg);
-    border-radius: 50%;
+    border-radius: var(--lm-radius-circle);
     color: var(--lm-category-life);
     display: flex;
     flex: 0 0 2.65rem;
-    font-weight: 700;
+    font-weight: var(--lm-font-weight-bold);
     height: 2.65rem;
     justify-content: center;
 }
@@ -91,9 +93,9 @@
 .lemonade-session-lock__form label {
     color: var(--lm-text-heading);
     display: block;
-    font-size: .8rem;
-    font-weight: 700;
-    margin-bottom: .35rem;
+    font-size: var(--lm-font-size-session-lock-label);
+    font-weight: var(--lm-font-weight-bold);
+    margin-bottom: 0.35rem;
 }
 
 .lemonade-session-lock__input {
@@ -103,9 +105,9 @@
     border-radius: var(--lm-radius);
     color: var(--lm-text-muted);
     display: flex;
-    gap: .65rem;
-    padding: 0 .85rem;
-    transition: border-color .16s ease;
+    gap: 0.65rem;
+    padding: 0 0.85rem;
+    transition: border-color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
 .lemonade-session-lock__input:hover {
@@ -135,7 +137,7 @@
     color: var(--lm-text-control);
     min-width: 0;
     outline: 0;
-    padding: .75rem 0;
+    padding: 0.75rem 0;
     width: 100%;
 }
 
@@ -153,7 +155,7 @@
 .lemonade-session-lock__logout {
     border-radius: var(--lm-radius);
     display: block;
-    padding: .8rem;
+    padding: 0.8rem;
     text-align: center;
     width: 100%;
 }
@@ -163,7 +165,7 @@
     border: 1px solid var(--lm-primary);
     box-shadow: var(--lm-primary-shadow);
     color: var(--lm-canvas);
-    font-weight: 700;
+    font-weight: var(--lm-font-weight-bold);
     margin-top: 1rem;
 }
 
@@ -184,7 +186,7 @@
 .lemonade-session-lock__logout:disabled {
     box-shadow: none;
     cursor: not-allowed;
-    opacity: .6;
+    opacity: 0.6;
 }
 
 .lemonade-session-lock__primary:disabled:hover {
@@ -194,14 +196,14 @@
 
 .lemonade-session-lock__primary i,
 .lemonade-session-lock__logout i {
-    margin-right: .5rem;
+    margin-right: 0.5rem;
 }
 
 .lemonade-session-lock__divider {
     align-items: center;
     color: var(--lm-text-muted);
     display: flex;
-    gap: .75rem;
+    gap: 0.75rem;
     margin: 1.2rem 0;
     text-align: center;
 }
@@ -234,25 +236,25 @@
 
 .lemonade-session-lock__safe {
     color: var(--lm-text-muted);
-    font-size: .78rem;
+    font-size: var(--lm-font-size-session-lock-note);
     margin: 1rem 0 0;
     text-align: center;
 }
 
 .lemonade-session-lock__actions {
     display: flex;
-    gap: .75rem;
+    gap: 0.75rem;
     justify-content: space-between;
     margin-top: 1.25rem;
 }
 
-@media (max-width: 575.98px) {
+@include mixins.lm-breakpoint-down(sm) {
     .lemonade-session-lock {
         padding: 1rem;
     }
 
     .lemonade-session-lock__card {
-        max-height: calc(100dvh - 2rem);
+        max-height: calc(var(--lm-dynamic-viewport-height) - 2rem);
         padding: 1.5rem;
     }
 }

@@ -1,9 +1,31 @@
+@use "../abstracts/variables";
+
 * {
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     min-width: 320px;
+}
+
+html[data-lemonade-admin] {
+    --lm-admin-design-width: #{variables.$lm-admin-design-width};
+    --lm-admin-scale: clamp(
+        1,
+        calc(100vw / var(--lm-admin-design-width)),
+        #{variables.$lm-admin-maximum-scale}
+    );
+    --lm-viewport-width: calc(100vw / var(--lm-admin-scale));
+    --lm-viewport-height: calc(100vh / var(--lm-admin-scale));
+    --lm-dynamic-viewport-height: calc(100dvh / var(--lm-admin-scale));
+    zoom: var(--lm-admin-scale);
+}
+
+@media (min-width: variables.$lm-admin-wide-design-width) {
+    html[data-lemonade-admin] {
+        --lm-admin-design-width: #{variables.$lm-admin-wide-design-width};
+    }
 }
 
 .form-control,
@@ -14,13 +36,25 @@ html, body {
     --bs-border-radius-lg: var(--lm-radius);
 }
 
-.admin-shell :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(:not(input, select, textarea, .form-select)):focus,
-.lemonade-auth :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(:not(input, select, textarea, .form-select)):focus {
+.admin-shell
+    :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(
+        :not(input, select, textarea, .form-select)
+    ):focus,
+.lemonade-auth
+    :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(
+        :not(input, select, textarea, .form-select)
+    ):focus {
     outline: 0;
 }
 
-.admin-shell :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(:not(input, select, textarea, .form-select)):focus-visible,
-.lemonade-auth :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(:not(input, select, textarea, .form-select)):focus-visible {
+.admin-shell
+    :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(
+        :not(input, select, textarea, .form-select)
+    ):focus-visible,
+.lemonade-auth
+    :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):where(
+        :not(input, select, textarea, .form-select)
+    ):focus-visible {
     outline: 0;
     box-shadow: var(--lm-focus-shadow);
 }
@@ -37,5 +71,5 @@ html, body {
 }
 
 .admin-shell {
-    min-height: 100vh;
+    min-height: var(--lm-viewport-height);
 }

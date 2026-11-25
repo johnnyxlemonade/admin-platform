@@ -3,7 +3,7 @@
     align-items: center;
     gap: 22px;
     color: var(--lm-text-muted);
-    font-size: clamp(13px, .76vw, 14px);
+    font-size: var(--lm-font-size-table-heading);
 }
 
 .admin-shell .pagination {
@@ -20,19 +20,19 @@
     min-width: 38px;
     min-height: 38px;
     border: 1px solid var(--lm-line);
-    border-radius: 5px !important;
+    border-radius: var(--lm-radius-control) !important;
     color: var(--lm-text-secondary);
     background: var(--lm-surface);
     text-align: center;
 }
 
 .admin-shell .lm-pagination .page-item.active .page-link {
-    --bs-pagination-active-color: #fff;
+    --bs-pagination-active-color: var(--lm-on-primary);
     border-color: var(--lm-primary);
-    color: #fff;
+    color: var(--lm-on-primary);
     background: var(--lm-primary);
 }
 
 .admin-shell .page-item.disabled .page-link {
-    color: #b7c2d8;
+    color: var(--lm-control-disabled);
 }

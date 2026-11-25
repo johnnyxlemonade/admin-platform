@@ -1,3 +1,5 @@
+@use "../abstracts/mixins" as mixins;
+
 .admin-shell .lm-settings {
     min-width: 0;
 }
@@ -8,7 +10,8 @@
     gap: 20px;
 }
 
-.admin-shell .lm-settings-layout, .admin-shell .lm-settings-navigation {
+.admin-shell .lm-settings-layout,
+.admin-shell .lm-settings-navigation {
     display: flex;
     align-items: flex-start;
     gap: 20px;
@@ -74,15 +77,15 @@
 .admin-shell .lm-settings-section-header h2 {
     margin: 0;
     color: var(--lm-text-strong);
-    font-size: clamp(17px, 1.08vw, 20px);
-    font-weight: 700;
+    font-size: var(--lm-font-size-settings-title);
+    font-weight: var(--lm-font-weight-bold);
 }
 
 .admin-shell .lm-settings-section-header p {
     margin: 5px 0 0;
     color: var(--lm-text-muted);
-    font-size: 13px;
-    line-height: 1.45;
+    font-size: var(--lm-font-size-13);
+    line-height: var(--lm-line-height-relaxed);
 }
 
 .admin-shell .lm-settings-section-icon {
@@ -92,10 +95,10 @@
     justify-content: center;
     width: 46px;
     height: 46px;
-    border-radius: 50%;
+    border-radius: var(--lm-radius-circle);
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
-    font-size: 21px;
+    font-size: var(--lm-icon-size-21);
 }
 
 .admin-shell .lm-settings-section .row > .lm-form-group {
@@ -108,8 +111,8 @@
 
 .admin-shell .lm-settings-section .row > .lm-form-group {
     width: 50%;
-    padding-right: calc(var(--bs-gutter-x) * .5);
-    padding-left: calc(var(--bs-gutter-x) * .5);
+    padding-right: calc(var(--bs-gutter-x) * 0.5);
+    padding-left: calc(var(--bs-gutter-x) * 0.5);
 }
 
 .admin-shell .lm-settings-section .card-body > .lm-form-group + .lm-form-group {
@@ -147,7 +150,8 @@
     background: var(--lm-primary-soft);
 }
 
-.admin-shell .lm-settings-radio-cards strong, .admin-shell .lm-settings-radio-cards .lm-form-help {
+.admin-shell .lm-settings-radio-cards strong,
+.admin-shell .lm-settings-radio-cards .lm-form-help {
     display: block;
 }
 
@@ -165,8 +169,8 @@
 .admin-shell .lm-settings-subsection h3 {
     margin: 0;
     color: var(--lm-text-heading);
-    font-size: 13px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-settings-actions {
@@ -187,10 +191,11 @@
     border-radius: var(--lm-radius);
     color: var(--lm-info);
     background: var(--lm-info-bg);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
-.admin-shell .lm-settings-search-preview, .admin-shell .lm-settings-email-preview {
+.admin-shell .lm-settings-search-preview,
+.admin-shell .lm-settings-email-preview {
     padding: 15px;
     border: 1px solid var(--lm-line);
     border-radius: var(--lm-radius);
@@ -214,10 +219,10 @@
     flex: 0 0 20px;
     width: 20px;
     height: 20px;
-    border-radius: 50%;
+    border-radius: var(--lm-radius-circle);
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .admin-shell .lm-settings-search-preview small {
@@ -228,13 +233,14 @@
     display: block;
     margin: 8px 0;
     color: var(--lm-primary);
-    font-size: 16px;
+    font-size: var(--lm-font-size-16);
 }
 
-.admin-shell .lm-settings-search-preview p, .admin-shell .lm-settings-email-preview p {
+.admin-shell .lm-settings-search-preview p,
+.admin-shell .lm-settings-email-preview p {
     margin: 0;
     color: var(--lm-text-secondary);
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .lm-settings-social-preview {
@@ -249,19 +255,19 @@
 
 .admin-shell .lm-settings-social-preview strong {
     color: var(--lm-text-heading);
-    font-size: 15px;
+    font-size: var(--lm-font-size-15);
 }
 
 .admin-shell .lm-settings-social-preview p {
     margin: 0;
     color: var(--lm-text-secondary);
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .lm-settings-email-preview h3 {
     margin: 12px 0 5px;
     color: var(--lm-text-heading);
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
 }
 
 .admin-shell .lm-settings-menu-list {
@@ -294,26 +300,27 @@
 .admin-shell .lm-settings-menu-list strong {
     flex: 1 1 auto;
     color: var(--lm-text-heading);
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .lm-settings-menu-list small {
     color: var(--lm-text-muted);
-    font-size: 11px;
+    font-size: var(--lm-font-size-11);
 }
 
 .admin-shell .lm-settings-table {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .lm-settings-table th {
     color: var(--lm-text-secondary);
     background: var(--lm-surface-soft);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
 }
 
-.admin-shell .lm-settings-table td, .admin-shell .lm-settings-table th {
+.admin-shell .lm-settings-table td,
+.admin-shell .lm-settings-table th {
     padding: 10px;
     border-color: var(--lm-line);
     vertical-align: middle;
@@ -385,11 +392,12 @@
     display: flex;
     flex-wrap: wrap;
     margin: 0;
-    font-size: 14px;
-    line-height: 1.45;
+    font-size: var(--lm-font-size-14);
+    line-height: var(--lm-line-height-relaxed);
 }
 
-.admin-shell .lm-settings-definition-list dt, .admin-shell .lm-settings-definition-list dd {
+.admin-shell .lm-settings-definition-list dt,
+.admin-shell .lm-settings-definition-list dd {
     margin: 0;
     padding: 10px 0;
     border-bottom: 1px solid var(--lm-line-subtle);
@@ -403,22 +411,25 @@
 .admin-shell .lm-settings-definition-list dd {
     flex: 1 1 45%;
     color: var(--lm-text-heading);
-    font-weight: 600;
+    font-weight: var(--lm-font-weight-semibold);
     text-align: right;
 }
 
-@media (max-width: 991.98px) {
-    .admin-shell .lm-settings-layout, .admin-shell .lm-settings-navigation {
+@include mixins.lm-breakpoint-down(lg) {
+    .admin-shell .lm-settings-layout,
+    .admin-shell .lm-settings-navigation {
         flex-direction: column;
     }
-    .admin-shell .lm-settings-main, .admin-shell .lm-settings-aside, .admin-shell .lm-settings-navigation > .lm-settings-section {
+    .admin-shell .lm-settings-main,
+    .admin-shell .lm-settings-aside,
+    .admin-shell .lm-settings-navigation > .lm-settings-section {
         flex-basis: auto;
         width: 100%;
         max-width: none;
     }
 }
 
-@media (max-width: 767.98px) {
+@include mixins.lm-breakpoint-down(md) {
     .admin-shell .lm-settings-system-backup .card-body {
         flex-direction: column;
         align-items: stretch;
@@ -428,7 +439,7 @@
     }
 }
 
-@media (max-width: 575.98px) {
+@include mixins.lm-breakpoint-down(sm) {
     .admin-shell .lm-settings-section .row > .lm-form-group {
         width: 100%;
     }

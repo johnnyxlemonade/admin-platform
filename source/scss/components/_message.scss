@@ -1,12 +1,14 @@
+@use "../abstracts/mixins" as mixins;
+
 .lm-message-container {
     position: fixed;
     top: 16px;
     right: 16px;
-    z-index: 1080;
+    z-index: var(--lm-z-index-message);
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: min(520px, calc(100vw - 32px));
+    width: min(520px, calc(var(--lm-viewport-width) - 32px));
     pointer-events: none;
 }
 
@@ -27,11 +29,11 @@
     background: var(--lm-surface);
     box-shadow: var(--lm-shadow);
     pointer-events: auto;
-    animation: lm-message-enter .16s ease-out both;
+    animation: lm-message-enter var(--lm-motion-duration-fast) var(--lm-motion-easing-enter) both;
 }
 
 .lm-message.is-leaving {
-    animation: lm-message-leave .16s ease-in both;
+    animation: lm-message-leave var(--lm-motion-duration-fast) var(--lm-motion-easing-exit) both;
 }
 
 .lm-message-icon {
@@ -42,8 +44,8 @@
     width: 20px;
     height: 20px;
     color: var(--lm-info);
-    font-size: 18px;
-    line-height: 1;
+    font-size: var(--lm-icon-size-18);
+    line-height: var(--lm-line-height-icon);
 }
 
 .lm-message-copy {
@@ -51,8 +53,8 @@
     min-width: 0;
     padding-top: 1px;
     color: var(--lm-text);
-    font-size: 14px;
-    line-height: 1.4;
+    font-size: var(--lm-font-size-14);
+    line-height: var(--lm-line-height-copy);
 }
 
 .lm-message-close {
@@ -67,10 +69,11 @@
     border: 0;
     color: var(--lm-text-muted);
     background: transparent;
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
-.lm-message-close:hover, .lm-message-close:focus-visible {
+.lm-message-close:hover,
+.lm-message-close:focus-visible {
     color: var(--lm-text);
     background: var(--lm-surface-hover);
 }
@@ -109,7 +112,7 @@
     transform: scaleX(1);
     transform-origin: left center;
     background: var(--lm-info);
-    animation: lm-message-progress-countdown var(--lm-message-timeout) linear forwards;
+    animation: lm-message-progress-countdown var(--lm-message-timeout) var(--lm-motion-easing-linear) forwards;
 }
 
 .lm-message--success .lm-message-progress-bar {
@@ -155,19 +158,21 @@
     }
 }
 
-@media (max-width: 575.98px) {
-    .lm-message-container, .admin-shell .lm-message-container {
+@include mixins.lm-breakpoint-down(sm) {
+    .lm-message-container,
+    .admin-shell .lm-message-container {
         top: 12px;
         right: 12px;
-        width: calc(100vw - 24px);
+        width: calc(var(--lm-viewport-width) - 24px);
     }
     .admin-shell .lm-message-container {
         top: calc(var(--lm-header-height) + 12px);
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .lm-message, .lm-message.is-leaving {
+@include mixins.lm-reduced-motion {
+    .lm-message,
+    .lm-message.is-leaving {
         animation: none;
     }
     .lm-message-progress {
@@ -180,7 +185,7 @@ body.lemonade-auth .lm-message-container {
     right: auto;
     bottom: 24px;
     left: 50%;
-    width: min(800px, calc(100vw - 48px));
+    width: min(800px, calc(var(--lm-viewport-width) - 48px));
     transform: translateX(-50%);
 }
 
@@ -191,13 +196,13 @@ body.lemonade-auth .lm-message-container > .lm-message {
 }
 
 body.lemonade-auth .lm-message-container > .lm-message .lm-message-copy {
-    font-size: 16px;
+    font-size: var(--lm-font-size-16);
 }
 
 body.lemonade-auth .lm-message-container > .lm-message .lm-message-icon {
     width: 20px;
     height: 20px;
-    font-size: 20px;
+    font-size: var(--lm-icon-size-20);
 }
 
 .lm-auth-error {
@@ -220,14 +225,14 @@ body.lemonade-auth .lm-message-container > .lm-message .lm-message-icon {
     width: 16px;
     height: 19px;
     color: var(--lm-danger);
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
 }
 
 .lm-auth-error .lm-message-copy {
     min-width: 0;
     padding: 0;
     color: color-mix(in srgb, var(--lm-danger-dark) 84%, var(--lm-text-strong));
-    line-height: 1.4;
+    line-height: var(--lm-line-height-copy);
     overflow-wrap: anywhere;
 }
 
@@ -240,11 +245,11 @@ body.lemonade-auth .lm-message-container > .lm-message .lm-message-icon {
     display: none;
 }
 
-@media (max-width: 575.98px) {
+@include mixins.lm-breakpoint-down(sm) {
     body.lemonade-auth .lm-message-container {
         right: auto;
         bottom: 16px;
         left: 50%;
-        width: calc(100vw - 32px);
+        width: calc(var(--lm-viewport-width) - 32px);
     }
 }

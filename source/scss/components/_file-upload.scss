@@ -1,3 +1,5 @@
+@use "../abstracts/mixins" as mixins;
+
 .admin-shell .lm-image-upload-content {
     display: flex;
     align-items: center;
@@ -15,7 +17,7 @@
 .admin-shell .lm-image-upload-content > .lm-thumbnail--detail {
     width: 64px;
     height: 64px;
-    font-size: 16px;
+    font-size: var(--lm-icon-size-16);
 }
 
 .admin-shell .lm-image-upload-controls {
@@ -27,12 +29,12 @@
 }
 
 .admin-shell .lm-image-upload-controls .btn {
-    --bs-btn-padding-x: .75rem;
+    --bs-btn-padding-x: 0.75rem;
 }
 
 .admin-shell .lm-image-upload-controls .btn .bi {
     display: block;
-    line-height: 1;
+    line-height: var(--lm-line-height-icon);
 }
 
 .admin-shell .lm-image-upload-controls .lm-form-help {
@@ -68,7 +70,9 @@
     border: 1px solid var(--lm-line);
     border-radius: var(--lm-radius-lg);
     background: var(--lm-surface);
-    transition: border-color .16s ease, background-color .16s ease;
+    transition:
+        border-color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard),
+        background-color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
 .admin-shell .lm-file-upload-single-surface.is-empty {
@@ -98,7 +102,7 @@
 
 .admin-shell .lm-file-upload-single-empty > strong {
     color: var(--lm-text-heading);
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
 }
 
 .admin-shell .lm-file-upload-single-empty .lm-form-help {
@@ -114,8 +118,8 @@
 
 .admin-shell .lm-file-upload-single-rules {
     color: var(--lm-text-muted);
-    font-size: 12px;
-    line-height: 1.4;
+    font-size: var(--lm-font-size-12);
+    line-height: var(--lm-line-height-copy);
     overflow-wrap: anywhere;
 }
 
@@ -147,8 +151,8 @@
     min-width: 0;
     overflow: hidden;
     color: var(--lm-text-heading);
-    font-size: 13px;
-    line-height: 1.35;
+    font-size: var(--lm-font-size-13);
+    line-height: var(--lm-line-height-default);
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -156,8 +160,8 @@
 .admin-shell .lm-file-upload-single-details small {
     min-width: 0;
     color: var(--lm-text-muted);
-    font-size: 12px;
-    line-height: 1.35;
+    font-size: var(--lm-font-size-12);
+    line-height: var(--lm-line-height-default);
     overflow-wrap: anywhere;
 }
 
@@ -201,7 +205,7 @@
     display: none;
     position: absolute;
     inset: 0;
-    z-index: 2;
+    z-index: var(--lm-z-index-overlay);
     align-items: center;
     justify-content: center;
     flex-direction: column;
@@ -215,7 +219,7 @@
 }
 
 .admin-shell .lm-file-upload-replace-overlay .bi {
-    font-size: 24px;
+    font-size: var(--lm-icon-size-24);
 }
 
 .admin-shell .lm-file-upload-single-surface.has-file.is-dragover .lm-file-upload-replace-overlay {
@@ -295,10 +299,15 @@
     border: 1px dashed var(--lm-form-border);
     border-radius: var(--lm-radius-lg);
     background: var(--lm-surface-soft);
-    transition: border-color .16s ease, background-color .16s ease;
+    transition:
+        border-color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard),
+        background-color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
-.admin-shell [data-lemonade-file-upload-collection][data-lemonade-file-upload-multiple="true"] .lm-file-upload-dropzone + .lm-file-upload-items {
+.admin-shell
+    [data-lemonade-file-upload-collection][data-lemonade-file-upload-multiple="true"]
+    .lm-file-upload-dropzone
+    + .lm-file-upload-items {
     margin-top: var(--lm-space-2);
 }
 
@@ -315,10 +324,10 @@
     justify-content: center;
     width: 48px;
     height: 48px;
-    border-radius: 50%;
+    border-radius: var(--lm-radius-circle);
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
-    font-size: 22px;
+    font-size: var(--lm-icon-size-22);
 }
 
 .admin-shell .lm-file-upload-dropzone-copy {
@@ -332,7 +341,7 @@
 
 .admin-shell .lm-file-upload-dropzone-copy > strong {
     color: var(--lm-text-heading);
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
 }
 
 .admin-shell .lm-file-upload-dropzone .lm-form-help {
@@ -356,13 +365,13 @@
 
 .admin-shell .lm-file-upload-rules-title {
     color: var(--lm-text-secondary);
-    font-size: 12px;
-    font-weight: 700;
+    font-size: var(--lm-font-size-12);
+    font-weight: var(--lm-font-weight-bold);
 }
 
 .admin-shell .lm-file-upload-rules small {
     color: var(--lm-text-muted);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .admin-shell .lm-file-upload-chips {
@@ -374,12 +383,12 @@
 .admin-shell .lm-file-upload-chip {
     padding: 3px 8px;
     border: 1px solid var(--lm-line);
-    border-radius: 999px;
+    border-radius: var(--lm-radius-pill);
     color: var(--lm-text-secondary);
     background: var(--lm-surface);
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1.2;
+    font-size: var(--lm-font-size-11);
+    font-weight: var(--lm-font-weight-bold);
+    line-height: var(--lm-line-height-heading);
 }
 
 .admin-shell .lm-file-upload-dropzone .lm-form-help.is-error {
@@ -438,9 +447,9 @@
     border-radius: calc(var(--lm-radius) - 2px);
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1.1;
+    font-size: var(--lm-font-size-11);
+    font-weight: var(--lm-font-weight-extrabold);
+    line-height: var(--lm-line-height-compact);
     text-align: center;
     text-overflow: ellipsis;
 }
@@ -456,15 +465,15 @@
 .admin-shell .lm-file-upload-item-copy strong {
     overflow: hidden;
     color: var(--lm-text-heading);
-    font-size: 13px;
-    line-height: 1.35;
+    font-size: var(--lm-font-size-13);
+    line-height: var(--lm-line-height-default);
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .admin-shell .lm-file-upload-item-copy small {
     color: var(--lm-text-muted);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .admin-shell .lm-file-upload-item-copy .lm-file-upload-item-error {
@@ -510,7 +519,7 @@
     color: var(--lm-danger);
 }
 
-@media (max-width: 575.98px) {
+@include mixins.lm-breakpoint-down(sm) {
     .admin-shell .lm-file-upload-item {
         flex-wrap: wrap;
     }
@@ -536,8 +545,8 @@
 
 .admin-shell .lm-file-variants-title {
     color: var(--lm-text-heading);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-bold);
 }
 
 .admin-shell .lm-file-variants > .lm-form-help {
@@ -560,14 +569,14 @@
     background: var(--lm-surface-soft);
     gap: var(--lm-space-3);
     color: var(--lm-text-secondary);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
     flex: 1 1 220px;
 }
 
 .admin-shell .lm-file-variant .lm-thumbnail--detail {
     width: 56px;
     height: 56px;
-    font-size: 15px;
+    font-size: var(--lm-font-size-15);
 }
 
 .admin-shell .lm-file-variant-copy {
@@ -579,14 +588,14 @@
 
 .admin-shell .lm-file-variant-copy strong {
     color: var(--lm-text-heading);
-    font-size: 12px;
-    line-height: 1.3;
+    font-size: var(--lm-font-size-12);
+    line-height: var(--lm-line-height-dense);
 }
 
 .admin-shell .lm-file-variant-copy small {
     color: var(--lm-text-muted);
-    font-size: 11px;
-    line-height: 1.3;
+    font-size: var(--lm-font-size-11);
+    line-height: var(--lm-line-height-dense);
 }
 
 .admin-shell .admin-editor-sidebar .lm-file-variants-list {
@@ -609,7 +618,7 @@
     margin-inline: 8px;
 }
 
-@media (max-width: 479.98px) {
+@include mixins.lm-breakpoint-down(compact) {
     .admin-shell .lm-image-upload-content {
         align-items: flex-start;
         flex-direction: column;

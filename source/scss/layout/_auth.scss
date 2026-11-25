@@ -1,3 +1,5 @@
+@use "../abstracts/mixins" as mixins;
+
 body.lemonade-auth {
     margin: 0;
     color: var(--lm-text);
@@ -10,7 +12,7 @@ main.lemonade-auth {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    min-height: var(--lm-viewport-height);
     padding: clamp(22px, 4vw, 64px);
 }
 
@@ -25,7 +27,9 @@ main.lemonade-auth {
     overflow: hidden;
     border-radius: var(--lm-radius);
     background: var(--lm-surface);
-    box-shadow: 0 16px 46px color-mix(in srgb, var(--lm-primary) 8%, transparent), var(--lm-shadow-lg);
+    box-shadow:
+        0 16px 46px color-mix(in srgb, var(--lm-primary) 8%, transparent),
+        var(--lm-shadow-lg);
 }
 
 .lemonade-auth-layout--installer {
@@ -71,7 +75,7 @@ main.lemonade-auth {
 
 .lemonade-auth-visual-time {
     position: relative;
-    z-index: 1;
+    z-index: var(--lm-z-index-content);
     display: flex;
     align-items: flex-end;
     flex-direction: column;
@@ -82,17 +86,17 @@ main.lemonade-auth {
 
 .lemonade-auth-visual-clock {
     color: var(--lm-text-strong);
-    font-size: clamp(36px, 3vw, 50px);
-    font-weight: 650;
-    letter-spacing: -.08em;
-    line-height: .9;
+    font-size: var(--lm-font-size-auth-display);
+    font-weight: var(--lm-font-weight-semibold-strong);
+    letter-spacing: -0.08em;
+    line-height: var(--lm-line-height-compressed);
 }
 
 .lemonade-auth-visual-date {
     color: var(--lm-text-secondary);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: .04em;
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-semibold);
+    letter-spacing: 0.04em;
 }
 
 [data-bs-theme="light"] .lemonade-auth-visual {
@@ -103,7 +107,7 @@ main.lemonade-auth {
 [data-bs-theme="light"] .lemonade-auth-visual::before {
     display: block;
     background: url("../../images/auth/auth-landscape-light.webp") center / cover no-repeat;
-    opacity: .78;
+    opacity: 0.78;
     -webkit-mask: none;
     mask: none;
 }
@@ -123,7 +127,7 @@ main.lemonade-auth {
 
 [data-bs-theme="dark"] .lemonade-auth-visual::before {
     background: url("../../images/auth/auth-landscape-dark.webp") center / cover no-repeat;
-    opacity: .78;
+    opacity: 0.78;
 }
 
 [data-bs-theme="dark"] .lemonade-auth-visual-clock {
@@ -140,9 +144,9 @@ main.lemonade-auth {
     gap: var(--lm-space-3);
     width: fit-content;
     color: var(--lm-text-strong);
-    font-size: 20px;
-    font-weight: 750;
-    letter-spacing: -.55px;
+    font-size: var(--lm-font-size-20);
+    font-weight: var(--lm-font-weight-bold-strong);
+    letter-spacing: -0.55px;
 }
 
 .lemonade-auth-brand-mark {
@@ -155,12 +159,12 @@ main.lemonade-auth {
 .lemonade-auth-brand-copy {
     display: flex;
     flex-direction: column;
-    line-height: 1.1;
+    line-height: var(--lm-line-height-compact);
 }
 
 .lemonade-auth-brand-title {
-    font-size: 20px;
-    font-weight: 750;
+    font-size: var(--lm-font-size-20);
+    font-weight: var(--lm-font-weight-bold-strong);
 }
 
 .lemonade-auth-brand-subtitle {
@@ -168,8 +172,8 @@ main.lemonade-auth {
     min-height: 1.1em;
     margin-top: 2px;
     color: var(--lm-text-muted);
-    font-size: 10px;
-    font-weight: 500;
+    font-size: var(--lm-font-size-10);
+    font-weight: var(--lm-font-weight-medium);
     letter-spacing: 0;
 }
 
@@ -193,7 +197,7 @@ main.lemonade-auth {
     justify-content: space-between;
     gap: 12px;
     color: var(--lm-text-muted);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .lemonade-auth-footer-copy {
@@ -209,13 +213,16 @@ main.lemonade-auth {
     gap: 5px;
     width: fit-content;
     color: var(--lm-text-muted);
-    font-size: 11px;
-    opacity: .72;
+    font-size: var(--lm-font-size-11);
+    opacity: 0.72;
     text-decoration: none;
-    transition: color .16s ease, opacity .16s ease;
+    transition:
+        color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard),
+        opacity var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
-.lemonade-auth .lemonade-auth-framework:hover, .lemonade-auth .lemonade-auth-framework:focus-visible {
+.lemonade-auth .lemonade-auth-framework:hover,
+.lemonade-auth .lemonade-auth-framework:focus-visible {
     color: var(--lm-text);
     opacity: 1;
 }
@@ -246,9 +253,11 @@ main.lemonade-auth {
     border-radius: var(--lm-radius);
     color: var(--lm-text-muted);
     background: transparent;
-    font-size: 12px;
-    font-weight: 400;
-    transition: color .16s ease, background-color .16s ease;
+    font-size: var(--lm-font-size-12);
+    font-weight: var(--lm-font-weight-regular);
+    transition:
+        color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard),
+        background-color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
 .lemonade-auth-language button:hover,
@@ -259,7 +268,7 @@ main.lemonade-auth {
 .lemonade-auth-language button.is-active {
     color: var(--lm-text);
     background: var(--lm-surface-selected);
-    font-weight: 500;
+    font-weight: var(--lm-font-weight-medium);
 }
 
 .lemonade-auth-language .lm-locale-flag {
@@ -270,9 +279,11 @@ main.lemonade-auth {
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
-    filter: grayscale(1) saturate(.2);
-    opacity: .58;
-    transition: filter .16s ease, opacity .16s ease;
+    filter: grayscale(1) saturate(0.2);
+    opacity: 0.58;
+    transition:
+        filter var(--lm-motion-duration-fast) var(--lm-motion-easing-standard),
+        opacity var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
 .lemonade-auth-language .lm-locale-flag--cs {
@@ -303,8 +314,8 @@ main.lemonade-auth {
     width: 14px;
     height: 14px;
     color: var(--lm-primary);
-    font-size: 13px;
-    line-height: 1;
+    font-size: var(--lm-font-size-13);
+    line-height: var(--lm-line-height-icon);
 }
 
 .lemonade-auth-language .lm-locale-check[hidden] {
@@ -312,14 +323,14 @@ main.lemonade-auth {
     visibility: hidden;
 }
 
-@media (max-width: 767.98px) {
+@include mixins.lm-breakpoint-down(md) {
     body.lemonade-auth {
         background: var(--lm-surface);
     }
     main.lemonade-auth {
         align-items: stretch;
         justify-content: flex-start;
-        min-height: 100dvh;
+        min-height: var(--lm-dynamic-viewport-height);
         padding: 0;
     }
     .lemonade-auth-layout {
@@ -378,7 +389,7 @@ main.lemonade-auth {
     }
 }
 
-@media (min-width: 768px) and (max-width: 991.98px) {
+@include mixins.lm-breakpoint-only(md) {
     .lemonade-auth-layout {
         display: block;
         width: min(100%, 600px);

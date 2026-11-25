@@ -50,7 +50,7 @@
     border-color: var(--lm-line);
     background: var(--lm-surface);
     box-shadow: none;
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .lm-permission-filter:focus {
@@ -73,7 +73,7 @@
     color: var(--lm-text-secondary);
     background: var(--lm-surface);
     box-shadow: none;
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .admin-shell .lm-permission-expand-actions .btn:hover,
@@ -126,7 +126,7 @@
     width: 28px;
     height: 28px;
     color: var(--lm-primary);
-    font-size: 15px;
+    font-size: var(--lm-font-size-15);
 }
 
 .admin-shell .lm-permission-section h3,
@@ -134,19 +134,19 @@
 .admin-shell .lm-permission-sidebar h3 {
     margin: 0;
     color: var(--lm-text-heading);
-    font-weight: 700;
+    font-weight: var(--lm-font-weight-bold);
 }
 
 .admin-shell .lm-permission-section h3 {
-    font-size: 15px;
-    letter-spacing: -.1px;
+    font-size: var(--lm-font-size-15);
+    letter-spacing: -0.1px;
 }
 
 .admin-shell .lm-permission-section-heading p {
     margin: 2px 0 0;
     color: var(--lm-text-muted);
-    font-size: 12px;
-    line-height: 1.35;
+    font-size: var(--lm-font-size-12);
+    line-height: var(--lm-line-height-default);
 }
 
 .admin-shell .lm-permission-section-actions,
@@ -171,7 +171,7 @@
     border-radius: var(--lm-radius);
     color: var(--lm-text-muted);
     background: var(--lm-surface-soft);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
 }
@@ -185,8 +185,8 @@
     border-radius: var(--lm-radius);
     color: var(--lm-text-secondary);
     background: var(--lm-surface);
-    font-size: 12px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-12);
+    font-weight: var(--lm-font-weight-semibold);
     white-space: nowrap;
 }
 
@@ -243,7 +243,7 @@
     border-radius: var(--lm-radius);
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
-    font-size: 17px;
+    font-size: var(--lm-icon-size-17);
 }
 
 .admin-shell .lm-permission-group-copy {
@@ -255,8 +255,8 @@
 
 .admin-shell .lm-permission-group-title {
     min-width: 0;
-    font-size: 14px;
-    line-height: 1.35;
+    font-size: var(--lm-font-size-14);
+    line-height: var(--lm-line-height-default);
 }
 
 .admin-shell .lm-permission-group-title > span {
@@ -266,8 +266,8 @@
 
 .admin-shell .lm-permission-group-description {
     color: var(--lm-text-muted);
-    font-size: 12px;
-    line-height: 1.35;
+    font-size: var(--lm-font-size-12);
+    line-height: var(--lm-line-height-default);
     overflow-wrap: anywhere;
 }
 
@@ -275,8 +275,8 @@
     flex: 0 0 auto;
     margin-left: auto;
     color: var(--lm-text-muted);
-    font-size: 12px;
-    transition: transform .16s ease;
+    font-size: var(--lm-font-size-12);
+    transition: transform var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
 .admin-shell .lm-permission-group-heading[aria-expanded="true"] .lm-permission-group-chevron {
@@ -310,8 +310,8 @@
 .admin-shell .lm-permission-item .form-check-label {
     min-width: 0;
     color: var(--lm-text-secondary);
-    font-size: 13px;
-    line-height: 1.35;
+    font-size: var(--lm-font-size-13);
+    line-height: var(--lm-line-height-default);
     overflow-wrap: anywhere;
 }
 
@@ -321,8 +321,8 @@
     align-items: center;
     gap: 4px;
     color: var(--lm-text-muted);
-    font-size: 11px;
-    line-height: 1.2;
+    font-size: var(--lm-font-size-11);
+    line-height: var(--lm-line-height-heading);
     white-space: nowrap;
 }
 
@@ -340,7 +340,7 @@
 
 .admin-shell .lm-permission-sidebar h3 {
     margin-bottom: var(--lm-space-3);
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .lm-permission-summary-value {
@@ -349,21 +349,21 @@
     gap: 4px;
     margin: 0;
     color: var(--lm-text-muted);
-    font-size: 15px;
+    font-size: var(--lm-font-size-15);
     font-variant-numeric: tabular-nums;
 }
 
 .admin-shell .lm-permission-summary-value strong {
     color: var(--lm-text-heading);
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -.6px;
+    font-size: var(--lm-font-size-28);
+    font-weight: var(--lm-font-weight-bold);
+    letter-spacing: -0.6px;
 }
 
 .admin-shell .lm-permission-summary-label {
     margin: 2px 0 var(--lm-space-3);
     color: var(--lm-text-muted);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .admin-shell .lm-permission-progress {
@@ -372,23 +372,23 @@
     height: 6px;
     overflow: hidden;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--lm-radius-pill);
     background: var(--lm-line);
     appearance: none;
 }
 
 .admin-shell .lm-permission-progress::-webkit-progress-bar {
-    border-radius: 999px;
+    border-radius: var(--lm-radius-pill);
     background: var(--lm-line);
 }
 
 .admin-shell .lm-permission-progress::-webkit-progress-value {
-    border-radius: 999px;
+    border-radius: var(--lm-radius-pill);
     background: var(--lm-primary);
 }
 
 .admin-shell .lm-permission-progress::-moz-progress-bar {
-    border-radius: 999px;
+    border-radius: var(--lm-radius-pill);
     background: var(--lm-primary);
 }
 
@@ -415,7 +415,7 @@
     color: var(--lm-text-secondary);
     background: transparent;
     box-shadow: none;
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
     text-align: left;
 }
 
@@ -465,10 +465,10 @@
     min-width: 0;
     margin: 0;
     color: var(--lm-text-heading);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .035em;
-    line-height: 1.3;
+    font-size: var(--lm-font-size-11);
+    font-weight: var(--lm-font-weight-bold);
+    letter-spacing: 0.035em;
+    line-height: var(--lm-line-height-dense);
     text-transform: uppercase;
     overflow-wrap: anywhere;
 }
@@ -476,7 +476,7 @@
 .admin-shell .lm-permission-module-section-count {
     flex: 0 0 auto;
     color: var(--lm-text-muted);
-    font-size: 11px;
+    font-size: var(--lm-font-size-11);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
 }
@@ -498,8 +498,8 @@
     border-radius: var(--lm-radius);
     color: var(--lm-text-secondary);
     background: transparent;
-    font-size: 12px;
-    line-height: 1.3;
+    font-size: var(--lm-font-size-12);
+    line-height: var(--lm-line-height-dense);
     text-align: left;
 }
 
@@ -514,7 +514,7 @@
     align-items: center;
     justify-content: center;
     color: currentColor;
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .lm-permission-module-link-label {
@@ -528,7 +528,7 @@
     border-radius: var(--lm-radius);
     color: var(--lm-text-muted);
     background: var(--lm-surface-soft);
-    font-size: 11px;
+    font-size: var(--lm-font-size-11);
     font-variant-numeric: tabular-nums;
     text-align: center;
 }
@@ -539,7 +539,7 @@
     border: 1px dashed var(--lm-line-strong);
     border-radius: var(--lm-radius);
     color: var(--lm-text-muted);
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
     text-align: center;
 }
 

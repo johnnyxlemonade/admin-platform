@@ -31,8 +31,8 @@
 .admin-shell .lm-form-label {
     margin: 0;
     color: var(--lm-text-heading);
-    font-size: 13px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-form-label.required::after {
@@ -43,8 +43,8 @@
 
 .admin-shell .lm-form-help {
     color: var(--lm-text-soft);
-    font-size: 12px;
-    line-height: 1.4;
+    font-size: var(--lm-font-size-12);
+    line-height: var(--lm-line-height-copy);
 }
 
 .admin-shell .lm-form-help.is-error {
@@ -83,11 +83,13 @@
     right: 14px;
     top: 50%;
     color: var(--lm-text-muted);
-    font-size: 13px;
-    line-height: 1;
+    font-size: var(--lm-font-size-13);
+    line-height: var(--lm-line-height-icon);
     pointer-events: none;
     transform: translateY(-50%);
-    transition: transform .16s ease, color .16s ease;
+    transition:
+        transform var(--lm-motion-duration-fast) var(--lm-motion-easing-standard),
+        color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
 .admin-shell .lm-select.is-open .lm-select-indicator {
@@ -101,10 +103,10 @@
     min-width: 0;
     max-width: 100%;
     padding: 2px 7px;
-    border-radius: 4px;
+    border-radius: var(--lm-radius-xs);
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .admin-shell .lm-select-token-label {
@@ -122,19 +124,19 @@
     cursor: pointer;
 
     &:disabled {
-        opacity: .4;
+        opacity: 0.4;
         cursor: default;
     }
 }
 
 .admin-shell .lm-select-token-remove {
-    font-size: 15px;
-    line-height: 1;
+    font-size: var(--lm-font-size-15);
+    line-height: var(--lm-line-height-icon);
 }
 
 .lm-select-dropdown {
     box-sizing: border-box;
-    max-width: calc(100vw - 8px);
+    max-width: calc(var(--lm-viewport-width) - 8px);
     padding: 8px;
     border: 1px solid var(--lm-form-border);
     border-radius: var(--lm-radius);
@@ -144,7 +146,7 @@
 
 .lm-select-dropdown--floating {
     position: fixed;
-    z-index: 1056;
+    z-index: var(--lm-z-index-select);
 }
 
 .lm-select-dropdown--local {
@@ -167,20 +169,22 @@
     display: block;
     padding: 9px 10px;
     color: var(--lm-text-muted);
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .lm-select-option {
     width: 100%;
     padding: 8px 10px;
     border: 0;
-    border-radius: 4px;
+    border-radius: var(--lm-radius-xs);
     color: var(--lm-text-control);
     background: transparent;
     text-align: left;
 }
 
-.lm-select-option:hover, .lm-select-option:focus-visible, .lm-select-option.is-selected {
+.lm-select-option:hover,
+.lm-select-option:focus-visible,
+.lm-select-option.is-selected {
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
     outline: 0;
@@ -199,7 +203,8 @@
     content: "+";
 }
 
-.lm-select-option-create:hover, .lm-select-option-create:focus-visible {
+.lm-select-option-create:hover,
+.lm-select-option-create:focus-visible {
     color: var(--lm-primary);
     background: var(--lm-primary-soft);
 }
@@ -213,30 +218,44 @@
     margin-top: 8px;
 }
 
-.admin-shell .input-group-text, .admin-shell .form-control, .admin-shell .form-select {
+.admin-shell .input-group-text,
+.admin-shell .form-control,
+.admin-shell .form-select {
     border-color: var(--lm-form-border);
     background: var(--lm-surface);
     color: var(--lm-text-control);
-    transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+    transition:
+        border-color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard),
+        box-shadow var(--lm-motion-duration-fast) var(--lm-motion-easing-standard),
+        background-color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
 .admin-shell .input-group-text {
     color: var(--lm-text-muted);
-    font-size: 22px;
-    line-height: 1;
+    font-size: var(--lm-font-size-22);
+    line-height: var(--lm-line-height-icon);
 }
 
-.admin-shell .form-control, .admin-shell .form-select {
+.admin-shell [data-lemonade-url-segment-prefix] {
+    font-size: var(--lm-font-size-14);
+    line-height: var(--lm-line-height-control);
+    white-space: nowrap;
+}
+
+.admin-shell .form-control,
+.admin-shell .form-select {
     min-height: 38px;
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
     box-shadow: none !important;
 }
 
-.admin-shell .form-control:hover, .admin-shell .form-select:hover {
+.admin-shell .form-control:hover,
+.admin-shell .form-select:hover {
     border-color: var(--lm-form-border-hover);
 }
 
-.admin-shell .form-control:focus, .admin-shell .form-select:focus {
+.admin-shell .form-control:focus,
+.admin-shell .form-select:focus {
     border-color: var(--lm-form-border-focus);
 }
 
@@ -250,7 +269,8 @@
     cursor: text;
 }
 
-.admin-shell .form-control:disabled, .admin-shell .form-select:disabled {
+.admin-shell .form-control:disabled,
+.admin-shell .form-select:disabled {
     border-color: var(--lm-form-border);
     color: var(--lm-text-muted);
     background: var(--lm-surface-soft);
@@ -258,7 +278,10 @@
     opacity: 1;
 }
 
-.admin-shell .form-control.is-invalid, .admin-shell .was-validated .form-control:invalid, .admin-shell .form-select.is-invalid, .admin-shell .was-validated .form-select:invalid {
+.admin-shell .form-control.is-invalid,
+.admin-shell .was-validated .form-control:invalid,
+.admin-shell .form-select.is-invalid,
+.admin-shell .was-validated .form-select:invalid {
     border-color: var(--lm-danger);
 }
 
@@ -281,19 +304,19 @@
 .admin-shell .form-label {
     margin-bottom: 6px;
     color: var(--lm-text-heading);
-    font-size: 13px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .form-text {
     color: var(--lm-text-soft);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .admin-shell .form-switch .form-check-input {
     width: 38px;
     height: 22px;
-    margin-top: .05em;
+    margin-top: 0.05em;
     border: 0;
     background-color: var(--lm-line-strong);
 }
@@ -353,14 +376,14 @@
 
 .admin-shell .lm-editor-audit-metadata-item dt {
     color: var(--lm-text-muted);
-    font-size: 12px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-12);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-editor-audit-metadata-item dd {
     margin: 0;
     color: var(--lm-text);
-    line-height: 1.35;
+    line-height: var(--lm-line-height-default);
 }
 
 .admin-shell .lm-editor-audit-metadata-item dd strong {
@@ -372,7 +395,7 @@
 .admin-shell .lm-editor-audit-metadata-detail {
     display: block;
     color: var(--lm-text-muted);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .admin-shell .lm-action-select {
@@ -394,13 +417,13 @@
     width: auto;
     border-radius: var(--bs-border-radius);
     border-color: var(--lm-primary);
-    color: #fff;
+    color: var(--lm-on-primary);
     background: var(--lm-primary);
 }
 
 .admin-shell .lm-action-select > .btn:hover,
 .admin-shell .lm-action-select > .btn:focus-visible {
     border-color: var(--lm-primary-dark);
-    color: #fff;
+    color: var(--lm-on-primary);
     background: var(--lm-primary-dark);
 }

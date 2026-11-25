@@ -1,3 +1,5 @@
+@use "../abstracts/mixins" as mixins;
+
 .lm-theme-toggle {
     display: inline-flex;
     align-items: center;
@@ -19,14 +21,15 @@
     display: block;
 }
 
-.lm-theme-toggle:hover, .lm-theme-toggle:focus-visible {
+.lm-theme-toggle:hover,
+.lm-theme-toggle:focus-visible {
     color: var(--lm-primary);
 }
 
 .admin-shell .lm-theme-toggle {
     width: 32px;
     padding: 0;
-    font-size: clamp(20px, 1.25vw, 25px);
+    font-size: var(--lm-font-size-header-action);
 }
 
 .lm-theme-menu .lm-theme-option > :first-child {
@@ -51,14 +54,15 @@
     width: 28px;
     height: 28px;
     padding: 0;
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
 }
 
-.lemonade-auth .lm-theme-toggle:hover, .lemonade-auth .lm-theme-toggle:focus-visible {
+.lemonade-auth .lm-theme-toggle:hover,
+.lemonade-auth .lm-theme-toggle:focus-visible {
     background: var(--lm-surface-hover);
 }
 
-@media (max-width: 767.98px) {
+@include mixins.lm-breakpoint-down(md) {
     .lemonade-auth-footer-controls {
         align-items: flex-start;
         flex-direction: column;

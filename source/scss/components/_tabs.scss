@@ -28,12 +28,14 @@
     border-radius: 0;
     color: var(--lm-text);
     background: transparent;
-    font-size: clamp(14px, .82vw, 16px);
-    font-weight: 500;
-    line-height: 1.25;
+    font-size: var(--lm-font-size-navigation-control);
+    font-weight: var(--lm-font-weight-medium);
+    line-height: var(--lm-line-height-snug);
     text-align: center;
     white-space: nowrap;
-    transition: background-color .16s ease, color .16s ease;
+    transition:
+        background-color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard),
+        color var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
 .lm-tab:first-child {
@@ -52,7 +54,7 @@
 
 .lm-tab:focus-visible {
     position: relative;
-    z-index: 1;
+    z-index: var(--lm-z-index-content);
     outline: 2px solid var(--lm-form-border-focus);
     outline-offset: -3px;
 }
@@ -62,7 +64,7 @@
     color: var(--lm-primary-dark);
     border-radius: var(--lm-radius) var(--lm-radius) 0 0;
     background: var(--lm-primary-soft);
-    font-weight: 700;
+    font-weight: var(--lm-font-weight-bold);
 }
 
 .lm-tab.is-active:hover {

@@ -1,8 +1,8 @@
 .admin-shell .badge {
     padding: 5px 10px;
-    border-radius: 99px;
-    font-size: clamp(12px, .7vw, 13px);
-    font-weight: 500;
+    border-radius: var(--lm-radius-pill);
+    font-size: var(--lm-font-size-compact);
+    font-weight: var(--lm-font-weight-medium);
 }
 
 .admin-shell .category-travel {

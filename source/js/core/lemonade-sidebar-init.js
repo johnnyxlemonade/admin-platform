@@ -21,5 +21,8 @@
         storedState = null;
     }
 
-    html.setAttribute("data-lemonade-sidebar-state", storedState === true ? "collapsed" : "expanded");
+    const isMobile = typeof window.matchMedia === "function"
+        && window.matchMedia("(max-width: 767.98px)").matches;
+
+    html.setAttribute("data-lemonade-sidebar-state", storedState === true || isMobile ? "collapsed" : "expanded");
 })(document, window);

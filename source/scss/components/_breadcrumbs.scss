@@ -1,10 +1,11 @@
 .admin-shell .breadcrumb {
     --bs-breadcrumb-divider: "›";
     margin-bottom: 8px;
-    font-size: clamp(14px, .82vw, 16px);
+    font-size: var(--lm-font-size-navigation-control);
 }
 
-.admin-shell .breadcrumb-item, .admin-shell .breadcrumb-item a {
+.admin-shell .breadcrumb-item,
+.admin-shell .breadcrumb-item a {
     color: var(--lm-text-soft);
 }
 

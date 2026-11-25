@@ -10,19 +10,20 @@
     border-bottom: 1px solid var(--lm-line);
 }
 
-.admin-shell .lm-user-menu-header strong, .admin-shell .lm-user-menu-header span {
+.admin-shell .lm-user-menu-header strong,
+.admin-shell .lm-user-menu-header span {
     display: block;
 }
 
 .admin-shell .lm-user-menu-header strong {
     color: var(--lm-text-heading);
-    font-size: 14px;
+    font-size: var(--lm-font-size-14);
 }
 
 .admin-shell .lm-user-menu-header span {
     margin-top: 3px;
     color: var(--lm-text-muted);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .admin-shell .lm-user-menu-dropdown-menu .lm-user-menu-logout {
@@ -41,13 +42,13 @@
     display: block;
     padding: 5px 10px 6px;
     color: var(--lm-text-muted);
-    font-size: 12px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-12);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-user-menu-language-option {
     color: var(--lm-text-muted);
-    font-weight: 400;
+    font-weight: var(--lm-font-weight-regular);
 }
 
 .admin-shell .lm-user-menu-language-option + .lm-user-menu-language-option {
@@ -57,7 +58,7 @@
 .admin-shell .lm-user-menu-language-option.is-active {
     color: var(--lm-text);
     background: var(--lm-surface-selected);
-    font-weight: 500;
+    font-weight: var(--lm-font-weight-medium);
 }
 
 .admin-shell .lm-user-menu-language-option .lm-locale-flag {
@@ -68,9 +69,11 @@
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
-    filter: grayscale(1) saturate(.2);
-    opacity: .58;
-    transition: filter .16s ease, opacity .16s ease;
+    filter: grayscale(1) saturate(0.2);
+    opacity: 0.58;
+    transition:
+        filter var(--lm-motion-duration-fast) var(--lm-motion-easing-standard),
+        opacity var(--lm-motion-duration-fast) var(--lm-motion-easing-standard);
 }
 
 .admin-shell .lm-user-menu-language-option .lm-locale-flag--cs {
@@ -102,8 +105,8 @@
     height: 16px;
     margin-left: auto;
     color: var(--lm-primary);
-    font-size: 15px;
-    line-height: 1;
+    font-size: var(--lm-font-size-15);
+    line-height: var(--lm-line-height-icon);
 }
 
 .admin-shell .lm-user-menu-language-option .lm-locale-check[hidden] {
@@ -121,7 +124,8 @@
     overflow: hidden;
 }
 
-.admin-shell .lm-notifications-header, .admin-shell .lm-notifications-footer {
+.admin-shell .lm-notifications-header,
+.admin-shell .lm-notifications-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -136,7 +140,7 @@
 
 .admin-shell .lm-notifications-header span {
     color: var(--lm-text-muted);
-    font-size: 12px;
+    font-size: var(--lm-font-size-12);
 }
 
 .admin-shell .lm-notifications-list {
@@ -155,8 +159,8 @@
 }
 
 .admin-shell .lm-notifications-menu .lm-activity-message {
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: var(--lm-font-size-13);
+    line-height: var(--lm-line-height-copy);
 }
 
 .admin-shell .lm-notifications-menu .lm-activity-trailing {
@@ -167,7 +171,7 @@
     padding: 28px 15px;
     margin: 0;
     color: var(--lm-text-muted);
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
     text-align: center;
 }
 
@@ -212,12 +216,12 @@
 .admin-shell .lm-notifications-empty > i {
     margin-bottom: 12px;
     color: var(--lm-text-secondary);
-    font-size: 30px;
+    font-size: var(--lm-icon-size-30);
 }
 
 .admin-shell .lm-notifications-empty p {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--lm-font-size-13);
 }
 
 .admin-shell .lm-notifications-page .lm-notification-toggle {
@@ -238,17 +242,17 @@
 
 .admin-shell .lm-notifications-page .lm-activity-author {
     color: var(--lm-text-muted);
-    font-size: 12px;
-    font-weight: 600;
+    font-size: var(--lm-font-size-12);
+    font-weight: var(--lm-font-weight-semibold);
 }
 
 .admin-shell .lm-notifications-page .lm-notification-title {
     display: block;
     margin-top: 4px;
     color: var(--lm-text-heading);
-    font-size: 15px;
-    font-weight: 700;
-    line-height: 1.35;
+    font-size: var(--lm-font-size-15);
+    font-weight: var(--lm-font-weight-bold);
+    line-height: var(--lm-line-height-default);
 }
 
 .admin-shell .lm-notifications-page .lm-notification-trailing {
@@ -266,9 +270,9 @@
     padding: var(--lm-space-3) var(--lm-space-5) var(--lm-space-5) calc(34px + var(--lm-space-3) + var(--lm-space-5));
     color: var(--lm-text-secondary);
     background: var(--lm-surface-soft);
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.6;
+    font-size: var(--lm-font-size-14);
+    font-weight: var(--lm-font-weight-regular);
+    line-height: var(--lm-line-height-rich-text);
     border-top: 1px solid var(--lm-line-subtle);
 }
 
@@ -289,9 +293,9 @@
     margin-top: 18px;
 }
 
-@media (max-width: 767.98px) {
+@include mixins.lm-breakpoint-down(md) {
     .admin-shell .lm-notifications-menu {
-        max-width: calc(100vw - 24px);
+        max-width: calc(var(--lm-viewport-width) - 24px);
     }
     .admin-shell .lm-notifications-page .lm-notification-toggle {
         padding: var(--lm-space-4);
@@ -302,7 +306,7 @@
     }
 }
 
-@media (max-width: 575.98px) {
+@include mixins.lm-breakpoint-down(sm) {
     .admin-shell .lm-notifications-page .lm-notification-toggle {
         flex-wrap: wrap;
     }

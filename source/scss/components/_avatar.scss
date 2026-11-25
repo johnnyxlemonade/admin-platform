@@ -4,17 +4,17 @@
     justify-content: center;
     width: clamp(40px, 2.45vw, 48px);
     height: clamp(40px, 2.45vw, 48px);
-    border-radius: 50%;
+    border-radius: var(--lm-radius-circle);
     background: var(--lm-surface-soft);
     color: var(--lm-text-heading);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-bold);
 }
 
 .admin-shell .avatar-sm {
     width: clamp(30px, 1.7vw, 34px);
     height: clamp(30px, 1.7vw, 34px);
     margin-right: 7px;
-    font-size: 10px;
+    font-size: var(--lm-font-size-10);
     vertical-align: middle;
 }

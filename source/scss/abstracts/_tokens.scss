@@ -1,8 +1,118 @@
 :root {
     --lm-font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --lm-font-weight-light: 300;
+    --lm-font-weight-regular: 400;
+    --lm-font-weight-medium: 500;
+    --lm-font-weight-semibold: 600;
+    --lm-font-weight-semibold-strong: 650;
+    --lm-font-weight-bold: 700;
+    --lm-font-weight-bold-strong: 750;
+    --lm-font-weight-extrabold: 800;
+
+    --lm-font-size-9: 9px;
+    --lm-font-size-10: 10px;
+    --lm-font-size-11: 11px;
+    --lm-font-size-12: 12px;
+    --lm-font-size-13: 13px;
+    --lm-font-size-14: 14px;
+    --lm-font-size-15: 15px;
+    --lm-font-size-16: 16px;
+    --lm-font-size-17: 17px;
+    --lm-font-size-18: 18px;
+    --lm-font-size-19: 19px;
+    --lm-font-size-20: 20px;
+    --lm-font-size-22: 22px;
+    --lm-font-size-28: 28px;
+
+    --lm-icon-size-16: 16px;
+    --lm-icon-size-17: 17px;
+    --lm-icon-size-18: 18px;
+    --lm-icon-size-19: 19px;
+    --lm-icon-size-20: 20px;
+    --lm-icon-size-21: 21px;
+    --lm-icon-size-22: 22px;
+    --lm-icon-size-24: 24px;
+    --lm-icon-size-25: 25px;
+    --lm-icon-size-26: 26px;
+    --lm-icon-size-27: 27px;
+    --lm-icon-size-28: 28px;
+    --lm-icon-size-29: 29px;
+    --lm-icon-size-30: 30px;
+    --lm-icon-size-34: 34px;
+    --lm-icon-size-39: 39px;
+
+    --lm-dashboard-kpi-icon-size: 42px;
+    --lm-dashboard-audit-clock-size: 58px;
+    --lm-dashboard-audit-document-size: 98px;
+
+    --lm-font-size-body: clamp(14px, 0.78vw, 16px);
+    --lm-font-size-page-title: clamp(30px, 1.7vw, 36px);
+    --lm-font-size-page-description: clamp(15px, 0.9vw, 17px);
+    --lm-font-size-header-action: clamp(20px, 1.25vw, 25px);
+    --lm-font-size-navigation-control: clamp(14px, 0.82vw, 16px);
+    --lm-font-size-auth-display: clamp(36px, 3vw, 50px);
+    --lm-font-size-sidebar-brand: clamp(22px, 1.25vw, 27px);
+    --lm-font-size-sidebar-heading: clamp(18px, 1.1vw, 22px);
+    --lm-font-size-sidebar-item: clamp(15px, 0.85vw, 17px);
+    --lm-font-size-sidebar-subitem: clamp(14px, 0.8vw, 16px);
+    --lm-font-size-button: clamp(14px, 0.82vw, 15px);
+    --lm-font-size-dashboard-metric: clamp(28px, 1.7vw, 34px);
+    --lm-font-size-dashboard-heading: clamp(16px, 0.98vw, 19px);
+    --lm-font-size-dashboard-display: clamp(38px, 3vw, 54px);
+    --lm-font-size-error-title: clamp(20px, 1.2vw, 24px);
+    --lm-font-size-auth-title: clamp(24px, 2.1vw, 30px);
+    --lm-font-size-editor-title: clamp(16px, 0.95vw, 18px);
+    --lm-font-size-modal-title: clamp(18px, 1.1vw, 21px);
+    --lm-font-size-table-heading: clamp(13px, 0.76vw, 14px);
+    --lm-font-size-table-cell: clamp(12px, 0.72vw, 13px);
+    --lm-font-size-compact: clamp(12px, 0.7vw, 13px);
+    --lm-font-size-settings-title: clamp(17px, 1.08vw, 20px);
+
+    --lm-font-size-rich-text: 0.9375rem;
+    --lm-font-size-rich-text-h2: 1.5rem;
+    --lm-font-size-rich-text-h3: 1.25rem;
+    --lm-font-size-rich-text-h4: 1.125rem;
+    --lm-font-size-rich-text-h5: 1rem;
+    --lm-font-size-rich-text-h6: 0.875rem;
+    --lm-font-size-rich-text-attachment-icon: 0.875em;
+    --lm-font-size-rich-text-picker-name: 0.8125rem;
+    --lm-font-size-session-lock-emblem: 2rem;
+    --lm-font-size-session-lock-title: 1.65rem;
+    --lm-font-size-session-lock-label: 0.8rem;
+    --lm-font-size-session-lock-note: 0.78rem;
+
+    --lm-line-height-compressed: 0.9;
+    --lm-line-height-icon: 1;
+    --lm-line-height-compact: 1.1;
+    --lm-line-height-tight: 1.15;
+    --lm-line-height-heading: 1.2;
+    --lm-line-height-snug: 1.25;
+    --lm-line-height-dense: 1.3;
+    --lm-line-height-default: 1.35;
+    --lm-line-height-copy: 1.4;
+    --lm-line-height-relaxed: 1.45;
+    --lm-line-height-control: 1.5;
+    --lm-line-height-spacious: 1.55;
+    --lm-line-height-rich-text: 1.6;
+
+    --lm-motion-duration-feedback: 100ms;
+    --lm-motion-duration-fast: 160ms;
+    --lm-motion-duration-standard: 200ms;
+    --lm-motion-duration-emphasized: 300ms;
+    --lm-motion-duration-loop-fast: 900ms;
+    --lm-motion-duration-loop: 1s;
+    --lm-motion-duration-loop-slow: 1350ms;
+    --lm-motion-easing-standard: ease;
+    --lm-motion-easing-enter: ease-out;
+    --lm-motion-easing-exit: ease-in;
+    --lm-motion-easing-emphasized: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --lm-motion-easing-linear: linear;
+    --lm-motion-easing-pulse: ease-in-out;
+
     --lm-primary: #3048f5;
     --lm-primary-dark: #2439da;
     --lm-primary-soft: #eef0ff;
+    --lm-on-primary: #fff;
     --lm-text: #101b3f;
     --lm-text-strong: #080d21;
     --lm-text-heading: #16234a;
@@ -12,7 +122,7 @@
     --lm-text-soft: #7281a5;
     --lm-surface: #fff;
     --lm-main-surface: #fafbfc;
-    --lm-topbar-surface: rgba(255, 255, 255, .82);
+    --lm-topbar-surface: rgba(255, 255, 255, 0.82);
     --lm-sidebar-surface: #f3f6fb;
     --lm-surface-soft: #f8f9fc;
     --lm-surface-hover: #f4f6fb;
@@ -29,12 +139,18 @@
     --lm-form-border-hover: #aebdd2;
     --lm-form-border-focus: var(--lm-primary);
     --lm-success: #079b68;
+    --lm-success-text: #08734f;
     --lm-success-bg: #dff7ed;
     --lm-warning: #d97706;
     --lm-warning-bg: #fff1d8;
     --lm-danger: #e9405f;
     --lm-danger-soft: #fff0f1;
     --lm-danger-dark: #c83f50;
+    --lm-danger-text: #b52b41;
+    --lm-notification-indicator: #f12b58;
+    --lm-control-disabled: #b7c2d8;
+    --lm-backdrop: rgba(0, 0, 0, 0.5);
+
     --lm-info: #31538b;
     --lm-info-bg: #f0f5ff;
     --lm-info-line: #dce8ff;
@@ -51,18 +167,41 @@
     --lm-category-food-bg: #fff0d6;
     --lm-category-sport: #c71939;
     --lm-category-sport-bg: #ffe4e8;
-    --lm-focus-shadow: 0 0 0 3px rgba(48, 72, 245, .1);
-    --lm-primary-shadow: 0 5px 10px rgba(48, 72, 245, .12);
-    --lm-shadow: 0 10px 30px rgba(31, 52, 105, .12);
-    --lm-shadow-lg: 0 18px 54px rgba(31, 52, 105, .12);
+    --lm-focus-shadow: 0 0 0 3px rgba(48, 72, 245, 0.1);
+    --lm-primary-shadow: 0 5px 10px rgba(48, 72, 245, 0.12);
+    --lm-danger-shadow: 0 5px 10px rgba(233, 64, 95, 0.12);
+    --lm-shadow-sm: 0 4px 14px rgba(31, 52, 105, 0.04);
+    --lm-shadow: 0 10px 30px rgba(31, 52, 105, 0.12);
+    --lm-shadow-lg: 0 18px 54px rgba(31, 52, 105, 0.12);
+
+    --lm-z-index-content: 1;
+    --lm-z-index-overlay: 2;
+    --lm-z-index-local-popover: 5;
+    --lm-z-index-sidebar: 10;
+    --lm-z-index-sidebar-backdrop: 19;
+    --lm-z-index-floating: 20;
+    --lm-z-index-dropdown: 1000;
+    --lm-z-index-select: 1056;
+    --lm-z-index-message: 1080;
+    --lm-z-index-session-lock: 2147483647;
+
+    --lm-radius-xs: 4px;
+    --lm-radius-control: 5px;
+    --lm-radius-sm: 6px;
     --lm-radius: 7px;
+    --lm-radius-md: 8px;
     --lm-radius-lg: 10px;
-    --lm-space-1: .25rem;
-    --lm-space-2: .5rem;
-    --lm-space-3: .75rem;
+    --lm-radius-xl: 16px;
+    --lm-radius-pill: 999px;
+    --lm-radius-circle: 50%;
+
+    --lm-space-1: 0.25rem;
+    --lm-space-2: 0.5rem;
+    --lm-space-3: 0.75rem;
     --lm-space-4: 1rem;
     --lm-space-5: 1.5rem;
     --lm-space-6: 2rem;
+
     --bs-body-font-family: var(--lm-font-family);
     --bs-body-color: var(--lm-text);
     --bs-body-bg: var(--lm-canvas);
@@ -71,6 +210,15 @@
     --bs-primary: var(--lm-primary);
     --bs-border-color: var(--lm-line);
     --bs-border-radius: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --lm-motion-duration-feedback: 0ms;
+        --lm-motion-duration-fast: 0ms;
+        --lm-motion-duration-standard: 0ms;
+        --lm-motion-duration-emphasized: 0ms;
+    }
 }
 
 [data-bs-theme="dark"] {
@@ -103,12 +251,15 @@
     --lm-form-border-hover: #63779a;
     --lm-form-border-focus: var(--lm-primary);
     --lm-success: #51c893;
+    --lm-success-text: #8bdeb1;
     --lm-success-bg: #173d36;
     --lm-warning: #f6b75b;
     --lm-warning-bg: #49391e;
     --lm-danger: #ff7187;
     --lm-danger-soft: #4a2632;
     --lm-danger-dark: #ff8b9d;
+    --lm-danger-text: #ff8b9d;
+    --lm-control-disabled: #61738f;
     --lm-info: #a9c5ff;
     --lm-info-bg: #1e3155;
     --lm-info-line: #344b77;
@@ -125,10 +276,10 @@
     --lm-category-food-bg: #50391f;
     --lm-category-sport: #ffacb9;
     --lm-category-sport-bg: #552837;
-    --lm-focus-shadow: 0 0 0 3px rgba(113, 130, 255, .22);
-    --lm-primary-shadow: 0 5px 10px rgba(0, 0, 0, .22);
-    --lm-shadow: 0 10px 30px rgba(0, 0, 0, .28);
-    --lm-shadow-lg: 0 18px 54px rgba(0, 0, 0, .36);
+    --lm-focus-shadow: 0 0 0 3px rgba(113, 130, 255, 0.22);
+    --lm-primary-shadow: 0 5px 10px rgba(0, 0, 0, 0.22);
+    --lm-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+    --lm-shadow-lg: 0 18px 54px rgba(0, 0, 0, 0.36);
     --bs-body-color: var(--lm-text);
     --bs-body-bg: var(--lm-canvas);
     --bs-secondary-color: var(--lm-text-muted);
