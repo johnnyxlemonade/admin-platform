@@ -426,16 +426,22 @@ final readonly class MfaController
     private function modalResponse(?string $errorKey = null, ?string $noticeKey = null, ?string $secret = null, ?string $provisioningUri = null): ResponseInterface
     {
         $user = $this->currentUser->currentUser();
-        if (!$this->configuration->enabled() || $user === null) {
-            return $this->responses->json(['success' => false], 403);
+        if ($user === null) {
+            return $this->responses->json(
+                ['success' => false],
+                HttpStatusCode::FORBIDDEN->value,
+            );
         }
+
+        $enabled = $this->configuration->enabled();
 
         return $this->responses->json([
             'success' => true,
             'modalHtml' => $this->views->content('admin-auth::mfa-modal', [
-                'active' => $this->credentials->hasActiveCredential($user->id()),
-                'recent' => $this->recentPrimary->isRecentFor($user->id()),
-                'canDisable' => $this->configuration->localRequirement === 'optional',
+                'enabled' => $enabled,
+                'active' => $enabled && $this->credentials->hasActiveCredential($user->id()),
+                'recent' => $enabled && $this->recentPrimary->isRecentFor($user->id()),
+                'canDisable' => $enabled && $this->configuration->localRequirement === 'optional',
                 'errorKey' => $errorKey,
                 'noticeKey' => $noticeKey,
                 'secret' => $secret,

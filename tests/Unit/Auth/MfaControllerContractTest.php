@@ -82,9 +82,34 @@ final class MfaControllerContractTest extends TestCase
     }
 
     /**
+     * Returns an informational modal without reading credentials when MFA is disabled
+     */
+    public function testDisabledMfaReturnsInformationalModal(): void
+    {
+        $views = self::createMock(ViewRendererInterface::class);
+        $views->expects(self::once())
+            ->method('content')
+            ->with(
+                'admin-auth::mfa-modal',
+                self::callback(static fn(array $data): bool => $data['enabled'] === false && $data['active'] === false),
+            )
+            ->willReturn('<div data-mfa-unavailable></div>');
+        $fixture = $this->fixture('disabled', false, $views);
+
+        $response = $fixture['controller']->modal(new ServerRequest('GET', '/admin/mfa/modal'));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame([
+            'success' => true,
+            'modalHtml' => '<div data-mfa-unavailable></div>',
+        ], json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR));
+        self::assertSame([], $fixture['connection']->selectCalls);
+    }
+
+    /**
      * @return array{controller:MfaController,connection:MfaModalConnectionDouble}
      */
-    private function fixture(string $requirement, bool $freshPrimary): array
+    private function fixture(string $requirement, bool $freshPrimary, ?ViewRendererInterface $views = null): array
     {
         $session = new MfaModalMemorySession();
         $recentPrimary = new MfaRecentPrimaryAuthenticationStore($session);
@@ -111,8 +136,10 @@ final class MfaControllerContractTest extends TestCase
         $this->set($controller, 'challenges', new MfaLoginChallengeStore($session, new AdminRoutingConfiguration('/admin')));
         $factory = new Psr17Factory();
         $this->set($controller, 'responses', new Responses(new ResponseBuilder($factory, $factory)));
-        $views = self::createStub(ViewRendererInterface::class);
-        $views->method('content')->willReturn('<div></div>');
+        if ($views === null) {
+            $views = self::createStub(ViewRendererInterface::class);
+            $views->method('content')->willReturn('<div></div>');
+        }
         $this->set($controller, 'views', $views);
 
         return ['controller' => $controller, 'connection' => $connection];
@@ -148,11 +175,18 @@ final class MfaControllerContractTest extends TestCase
 
 final class MfaModalConnectionDouble implements ConnectionInterface
 {
+    /**
+     * @var list<string>
+     */
+    public array $selectCalls = [];
+
     /** @var list<string> */
     public array $statementCalls = [];
 
     public function select(string $sql, array $bindings = []): array
     {
+        $this->selectCalls[] = $sql;
+
         return [];
     }
 

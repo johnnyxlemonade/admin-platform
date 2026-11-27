@@ -6,6 +6,9 @@ use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Framework\View\ViewHelpers;
 
 /** @var ViewHelpers $helpers */
+/**
+ * @var bool $enabled
+ */
 /** @var bool $active */
 /** @var bool $recent */
 /** @var bool $canDisable */
@@ -15,13 +18,26 @@ use Lemonade\Framework\View\ViewHelpers;
 /** @var string|null $provisioningUri */
 $completed = $noticeKey === 'auth.mfa.enrolled';
 $enrolling = $secret !== null;
-$titleKey = $completed ? 'auth.mfa.success_title' : ($enrolling && $active ? 'auth.mfa.reenroll_title' : 'auth.mfa.profile_title');
+$titleKey = 'auth.mfa.profile_title';
+$titleIcon = AdminIcon::ShieldLock;
+if (!$enabled) {
+    $titleKey = 'auth.mfa.unavailable_title';
+    $titleIcon = AdminIcon::InfoCircle;
+} elseif ($completed) {
+    $titleKey = 'auth.mfa.success_title';
+    $titleIcon = AdminIcon::CheckCircle;
+} elseif ($enrolling && $active) {
+    $titleKey = 'auth.mfa.reenroll_title';
+}
 ?>
 <header class="lm-modal-header lm-mfa-modal-header">
-    <div class="lm-mfa-modal-title"><span class="lm-mfa-modal-title-icon"><i class="<?= e(($completed ? AdminIcon::CheckCircle : AdminIcon::ShieldLock)->cssClass()) ?>" aria-hidden="true"></i></span><h2 data-lemonade-modal-title data-lemonade-i18n="<?= e($titleKey) ?>"><?= e($helpers->lang($titleKey)) ?></h2></div>
+    <div class="lm-mfa-modal-title"><span class="lm-mfa-modal-title-icon"><i class="<?= e($titleIcon->cssClass()) ?>" aria-hidden="true"></i></span><h2 data-lemonade-modal-title data-lemonade-i18n="<?= e($titleKey) ?>"><?= e($helpers->lang($titleKey)) ?></h2></div>
 </header>
 
-<?php if ($completed): ?>
+<?php if (!$enabled): ?>
+    <section class="lm-modal-body"><div class="lm-mfa-info"><i class="<?= e(AdminIcon::InfoCircle->cssClass()) ?>" aria-hidden="true"></i><span data-lemonade-i18n="auth.mfa.unavailable_description"><?= e($helpers->lang('auth.mfa.unavailable_description')) ?></span></div></section>
+    <footer class="lm-modal-footer"><button class="btn btn-primary lm-button-primary" type="button" data-lemonade-modal-close="cancel" data-lemonade-i18n="auth.common.close"><?= e($helpers->lang('auth.common.close')) ?></button></footer>
+<?php elseif ($completed): ?>
     <section class="lm-modal-body lm-mfa-completed"><span class="lm-mfa-completed-icon"><i class="<?= e(AdminIcon::CheckCircle->cssClass()) ?>" aria-hidden="true"></i></span><h3 data-lemonade-i18n="auth.mfa.success_title"><?= e($helpers->lang('auth.mfa.success_title')) ?></h3><p data-lemonade-i18n="auth.mfa.success_description"><?= e($helpers->lang('auth.mfa.success_description')) ?></p></section>
     <footer class="lm-modal-footer"><button class="btn btn-primary lm-button-primary" type="button" data-lemonade-modal-close="success" data-lemonade-i18n="auth.common.close"><?= e($helpers->lang('auth.common.close')) ?></button></footer>
 <?php elseif (!$recent): ?>

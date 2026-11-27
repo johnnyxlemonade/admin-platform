@@ -83,6 +83,8 @@ return [
         'copy' => 'Kopírovat',
         'enroll_confirm' => 'Potvrdit nastavení',
         'profile_title' => 'Dvoufázové ověření',
+        'unavailable_title' => 'Dvoufázové ověření není dostupné',
+        'unavailable_description' => 'Dvoufázové ověření není v této aplikaci povoleno. Pro jeho aktivaci kontaktujte správce aplikace.',
         'active' => 'Dvoufázové ověření je aktivní.',
         'inactive' => 'Dvoufázové ověření není aktivní.',
         'reauthenticate' => 'Potvrdit heslo',

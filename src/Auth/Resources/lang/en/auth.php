@@ -83,6 +83,8 @@ return [
         'copy' => 'Copy',
         'enroll_confirm' => 'Confirm setup',
         'profile_title' => 'Two-factor authentication',
+        'unavailable_title' => 'Two-factor authentication is not available',
+        'unavailable_description' => 'Two-factor authentication is not enabled in this application. Contact the application administrator to enable it.',
         'active' => 'Two-factor authentication is active.',
         'inactive' => 'Two-factor authentication is not active.',
         'reauthenticate' => 'Confirm password',
