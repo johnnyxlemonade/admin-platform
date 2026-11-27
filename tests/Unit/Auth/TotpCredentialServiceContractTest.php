@@ -16,8 +16,14 @@ use Lemonade\Framework\Security\Totp\TotpSecretGenerator;
 use Lemonade\Framework\Security\Totp\TotpVerifier;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Verifies TOTP credential lifecycle and replay protection
+ */
 final class TotpCredentialServiceContractTest extends TestCase
 {
+    /**
+     * Verifies that consumed or older TOTP steps cannot be reused
+     */
     public function testItLocksCredentialAndRejectsAConsumedOrOlderTimeStep(): void
     {
         $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
@@ -33,6 +39,9 @@ final class TotpCredentialServiceContractTest extends TestCase
         self::assertStringContainsString('FOR UPDATE', $connection->selectCalls[0]);
     }
 
+    /**
+     * Verifies that enrollment confirmation consumes its matching TOTP step
+     */
     public function testEnrollmentConfirmationConsumesItsMatchingStep(): void
     {
         $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
@@ -43,6 +52,9 @@ final class TotpCredentialServiceContractTest extends TestCase
         self::assertTrue($this->service($connection, $cipher, 59)->confirmEnrollment(42, '287082'));
     }
 
+    /**
+     * Verifies the enrollment expiration interval
+     */
     public function testPendingEnrollmentExpiresTenMinutesAfterItStarts(): void
     {
         $connection = $this->connection([]);
@@ -54,6 +66,9 @@ final class TotpCredentialServiceContractTest extends TestCase
         self::assertSame($before + 600, strtotime((string) $bindings[3]));
     }
 
+    /**
+     * Verifies that re-enrollment preserves the active credential until confirmation
+     */
     public function testReEnrollmentKeepsTheActiveCredentialUntilTheNewSecretIsConfirmed(): void
     {
         $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
@@ -80,6 +95,9 @@ final class TotpCredentialServiceContractTest extends TestCase
         self::assertStringContainsString('secret_ciphertext=pending_secret_ciphertext', $confirmationConnection->statementCalls[0]);
     }
 
+    /**
+     * Verifies that an enrollment code cannot complete the following login
+     */
     public function testEnrollmentConfirmationPreventsTheSameTimeStepFromCompletingTheNextLogin(): void
     {
         $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
@@ -96,6 +114,9 @@ final class TotpCredentialServiceContractTest extends TestCase
         self::assertFalse($service->verifyAndConsume(42, '287082'));
     }
 
+    /**
+     * Verifies cleanup of expired pending enrollment state
+     */
     public function testExpiredPendingEnrollmentIsLazilyClearedWithoutActivatingCredential(): void
     {
         $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
@@ -110,6 +131,30 @@ final class TotpCredentialServiceContractTest extends TestCase
         self::assertStringContainsString('pending_secret_ciphertext=NULL', $connection->statementCalls[0]);
     }
 
+    /**
+     * Verifies that the activation timestamp belongs only to an active credential
+     */
+    public function testEnabledAtReturnsOnlyAnActiveCredentialTimestamp(): void
+    {
+        $cipher = MfaSecretCipher::fromKey(str_repeat('a', 32));
+        $active = $this->connection([[
+            'secret_ciphertext' => $cipher->encrypt('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 42),
+            'enabled_at' => '2026-11-27 10:30:00',
+            'enrollment_expires_at' => null,
+        ]]);
+        $pending = $this->connection([[
+            'secret_ciphertext' => null,
+            'enabled_at' => null,
+            'enrollment_expires_at' => null,
+        ]]);
+
+        self::assertSame('2026-11-27 10:30:00', $this->service($active, $cipher, 59)->enabledAt(42));
+        self::assertNull($this->service($pending, $cipher, 59)->enabledAt(42));
+    }
+
+    /**
+     * Verifies complete credential revocation and timestamp persistence
+     */
     public function testRevokeClearsAllCredentialStatesAndRecordsTheRevocationTime(): void
     {
         $connection = $this->connection([]);
@@ -124,13 +169,18 @@ final class TotpCredentialServiceContractTest extends TestCase
     }
 
     /**
-     * @param list<array<string,mixed>> $rows
+     * Creates a connection double seeded with credential rows
+     *
+     * @param list<array<string, mixed>> $rows
      */
     private function connection(array $rows): TotpConnectionDouble
     {
         return new TotpConnectionDouble($rows);
     }
 
+    /**
+     * Creates the credential service with a deterministic verification clock
+     */
     private function service(ConnectionInterface $connection, MfaSecretCipher $cipher, int $timestamp): TotpCredentialService
     {
         $clock = self::createStub(ClockInterface::class);
@@ -148,18 +198,29 @@ final class TotpCredentialServiceContractTest extends TestCase
     }
 }
 
+/**
+ * Emulates the persistence transitions used by the TOTP credential service
+ */
 final class TotpConnectionDouble implements ConnectionInterface
 {
-    /** @var list<string> */
+    /**
+     * @var list<string>
+     */
     public array $selectCalls = [];
 
-    /** @var list<string> */
+    /**
+     * @var list<string>
+     */
     public array $statementCalls = [];
 
-    /** @var list<array<array-key,mixed>> */
+    /**
+     * @var list<array<array-key, mixed>>
+     */
     public array $statementBindings = [];
 
-    /** @param list<array<string,mixed>> $rows */
+    /**
+     * @param list<array<string, mixed>> $rows
+     */
     public function __construct(private array $rows) {}
 
     public function select(string $sql, array $bindings = []): array
@@ -178,6 +239,7 @@ final class TotpConnectionDouble implements ConnectionInterface
             if ($this->rows === []) {
                 $this->rows[] = [];
             }
+
             $this->rows[0]['pending_secret_ciphertext'] = $bindings[1];
             $this->rows[0]['enrollment_expires_at'] = $bindings[3];
         }

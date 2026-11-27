@@ -1,0 +1,535 @@
+@use "../abstracts/mixins" as mixins;
+
+.admin-shell .lm-user-profile {
+    width: 100%;
+    min-width: 0;
+}
+
+.admin-shell .lm-user-profile-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--lm-space-5);
+    margin-bottom: var(--lm-space-6);
+}
+
+.admin-shell .lm-user-profile-heading h1,
+.admin-shell .lm-user-profile-heading p {
+    margin: 0;
+}
+
+.admin-shell .lm-user-profile-heading h1 {
+    margin-top: var(--lm-space-1);
+    color: var(--lm-text-strong);
+    font-size: var(--lm-font-size-page-title);
+    font-weight: var(--lm-font-weight-bold);
+    line-height: var(--lm-line-height-heading);
+    letter-spacing: -1px;
+}
+
+.admin-shell .lm-user-profile-heading > div > p,
+.admin-shell .lm-user-profile-heading > div > span {
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-user-profile-heading > div > span {
+    font-size: var(--lm-font-size-13);
+}
+
+.admin-shell .lm-user-profile-layout {
+    display: flex;
+    align-items: start;
+    gap: var(--lm-space-5);
+}
+
+.admin-shell .lm-user-profile-aside,
+.admin-shell .lm-user-profile-content {
+    min-width: 0;
+}
+
+.admin-shell .lm-user-profile-aside {
+    flex: 0 0 clamp(280px, 20vw, 360px);
+    overflow: hidden;
+    border: 1px solid var(--lm-card-border);
+    border-radius: var(--lm-radius-xl);
+    background: var(--lm-surface);
+    box-shadow: var(--lm-shadow-sm);
+}
+
+.admin-shell .lm-user-profile-card {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: var(--lm-space-6) var(--lm-space-5) var(--lm-space-5);
+    text-align: center;
+}
+
+.admin-shell .lm-user-profile-card > strong {
+    margin-top: var(--lm-space-3);
+    color: var(--lm-text-heading);
+    font-size: var(--lm-font-size-18);
+}
+
+.admin-shell .lm-user-profile-avatar {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: var(--lm-space-2);
+}
+
+.admin-shell .lm-user-profile-avatar .lm-thumbnail {
+    margin: 0;
+}
+
+.admin-shell .lm-user-profile-avatar .lm-avatar-upload-progress {
+    display: none;
+}
+
+.admin-shell .lm-user-profile-role {
+    margin-top: var(--lm-space-1);
+    color: var(--lm-text-muted);
+    font-size: var(--lm-font-size-13);
+}
+
+.admin-shell .lm-user-profile-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 11px;
+    margin-top: var(--lm-space-3);
+    border-radius: var(--lm-radius-pill);
+    color: var(--lm-text-muted);
+    background: var(--lm-surface-soft);
+    font-size: var(--lm-font-size-13);
+    font-weight: var(--lm-font-weight-semibold);
+}
+
+.admin-shell .lm-user-profile-status::before {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--lm-radius-circle);
+    background: currentColor;
+    content: "";
+}
+
+.admin-shell .lm-user-profile-status.is-active {
+    color: var(--lm-success);
+    background: var(--lm-success-bg);
+}
+
+.admin-shell .lm-user-profile-navigation {
+    display: flex;
+    flex-direction: column;
+    gap: var(--lm-space-1);
+    padding: var(--lm-space-4);
+    border-top: 1px solid var(--lm-line);
+}
+
+.admin-shell .lm-user-profile-navigation a {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-3);
+    padding: 11px 13px;
+    border-radius: var(--lm-radius-md);
+    color: var(--lm-text-secondary);
+    font-weight: var(--lm-font-weight-medium);
+    text-decoration: none;
+}
+
+.admin-shell .lm-user-profile-navigation a:hover,
+.admin-shell .lm-user-profile-navigation a:focus-visible {
+    color: var(--lm-primary);
+    background: var(--lm-surface-hover);
+}
+
+.admin-shell .lm-user-profile-navigation a.is-active {
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-weight: var(--lm-font-weight-semibold);
+}
+
+.admin-shell .lm-user-profile-navigation i {
+    font-size: var(--lm-icon-size-20);
+}
+
+.admin-shell .lm-user-profile-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--lm-space-5);
+}
+
+.admin-shell .lm-user-profile-panel {
+    padding: clamp(20px, 2vw, 30px);
+    border: 1px solid var(--lm-card-border);
+    border-radius: var(--lm-radius-xl);
+    background: var(--lm-surface);
+    box-shadow: var(--lm-shadow-sm);
+}
+
+.admin-shell .lm-user-profile-section-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-4);
+    margin-bottom: var(--lm-space-5);
+}
+
+.admin-shell .lm-user-profile-section-heading > i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--lm-radius-lg);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: var(--lm-icon-size-24);
+}
+
+.admin-shell .lm-user-profile-section-heading h2,
+.admin-shell .lm-user-profile-section-heading p {
+    margin: 0;
+}
+
+.admin-shell .lm-user-profile-section-heading h2 {
+    color: var(--lm-text-heading);
+    font-size: var(--lm-font-size-20);
+}
+
+.admin-shell .lm-user-profile-section-heading p {
+    margin-top: 2px;
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-user-profile-panel .admin-editor,
+.admin-shell .lm-user-profile-panel .admin-editor form,
+.admin-shell .lm-user-profile-panel .admin-editor-content,
+.admin-shell .lm-user-profile-panel .admin-editor-main {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.admin-shell .lm-user-profile-panel .admin-editor-tabs > .lm-tabs-list {
+    display: none;
+}
+
+.admin-shell .lm-user-profile-panel .admin-editor-section-title,
+.admin-shell .lm-user-profile-panel .admin-editor-section-description {
+    display: none;
+}
+
+.admin-shell .lm-user-profile-panel .admin-editor-section {
+    margin: 0 !important;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.admin-shell .lm-user-profile-panel .admin-editor-section > .card-body {
+    padding: 0;
+}
+
+.admin-shell .lm-user-profile-metadata {
+    margin: 0;
+}
+
+.admin-shell .lm-user-profile-metadata > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--lm-space-4);
+    padding: var(--lm-space-3) var(--lm-space-2);
+    border-top: 1px solid var(--lm-line-subtle);
+}
+
+.admin-shell .lm-user-profile-metadata dt,
+.admin-shell .lm-user-profile-metadata dd {
+    flex: 1 1 50%;
+    margin: 0;
+}
+
+.admin-shell .lm-user-profile-metadata dt {
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-user-profile-metadata dd {
+    color: var(--lm-text-heading);
+    font-weight: var(--lm-font-weight-medium);
+    text-align: right;
+}
+
+.admin-shell .lm-user-profile-password-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--lm-space-4);
+}
+
+.admin-shell .lm-user-profile-password-form > div:not(.lm-user-profile-security-footer) {
+    flex: 1 1 240px;
+}
+
+.admin-shell .lm-user-profile-security-footer {
+    display: flex;
+    flex: 1 0 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--lm-space-4);
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-user-profile-mfa-card {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-4);
+}
+
+.admin-shell .lm-user-profile-mfa-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--lm-radius-lg);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: var(--lm-icon-size-24);
+}
+
+.admin-shell .lm-user-profile-mfa-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--lm-space-2);
+    flex: 1 1 320px;
+    min-width: 0;
+}
+
+.admin-shell .lm-user-profile-mfa-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--lm-space-3);
+}
+
+.admin-shell .lm-user-profile-mfa-title h2,
+.admin-shell .lm-user-profile-mfa-content p {
+    margin: 0;
+}
+
+.admin-shell .lm-user-profile-mfa-title h2 {
+    color: var(--lm-text-heading);
+    font-size: var(--lm-font-size-20);
+}
+
+.admin-shell .lm-user-profile-mfa-content p,
+.admin-shell .lm-user-profile-mfa-content small {
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-user-profile-mfa-card > .btn {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.admin-shell .lm-user-profile-preference {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-5);
+    padding: var(--lm-space-4) 0;
+    border-top: 1px solid var(--lm-line-subtle);
+}
+
+.admin-shell .lm-user-profile-preference > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-shell .lm-user-profile-preference > div {
+    flex: 1 1 50%;
+    min-width: 0;
+}
+
+.admin-shell .lm-user-profile-preference > div:first-child span {
+    color: var(--lm-text-muted);
+}
+
+.admin-shell .lm-user-profile-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--lm-space-3);
+}
+
+.admin-shell .lm-user-profile-options button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--lm-space-2);
+    min-height: 46px;
+    padding: var(--lm-space-2) var(--lm-space-3);
+    border: 1px solid var(--lm-form-border);
+    border-radius: var(--lm-radius-md);
+    color: var(--lm-text-secondary);
+    background: var(--lm-surface);
+    flex: 1 1 140px;
+}
+
+.admin-shell .lm-user-profile-options button:hover,
+.admin-shell .lm-user-profile-options button.is-active {
+    border-color: var(--lm-primary);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+}
+
+.admin-shell .lm-user-profile-options button > i:last-child {
+    margin-left: auto;
+}
+
+.admin-shell .lm-user-profile-activity {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.admin-shell .lm-user-profile-activity li {
+    display: flex;
+    align-items: center;
+    gap: var(--lm-space-4);
+    padding: var(--lm-space-4) 0;
+    border-top: 1px solid var(--lm-line-subtle);
+}
+
+.admin-shell .lm-user-profile-activity-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    border-radius: var(--lm-radius-lg);
+    color: var(--lm-primary);
+    background: var(--lm-primary-soft);
+    font-size: var(--lm-icon-size-20);
+}
+
+.admin-shell .lm-user-profile-activity li > div {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.admin-shell .lm-user-profile-activity time {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.admin-shell .lm-user-profile-activity li > div span,
+.admin-shell .lm-user-profile-activity time {
+    color: var(--lm-text-muted);
+    font-size: var(--lm-font-size-13);
+}
+
+.admin-shell .lm-user-profile-empty {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: var(--lm-space-2);
+    padding: var(--lm-space-6);
+    color: var(--lm-text-muted);
+    text-align: center;
+}
+
+.admin-shell .lm-user-profile-empty i {
+    color: var(--lm-primary);
+    font-size: var(--lm-icon-size-30);
+}
+
+@include mixins.lm-breakpoint-down(xl) {
+    .admin-shell .lm-user-profile-aside {
+        flex-basis: 280px;
+    }
+
+    .admin-shell .lm-user-profile-password-form,
+    .admin-shell .lm-user-profile-preference {
+        flex-direction: column;
+    }
+
+    .admin-shell .lm-user-profile-preference > div {
+        width: 100%;
+    }
+}
+
+@include mixins.lm-breakpoint-down(lg) {
+    .admin-shell .lm-user-profile-layout {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-shell .lm-user-profile-navigation {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .admin-shell .lm-user-profile-navigation a {
+        flex: 1 1 180px;
+        justify-content: center;
+    }
+
+    .admin-shell .lm-user-profile-aside {
+        flex-basis: auto;
+    }
+}
+
+@include mixins.lm-breakpoint-down(md) {
+    .admin-shell .lm-user-profile-heading,
+    .admin-shell .lm-user-profile-security-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-shell .lm-user-profile-navigation {
+        flex-direction: column;
+    }
+
+    .admin-shell .lm-user-profile-metadata > div {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-shell .lm-user-profile-metadata dt,
+    .admin-shell .lm-user-profile-metadata dd {
+        flex-basis: auto;
+        text-align: left;
+    }
+
+    .admin-shell .lm-user-profile-activity li {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .admin-shell .lm-user-profile-activity time {
+        width: calc(100% - 58px);
+        margin-left: 58px;
+    }
+
+    .admin-shell .lm-user-profile-mfa-card {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .admin-shell .lm-user-profile-mfa-card > .btn {
+        margin-left: calc(52px + var(--lm-space-4));
+    }
+}
+
+@include mixins.lm-breakpoint-down(sm) {
+    .admin-shell .lm-user-profile-mfa-card > .btn {
+        justify-content: center;
+        width: 100%;
+        margin-left: 0;
+    }
+}

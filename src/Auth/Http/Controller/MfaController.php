@@ -6,6 +6,7 @@ namespace Lemonade\Admin\Auth\Http\Controller;
 
 use Lemonade\Admin\Audit\AuditActor;
 use Lemonade\Admin\Audit\AuditLogWriterInterface;
+use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Auth\AuthenticationService;
 use Lemonade\Admin\Auth\AuthenticationThrottler;
 use Lemonade\Admin\Auth\AuthPageRenderer;
@@ -22,24 +23,25 @@ use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Admin\Presentation\AdminBranding;
 use Lemonade\Admin\Routing\AdminRoutingConfiguration;
 use Lemonade\Framework\Core\Http\RequestData;
-use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
+use Lemonade\Framework\Http\HttpStatus;
 use Lemonade\Framework\Http\Request\HttpRequestInspector;
 use Lemonade\Framework\Http\Response\Responses;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Security\Csrf\CsrfViewHelper;
 use Lemonade\Framework\Security\Totp\TotpConfiguration;
 use Lemonade\Framework\Security\Totp\TotpProvisioningUriFactory;
+use Lemonade\Framework\Security\Totp\TotpSecret;
 use Lemonade\Framework\View\ViewRendererInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Obsluhuje anonymni challenge i self-service local TOTP lifecycle
+ * Handles anonymous MFA challenges and the self-service local TOTP lifecycle
  */
 final readonly class MfaController
 {
     /**
-     * Nastavuje MFA workflow, aktualni identitu a auth presentation zavislosti
+     * Creates the MFA controller with its authentication and presentation dependencies
      */
     public function __construct(
         private AdminMfaConfiguration $configuration,
@@ -65,11 +67,12 @@ final readonly class MfaController
     ) {}
 
     /**
-     * Zobrazi anonymni TOTP challenge pouze pro platny pending login
+     * Displays the TOTP challenge for a valid pending login
      */
     public function challenge(ServerRequestInterface $request): ResponseInterface
     {
         $challenge = $this->challenges->current();
+
         if (!$this->configuration->enabled() || $challenge === null) {
             return $this->responses->redirect($this->routing->path('/login'));
         }
@@ -82,16 +85,18 @@ final readonly class MfaController
     }
 
     /**
-     * Overi challenge kod a teprve potom zalozi canonical identity session
+     * Verifies the challenge code before establishing the authenticated session
      */
     public function verifyChallenge(ServerRequestInterface $request): ResponseInterface
     {
         $challenge = $this->challenges->current();
+
         if (!$this->configuration->enabled() || $challenge === null || $challenge['kind'] !== 'verify') {
             return $this->redirect($request, $this->routing->path('/login'));
         }
 
         $limit = $this->throttler->mfaStatus($request, $challenge['userId']);
+
         if (!$limit->allowed()) {
             $this->challenges->clear();
 
@@ -100,6 +105,7 @@ final readonly class MfaController
 
         $code = (string) (new RequestData($request))->post('code', '');
         $user = $this->mfa->eligibleUser($challenge['userId']);
+
         if ($user === null) {
             $this->challenges->clear();
 
@@ -108,6 +114,7 @@ final readonly class MfaController
 
         if (!$this->credentials->verifyAndConsume($challenge['userId'], $code)) {
             $limit = $this->throttler->failedMfa($request, $challenge['userId']);
+
             if (!$limit->allowed()) {
                 $this->challenges->clear();
                 $this->auditFailure('system.authentication.mfa_throttled', 'rate_limited');
@@ -128,42 +135,50 @@ final readonly class MfaController
     }
 
     /**
-     * Zobrazi forced enrollment jako soucast dosud neautentizovaneho loginu
+     * Displays required enrollment during an unauthenticated login
      */
     public function loginEnrollment(ServerRequestInterface $request): ResponseInterface
     {
         $challenge = $this->challenges->current();
+
         if (!$this->configuration->enabled() || $challenge === null || $challenge['kind'] !== 'enroll') {
             return $this->responses->redirect($this->routing->path('/login'));
         }
 
-        return $this->renderEnrollment($request, $challenge['userId'], false);
+        return $this->renderEnrollment($request, $challenge['userId']);
     }
 
     /**
-     * Zalozi nebo nahradi forced enrollment secret bez zalozeni user session
+     * Starts or replaces required enrollment without establishing a user session
      */
     public function startLoginEnrollment(ServerRequestInterface $request): ResponseInterface
     {
         $challenge = $this->challenges->current();
+
         if (!$this->configuration->enabled() || $challenge === null || $challenge['kind'] !== 'enroll') {
             return $this->responses->redirect($this->routing->path('/login'));
         }
 
-        return $this->renderEnrollment($request, $challenge['userId'], false, true);
+        return $this->renderEnrollment(
+            request: $request,
+            userId: $challenge['userId'],
+            start: true,
+        );
     }
 
     /**
-     * Potvrdi forced enrollment, znovu overi lifecycle a dokonci canonical login
+     * Confirms required enrollment and completes the authenticated login
      */
     public function confirmLoginEnrollment(ServerRequestInterface $request): ResponseInterface
     {
         $challenge = $this->challenges->current();
+
         if (!$this->configuration->enabled() || $challenge === null || $challenge['kind'] !== 'enroll') {
             return $this->responses->redirect($this->routing->path('/login'));
         }
 
         $limit = $this->throttler->mfaStatus($request, $challenge['userId']);
+
         if (!$limit->allowed()) {
             $this->challenges->clear();
 
@@ -172,6 +187,7 @@ final readonly class MfaController
 
         if (!$this->credentials->confirmEnrollment($challenge['userId'], (string) (new RequestData($request))->post('code', ''))) {
             $limit = $this->throttler->failedMfa($request, $challenge['userId']);
+
             if (!$limit->allowed()) {
                 $this->challenges->clear();
                 $this->auditFailure('system.authentication.mfa_throttled', 'rate_limited');
@@ -181,9 +197,16 @@ final readonly class MfaController
 
             $this->auditFailure('system.authentication.mfa_failed', 'invalid_code');
 
-            return $this->renderEnrollment($request, $challenge['userId'], false, false, 'auth.mfa.errors.invalid', 422);
+            return $this->renderEnrollment(
+                request: $request,
+                userId: $challenge['userId'],
+                errorKey: 'auth.mfa.errors.invalid',
+                status: HttpStatus::UNPROCESSABLE_ENTITY,
+            );
         }
+
         $user = $this->mfa->eligibleUser($challenge['userId']);
+
         if ($user === null) {
             $this->challenges->clear();
 
@@ -199,23 +222,25 @@ final readonly class MfaController
     }
 
     /**
-     * Vraci obsah self-service MFA modalu pouze pro aktualniho prihlaseneho uzivatele
+     * Returns the self-service MFA modal for the current user
      */
-    public function modal(ServerRequestInterface $request): ResponseInterface
+    public function modal(): ResponseInterface
     {
-        unset($request);
-
         return $this->modalResponse();
     }
 
     /**
-     * Overi aktualni local password pred citlivou MFA zmenou v modalu
+     * Verifies the current local password before a sensitive MFA change
      */
     public function reauthenticateModal(ServerRequestInterface $request): ResponseInterface
     {
         $user = $this->currentUser->currentUser();
         $password = (string) (new RequestData($request))->post('password', '');
-        if ($user === null || $this->authentication->authenticateLocal($user->email(), $password)->user()?->id() !== $user->id()) {
+
+        if (
+            $user === null
+            || $this->authentication->authenticateLocal($user->email(), $password)->user()?->id() !== $user->id()
+        ) {
             return $this->modalResponse(errorKey: 'auth.errors.invalid');
         }
 
@@ -225,30 +250,38 @@ final readonly class MfaController
     }
 
     /**
-     * Vytvori novy TOTP secret jen po cerstvem potvrzeni primarni autentizace
+     * Creates a TOTP secret after recent primary authentication
      */
-    public function startModalEnrollment(ServerRequestInterface $request): ResponseInterface
+    public function startModalEnrollment(): ResponseInterface
     {
         $user = $this->currentUser->currentUser();
+
         if ($user === null || !$this->recentPrimary->isRecentFor($user->id())) {
             return $this->modalResponse(errorKey: 'auth.mfa.errors.reauthenticate_required');
         }
 
         $secret = $this->credentials->beginEnrollment($user->id());
 
-        return $this->modalResponse(secret: $secret->toBase32(), provisioningUri: $this->provisioningUris->create($this->configuration->issuer ?? '', $user->email(), $secret, new TotpConfiguration()));
+        return $this->modalResponse(
+            secret: $secret->toBase32(),
+            provisioningUri: $this->provisioningUri($user, $secret),
+        );
     }
 
     /**
-     * Potvrdi nove MFA nastaveni pouze pro aktualniho uzivatele po cerstvem hesle
+     * Confirms new MFA enrollment after recent primary authentication
      */
     public function confirmModalEnrollment(ServerRequestInterface $request): ResponseInterface
     {
         $user = $this->currentUser->currentUser();
+
         if ($user === null || !$this->recentPrimary->isRecentFor($user->id())) {
             return $this->modalResponse(errorKey: 'auth.mfa.errors.reauthenticate_required');
         }
-        if (!$this->credentials->confirmEnrollment($user->id(), (string) (new RequestData($request))->post('code', ''))) {
+
+        $code = (string) (new RequestData($request))->post('code', '');
+
+        if (!$this->credentials->confirmEnrollment($user->id(), $code)) {
             return $this->modalResponse(errorKey: 'auth.mfa.errors.invalid');
         }
 
@@ -258,12 +291,17 @@ final readonly class MfaController
     }
 
     /**
-     * Zrusi vlastni credential pouze v optional policy a po cerstvem hesle
+     * Revokes the current user's credential when optional MFA policy permits it
      */
-    public function disableModal(ServerRequestInterface $request): ResponseInterface
+    public function disableModal(): ResponseInterface
     {
         $user = $this->currentUser->currentUser();
-        if ($user === null || $this->configuration->localRequirement !== 'optional' || !$this->recentPrimary->isRecentFor($user->id())) {
+
+        if (
+            $user === null
+            || $this->configuration->localRequirement !== 'optional'
+            || !$this->recentPrimary->isRecentFor($user->id())
+        ) {
             return $this->modalResponse(errorKey: 'auth.mfa.errors.disable_not_allowed');
         }
 
@@ -274,49 +312,59 @@ final readonly class MfaController
     }
 
     /**
-     * Vykresli enrollment s novym secret pouze pri explicitnim startu
+     * Renders enrollment and creates a secret only when explicitly requested
      */
     private function renderEnrollment(
         ServerRequestInterface $request,
         int $userId,
-        bool $profile,
         bool $start = false,
         ?string $errorKey = null,
-        int $status = HttpStatusCode::OK->value,
+        HttpStatus $status = HttpStatus::OK,
         ?string $errorMessage = null,
     ): ResponseInterface {
         $secret = $start ? $this->credentials->beginEnrollment($userId) : null;
         $user = $this->mfa->eligibleUser($userId);
+
         if ($user === null) {
             return $this->responses->redirect($this->routing->path('/login'));
         }
 
-        return $this->render($request, 'admin-auth::mfa-enroll', [
-            'profile' => $profile,
-            'secret' => $secret?->toBase32(),
-            'provisioningUri' => $secret === null ? null : $this->provisioningUris->create($this->configuration->issuer ?? '', $user->email(), $secret, new TotpConfiguration()),
-            'errorKey' => $errorKey,
-            'errorMessage' => $errorMessage,
-        ], $status);
+        return $this->render(
+            $request,
+            'admin-auth::mfa-enroll',
+            [
+                'secret' => $secret?->toBase32(),
+                'provisioningUri' => $secret === null
+                    ? null
+                    : $this->provisioningUri($user, $secret),
+                'errorKey' => $errorKey,
+                'errorMessage' => $errorMessage,
+            ],
+            $status,
+        );
     }
 
     /**
-     * Vykresli auth layout s MFA lokalizaci a brandingem
+     * Renders the authentication layout with MFA localization and branding
      *
-     * @param array<string,mixed> $data
+     * @param array<string, mixed> $data
      */
-    private function render(ServerRequestInterface $request, string $view, array $data, int $status = 200): ResponseInterface
-    {
+    private function render(
+        ServerRequestInterface $request,
+        string $view,
+        array $data,
+        HttpStatus $status = HttpStatus::OK,
+    ): ResponseInterface {
         return $this->pages->render($view, [
             ...$data,
             'title' => $this->branding->applicationName() . ' – ' . $this->translator->get('auth.mfa.title'),
             'locale' => $this->uiLocale->activate(null, (string) (new RequestData($request))->cookie('lemonade_locale', '')),
             'clientTranslationVersion' => $this->translationVersion,
-        ], $status);
+        ], $status->value);
     }
 
     /**
-     * Vraci stejnou navigaci pro HTML fallback i JSON auth transport
+     * Returns equivalent navigation for HTML and JSON authentication transports
      */
     private function redirect(ServerRequestInterface $request, string $destination): ResponseInterface
     {
@@ -331,68 +379,64 @@ final readonly class MfaController
     }
 
     /**
-     * Vraci neplatny MFA kod do stejneho inline auth feedback kontraktu
+     * Returns an invalid MFA code through the inline authentication feedback contract
      */
     private function failedChallenge(ServerRequestInterface $request): ResponseInterface
     {
         $errorKey = 'auth.mfa.errors.invalid';
+
         if (!$this->requests->wantsJson($request)) {
-            return $this->render($request, 'admin-auth::mfa', ['errorKey' => $errorKey, 'errorMessage' => null], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
+            return $this->render(
+                $request,
+                'admin-auth::mfa',
+                ['errorKey' => $errorKey, 'errorMessage' => null],
+                HttpStatus::UNPROCESSABLE_ENTITY,
+            );
         }
 
         $message = $this->translator->get($errorKey);
 
-        return $this->responses->json([
-            'success' => false,
-            'errors' => ['code' => $message],
-            'message' => $message,
-            'csrf' => [
-                'name' => $this->csrf->fieldName(),
-                'value' => $this->csrf->token(),
-            ],
-        ], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
+        return $this->challengeFailureResponse($message, HttpStatus::UNPROCESSABLE_ENTITY);
     }
 
     /**
-     * Vraci rate-limit odpoved s lokalizovanym casem do dalsiho MFA challenge pokusu
+     * Returns a rate-limit response for the next MFA challenge attempt
      */
     private function throttledChallenge(ServerRequestInterface $request, int $retryAfterSeconds): ResponseInterface
     {
         $errorKey = 'auth.mfa.errors.throttled';
         $message = $this->throttledMessage($errorKey, $retryAfterSeconds);
+
         if (!$this->requests->wantsJson($request)) {
-            return $this->render($request, 'admin-auth::mfa', ['errorKey' => $errorKey, 'errorMessage' => $message], HttpStatusCode::TOO_MANY_REQUESTS->value)
+            return $this->render(
+                $request,
+                'admin-auth::mfa',
+                ['errorKey' => $errorKey, 'errorMessage' => $message],
+                HttpStatus::TOO_MANY_REQUESTS,
+            )
                 ->withHeader('Retry-After', (string) $retryAfterSeconds);
         }
 
-        return $this->responses->json([
-            'success' => false,
-            'errors' => ['code' => $message],
-            'message' => $message,
-            'csrf' => [
-                'name' => $this->csrf->fieldName(),
-                'value' => $this->csrf->token(),
-            ],
-        ], HttpStatusCode::TOO_MANY_REQUESTS->value)->withHeader('Retry-After', (string) $retryAfterSeconds);
+        return $this->challengeFailureResponse($message, HttpStatus::TOO_MANY_REQUESTS)
+            ->withHeader('Retry-After', (string) $retryAfterSeconds);
     }
 
     /**
-     * Vraci rate-limit odpoved s lokalizovanym casem do dalsiho MFA enrollment pokusu
+     * Returns a rate-limit response for the next MFA enrollment attempt
      */
     private function throttledEnrollment(ServerRequestInterface $request, int $userId, int $retryAfterSeconds): ResponseInterface
     {
         return $this->renderEnrollment(
             request: $request,
             userId: $userId,
-            profile: false,
             errorKey: 'auth.mfa.errors.throttled',
-            status: HttpStatusCode::TOO_MANY_REQUESTS->value,
+            status: HttpStatus::TOO_MANY_REQUESTS,
             errorMessage: $this->throttledMessage('auth.mfa.errors.throttled', $retryAfterSeconds),
         )->withHeader('Retry-After', (string) $retryAfterSeconds);
     }
 
     /**
-     * Vrati lokalizovany cas do odemknuti limitovaneho MFA flow
+     * Returns the localized delay before another MFA attempt is allowed
      */
     private function throttledMessage(string $key, int $retryAfterSeconds): string
     {
@@ -404,32 +448,66 @@ final readonly class MfaController
     }
 
     /**
-     * Zapise anonymni MFA failure bez identifikatoru nebo TOTP hodnoty
+     * Creates the JSON response shared by failed MFA challenge attempts
+     */
+    private function challengeFailureResponse(string $message, HttpStatus $status): ResponseInterface
+    {
+        return $this->responses->json([
+            'success' => false,
+            'errors' => ['code' => $message],
+            'message' => $message,
+            'csrf' => [
+                'name' => $this->csrf->fieldName(),
+                'value' => $this->csrf->token(),
+            ],
+        ], $status->value);
+    }
+
+    /**
+     * Creates a provisioning URI for the current TOTP enrollment
+     */
+    private function provisioningUri(AuthenticatedUser $user, TotpSecret $secret): string
+    {
+        return $this->provisioningUris->create(
+            $this->configuration->issuer ?? '',
+            $user->email(),
+            $secret,
+            new TotpConfiguration(),
+        );
+    }
+
+    /**
+     * Records an anonymous MFA failure without an identifier or TOTP value
      */
     private function auditFailure(string $eventCode, string $reason): void
     {
         $this->audit->record(
             new DomainEvent(
-                $eventCode,
-                'system.authentication',
-                'authentication',
-                'totp',
-                ['method' => 'totp', 'reason' => $reason],
+                code: $eventCode,
+                moduleCode: 'system.authentication',
+                entityType: 'authentication',
+                entityKey: 'totp',
+                payload: ['method' => 'totp', 'reason' => $reason],
             ),
             AuditActor::anonymous('admin-auth'),
         );
     }
 
     /**
-     * Sestavi JSON odpoved s obsahem sdileneho Admin modalu
+     * Creates a JSON response containing the shared Admin modal
      */
-    private function modalResponse(?string $errorKey = null, ?string $noticeKey = null, ?string $secret = null, ?string $provisioningUri = null): ResponseInterface
-    {
+    private function modalResponse(
+        ?string $errorKey = null,
+        ?string $noticeKey = null,
+        ?string $secret = null,
+        ?string $provisioningUri = null,
+    ): ResponseInterface {
         $user = $this->currentUser->currentUser();
+
         if ($user === null) {
             return $this->responses->json(
                 ['success' => false],
-                HttpStatusCode::FORBIDDEN->value,
+                HttpStatus::FORBIDDEN->value,
             );
         }
 
@@ -451,7 +529,7 @@ final readonly class MfaController
     }
 
     /**
-     * Vraci pouze provereny interni cil nebo root administrace
+     * Returns a verified internal destination or the Admin root
      */
     private function safeDestination(?string $destination): string
     {

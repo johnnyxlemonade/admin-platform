@@ -30,44 +30,47 @@ use Lemonade\Admin\System\Users\Exceptions\UserSafetyException;
 use Lemonade\Admin\System\Users\Models\UserModel;
 use Lemonade\Admin\System\Users\Models\UserPermissionOverrideModel;
 use Lemonade\Admin\System\Users\Models\UserRoleModel;
+use Lemonade\Admin\System\Users\Validation\UserPasswordPolicy;
 use RuntimeException;
 
 /**
- * Ridi uzivatelske mutace, role assignmenty, permission overrides a bezpecnostni invarianty
+ * Manages user mutations, role assignments, permission overrides, and safety invariants
  */
-final class UserService
+final readonly class UserService
 {
     /**
-     * Nastavuje persistenci, delegaci, authorization a auditovanou transakci mutaci
+     * Creates the audited user mutation service
      */
     public function __construct(
-        private readonly UserModel $users,
-        private readonly UserRoleModel $roles,
-        private readonly UserPermissionOverrideModel $permissionOverrides,
-        private readonly CurrentUserProvider $currentUser,
-        private readonly AuthorizationDelegationPolicy $delegation,
-        private readonly AuthorizationService $authorization,
-        private readonly PermissionOverrideNormalizer $overrideNormalizer,
-        private readonly PermissionDependencyResolver $dependencies,
-        private readonly TransactionalEventProcessor $events,
-        private readonly EditorLockManager $locks,
-        private readonly LocalActorGuard $actors,
-        private readonly ExternalIdentityRepository $identities,
-        private readonly ?AuthorizationTargetPolicy $targets = null,
-        private readonly ?TotpCredentialService $mfaCredentials = null,
-        private readonly ?MfaAuthenticationService $mfa = null,
+        private UserModel $users,
+        private UserRoleModel $roles,
+        private UserPermissionOverrideModel $permissionOverrides,
+        private CurrentUserProvider $currentUser,
+        private AuthorizationDelegationPolicy $delegation,
+        private AuthorizationService $authorization,
+        private PermissionOverrideNormalizer $overrideNormalizer,
+        private PermissionDependencyResolver $dependencies,
+        private TransactionalEventProcessor $events,
+        private EditorLockManager $locks,
+        private LocalActorGuard $actors,
+        private ExternalIdentityRepository $identities,
+        private ?AuthorizationTargetPolicy $targets = null,
+        private ?TotpCredentialService $mfaCredentials = null,
+        private ?MfaAuthenticationService $mfa = null,
     ) {}
 
     /**
-     * Zrusi TOTP credential ciloveho uzivatele po overeni cilove authorization policy
+     * Revokes a target user's TOTP credential after authorization
      */
     public function resetMfa(int $id, AuthenticatedUser $actor): bool
     {
         $target = $this->user($id);
         $targetUser = new AuthenticatedUser((int) $target['id'], (string) $target['email']);
+
         if ($this->targets === null || $this->mfaCredentials === null || $this->mfa === null || !$this->targets->canTargetUser($actor, $targetUser)) {
             throw new UserSafetyException('users.validation.mfa_target_not_allowed');
         }
+
         if (!$this->mfaCredentials->hasActiveCredential($id)) {
             return false;
         }
@@ -79,9 +82,9 @@ final class UserService
     }
 
     /**
-     * Nacita uzivatele s jeho aktivnimi rolemi a informaci o externi identite
+     * Returns a user with active roles and external identity information
      *
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
     public function detail(int $id): array
     {
@@ -94,9 +97,9 @@ final class UserService
     }
 
     /**
-     * Poskytuje aktivni role pro filtr a presentation assignmentu
+     * Returns active roles for filtering and assignment presentation
      *
-     * @return list<array{id:int,code:string,name:string,is_super_admin:int}>
+     * @return list<array{id: int, code: string, name: string, is_super_admin: int}>
      */
     public function roles(): array
     {
@@ -104,13 +107,14 @@ final class UserService
     }
 
     /**
-     * Filtruje aktivni role na role delegovatelne aktualnim actorem
+     * Returns active roles delegable by the current actor
      *
-     * @return list<array{id:int,code:string,name:string,is_super_admin:int}>
+     * @return list<array{id: int, code: string, name: string, is_super_admin: int}>
      */
     public function assignableRoles(): array
     {
         $actor = $this->currentUser->currentUser();
+
         if ($actor === null) {
             return [];
         }
@@ -122,7 +126,7 @@ final class UserService
     }
 
     /**
-     * Overuje delegovatelnost role pro aktualniho actora
+     * Reports whether the current actor can assign a role
      */
     public function currentUserCanAssignRole(int $roleId): bool
     {
@@ -132,7 +136,7 @@ final class UserService
     }
 
     /**
-     * Overuje existenci aktivni role pouzitelne v editor inputu
+     * Reports whether an active role is available to editor input
      */
     public function roleExists(int $roleId): bool
     {
@@ -140,7 +144,7 @@ final class UserService
     }
 
     /**
-     * Overuje unikatnost normalizovaneho e-mailu mimo editovany zaznam
+     * Reports whether a normalized email is available outside one record
      */
     public function emailAvailable(string $email, int $exceptId): bool
     {
@@ -148,7 +152,7 @@ final class UserService
     }
 
     /**
-     * Uklada editorovou zmenu s ochranou externi identity, self-service a delegace
+     * Applies an editor update with identity, self-service, and delegation safeguards
      */
     public function updateEditor(int $id, UserEditorInput $input): void
     {
@@ -156,6 +160,7 @@ final class UserService
 
         $existing = $this->user($id);
         $hasExternalIdentity = $this->identities->hasForUser($id);
+
         if ($hasExternalIdentity && (
             $input->firstName() !== (string) $existing['first_name']
             || $input->lastName() !== (string) $existing['last_name']
@@ -163,17 +168,21 @@ final class UserService
         )) {
             throw new UserSafetyException('users.validation.external_profile_readonly');
         }
+
         $currentRoleIds = $this->roleIds($id);
         $oldRoleId = $currentRoleIds[0] ?? null;
         $oldOverrides = $this->permissionOverrides->forUser($id);
+
         if ($id === $actor->id() && ($input->roleId() !== null || $input->permissionStates() !== null)) {
             throw new UserSafetyException('users.validation.cannot_change_own_authorization');
         }
+
         if ($id === $actor->id() && $input->active() !== ((int) $existing['active'] === 1)) {
             throw new UserSafetyException('users.validation.cannot_deactivate_self');
         }
 
         $currentActive = (int) $existing['active'] === 1;
+
         if ($currentActive && !$input->active() && !$this->authorization->hasPermission('system.users.disable')) {
             throw new UserSafetyException('users.validation.status_not_manageable');
         }
@@ -181,8 +190,10 @@ final class UserService
         $this->assertEmailAvailable($input->email(), $id);
         $roleId = $input->roleId();
         $roleChanged = $roleId !== null && $roleId !== $oldRoleId;
+
         if ($roleId !== null) {
             $this->assertRoleId($roleId);
+
             if ($roleChanged) {
                 $this->assertRoleIsAssignable($roleId);
                 $this->assertLastSuperAdminIsRetained($id, [$roleId], $input->active());
@@ -192,15 +203,19 @@ final class UserService
         }
 
         $permissionStates = $input->permissionStates();
+
         if ($permissionStates !== null && !$this->authorization->hasPermission('system.users.manage_permissions')) {
             throw new UserSafetyException('users.validation.permissions_not_manageable');
         }
+
         if ($permissionStates !== null && !$this->authorization->permissionCodesExist(array_keys($permissionStates))) {
             throw new UserSafetyException('users.validation.permission_invalid');
         }
+
         if ($permissionStates !== null && $this->containsSuperAdminRole($currentRoleIds)) {
             throw new UserSafetyException('users.validation.superadmin_overrides_forbidden');
         }
+
         $normalizedOverrides = $permissionStates === null ? null : $this->normalizedRequestedOverrides(
             $actor,
             $id,
@@ -211,9 +226,11 @@ final class UserService
         );
 
         $localPassword = $input->localPassword();
+
         if ($localPassword !== null && $hasExternalIdentity) {
             throw new UserSafetyException('users.validation.external_password_forbidden');
         }
+
         $events = $this->updateEvents(
             $id,
             $existing,
@@ -225,6 +242,7 @@ final class UserService
             $normalizedOverrides,
             $localPassword,
         );
+
         if ($events === []) {
             return;
         }
@@ -233,12 +251,15 @@ final class UserService
             if (!$this->users->updateEditorVersioned($id, $input->version(), $input)) {
                 throw new UserRecordConflictException('User record version no longer matches.');
             }
+
             if ($localPassword !== null) {
                 $this->users->updatePasswordHash($id, LocalAuthenticationProvider::hashPassword($localPassword));
             }
+
             if ($roleId !== null) {
                 $this->roles->replaceForUser($id, $roleId);
             }
+
             if ($roleChanged) {
                 $this->permissionOverrides->clearForUser($id);
             } elseif ($normalizedOverrides !== null) {
@@ -253,16 +274,18 @@ final class UserService
     }
 
     /**
-     * Vytvari lokalniho uzivatele s delegovatelnou roli a lokalnim credentialem
+     * Creates a local user with a delegable role and local credential
      */
     public function createEditor(UserEditorInput $input): int
     {
         $actor = $this->actors->requireLocalUser();
         $localPassword = $input->localPassword();
         $roleId = $input->roleId();
+
         if ($localPassword === null || $roleId === null) {
             throw new InvalidArgumentException('A local password and one role are required.');
         }
+
         if (!$input->active() && !$this->authorization->hasPermission('system.users.disable')) {
             throw new UserSafetyException('users.validation.status_not_manageable');
         }
@@ -294,23 +317,29 @@ final class UserService
     }
 
     /**
-     * Vytvari nebo overuje inicialni root ucet pro instalacni workflow
+     * Creates or verifies the initial root account for installation
      */
     public function createInitialRoot(string $email, string $password): int
     {
         $email = LocalAuthenticationProvider::normalizeEmail($email);
+
         if (filter_var($email, FILTER_VALIDATE_EMAIL) === false || mb_strlen($email, 'UTF-8') > 254) {
             throw new InvalidArgumentException('users.validation.email_invalid');
         }
-        if (mb_strlen($password, 'UTF-8') < 12) {
+
+        if (!UserPasswordPolicy::accepts($password)) {
             throw new InvalidArgumentException('users.validation.password_min_length');
         }
+
         $existing = $this->users->findByEmailIncludingDeleted($email);
+
         if ($existing !== null) {
             if ($existing['deleted_at'] !== null) {
                 throw new InvalidArgumentException('users.validation.email_taken');
             }
+
             $rootRoleId = $this->roles->ensureRootRole();
+
             if (in_array($rootRoleId, $this->roles->roleIdsForUser((int) $existing['id']), true)) {
                 return (int) $existing['id'];
             }
@@ -342,18 +371,22 @@ final class UserService
     }
 
     /**
-     * Meni aktivitu uzivatele s ochranou vlastniho uctu a posledniho aktivniho superadmina
+     * Changes user activity while protecting self and the last active super administrator
      */
     public function setActive(int $id, bool $active, int $actorId): void
     {
         $this->actors->requireLocalUser();
+
         $existing = $this->user($id);
+
         if (!$active && $id === $actorId) {
             throw new UserSafetyException('users.validation.cannot_deactivate_self');
         }
+
         if (!$active) {
             $this->assertLastSuperAdminIsRetained($id, $this->roleIds($id), false);
         }
+
         if ((int) $existing['active'] === ($active ? 1 : 0)) {
             return;
         }
@@ -363,23 +396,28 @@ final class UserService
             $this->users->updateActive($id, $active);
             $collector->record($event);
         });
+
         $this->invalidateAuthorizationState();
     }
 
     /**
-     * Soft-deleteuje uzivatele s ochranou vlastniho uctu a superadmina
+     * Soft deletes a user while protecting self and super administrator invariants
      */
     public function deleteUser(int $id, int $actorId): void
     {
         $actor = $this->actors->requireLocalUser();
         $existing = $this->user($id);
+
         if ($id === $actorId) {
             throw new UserSafetyException('users.validation.cannot_delete_self');
         }
+
         $roleIds = $this->roleIds($id);
+
         if ($this->containsSuperAdminRole($roleIds) && !$this->authorization->isSuperAdmin($actor)) {
             throw new UserSafetyException('users.validation.cannot_delete_superadmin');
         }
+
         if ((int) $existing['active'] === 1 && $this->containsSuperAdminRole($roleIds) && !$this->users->anotherActiveSuperAdminExists($id)) {
             throw new UserSafetyException('users.validation.last_administrator');
         }
@@ -392,19 +430,23 @@ final class UserService
             $this->locks->releaseOwnedByUser($id);
             $collector->record($event);
         });
+
         $this->invalidateAuthorizationState();
     }
 
     /**
-     * Obnovuje pouze existujici soft-deleted uzivatelsky zaznam
+     * Restores an existing soft-deleted user record
      */
     public function restoreUser(int $id, int $actorId): void
     {
         $this->actors->requireLocalUser();
+
         $existing = $this->users->findForRestore($id);
+
         if ($existing === null) {
             throw new UserNotFoundException('User not found.');
         }
+
         if ($existing['deleted_at'] === null) {
             throw new UserSafetyException('users.validation.user_not_deleted');
         }
@@ -416,23 +458,25 @@ final class UserService
             }
             $collector->record($event);
         });
+
         $this->invalidateAuthorizationState();
     }
 
     /**
-     * Vytvari delegovatelny nahled efektivnich prav zvolene role a aktualnich overrides
+     * Creates a delegable preview of role permissions and current overrides
      *
-     * @return array{roleId:int,permissionGroups:list<array{
-     *     moduleCode:string,
-     *     label:string,
-     *     labelKey:string|null,
-     *     icon:string|null,
-     *     permissions:list<array{code:string,label:string,labelKey:string,state:string,requires:list<string>}>
+     * @return array{roleId: int, permissionGroups: list<array{
+     *     moduleCode: string,
+     *     label: string,
+     *     labelKey: string|null,
+     *     icon: string|null,
+     *     permissions: list<array{code: string, label: string, labelKey: string, state: string, requires: list<string>}>
      * }>}
      */
     public function permissionPreview(int $id, int $roleId, EffectivePermissionGroupViewModelFactory $groups): array
     {
         $actor = $this->currentUser->currentUser();
+
         if ($actor === null || !$this->currentUserCanAssignRole($roleId)) {
             throw new UserSafetyException('users.validation.role_not_assignable');
         }
@@ -446,26 +490,27 @@ final class UserService
     }
 
     /**
-     * Filtruje permission skupiny na rozsah delegovatelny aktualnim actorem
+     * Filters permission groups to the current actor's delegable scope
      *
      * @param list<array{
-     *     moduleCode:string,
-     *     label:string,
-     *     labelKey:string|null,
-     *     icon:string|null,
-     *     permissions:list<array{code:string,label:string,labelKey:string,state:string,requires:list<string>}>
+     *     moduleCode: string,
+     *     label: string,
+     *     labelKey: string|null,
+     *     icon: string|null,
+     *     permissions: list<array{code: string, label: string, labelKey: string, state: string, requires: list<string>}>
      * }> $permissionGroups
      * @return list<array{
-     *     moduleCode:string,
-     *     label:string,
-     *     labelKey:string|null,
-     *     icon:string|null,
-     *     permissions:list<array{code:string,label:string,labelKey:string,state:string,requires:list<string>}>
+     *     moduleCode: string,
+     *     label: string,
+     *     labelKey: string|null,
+     *     icon: string|null,
+     *     permissions: list<array{code: string, label: string, labelKey: string, state: string, requires: list<string>}>
      * }>
      */
     public function delegablePermissionGroups(array $permissionGroups): array
     {
         $actor = $this->currentUser->currentUser();
+
         if ($actor === null || !$this->authorization->hasPermission('system.users.manage_permissions')) {
             return [];
         }
@@ -474,11 +519,12 @@ final class UserService
     }
 
     /**
-     * Urci, zda cilovy uzivatel nese roli nebo efektivni prava mimo delegovatelny rozsah actora
+     * Reports whether a target user has authority outside the actor's delegable scope
      */
     public function targetHasProtectedAuthority(int $id): bool
     {
         $actor = $this->currentUser->currentUser();
+
         if ($actor === null) {
             return false;
         }
@@ -490,6 +536,7 @@ final class UserService
             }
         }
         $targetPermissions = $this->authorization->effectivePermissionsForUser(new AuthenticatedUser($id, ''));
+
         if (count($this->delegation->delegablePermissionCodes($actor, $targetPermissions)) !== count(array_unique($targetPermissions))) {
             return true;
         }
@@ -498,13 +545,14 @@ final class UserService
     }
 
     /**
-     * Nacita aktivniho uzivatele nebo vyhodi typed not-found chybu
+     * Returns an active user or throws a typed not-found exception
      *
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
     private function user(int $id): array
     {
         $user = $this->users->findForEditor($id);
+
         if ($user === null) {
             throw new UserNotFoundException('User not found.');
         }
@@ -513,7 +561,7 @@ final class UserService
     }
 
     /**
-     * Odmita e-mail obsazeny aktivnim nebo smazanym uzivatelem
+     * Rejects an email used by an active or deleted user
      */
     private function assertEmailAvailable(string $email, ?int $exceptId = null): void
     {
@@ -523,7 +571,7 @@ final class UserService
     }
 
     /**
-     * Odmita roli, ktera neni aktivni nebo neexistuje
+     * Rejects a missing or inactive role
      */
     private function assertRoleId(int $roleId): void
     {
@@ -533,7 +581,7 @@ final class UserService
     }
 
     /**
-     * Odmita role assignment mimo delegovatelny rozsah aktualniho actora
+     * Rejects role assignment outside the current actor's delegable scope
      */
     private function assertRoleIsAssignable(int $roleId): void
     {
@@ -543,13 +591,14 @@ final class UserService
     }
 
     /**
-     * Chrani posledniho aktivniho superadmina pred ztratou role nebo aktivity
+     * Protects the last active super administrator from losing access
      *
      * @param list<int> $newRoleIds
      */
     private function assertLastSuperAdminIsRetained(int $id, array $newRoleIds, bool $active): void
     {
         $currentRoles = $this->roleIds($id);
+
         if (!$this->containsSuperAdminRole($currentRoles)) {
             return;
         }
@@ -564,7 +613,7 @@ final class UserService
     }
 
     /**
-     * Overuje, zda sada roli obsahuje superadmin roli
+     * Reports whether a role collection contains a super administrator role
      *
      * @param list<int> $roleIds
      */
@@ -574,7 +623,7 @@ final class UserService
     }
 
     /**
-     * Nacita aktualni assignmenty roli uzivatele pro invarianty mutace
+     * Returns current user role assignments for mutation invariants
      *
      * @return list<int>
      */
@@ -584,7 +633,7 @@ final class UserService
     }
 
     /**
-     * Invaliduje request cache aktualniho uzivatele a authorization dat
+     * Invalidates current user and authorization request caches
      */
     private function invalidateAuthorizationState(): void
     {
@@ -593,11 +642,11 @@ final class UserService
     }
 
     /**
-     * Prevadi pozadovany efektivni stav na sparse override deltu vuci permission setu role
+     * Converts requested permission states to sparse role override deltas
      *
-     * @param array<string,bool> $requestedStates
+     * @param array<string, bool> $requestedStates
      * @param list<string> $explicitlyDenied
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function normalizePermissionOverrides(int $roleId, array $requestedStates, array $explicitlyDenied = []): array
     {
@@ -611,11 +660,11 @@ final class UserService
     }
 
     /**
-     * Zachovava nedelegovatelne overrides a overuje nove prime allow grants
+     * Preserves protected overrides and validates new direct allow grants
      *
-     * @param array<string,string> $oldOverrides
-     * @param array<string,bool> $permissionStates
-     * @return array<string,string>
+     * @param array<string, string> $oldOverrides
+     * @param array<string, bool> $permissionStates
+     * @return array<string, string>
      */
     private function normalizedRequestedOverrides(AuthenticatedUser $actor, int $targetId, int $roleId, array $oldOverrides, array $permissionStates, bool $roleChanged): array
     {
@@ -629,9 +678,11 @@ final class UserService
             if (isset($submittedDelegable[$code])) {
                 continue;
             }
+
             if ($allowed !== isset($currentEffective[$code])) {
                 throw new UserSafetyException('users.validation.permission_not_delegable');
             }
+
             unset($permissionStates[$code]);
         }
 
@@ -639,11 +690,13 @@ final class UserService
         foreach (array_keys($currentEffective) as $code) {
             $requestedStates[$code] = true;
         }
+
         foreach ($oldOverrides as $code => $effect) {
             if ($effect === 'deny') {
                 $requestedStates[$code] = false;
             }
         }
+
         foreach ($permissionStates as $code => $allowed) {
             $requestedStates[$code] = $allowed;
         }
@@ -658,6 +711,7 @@ final class UserService
                 $addedAllows[] = $code;
             }
         }
+
         if (!$this->delegation->canDelegatePermissions($actor, $addedAllows)) {
             throw new UserSafetyException('users.validation.permission_not_delegable');
         }
@@ -666,21 +720,21 @@ final class UserService
     }
 
     /**
-     * Filtruje skupiny na permission kody delegovatelne aktualnim actorem
+     * Filters groups to permission codes delegable by the current actor
      *
      * @param list<array{
-     *     moduleCode:string,
-     *     label:string,
-     *     labelKey:string|null,
-     *     icon:string|null,
-     *     permissions:list<array{code:string,label:string,labelKey:string,state:string,requires:list<string>}>
+     *     moduleCode: string,
+     *     label: string,
+     *     labelKey: string|null,
+     *     icon: string|null,
+     *     permissions: list<array{code: string, label: string, labelKey: string, state: string, requires: list<string>}>
      * }> $permissionGroups
      * @return list<array{
-     *     moduleCode:string,
-     *     label:string,
-     *     labelKey:string|null,
-     *     icon:string|null,
-     *     permissions:list<array{code:string,label:string,labelKey:string,state:string,requires:list<string>}>
+     *     moduleCode: string,
+     *     label: string,
+     *     labelKey: string|null,
+     *     icon: string|null,
+     *     permissions: list<array{code: string, label: string, labelKey: string, state: string, requires: list<string>}>
      * }>
      */
     private function filterDelegablePermissionGroups(AuthenticatedUser $actor, array $permissionGroups): array
@@ -691,16 +745,20 @@ final class UserService
                 $permissionCodes[] = $permission['code'];
             }
         }
+
         $delegable = array_fill_keys($this->delegation->delegablePermissionCodes($actor, $permissionCodes), true);
         $delegableGroups = [];
+
         foreach ($permissionGroups as $group) {
             $permissions = array_values(array_filter(
                 $group['permissions'],
                 static fn(array $permission): bool => isset($delegable[$permission['code']]),
             ));
+
             if ($permissions === []) {
                 continue;
             }
+
             $group['permissions'] = $permissions;
             $delegableGroups[] = $group;
         }
@@ -709,9 +767,9 @@ final class UserService
     }
 
     /**
-     * Urci profilova pole skutecne zmenena editorovou mutaci
+     * Returns profile fields changed by an editor mutation
      *
-     * @param array<string,mixed> $existing
+     * @param array<string, mixed> $existing
      * @return list<string>
      */
     private function changedProfileFields(array $existing, UserEditorInput $input): array
@@ -734,7 +792,7 @@ final class UserService
     }
 
     /**
-     * Vrati kod role pro auditni payload nebo null bez prirazeni
+     * Returns a role code for audit payloads or null without an assignment
      */
     private function roleCode(?int $roleId): ?string
     {
@@ -742,9 +800,9 @@ final class UserService
     }
 
     /**
-     * Sestavi zobrazovane jmeno uzivatele pro auditni udalosti
+     * Builds a user display name for audit events
      *
-     * @param array<string,mixed> $user
+     * @param array<string, mixed> $user
      */
     private function displayName(array $user): string
     {
@@ -754,11 +812,11 @@ final class UserService
     }
 
     /**
-     * Sestavi auditni udalosti odpovidajici skutecne zmene uzivatele
+     * Builds audit events for actual user changes
      *
-     * @param array<string,mixed> $existing
-     * @param array<string,string> $oldOverrides
-     * @param array<string,string>|null $normalizedOverrides
+     * @param array<string, mixed> $existing
+     * @param array<string, string> $oldOverrides
+     * @param array<string, string>|null $normalizedOverrides
      * @return list<DomainEvent>
      */
     private function updateEvents(int $id, array $existing, UserEditorInput $input, ?int $oldRoleId, ?int $roleId, bool $roleChanged, array $oldOverrides, ?array $normalizedOverrides, ?string $localPassword): array
@@ -766,12 +824,15 @@ final class UserService
         $events = [];
         $displayName = $this->displayName($existing);
         $profileFields = $this->changedProfileFields($existing, $input);
+
         if ($profileFields !== []) {
             $events[] = $this->event('system.users.updated', $id, ['user' => $displayName, 'fields' => $profileFields]);
         }
+
         if ($localPassword !== null) {
             $events[] = $this->event('system.users.password_changed', $id, ['user' => $displayName]);
         }
+
         if ($roleChanged) {
             $events[] = $this->event('system.users.role_changed', $id, [
                 'user' => $displayName,
@@ -782,12 +843,15 @@ final class UserService
 
         $currentOverrides = $roleChanged ? [] : $normalizedOverrides;
         ksort($oldOverrides);
+
         if ($currentOverrides !== null) {
             ksort($currentOverrides);
         }
+
         if ($currentOverrides !== null && $oldOverrides !== $currentOverrides) {
             $events[] = $this->event('system.users.permissions_changed', $id, ['user' => $displayName, 'permissions' => array_keys($currentOverrides)]);
         }
+
         if ((int) $existing['active'] !== ($input->active() ? 1 : 0)) {
             $events[] = $this->event($input->active() ? 'system.users.activated' : 'system.users.deactivated', $id, ['user' => $displayName]);
         }
@@ -796,9 +860,9 @@ final class UserService
     }
 
     /**
-     * Vytvori domain udalost Users capability s omezenym auditnim payloadem
+     * Creates a Users domain event with a restricted audit payload
      *
-     * @param array<string,mixed> $payload
+     * @param array<string, mixed> $payload
      */
     private function event(string $code, int $id, array $payload): DomainEvent
     {

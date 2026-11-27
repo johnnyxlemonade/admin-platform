@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemonade\Admin\System\Users\Http\Controller;
 
 use Lemonade\Admin\Action\Http\Controller\ModuleActionController;
+use Lemonade\Admin\Auth\Mfa\TotpCredentialService;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\Editor\EditorDispatcher;
 use Lemonade\Admin\Editor\EditorLoaded;
@@ -16,30 +17,42 @@ use Lemonade\Admin\Editor\Lock\EditorLockException;
 use Lemonade\Admin\Editor\Lock\EditorLockManager;
 use Lemonade\Admin\Http\AdminResponseFactory;
 use Lemonade\Admin\Http\Controller\ModuleController;
+use Lemonade\Admin\Identity\LocalActorRequiredException;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Presentation\AdminPageRenderer;
+use Lemonade\Admin\System\Audit\Models\PersonalAccountActivityReadModel;
+use Lemonade\Admin\System\Users\Exceptions\UserNotFoundException;
+use Lemonade\Admin\System\Users\Exceptions\UserSafetyException;
+use Lemonade\Admin\System\Users\Services\SelfPasswordChangeService;
 use Lemonade\Admin\System\Users\UsersModulePageProvider;
+use Lemonade\Admin\System\Users\Validation\UserPasswordValidationSchema;
 use Lemonade\Framework\Core\Http\RequestData;
-use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
+use Lemonade\Framework\Http\HttpStatus;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Routing\UrlGenerator;
 use Lemonade\Framework\Security\Csrf\CsrfTokenNames;
+use Lemonade\Framework\Validation\FormValidation;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Obsluhuje canonical self-service profil nad existujicim Users editorem
+ * Handles the canonical self-service profile without accepting a target user ID
  */
 final readonly class UsersProfileController
 {
     /**
-     * Nastavuje session identity, shared editorovy transport a Users presentation
+     * Creates the profile controller with editor and account capabilities
      */
     public function __construct(
         private CurrentPrincipalProviderInterface $currentUser,
         private EditorDispatcher $editors,
         private EditorLockManager $locks,
         private UsersModulePageProvider $pages,
+        private PersonalAccountActivityReadModel $activity,
+        private SelfPasswordChangeService $passwords,
+        private UserPasswordValidationSchema $passwordValidation,
+        private FormValidation $validator,
+        private TotpCredentialService $mfaCredentials,
         private ModuleActionController $actions,
         private ModuleController $modules,
         private AdminUiLocale $locale,
@@ -50,19 +63,44 @@ final readonly class UsersProfileController
     ) {}
 
     /**
-     * Vykresluje profil aktualniho uzivatele bez prijeti ciloveho ID z requestu
+     * Displays the current user's personal information section
      */
     public function profile(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->profilePage($request);
+        return $this->profilePage($request, 'basic');
     }
 
     /**
-     * Uklada profil aktualniho uzivatele pres standardni Users editorovy workflow
+     * Displays the current user's security section
+     */
+    public function security(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->profilePage($request, 'security');
+    }
+
+    /**
+     * Displays the current browser preference section
+     */
+    public function preferences(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->profilePage($request, 'preferences');
+    }
+
+    /**
+     * Displays recent supported activity for the current account
+     */
+    public function activity(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->profilePage($request, 'activity');
+    }
+
+    /**
+     * Saves the current user's editable personal information
      */
     public function save(ServerRequestInterface $request): ResponseInterface
     {
-        $userId = $this->currentUserId($request);
+        $userId = $this->currentUserId();
+
         if ($userId === null) {
             return $this->responses->authorizationDenied($request);
         }
@@ -72,9 +110,10 @@ final readonly class UsersProfileController
         } catch (EditorValidationException $exception) {
             return $this->profilePage(
                 request: $request,
+                section: 'basic',
                 errors: ['_form' => $this->translator->get($exception->messageKey())],
                 input: $this->safeInput($request),
-                status: HttpStatusCode::UNPROCESSABLE_ENTITY->value,
+                status: HttpStatus::UNPROCESSABLE_ENTITY,
             );
         } catch (EditorEntityNotFoundException) {
             return $this->responses->notFound($request);
@@ -83,7 +122,7 @@ final readonly class UsersProfileController
         } catch (EditorRecordConflictException) {
             return $this->responses->recordConflict($request, $this->profileUrl());
         } catch (EditorCapabilityException $exception) {
-            return $exception->statusCode() === HttpStatusCode::FORBIDDEN
+            return $exception->statusCode() === HttpStatus::FORBIDDEN
                 ? $this->responses->authorizationDenied($request)
                 : $this->responses->notFound($request);
         }
@@ -91,9 +130,10 @@ final readonly class UsersProfileController
         if (!$outcome->isSaved()) {
             return $this->profilePage(
                 request: $request,
+                section: 'basic',
                 errors: $outcome->validation()->errors(),
                 input: $outcome->input(),
-                status: HttpStatusCode::UNPROCESSABLE_ENTITY->value,
+                status: HttpStatus::UNPROCESSABLE_ENTITY,
             );
         }
 
@@ -103,11 +143,54 @@ final readonly class UsersProfileController
     }
 
     /**
-     * Predava AJAX save do stavajiciho Users action transportu s ID pouze ze session
+     * Changes the current local user's password after framework validation
+     */
+    public function changePassword(ServerRequestInterface $request): ResponseInterface
+    {
+        $userId = $this->currentUserId();
+
+        if ($userId === null) {
+            return $this->responses->authorizationDenied($request);
+        }
+
+        $input = (new RequestData($request))->postAll();
+        $validation = $this->validator->validate($input, $this->passwordValidation->changeOwnPassword());
+
+        if (!$validation->isValid()) {
+            return $this->profilePage($request, 'security', passwordErrors: $validation->errors(), status: HttpStatus::UNPROCESSABLE_ENTITY);
+        }
+
+        $validated = $validation->validated();
+
+        try {
+            $this->passwords->change(
+                $userId,
+                (string) $validated['current_password'],
+                (string) $validated['new_password'],
+            );
+        } catch (UserSafetyException $exception) {
+            return $this->profilePage(
+                $request,
+                'security',
+                passwordErrors: ['_form' => $this->translator->get($exception->translationKey())],
+                status: HttpStatus::UNPROCESSABLE_ENTITY,
+            );
+        } catch (LocalActorRequiredException) {
+            return $this->responses->authorizationDenied($request);
+        } catch (UserNotFoundException) {
+            return $this->responses->notFound($request);
+        }
+
+        return $this->profilePage($request, 'security', passwordChanged: true);
+    }
+
+    /**
+     * Delegates self-profile file actions to the shared action transport
      */
     public function ajaxSave(ServerRequestInterface $request): ResponseInterface
     {
-        $userId = $this->currentUserId($request);
+        $userId = $this->currentUserId();
+
         if ($userId === null) {
             return $this->responses->authorizationDenied($request);
         }
@@ -116,11 +199,12 @@ final readonly class UsersProfileController
     }
 
     /**
-     * Presmeruje vlastni legacy edit URL na canonical profil a ostatni editace deleguje management controlleru
+     * Redirects self-editing to the profile and delegates other users to management
      */
     public function edit(int $id, ServerRequestInterface $request): ResponseInterface
     {
-        $currentUserId = $this->currentUserId($request);
+        $currentUserId = $this->currentUserId();
+
         if ($currentUserId !== null && $id === $currentUserId) {
             return $this->responses->redirect($this->profileUrl());
         }
@@ -129,60 +213,100 @@ final readonly class UsersProfileController
     }
 
     /**
-     * Vykresluje profile editor s existujicim lock a self-service access contractem
+     * Loads and displays one self-service profile section
      *
      * @param array<string, string> $errors
      * @param array<string, mixed> $input
+     * @param array<string, string> $passwordErrors
      */
-    private function profilePage(ServerRequestInterface $request, array $errors = [], array $input = [], ?int $status = null): ResponseInterface
-    {
-        $userId = $this->currentUserId($request);
+    private function profilePage(
+        ServerRequestInterface $request,
+        string $section,
+        array $errors = [],
+        array $input = [],
+        array $passwordErrors = [],
+        bool $passwordChanged = false,
+        HttpStatus $status = HttpStatus::OK,
+    ): ResponseInterface {
+        $userId = $this->currentUserId();
+
         if ($userId === null) {
             return $this->responses->authorizationDenied($request);
         }
 
-        $status ??= HttpStatusCode::OK->value;
         $locale = $this->locale->activate(null, (string) (new RequestData($request))->cookie('lemonade_locale', ''));
+
         try {
             $editor = $this->editors->updateData('system.users', $userId);
         } catch (EditorEntityNotFoundException) {
             return $this->responses->notFound($request);
         } catch (EditorCapabilityException $exception) {
-            return $exception->statusCode() === HttpStatusCode::FORBIDDEN
+            return $exception->statusCode() === HttpStatus::FORBIDDEN
                 ? $this->responses->authorizationDenied($request)
                 : $this->responses->notFound($request);
         }
 
-        $this->locks->acquire('system.users', (string) $userId);
+        if ($section === 'basic') {
+            $this->locks->acquire('system.users', (string) $userId);
+        }
 
-        return $this->renderProfile($editor, $errors, $input, $locale, $status);
+        return $this->renderProfile(
+            editor: $editor,
+            section: $section,
+            errors: $errors,
+            input: $input,
+            passwordErrors: $passwordErrors,
+            passwordChanged: $passwordChanged,
+            locale: $locale,
+            status: $status,
+        );
     }
 
     /**
-     * Renderuje Users profile page pres existujici module page provider
+     * Renders the profile with section-specific account data
      *
      * @param array<string, string> $errors
      * @param array<string, mixed> $input
+     * @param array<string, string> $passwordErrors
      */
-    private function renderProfile(EditorLoaded $editor, array $errors, array $input, string $locale, int $status): ResponseInterface
-    {
-        $page = $this->pages->profile($editor, $errors, $input, $locale);
+    private function renderProfile(
+        EditorLoaded $editor,
+        string $section,
+        array $errors,
+        array $input,
+        array $passwordErrors,
+        bool $passwordChanged,
+        string $locale,
+        HttpStatus $status,
+    ): ResponseInterface {
+        $userId = (int) $editor->data()['user']['id'];
+        $page = $this->pages->profile(
+            editor: $editor,
+            errors: $errors,
+            input: $input,
+            locale: $locale,
+            section: $section,
+            activity: $section === 'activity' ? $this->activity->recent($userId) : [],
+            profileUpdatedAt: $this->activity->latestProfileUpdateAt($userId),
+            passwordChangedAt: $this->activity->latestPasswordChangeAt($userId),
+            mfaEnabledAt: $this->mfaCredentials->enabledAt($userId),
+            passwordErrors: $passwordErrors,
+            passwordChanged: $passwordChanged,
+        );
 
-        return $this->renderer->render($page->view(), ['title' => $page->title(), ...$page->data()], $status);
+        return $this->renderer->render($page->view(), ['title' => $page->title(), ...$page->data()], $status->value);
     }
 
     /**
-     * Vraci aktivni Users ID vyhradne z autentizovane session identity
+     * Returns the current authenticated user identifier
      */
-    private function currentUserId(ServerRequestInterface $request): ?int
+    private function currentUserId(): ?int
     {
-        unset($request);
-
         return $this->currentUser->currentUser()?->id();
     }
 
     /**
-     * Vraci bezpecny vstup pro opetovne vykresleni HTML formulare
+     * Returns safe personal input without a password value
      *
      * @return array<string, mixed>
      */
@@ -195,7 +319,7 @@ final readonly class UsersProfileController
     }
 
     /**
-     * Normalizuje fallback form payload na stejny tvar jako shared editor transport
+     * Extracts the shared editor payload from a profile request
      *
      * @return array<string, mixed>
      */
@@ -203,13 +327,14 @@ final readonly class UsersProfileController
     {
         $payload = (new RequestData($request))->postAll();
         unset($payload[CsrfTokenNames::FORM_FIELD]);
+
         $editorPayload = $payload['payload'] ?? $payload;
 
         return is_array($editorPayload) ? $editorPayload : [];
     }
 
     /**
-     * Generuje canonical profilovou adresu pres named route
+     * Returns the canonical self-profile URL
      */
     private function profileUrl(): string
     {

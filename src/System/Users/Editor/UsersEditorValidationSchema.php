@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\System\Users\Editor;
 
+use Lemonade\Admin\System\Users\Validation\UserPasswordPolicy;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Validation\ValidationSchema;
 
 /**
- * Definuje tvarovou validaci create a update vstupu Users editoru
+ * Defines validation for user creation and management input
  */
 final readonly class UsersEditorValidationSchema
 {
     /**
-     * Nastavuje prekladovy zdroj chyb editorove validace
+     * Creates the schema factory with localized validation messages
      */
-    public function __construct(private readonly TranslatorInterface $translator) {}
+    public function __construct(private TranslatorInterface $translator) {}
 
     /**
-     * Sestavuje schema pro zmenu existujiciho uzivatele vcetne role a overrides
+     * Builds validation for updating an existing user
      */
     public function forUpdate(int $id): ValidationSchema
     {
@@ -47,12 +48,12 @@ final readonly class UsersEditorValidationSchema
             ->field('permissions', $this->translator->get('users.editor.tabs.permissions'))
                 ->custom('system_users_permission_overrides', message: $this->translator->get('users.validation.permission_invalid'))
             ->field('local_password', $this->translator->get('users.fields.password'))
-                ->minLength(12, $this->translator->get('users.validation.password_min_length'))
+                ->minLength(UserPasswordPolicy::MIN_LENGTH, $this->translator->get('users.validation.password_min_length'))
             ->end();
     }
 
     /**
-     * Sestavuje schema pro zalozeni lokalniho uzivatele s roli a heslem
+     * Builds validation for creating a local user
      */
     public function forCreate(): ValidationSchema
     {
@@ -78,7 +79,7 @@ final readonly class UsersEditorValidationSchema
                 ->custom('system_users_role', message: $this->translator->get('users.validation.role_invalid'))
             ->field('local_password', $this->translator->get('users.fields.password'))
                 ->required($this->translator->get('users.validation.password_required'))
-                ->minLength(12, $this->translator->get('users.validation.password_min_length'))
+                ->minLength(UserPasswordPolicy::MIN_LENGTH, $this->translator->get('users.validation.password_min_length'))
             ->end();
     }
 }

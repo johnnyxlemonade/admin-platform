@@ -25,12 +25,12 @@ use Lemonade\Framework\Localization\TranslatorInterface;
 use Lemonade\Framework\Routing\UrlGenerator;
 
 /**
- * Sklada index a full-page editor Users capability jako presentation nad shared transportem
+ * Builds Users index, management editor and self-profile pages over shared transports
  */
 final readonly class UsersModulePageProvider implements ModuleIndexPageProviderInterface, ModuleEditorPageProviderInterface, EditorLockConflictMessageProviderInterface
 {
     /**
-     * Nastavuje grid, editorovou factory a presentation zavislosti modulu
+     * Creates the provider with grid, editor, and presentation dependencies
      */
     public function __construct(
         private UsersDataGrid $grid,
@@ -42,7 +42,7 @@ final readonly class UsersModulePageProvider implements ModuleIndexPageProviderI
     ) {}
 
     /**
-     * Urci permission potrebne pro pristup na index uzivatelu
+     * Returns the permission required to access the Users index
      */
     public function indexPermission(): string
     {
@@ -50,7 +50,7 @@ final readonly class UsersModulePageProvider implements ModuleIndexPageProviderI
     }
 
     /**
-     * Sestavi gridovou index stranku s create akci, jejiz viditelnost nenahrazuje authorization
+     * Builds the Users grid page while leaving authorization to the server boundary
      */
     public function index(string $locale): ModulePage
     {
@@ -83,7 +83,7 @@ final readonly class UsersModulePageProvider implements ModuleIndexPageProviderI
     }
 
     /**
-     * Sestavi full-page editor pro zalozeni lokalniho uzivatele
+     * Builds the full-page editor for creating a local user
      *
      * @param array<string, string> $errors
      * @param array<string, mixed> $input
@@ -95,7 +95,7 @@ final readonly class UsersModulePageProvider implements ModuleIndexPageProviderI
     }
 
     /**
-     * Sestavi full-page editor pro zmenu existujiciho uzivatele
+     * Builds the full-page editor for changing an existing user
      *
      * @param array<string, string> $errors
      * @param array<string, mixed> $input
@@ -107,18 +107,92 @@ final readonly class UsersModulePageProvider implements ModuleIndexPageProviderI
     }
 
     /**
-     * Sestavi self-service profil bez zavislosti na Users management indexu
+     * Builds the self-service profile independently of the Users management index
      *
      * @param array<string, string> $errors
      * @param array<string, mixed> $input
+     * @param list<array<string, mixed>> $activity
+     * @param array<string, string> $passwordErrors
      */
-    public function profile(EditorLoaded $editor, array $errors, array $input, string $locale): ModulePage
-    {
-        return $this->editorPage(editor: $editor, errors: $errors, input: $input, locale: $locale, mode: 'profile');
+    public function profile(
+        EditorLoaded $editor,
+        array $errors,
+        array $input,
+        string $locale,
+        string $section,
+        array $activity,
+        ?string $profileUpdatedAt,
+        ?string $passwordChangedAt,
+        ?string $mfaEnabledAt,
+        array $passwordErrors = [],
+        bool $passwordChanged = false,
+    ): ModulePage {
+        $editorData = $editor->data();
+        $user = $editorData['user'];
+        $avatarUpload = $this->files->collection(
+            module: 'system.users',
+            entityId: (int) $user['id'],
+            usage: 'thumbnail',
+            labelKey: 'users.fields.avatar',
+            helpKey: 'users.editor.avatar_help',
+            fallback: AdminAvatarInitials::fromValues(
+                (string) $user['first_name'],
+                (string) $user['last_name'],
+                null,
+                (string) $user['email'],
+            ),
+        );
+        $roleSource = $editor->definition()->field('role')?->optionSource();
+        $roleOptions = [];
+
+        if ($roleSource instanceof StaticSelectOptionSource) {
+            foreach ($roleSource->options() as $option) {
+                $roleOptions[$option->value()] = $option->label();
+            }
+        }
+
+        return new ModulePage(
+            view: 'users::profile',
+            title: $this->translator->get('users.profile.title'),
+            data: [
+                'user' => $user,
+                'section' => $section,
+                'activity' => $activity,
+                'profileUpdatedAt' => $profileUpdatedAt,
+                'passwordChangedAt' => $passwordChangedAt,
+                'mfaEnabledAt' => $mfaEnabledAt,
+                'passwordErrors' => $passwordErrors,
+                'passwordChanged' => $passwordChanged,
+                'avatarUpload' => $avatarUpload,
+                'adminEditor' => $section === 'basic' ? $this->adminEditorDefinitions->create(
+                    user: $user,
+                    roleOptions: $roleOptions,
+                    permissionGroups: $editorData['permissionGroups'],
+                    roleEditable: false,
+                    activeEditable: false,
+                    activeInput: $input['active'] ?? null,
+                    hasActiveInput: array_key_exists('active', $input),
+                    permissionEditable: false,
+                    hasProtectedAuthority: false,
+                    mode: 'profile',
+                    hasExternalIdentity: (int) ($user['has_external_identity'] ?? 0) === 1,
+                    avatarUpload: $avatarUpload,
+                    isSelf: true,
+                    profileContext: true,
+                ) : null,
+                'adminEditorContext' => $section === 'basic' ? new AdminEditorRenderContext(
+                    values: $user + ['role' => $editorData['roleId']],
+                    oldInput: $input,
+                    errors: $errors,
+                    mode: 'edit',
+                ) : null,
+                'locale' => $locale,
+            ],
+        );
     }
 
     /**
-     * Vytvari self-profile zpravu pri konfliktu editor locku stejneho uzivatele
+     * Creates a self-profile message for an editor lock held by the same user
      */
     public function editorOpenLockConflictMessage(int $entityId, EditorLockOwner $owner): ?EditorLockConflictMessage
     {
@@ -133,7 +207,7 @@ final readonly class UsersModulePageProvider implements ModuleIndexPageProviderI
     }
 
     /**
-     * Sestavi renderer context a AdminEditor definici pro create nebo update stranku
+     * Builds the renderer context and AdminEditor definition for management pages
      *
      * @param array<string, string> $errors
      * @param array<string, mixed> $input
@@ -144,11 +218,13 @@ final readonly class UsersModulePageProvider implements ModuleIndexPageProviderI
         $editorData = $editor->data();
         $roleSource = $editor->definition()->field('role')?->optionSource();
         $roleOptions = [];
+
         if ($roleSource instanceof StaticSelectOptionSource) {
             foreach ($roleSource->options() as $option) {
                 $roleOptions[$option->value()] = $option->label();
             }
         }
+
         $user = $editorData['user'];
 
         return new ModulePage(

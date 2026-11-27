@@ -21,8 +21,14 @@ use Lemonade\Framework\Routing\Router;
 use Lemonade\Framework\Routing\UrlGenerator;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Verifies Users management and self-profile editor definitions
+ */
 final class UsersAdminEditorDefinitionFactoryTest extends TestCase
 {
+    /**
+     * Verifies user creation uses shared transport fields and custom blocks
+     */
     public function testCreateDefinitionKeepsTransportStandardFieldsAndCustomBlocks(): void
     {
         $editor = $this->factory()->create(
@@ -58,6 +64,9 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertArrayNotHasKey('version', $profileFields);
     }
 
+    /**
+     * Verifies user editing includes versioning, permissions, and avatar context
+     */
     public function testEditDefinitionKeepsVersionAndPermissionCustomContext(): void
     {
         $editor = $this->factory()->create(
@@ -125,6 +134,9 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertTrue($sidebar->panels()[0]->blocks()[0]->context()['avatarUpload']->singleImage());
     }
 
+    /**
+     * Verifies restricted editing hides role assignment and preserves activity state
+     */
     public function testRestrictedEditOmitsRoleFieldAndKeepsReadonlyActiveStateInCustomContext(): void
     {
         $editor = $this->factory()->create(
@@ -147,6 +159,9 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         ], $this->customBlock($editor, 'profile', 2)->context());
     }
 
+    /**
+     * Verifies externally managed identity fields remain read-only
+     */
     public function testExternalIdentityKeepsIdpManagedProfileFieldsReadonlyWithoutAutocomplete(): void
     {
         $editor = $this->factory()->create(
@@ -175,6 +190,9 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertNull($fields['phone']->autocompleteValue());
     }
 
+    /**
+     * Verifies local identity profile fields remain editable
+     */
     public function testLocalProfileFieldsRemainEditableWithoutAutocompleteOverride(): void
     {
         $editor = $this->factory()->create(
@@ -201,6 +219,9 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertSame('username', $fields['email']->autocompleteValue());
     }
 
+    /**
+     * Verifies self-management exposes only the personal MFA modal
+     */
     public function testSelfUserReceivesOnlyTheOwnMfaModalAction(): void
     {
         $editor = $this->factory()->create(
@@ -228,6 +249,9 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         ], $this->customBlock($editor, 'mfa', 0)->context());
     }
 
+    /**
+     * Verifies self-profile transport omits management-only controls
+     */
     public function testProfileDefinitionUsesCanonicalSelfServiceUrlsAndHidesManagementControls(): void
     {
         $editor = $this->factory()->create(
@@ -249,20 +273,18 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
 
         self::assertSame('/admin/system/users/profile', $editor->form()->action());
         self::assertSame('/admin/system/users/profile/ajax', $editor->form()->actionUrl());
-        self::assertSame(['basic', 'security'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
-        $header = $editor->header();
-        self::assertNotNull($header);
-        self::assertSame('/admin', $header->actions()[0]->href());
-        $profileBreadcrumb = $header->breadcrumbs()[0];
-        self::assertSame('admin.account.profile', $profileBreadcrumb['labelKey'] ?? null);
+        self::assertSame('users-profile-form', $editor->form()->id());
+        self::assertSame(['basic'], array_map(static fn($tab): string => $tab->id(), $editor->tabs()));
+        self::assertNull($editor->header());
+        self::assertNull($editor->sidebar());
         self::assertInstanceOf(HiddenField::class, $profileFields['version']);
         self::assertInstanceOf(HiddenField::class, $profileFields['active']);
         self::assertSame(['profile'], $this->sectionIds($editor->tabs()[0]->blocks()));
-        self::assertSame('users::editor.access-info', $this->customBlock($editor, 'mfa', 0)->view());
-        self::assertTrue($this->customBlock($editor, 'mfa', 0)->context()['isSelf']);
-        self::assertSame('/admin/mfa/modal', $this->customBlock($editor, 'mfa', 0)->context()['mfaModalUrl']);
     }
 
+    /**
+     * Verifies MFA reset is available only for an authorized active credential
+     */
     public function testOtherUserExposesResetOnlyForAnAuthorizedActiveCredential(): void
     {
         $activeUser = $this->user() + ['mfa_active' => 1];
@@ -299,19 +321,27 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::assertFalse($this->customBlock($withoutCredential, 'mfa', 0)->context()['mfaActive']);
     }
 
-    /** @return array<string, \Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition> */
+    /**
+     * Returns profile fields indexed by field name
+     *
+     * @return array<string, \Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition>
+     */
     private function profileFields(AdminEditorDefinition $editor): array
     {
         $card = $this->card($editor, 'profile');
         $fields = [];
+
         foreach ($card->blocks() as $block) {
             if ($block instanceof \Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition) {
                 $fields[$block->name()] = $block;
+
                 continue;
             }
+
             if (!$block instanceof FieldGroupBlock) {
                 continue;
             }
+
             foreach ($block->columns() as $column) {
                 $field = $column->field();
                 self::assertInstanceOf(\Lemonade\Admin\Editor\AdminEditor\Field\AdminEditorFieldDefinition::class, $field);
@@ -322,6 +352,9 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         return $fields;
     }
 
+    /**
+     * Returns one editor section by identifier
+     */
     private function card(AdminEditorDefinition $editor, string $id): SectionBlock
     {
         foreach ($editor->tabs() as $tab) {
@@ -335,7 +368,10 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         self::fail(sprintf('Missing %s card.', $id));
     }
 
-    /** @param list<mixed> $blocks
+    /**
+     * Returns section identifiers from a block collection
+     *
+     * @param list<mixed> $blocks
      * @return list<string>
      */
     private function sectionIds(array $blocks): array
@@ -346,6 +382,9 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         ));
     }
 
+    /**
+     * Returns a custom view block from one editor section
+     */
     private function customBlock(AdminEditorDefinition $editor, string $cardId, int $index): CustomViewBlock
     {
         $block = $this->card($editor, $cardId)->blocks()[$index];
@@ -354,7 +393,11 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         return $block;
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * Returns a representative user record
+     *
+     * @return array<string, mixed>
+     */
     private function user(): array
     {
         return [
@@ -370,7 +413,11 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         ];
     }
 
-    /** @return list<array<string, mixed>> */
+    /**
+     * Returns representative permission groups
+     *
+     * @return list<array<string, mixed>>
+     */
     private function permissionGroups(): array
     {
         return [[
@@ -379,6 +426,9 @@ final class UsersAdminEditorDefinitionFactoryTest extends TestCase
         ]];
     }
 
+    /**
+     * Creates the editor factory with canonical named routes
+     */
     private function factory(): UsersAdminEditorDefinitionFactory
     {
         $router = new Router();

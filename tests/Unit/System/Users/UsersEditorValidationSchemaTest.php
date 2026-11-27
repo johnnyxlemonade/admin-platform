@@ -5,11 +5,18 @@ declare(strict_types=1);
 namespace Lemonade\Admin\Tests\Unit\System\Users;
 
 use Lemonade\Admin\System\Users\Editor\UsersEditorValidationSchema;
+use Lemonade\Admin\System\Users\Validation\UserPasswordPolicy;
 use Lemonade\Framework\Localization\TranslatorInterface;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Verifies the user editor validation contract
+ */
 final class UsersEditorValidationSchemaTest extends TestCase
 {
+    /**
+     * Verifies the update fields and their framework validation rules
+     */
     public function testItDefinesOnlyTheUsersEditorFieldsWithFrameworkRules(): void
     {
         $translator = self::createStub(TranslatorInterface::class);
@@ -26,9 +33,12 @@ final class UsersEditorValidationSchemaTest extends TestCase
         self::assertSame('is_natural_no_zero', $fields['version']->rules()[1]->name());
         self::assertSame('system_users_unique_email', $fields['email']->rules()[3]->name());
         self::assertSame('system_users_role', $fields['role']->rules()[0]->name());
-        self::assertSame('12', $fields['local_password']->rules()[0]->param());
+        self::assertSame((string) UserPasswordPolicy::MIN_LENGTH, $fields['local_password']->rules()[0]->param());
     }
 
+    /**
+     * Verifies that user creation requires a role and compliant password
+     */
     public function testCreateRequiresOneRoleAndALocalPassword(): void
     {
         $translator = self::createStub(TranslatorInterface::class);
@@ -40,5 +50,6 @@ final class UsersEditorValidationSchemaTest extends TestCase
         self::assertSame('required', $fields['role']->rules()[0]->name());
         self::assertSame('system_users_role', $fields['role']->rules()[1]->name());
         self::assertSame('required', $fields['local_password']->rules()[0]->name());
+        self::assertSame((string) UserPasswordPolicy::MIN_LENGTH, $fields['local_password']->rules()[1]->param());
     }
 }

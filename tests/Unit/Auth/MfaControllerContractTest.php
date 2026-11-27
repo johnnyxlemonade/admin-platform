@@ -34,10 +34,13 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionObject;
 
+/**
+ * Verifies the MFA controller transport and primary-authentication boundaries
+ */
 final class MfaControllerContractTest extends TestCase
 {
     /**
-     * Overuje JSON redirect pro vyprsely MFA challenge v auth AJAX transportu
+     * Verifies the JSON login redirect for an expired AJAX MFA challenge
      */
     public function testExpiredChallengeUsesJsonLoginRedirectForAjaxAuthTransport(): void
     {
@@ -57,25 +60,31 @@ final class MfaControllerContractTest extends TestCase
         );
     }
 
+    /**
+     * Verifies that self-service MFA disablement requires fresh optional MFA authentication
+     */
     public function testSelfDisableIsAllowedOnlyForFreshOptionalMfa(): void
     {
         $optional = $this->fixture('optional', true);
-        $optional['controller']->disableModal(new ServerRequest('POST', '/admin/mfa/modal/disable'));
+        $optional['controller']->disableModal();
 
         self::assertCount(1, $optional['connection']->statementCalls);
         self::assertStringContainsString('last_revoked_at=?', $optional['connection']->statementCalls[0]);
 
         $all = $this->fixture('all', true);
-        $all['controller']->disableModal(new ServerRequest('POST', '/admin/mfa/modal/disable'));
+        $all['controller']->disableModal();
 
         self::assertSame([], $all['connection']->statementCalls);
     }
 
+    /**
+     * Verifies that enrollment changes require fresh primary authentication
+     */
     public function testEnrollmentAndReEnrollmentAreRejectedWithoutFreshPrimaryAuthentication(): void
     {
         $fixture = $this->fixture('optional', false);
 
-        $fixture['controller']->startModalEnrollment(new ServerRequest('POST', '/admin/mfa/modal/enroll/start'));
+        $fixture['controller']->startModalEnrollment();
         $fixture['controller']->confirmModalEnrollment((new ServerRequest('POST', '/admin/mfa/modal/enroll/confirm'))->withParsedBody(['code' => '000000']));
 
         self::assertSame([], $fixture['connection']->statementCalls);
@@ -96,7 +105,7 @@ final class MfaControllerContractTest extends TestCase
             ->willReturn('<div data-mfa-unavailable></div>');
         $fixture = $this->fixture('disabled', false, $views);
 
-        $response = $fixture['controller']->modal(new ServerRequest('GET', '/admin/mfa/modal'));
+        $response = $fixture['controller']->modal();
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame([
@@ -113,9 +122,11 @@ final class MfaControllerContractTest extends TestCase
     {
         $session = new MfaModalMemorySession();
         $recentPrimary = new MfaRecentPrimaryAuthenticationStore($session);
+
         if ($freshPrimary) {
             $recentPrimary->remember(42);
         }
+
         $connection = new MfaModalConnectionDouble();
         $database = new Database($connection, self::createStub(DatabaseDriverInterface::class));
         $configuration = new AdminMfaConfiguration($requirement, 'Admin', base64_encode(str_repeat('a', 32)));
@@ -134,22 +145,30 @@ final class MfaControllerContractTest extends TestCase
         $this->set($controller, 'mfa', new MfaAuthenticationService($configuration, $credentials, $database, self::createStub(AuditLogWriterInterface::class)));
         $this->set($controller, 'routing', new AdminRoutingConfiguration('/admin'));
         $this->set($controller, 'challenges', new MfaLoginChallengeStore($session, new AdminRoutingConfiguration('/admin')));
+
         $factory = new Psr17Factory();
         $this->set($controller, 'responses', new Responses(new ResponseBuilder($factory, $factory)));
+
         if ($views === null) {
             $views = self::createStub(ViewRendererInterface::class);
             $views->method('content')->willReturn('<div></div>');
         }
+
         $this->set($controller, 'views', $views);
 
         return ['controller' => $controller, 'connection' => $connection];
     }
 
+    /**
+     * Creates a current-user provider backed by the supplied in-memory session
+     */
     private function currentUser(SessionInterface $session): CurrentUserProvider
     {
         $session->set('admin.auth.user_id', 42);
+
         $authentication = (new ReflectionClass(AuthenticationService::class))->newInstanceWithoutConstructor();
         $this->set($authentication, 'session', $session);
+
         $provider = (new ReflectionClass(CurrentUserProvider::class))->newInstanceWithoutConstructor();
         $this->set($provider, 'authentication', $authentication);
         $this->set($provider, 'currentUserResolved', true);
@@ -159,6 +178,9 @@ final class MfaControllerContractTest extends TestCase
         return $provider;
     }
 
+    /**
+     * Creates a deterministic clock for MFA verification
+     */
     private function clock(): ClockInterface
     {
         $clock = self::createStub(ClockInterface::class);
@@ -167,12 +189,18 @@ final class MfaControllerContractTest extends TestCase
         return $clock;
     }
 
+    /**
+     * Injects a dependency into a controller created without its constructor
+     */
     private function set(object $object, string $property, mixed $value): void
     {
         (new ReflectionObject($object))->getProperty($property)->setValue($object, $value);
     }
 }
 
+/**
+ * Records MFA persistence calls without requiring a database connection
+ */
 final class MfaModalConnectionDouble implements ConnectionInterface
 {
     /**
@@ -180,7 +208,9 @@ final class MfaModalConnectionDouble implements ConnectionInterface
      */
     public array $selectCalls = [];
 
-    /** @var list<string> */
+    /**
+     * @var list<string>
+     */
     public array $statementCalls = [];
 
     public function select(string $sql, array $bindings = []): array
@@ -243,9 +273,14 @@ final class MfaModalConnectionDouble implements ConnectionInterface
     }
 }
 
+/**
+ * Provides isolated session state for MFA controller tests
+ */
 final class MfaModalMemorySession implements SessionInterface
 {
-    /** @var array<string,mixed> */
+    /**
+     * @var array<string, mixed>
+     */
     private array $values = [];
 
     public function start(): void {}

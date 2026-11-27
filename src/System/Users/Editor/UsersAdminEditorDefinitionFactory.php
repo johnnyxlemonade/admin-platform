@@ -21,17 +21,17 @@ use Lemonade\Admin\Presentation\AdminFileUploadCollection;
 use Lemonade\Framework\Routing\UrlGenerator;
 
 /**
- * Sklada full-page AdminEditor pro profil, role assignment a permission projection uzivatele
+ * Builds the full-page Users management editor and the basic self-profile form
  */
 final readonly class UsersAdminEditorDefinitionFactory
 {
     /**
-     * Nastavuje generator named routes pro editorove formulare
+     * Creates the factory with named-route generation for editor forms
      */
-    public function __construct(private readonly UrlGenerator $urls) {}
+    public function __construct(private UrlGenerator $urls) {}
 
     /**
-     * Vytvari editorovou definici, kde readonly a editacni flags jsou pouze presentation
+     * Creates an editor definition whose read-only flags remain presentation hints
      *
      * @param array<string, mixed> $user
      * @param array<int|string, string> $roleOptions
@@ -63,32 +63,36 @@ final readonly class UsersAdminEditorDefinitionFactory
         $indexUrl = $profileContext
             ? $this->urls->route(name: 'admin.dashboard')
             : $this->urls->route(name: 'admin.system.module.index', params: ['module' => 'users']);
-        $formAction = $profileContext
-            ? $this->urls->route(name: 'admin.system.users.profile')
-            : ($isCreate
-            ? $this->urls->route(name: 'admin.system.module.create', params: ['module' => 'users'])
-            : $this->urls->route(name: 'admin.system.module.edit', params: ['module' => 'users', 'id' => (int) $user['id']]));
-        $actionUrl = $profileContext
-            ? $this->urls->route(name: 'admin.system.users.profile.ajax')
-            : ($isCreate
-            ? $this->urls->route(name: 'admin.system.module.ajax.create', params: ['module' => 'users'])
-            : $this->urls->route(name: 'admin.system.module.ajax.entity', params: ['module' => 'users', 'id' => (int) $user['id']]));
+
+        if ($profileContext) {
+            $formAction = $this->urls->route(name: 'admin.system.users.profile');
+            $actionUrl = $this->urls->route(name: 'admin.system.users.profile.ajax');
+        } elseif ($isCreate) {
+            $formAction = $this->urls->route(name: 'admin.system.module.create', params: ['module' => 'users']);
+            $actionUrl = $this->urls->route(name: 'admin.system.module.ajax.create', params: ['module' => 'users']);
+        } else {
+            $formAction = $this->urls->route(name: 'admin.system.module.edit', params: ['module' => 'users', 'id' => (int) $user['id']]);
+            $actionUrl = $this->urls->route(name: 'admin.system.module.ajax.entity', params: ['module' => 'users', 'id' => (int) $user['id']]);
+        }
+
         $headerMetadata = [];
 
         $roleFields = [];
+
         if ($isCreate || $roleEditable) {
             $roleFields[] = Field::select(
                 name: 'role',
                 labelKey: 'users.fields.role',
             )
-                    ->required()
-                    ->options(['' => ''] + $roleOptions)
-                    ->optionLabelKeys(['' => 'users.editor.role_placeholder'])
-                    ->attributes([
-                        'data-lemonade-permission-role' => true,
-                        'data-lemonade-option-source' => 'static',
-                    ]);
+                ->required()
+                ->options(['' => ''] + $roleOptions)
+                ->optionLabelKeys(['' => 'users.editor.role_placeholder'])
+                ->attributes([
+                    'data-lemonade-permission-role' => true,
+                    'data-lemonade-option-source' => 'static',
+                ]);
         }
+
         $profileBlocks = [
             ...($hasExternalIdentity ? [new CustomViewBlock(
                 view: 'users::editor.external-profile-info',
@@ -132,6 +136,7 @@ final readonly class UsersAdminEditorDefinitionFactory
                 ],
             )]),
         ];
+
         if (!$isCreate) {
             array_unshift($profileBlocks, Field::hidden('version')
                 ->attributes([
@@ -139,6 +144,7 @@ final readonly class UsersAdminEditorDefinitionFactory
                     'data-lemonade-editor-version-value' => (string) ((int) ($user['version'] ?? 1)),
                 ]));
         }
+
         if ($profileContext) {
             $profileBlocks[] = Field::hidden('active')->defaultValue('1');
         }
@@ -153,6 +159,7 @@ final readonly class UsersAdminEditorDefinitionFactory
                 descriptionKey: 'users.editor.sections.profile_help',
             ),
         ];
+
         if ($roleFields !== []) {
             $basicBlocks[] = new SectionBlock(
                 id: 'access',
@@ -165,7 +172,8 @@ final readonly class UsersAdminEditorDefinitionFactory
         }
 
         $securityBlocks = [];
-        if (!$hasExternalIdentity) {
+
+        if (!$profileContext && !$hasExternalIdentity) {
             $securityBlocks[] = new SectionBlock(
                 id: 'password',
                 blocks: [
@@ -180,7 +188,8 @@ final readonly class UsersAdminEditorDefinitionFactory
                 descriptionKey: 'users.editor.sections.security_help',
             );
         }
-        if (!$isCreate) {
+
+        if (!$isCreate && !$profileContext) {
             $securityBlocks[] = new SectionBlock(
                 id: 'mfa',
                 blocks: [
@@ -205,41 +214,43 @@ final readonly class UsersAdminEditorDefinitionFactory
 
         $builder = AdminEditorBuilder::create('system.users')
             ->form(new AdminActionFormDefinition(
-                id: 'users-editor-form',
+                id: $profileContext ? 'users-profile-form' : 'users-editor-form',
                 action: $formAction,
                 actionUrl: $actionUrl,
                 actionKey: $isCreate ? 'create' : 'save',
                 novalidate: true,
                 navigateToEditAfterCreate: $isCreate,
-            ))
-            ->header(new AdminEditorHeaderDefinition(
+            ));
+
+        if (!$profileContext) {
+            $builder->header(new AdminEditorHeaderDefinition(
                 title: '',
                 titleKey: $titleKey,
                 description: '',
                 descriptionKey: $descriptionKey,
-                breadcrumbs: $profileContext
-                    ? [['label' => '', 'labelKey' => 'admin.account.profile', 'current' => true]]
-                    : [
-                        ['label' => '', 'labelKey' => 'users.module.name', 'href' => $indexUrl],
-                        ['label' => '', 'labelKey' => $titleKey, 'current' => true],
-                    ],
+                breadcrumbs: [
+                    ['label' => '', 'labelKey' => 'users.module.name', 'href' => $indexUrl],
+                    ['label' => '', 'labelKey' => $titleKey, 'current' => true],
+                ],
                 actions: [
                     new AdminEditorActionDefinition(label: '', labelKey: 'admin.common.back', href: $indexUrl),
                     new AdminEditorActionDefinition(label: '', labelKey: 'admin.common.save', submit: true, primary: true),
                 ],
                 metadata: $headerMetadata,
-            ))
-            ->saveBar(new AdminEditorSaveBarDefinition(
-                primaryAction: new AdminEditorActionDefinition(
-                    label: '',
-                    labelKey: 'admin.common.save_changes',
-                    submit: true,
-                    primary: true,
-                ),
-                secondaryAction: new AdminEditorActionDefinition(label: '', labelKey: 'admin.common.discard'),
-                titleKey: 'admin.editor.unsaved_changes',
-                descriptionKey: 'admin.editor.unsaved_changes_help',
-            ))
+            ));
+        }
+
+        $builder->saveBar(new AdminEditorSaveBarDefinition(
+            primaryAction: new AdminEditorActionDefinition(
+                label: '',
+                labelKey: 'admin.common.save_changes',
+                submit: true,
+                primary: true,
+            ),
+            secondaryAction: new AdminEditorActionDefinition(label: '', labelKey: 'admin.common.discard'),
+            titleKey: 'admin.editor.unsaved_changes',
+            descriptionKey: 'admin.editor.unsaved_changes_help',
+        ))
             ->tab(new AdminEditorTab(
                 id: 'basic',
                 label: '',
@@ -266,6 +277,7 @@ final readonly class UsersAdminEditorDefinitionFactory
                 labelKey: 'users.editor.tabs.permissions',
             ));
         }
+
         if ($securityBlocks !== []) {
             $builder->tab(new AdminEditorTab(
                 id: 'security',
@@ -274,7 +286,8 @@ final readonly class UsersAdminEditorDefinitionFactory
                 labelKey: 'users.editor.tabs.security',
             ));
         }
-        if (!$isCreate) {
+
+        if (!$isCreate && !$profileContext) {
             $builder->sidebar(new AdminEditorSidebarDefinition([
                 new SectionBlock(
                     id: 'summary',

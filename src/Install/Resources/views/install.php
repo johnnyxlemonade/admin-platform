@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 use Lemonade\Admin\Icon\AdminIcon;
 use Lemonade\Admin\Install\InstallStepStatus;
+use Lemonade\Admin\System\Users\Validation\UserPasswordPolicy;
 use Lemonade\Framework\View\View;
 use Lemonade\Framework\View\ViewHelpers;
 
-/** @var ViewHelpers $helpers */
-/** @var View $this */
-/** @var bool $initial */
-/** @var string $workflowEndpoint */
-/** @var array{ready:bool,checks:list<array{key:string,ok:bool,status:string,detail:string}>} $preflight */
-/** @var list<array{step:string,status:InstallStepStatus,messageKey:string}> $stepStates */
-/** @var array<string,string> $errors */
-/** @var string|null $generalError */
-/** @var array{success:bool,steps:list<array{key:string,ok:bool,error:string}>,rootCreated:bool}|null $result */
-/** @var string $email */
-/** @var array<string,mixed> $installerTranslations */
+/**
+ * @var ViewHelpers $helpers
+ * @var View $this
+ * @var bool $initial
+ * @var string $workflowEndpoint
+ * @var array{ready: bool, checks: list<array{key: string, ok: bool, status: string, detail: string}>} $preflight
+ * @var list<array{step: string, status: InstallStepStatus, messageKey: string}> $stepStates
+ * @var array<string, string> $errors
+ * @var string|null $generalError
+ * @var array{success: bool, steps: list<array{key: string, ok: bool, error: string}>, rootCreated: bool}|null $result
+ * @var string $email
+ * @var array<string, mixed> $installerTranslations
+ */
 
 $errorFor = static fn(string $field): string => isset($errors[$field]) ? (string) $errors[$field] : '';
 $preflightReady = $preflight['ready'];
@@ -39,7 +42,12 @@ $preflightReady = $preflight['ready'];
         'result' => $result,
     ]) ?>
 
-    <?php if (!$preflightReady): ?><div class="lemonade-install-preflight-blocked alert alert-warning" role="alert"><i class="<?= e(AdminIcon::ExclamationTriangle->cssClass()) ?>" aria-hidden="true"></i><span><?= e($helpers->lang('install.installErrors.preflight')) ?></span></div><?php endif; ?>
+    <?php if (!$preflightReady): ?>
+        <div class="lemonade-install-preflight-blocked alert alert-warning" role="alert">
+            <i class="<?= e(AdminIcon::ExclamationTriangle->cssClass()) ?>" aria-hidden="true"></i>
+            <span><?= e($helpers->lang('install.installErrors.preflight')) ?></span>
+        </div>
+    <?php endif; ?>
 
     <?php if ($preflightReady && ($result === null || !$result['success'])): ?>
         <form class="lemonade-install-form lm-auth-form" method="post" action="<?= e($workflowEndpoint) ?>" data-install-form data-install-progressive>
@@ -53,15 +61,27 @@ $preflightReady = $preflight['ready'];
                 <label class="form-label" for="install-email" data-lemonade-i18n="install.install.fields.email"><?= e($helpers->lang('install.install.fields.email')) ?></label>
                 <div class="lemonade-install-control"><span class="lm-auth-field-icon"><i class="<?= e(AdminIcon::Envelope->cssClass()) ?>" aria-hidden="true"></i></span><input class="form-control<?= $errorFor('email') === '' ? '' : ' is-invalid' ?>" id="install-email" name="email" type="email" value="<?= e($email) ?>" autocomplete="email" aria-describedby="install-email-help<?= $errorFor('email') === '' ? '' : ' install-email-error' ?>" required></div>
                 <span class="form-text" id="install-email-help" data-lemonade-i18n="install.installPresentation.help.email"><?= e($helpers->lang('install.installPresentation.help.email')) ?></span>
-                <?php if ($errorFor('email') !== ''): ?><span class="invalid-feedback d-block" id="install-email-error"><?= e($errorFor('email')) ?></span><?php endif; ?>
+                <?php if ($errorFor('email') !== ''): ?>
+                    <span class="invalid-feedback d-block" id="install-email-error"><?= e($errorFor('email')) ?></span>
+                <?php endif; ?>
             </div>
             <div class="lm-auth-field lemonade-install-field<?= $errorFor('password') === '' ? '' : ' has-error' ?>">
                 <label class="form-label" for="install-password" data-lemonade-i18n="install.install.fields.password"><?= e($helpers->lang('install.install.fields.password')) ?></label>
-                <div class="lemonade-install-control"><span class="lm-auth-field-icon"><i class="<?= e(AdminIcon::Lock->cssClass()) ?>" aria-hidden="true"></i></span><input class="form-control<?= $errorFor('password') === '' ? '' : ' is-invalid' ?>" id="install-password" name="password" type="password" autocomplete="new-password" aria-describedby="install-password-help<?= $errorFor('password') === '' ? '' : ' install-password-error' ?>" data-lemonade-password-input required><button class="lm-auth-password-toggle" type="button" data-lemonade-password-toggle aria-label="<?= e($helpers->lang('install.password.show')) ?>" data-lemonade-password-show-key="install.password.show" data-lemonade-password-hide-key="install.password.hide"><i class="<?= e(AdminIcon::Eye->cssClass()) ?>" aria-hidden="true"></i></button></div>
+                <div class="lemonade-install-control"><span class="lm-auth-field-icon"><i class="<?= e(AdminIcon::Lock->cssClass()) ?>" aria-hidden="true"></i></span><input class="form-control<?= $errorFor('password') === '' ? '' : ' is-invalid' ?>" id="install-password" name="password" type="password" minlength="<?= UserPasswordPolicy::MIN_LENGTH ?>" autocomplete="new-password" aria-describedby="install-password-help<?= $errorFor('password') === '' ? '' : ' install-password-error' ?>" data-lemonade-password-input required><button class="lm-auth-password-toggle" type="button" data-lemonade-password-toggle aria-label="<?= e($helpers->lang('install.password.show')) ?>" data-lemonade-password-show-key="install.password.show" data-lemonade-password-hide-key="install.password.hide"><i class="<?= e(AdminIcon::Eye->cssClass()) ?>" aria-hidden="true"></i></button></div>
                 <span class="form-text" id="install-password-help" data-lemonade-i18n="install.installPresentation.help.password"><?= e($helpers->lang('install.installPresentation.help.password')) ?></span>
-                <?php if ($errorFor('password') !== ''): ?><span class="invalid-feedback d-block" id="install-password-error"><?= e($errorFor('password')) ?></span><?php endif; ?>
+                <?php if ($errorFor('password') !== ''): ?>
+                    <span class="invalid-feedback d-block" id="install-password-error"><?= e($errorFor('password')) ?></span>
+                <?php endif; ?>
             </div>
-            <?php if ($errors !== [] && $errorFor('email') === '' && $errorFor('password') === ''): ?><div class="lemonade-install-form-errors" role="alert"><?php foreach ($errors as $error): ?><?= e($error) ?><br><?php endforeach; ?></div><?php endif; ?>
+
+            <?php if ($errors !== [] && $errorFor('email') === '' && $errorFor('password') === ''): ?>
+                <div class="lemonade-install-form-errors" role="alert">
+                    <?php foreach ($errors as $error): ?>
+                        <?= e($error) ?><br>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
             <button class="btn btn-primary lm-auth-submit lemonade-install-submit" type="submit" data-install-submit><span data-install-submit-label data-lemonade-i18n="install.install.actions.install"><?= e($helpers->lang('install.install.actions.install')) ?></span><span class="spinner-border spinner-border-sm" data-install-submit-spinner role="status" aria-hidden="true" hidden></span></button>
         </form>
     <?php endif; ?>

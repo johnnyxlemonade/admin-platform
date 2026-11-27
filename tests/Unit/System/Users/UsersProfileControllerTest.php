@@ -7,13 +7,15 @@ namespace Lemonade\Admin\Tests\Unit\System\Users;
 use Lemonade\Admin\Auth\AuthenticatedUser;
 use Lemonade\Admin\Authorization\CurrentPrincipalProviderInterface;
 use Lemonade\Admin\System\Users\Http\Controller\UsersProfileController;
-use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Verifies the self-profile controller identity boundary
+ */
 final class UsersProfileControllerTest extends TestCase
 {
     /**
-     * Overuje, ze profile controller ignoruje potencialni cilove ID a pouziva session identitu
+     * Verifies the profile target is resolved only from the current session identity
      */
     public function testItResolvesProfileTargetOnlyFromCurrentSessionUser(): void
     {
@@ -23,6 +25,6 @@ final class UsersProfileControllerTest extends TestCase
         (new \ReflectionProperty(UsersProfileController::class, 'currentUser'))->setValue($controller, $principals);
         $method = new \ReflectionMethod(UsersProfileController::class, 'currentUserId');
 
-        self::assertSame(17, $method->invoke($controller, (new ServerRequest('POST', '/admin/system/users/profile'))->withParsedBody(['id' => 99])));
+        self::assertSame(17, $method->invoke($controller));
     }
 }

@@ -13,10 +13,13 @@ use Lemonade\Framework\Routing\Router;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Verifies canonical self-service profile route registration
+ */
 final class UsersProfileRouteRegistrarTest extends TestCase
 {
     /**
-     * Overuje canonical self-service URL bez ciloveho Users ID
+     * Verifies canonical self-service URLs without a target user ID
      */
     public function testItRegistersProfilePageAndSaveTransports(): void
     {
@@ -24,12 +27,16 @@ final class UsersProfileRouteRegistrarTest extends TestCase
 
         self::assertSame(UsersProfileController::class, $router->match(new ServerRequest('GET', '/admin/system/users/profile'))->controller());
         self::assertSame('profile', $router->match(new ServerRequest('GET', '/admin/system/users/profile'))->action());
+        self::assertSame('security', $router->match(new ServerRequest('GET', '/admin/system/users/profile/security'))->action());
+        self::assertSame('preferences', $router->match(new ServerRequest('GET', '/admin/system/users/profile/preferences'))->action());
+        self::assertSame('activity', $router->match(new ServerRequest('GET', '/admin/system/users/profile/activity'))->action());
         self::assertSame('save', $router->match(new ServerRequest('POST', '/admin/system/users/profile'))->action());
+        self::assertSame('changePassword', $router->match(new ServerRequest('POST', '/admin/system/users/profile/password'))->action());
         self::assertSame('ajaxSave', $router->match(new ServerRequest('POST', '/admin/system/users/profile/ajax'))->action());
     }
 
     /**
-     * Overuje, ze Users edit URL nejdriv rozhodne canonical self redirect a jinak deleguje management flow
+     * Verifies the Users edit URL resolves the self redirect before the management flow
      */
     public function testItClaimsOnlyTheUsersEditRouteBeforeGenericManagementTransport(): void
     {
@@ -41,7 +48,7 @@ final class UsersProfileRouteRegistrarTest extends TestCase
     }
 
     /**
-     * Sestavuje router se specific Users registrarem pred generic System module routou
+     * Builds a router with the Users registrar before generic System module routes
      */
     private function router(): Router
     {
@@ -55,7 +62,7 @@ final class UsersProfileRouteRegistrarTest extends TestCase
     }
 
     /**
-     * Vraci minimalni registry Users segmentu pro generic route registrar
+     * Returns the minimal Users registry required by the generic route registrar
      */
     private function modules(): \Lemonade\Admin\Module\AdminModuleRegistry
     {

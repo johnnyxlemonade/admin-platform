@@ -14,6 +14,7 @@ use Lemonade\Admin\Install\InstallStepStatus;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Localization\ClientTranslationVersion;
 use Lemonade\Admin\Presentation\AdminPageRenderer;
+use Lemonade\Admin\System\Users\Validation\UserPasswordPolicy;
 use Lemonade\Framework\Core\Http\RequestData;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
 use Lemonade\Framework\Http\Request\HttpRequestInspector;
@@ -28,12 +29,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Obsluhuje HTTP tok instalace aplikace
+ * Handles the application installation HTTP workflow
  */
 final readonly class InstallController
 {
     /**
-     * Nastavuje zavislosti potrebne pro instalacni tok
+     * Creates the controller for installation and upgrade requests
      */
     public function __construct(
         private InstallationService $installation,
@@ -52,7 +53,7 @@ final readonly class InstallController
     ) {}
 
     /**
-     * Zobrazuje uvodni stranku instalace
+     * Displays the initial installation page
      */
     public function index(ServerRequestInterface $request): ResponseInterface
     {
@@ -64,7 +65,7 @@ final readonly class InstallController
     }
 
     /**
-     * Zobrazuje rootovi upgrade workflow nainstalovane aplikace
+     * Displays the installed application upgrade workflow to a root user
      */
     public function upgrade(ServerRequestInterface $request): ResponseInterface
     {
@@ -76,7 +77,7 @@ final readonly class InstallController
     }
 
     /**
-     * Spousti pozadovany krok instalace
+     * Runs the requested installation step
      */
     public function run(ServerRequestInterface $request): ResponseInterface
     {
@@ -88,7 +89,7 @@ final readonly class InstallController
     }
 
     /**
-     * Spousti rootem schvaleny upgrade workflow nainstalovane aplikace
+     * Runs an installed application upgrade authorized by a root user
      */
     public function runUpgrade(ServerRequestInterface $request): ResponseInterface
     {
@@ -100,11 +101,12 @@ final readonly class InstallController
     }
 
     /**
-     * Provadi initial instalaci nebo upgrade podle autorizovaneho HTTP vstupu
+     * Executes the authorized installation or upgrade workflow
      */
     private function runWorkflow(ServerRequestInterface $request, bool $initial): ResponseInterface
     {
         $preflight = $this->installation->preflight();
+
         if (!$preflight['ready']) {
             return $this->preflightFailureResponse($request, $initial);
         }
@@ -119,8 +121,9 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok show v instalaci aplikace
-     * @param array<string,mixed> $extra
+     * Renders the installation workflow with optional response data
+     *
+     * @param array<string, mixed> $extra
      */
     private function show(ServerRequestInterface $request, bool $initial, array $extra = [], ?int $status = null): ResponseInterface
     {
@@ -148,6 +151,7 @@ final readonly class InstallController
             'result' => $extra['result'] ?? null,
             'email' => $extra['email'] ?? '',
         ];
+
         if (!$initial) {
             return $this->adminPages->render('admin-install::upgrade', [
                 ...$data,
@@ -160,7 +164,7 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok preflightfailureresponse v instalaci aplikace
+     * Returns the preflight failure response for the requested workflow
      */
     private function preflightFailureResponse(ServerRequestInterface $request, bool $initial): ResponseInterface
     {
@@ -172,7 +176,7 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok runhtml v instalaci aplikace
+     * Runs an installation step submitted through the HTML workflow
      */
     private function runHtml(bool $initial, ServerRequestInterface $request): ResponseInterface
     {
@@ -180,14 +184,17 @@ final readonly class InstallController
             'email' => (string) (new RequestData($request))->post('email', ''),
             'password' => (string) (new RequestData($request))->post('password', ''),
         ];
+
         if ($initial) {
             $validation = $this->validateRootCredentials($input);
+
             if (!$validation->isValid()) {
                 return $this->show($request, true, [
                     'errors' => $validation->errors(),
                     'email' => $input['email'],
                 ], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
             }
+
             $input['email'] = (string) $validation->validated()['email'];
             $input['password'] = (string) $validation->validated()['password'];
         }
@@ -203,22 +210,25 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok runjson v instalaci aplikace
+     * Runs an installation step submitted through the JSON workflow
      */
     private function runJson(bool $initial, ServerRequestInterface $request): ResponseInterface
     {
         $step = InstallStep::tryFrom((string) (new RequestData($request))->input('step', ''));
+
         if ($step === null) {
             return $this->jsonError($step, 'install.installErrors.step_invalid', HttpStatusCode::UNPROCESSABLE_ENTITY->value);
         }
 
         $email = null;
         $password = null;
+
         if ($step === InstallStep::Root && $initial) {
             $validation = $this->validateRootCredentials([
                 'email' => (string) (new RequestData($request))->input('email', ''),
                 'password' => (string) (new RequestData($request))->input('password', ''),
             ]);
+
             if (!$validation->isValid()) {
                 $message = (string) (array_values($validation->errors())[0] ?? $this->translator->get('install.install.result.failure'));
 
@@ -231,11 +241,13 @@ final readonly class InstallController
                     HttpStatusCode::UNPROCESSABLE_ENTITY->value,
                 );
             }
+
             $email = (string) $validation->validated()['email'];
             $password = (string) $validation->validated()['password'];
         }
 
         $result = $this->installation->executeStep($step, $initial, $email, $password);
+
         if ($result['status'] === InstallStepStatus::Success && (($initial && $step === InstallStep::Root) || (!$initial && $step === InstallStep::Permissions))) {
             $this->installation->clearInstallState();
         }
@@ -253,12 +265,14 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok jsonstep v instalaci aplikace
-     * @param array<string,mixed> $extra
+     * Creates a JSON response for an installation step
+     *
+     * @param array<string, mixed> $extra
      */
     private function jsonStep(?InstallStep $step, InstallStepStatus $status, string $message, ?InstallStep $nextStep, array $extra = [], ?int $httpStatus = null): ResponseInterface
     {
         $httpStatus ??= HttpStatusCode::OK->value;
+
         return $this->responses->json([
             'success' => $status !== InstallStepStatus::Error,
             'step' => $step?->value,
@@ -271,7 +285,7 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok jsonerror v instalaci aplikace
+     * Creates a localized JSON error response
      */
     private function jsonError(?InstallStep $step, string $messageKey, int $status): ResponseInterface
     {
@@ -279,15 +293,17 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok authorizeinitialrequest v instalaci aplikace
+     * Authorizes an initial installation request
      */
     private function authorizeInitialRequest(ServerRequestInterface $request): bool
     {
         $provided = (string) (new RequestData($request))->input('install_key', '');
+
         if ($provided !== '') {
             if (!$this->validInstallKey($provided)) {
                 return false;
             }
+
             $this->installation->authorizeInstall();
 
             return true;
@@ -297,7 +313,7 @@ final readonly class InstallController
     }
 
     /**
-     * Rozhoduje, zda plati podminka validinstallkey
+     * Verifies the supplied installation key
      */
     private function validInstallKey(string $provided): bool
     {
@@ -307,8 +323,9 @@ final readonly class InstallController
     }
 
     /**
-     * Rozhoduje, zda plati podminka validaterootcredentials
-     * @param array<string,mixed> $input
+     * Validates the initial root account credentials
+     *
+     * @param array<string, mixed> $input
      */
     private function validateRootCredentials(array $input): ValidationResult
     {
@@ -319,13 +336,14 @@ final readonly class InstallController
                 ->maxLength(254, $this->translator->get('install.install.validation.email_invalid'))
             ->field('password', $this->translator->get('install.install.fields.password'))
                 ->required($this->translator->get('install.install.validation.password_required'))
-                ->minLength(12, $this->translator->get('install.install.validation.password_min_length'))
+                ->minLength(UserPasswordPolicy::MIN_LENGTH, $this->translator->get('install.install.validation.password_min_length'))
             ->end());
     }
 
     /**
-     * Zpracovava krok installertranslations v instalaci aplikace
-     * @return array<string,array<string,mixed>>
+     * Returns installer translations for all supported locales
+     *
+     * @return array<string, array<string, mixed>>
      */
     private function installerTranslations(): array
     {
@@ -336,8 +354,9 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok installerlocale v instalaci aplikace
-     * @return array<string,array<string,mixed>>
+     * Returns the installer translations for one locale
+     *
+     * @return array<string, array<string, mixed>>
      */
     private function installerLocale(string $locale): array
     {
@@ -478,7 +497,7 @@ final readonly class InstallController
     }
 
     /**
-     * Rozhoduje, zda plati podminka isrootuser
+     * Reports whether the current user has root authority
      */
     private function isRootUser(): bool
     {
@@ -489,7 +508,7 @@ final readonly class InstallController
     }
 
     /**
-     * Rozhoduje, zda existuje canonical root ucet a aplikace je nainstalovana
+     * Reports whether the application and canonical root account are installed
      */
     private function installed(): bool
     {
@@ -497,7 +516,7 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok notfound v instalaci aplikace
+     * Creates the installation not-found response
      */
     private function notFound(): ResponseInterface
     {
@@ -505,9 +524,10 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok localizeresult v instalaci aplikace
-     * @param array{success:bool,steps:list<array{key:string,ok:bool,error:string}>,rootCreated:bool} $result
-     * @return array{success:bool,steps:list<array{key:string,ok:bool,error:string}>,rootCreated:bool}
+     * Localizes an installation execution result
+     *
+     * @param array{success: bool, steps: list<array{key: string, ok: bool, error: string}>, rootCreated: bool} $result
+     * @return array{success: bool, steps: list<array{key: string, ok: bool, error: string}>, rootCreated: bool}
      */
     private function localizeResult(array $result): array
     {
@@ -520,9 +540,10 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok localizepreflight v instalaci aplikace
-     * @param array{ready:bool,checks:list<array{key:string,ok:bool,status:string,detail:string}>} $preflight
-     * @return array{ready:bool,checks:list<array{key:string,ok:bool,status:string,detail:string}>}
+     * Localizes an installation preflight result
+     *
+     * @param array{ready: bool, checks: list<array{key: string, ok: bool, status: string, detail: string}>} $preflight
+     * @return array{ready: bool, checks: list<array{key: string, ok: bool, status: string, detail: string}>}
      */
     private function localizePreflight(array $preflight): array
     {
@@ -535,7 +556,7 @@ final readonly class InstallController
     }
 
     /**
-     * Zpracovava krok localizeinstallermessage v instalaci aplikace
+     * Localizes a known installer message key
      */
     private function localizeInstallerMessage(string $message): string
     {
