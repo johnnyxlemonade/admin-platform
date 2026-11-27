@@ -10,9 +10,11 @@ use Lemonade\Admin\Http\Controller\ModuleController;
 use Lemonade\Admin\Http\Middleware\AdminAuthenticationMiddleware;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminNavigationGroup;
+use Lemonade\Admin\Module\Exception\AdminModuleNotFoundException;
 use Lemonade\Framework\Routing\ControllerAction;
 use Lemonade\Framework\Routing\Router;
 use Lemonade\Framework\Security\Csrf\CsrfMiddleware;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Registruje obecne routy pro prenos pozadavku admin modulu
@@ -63,7 +65,6 @@ final readonly class AdminModuleRouteRegistrar implements AdminRouteRegistrarInt
      */
     private function registerManagementRoutes(Router $router, AdminNavigationGroup $group): void
     {
-        $segments = $this->segmentsForGroup($group);
         $prefix = '/' . $group->value . '/{module}';
         $routePrefix = 'admin.' . $group->value . '.module.';
         $router->getNamed(
@@ -73,7 +74,7 @@ final readonly class AdminModuleRouteRegistrar implements AdminRouteRegistrarInt
                 controllerClass: ModuleController::class,
                 method: 'index',
             ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
+        )->constrainParameterUsing('module', fn(string $segment, ?ServerRequestInterface $request): bool => $this->belongsToGroup($segment, $group, $request))->middleware(AdminAuthenticationMiddleware::class);
         $router->getNamed(
             name: $routePrefix . 'create',
             path: $prefix . '/create',
@@ -81,7 +82,7 @@ final readonly class AdminModuleRouteRegistrar implements AdminRouteRegistrarInt
                 controllerClass: ModuleController::class,
                 method: 'create',
             ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
+        )->constrainParameterUsing('module', fn(string $segment, ?ServerRequestInterface $request): bool => $this->belongsToGroup($segment, $group, $request))->middleware(AdminAuthenticationMiddleware::class);
         $router->postNamed(
             name: $routePrefix . 'store',
             path: $prefix . '/create',
@@ -89,7 +90,7 @@ final readonly class AdminModuleRouteRegistrar implements AdminRouteRegistrarInt
                 controllerClass: ModuleController::class,
                 method: 'store',
             ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
+        )->constrainParameterUsing('module', fn(string $segment, ?ServerRequestInterface $request): bool => $this->belongsToGroup($segment, $group, $request))->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
         $router->getNamed(
             name: $routePrefix . 'edit',
             path: $prefix . '/edit/{id}',
@@ -97,7 +98,7 @@ final readonly class AdminModuleRouteRegistrar implements AdminRouteRegistrarInt
                 controllerClass: ModuleController::class,
                 method: 'edit',
             ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class);
+        )->constrainParameterUsing('module', fn(string $segment, ?ServerRequestInterface $request): bool => $this->belongsToGroup($segment, $group, $request))->middleware(AdminAuthenticationMiddleware::class);
         $router->postNamed(
             name: $routePrefix . 'update',
             path: $prefix . '/edit/{id}',
@@ -105,7 +106,7 @@ final readonly class AdminModuleRouteRegistrar implements AdminRouteRegistrarInt
                 controllerClass: ModuleController::class,
                 method: 'update',
             ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
+        )->constrainParameterUsing('module', fn(string $segment, ?ServerRequestInterface $request): bool => $this->belongsToGroup($segment, $group, $request))->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
         $router->postNamed(
             name: $routePrefix . 'ajax.create',
             path: $prefix . '/ajax',
@@ -113,7 +114,7 @@ final readonly class AdminModuleRouteRegistrar implements AdminRouteRegistrarInt
                 controllerClass: ModuleActionController::class,
                 method: 'create',
             ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
+        )->constrainParameterUsing('module', fn(string $segment, ?ServerRequestInterface $request): bool => $this->belongsToGroup($segment, $group, $request))->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
         $router->postNamed(
             name: $routePrefix . 'ajax.entity',
             path: $prefix . '/ajax/{id}',
@@ -121,23 +122,24 @@ final readonly class AdminModuleRouteRegistrar implements AdminRouteRegistrarInt
                 controllerClass: ModuleActionController::class,
                 method: 'entity',
             ),
-        )->constrainParameter('module', $segments)->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
+        )->constrainParameterUsing('module', fn(string $segment, ?ServerRequestInterface $request): bool => $this->belongsToGroup($segment, $group, $request))->middleware(AdminAuthenticationMiddleware::class, CsrfMiddleware::class);
     }
 
     /**
-     * Vraci registrovane segmenty pro jednu canonical navigation group
-     *
-     * @return list<string>
+     * Overi ze lazy registrovany modul patri do skupiny odpovidajici route
      */
-    private function segmentsForGroup(AdminNavigationGroup $group): array
+    private function belongsToGroup(string $segment, AdminNavigationGroup $group, ?ServerRequestInterface $request): bool
     {
-        $segments = [];
-        foreach ($this->modules->all() as $definition) {
-            if ($definition->adminMetadata()->navigationGroup() === $group) {
-                $segments[] = $definition->adminMetadata()->routeSegment();
-            }
+        $modules = $request?->getAttribute(AdminModuleRegistry::class) ?? $this->modules;
+        if (!$modules instanceof AdminModuleRegistry) {
+            throw new \LogicException('Invalid request module registry.');
+        }
+        try {
+            $code = $modules->moduleCodeByRouteSegment($segment);
+        } catch (AdminModuleNotFoundException) {
+            return false;
         }
 
-        return $segments;
+        return $modules->definition($code)->adminMetadata()->navigationGroup() === $group;
     }
 }

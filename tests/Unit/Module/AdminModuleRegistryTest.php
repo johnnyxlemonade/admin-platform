@@ -6,6 +6,7 @@ namespace Lemonade\Admin\Tests\Unit\Module;
 
 use InvalidArgumentException;
 use Lemonade\Admin\Icon\AdminIcon;
+use Lemonade\Admin\Module\AdminModuleContributionLoader;
 use Lemonade\Admin\Module\AdminModuleMetadata;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
@@ -50,6 +51,25 @@ final class AdminModuleRegistryTest extends TestCase
         $registry->register($this->definition('system.second', 'users'));
     }
 
+    public function testItLoadsDeferredModuleContributionsOnceOnFirstLookup(): void
+    {
+        $loads = 0;
+        $contributions = new AdminModuleContributionLoader();
+        $registry = new AdminModuleRegistry(new AdminNavigationGroupRegistry(), $contributions);
+        $definition = $this->definition('cms.type_1', 'type-news', AdminNavigationGroup::Content);
+        $contributions->defer(static function () use ($registry, $definition, &$loads): void {
+            $loads++;
+            $registry->register($definition);
+        });
+
+        self::assertSame(0, $loads);
+        self::assertSame([], $registry->registeredWithoutLoading());
+        self::assertSame($definition, (new AdminModuleRouteResolver($registry))->resolve('type-news'));
+        self::assertSame(1, $loads);
+        self::assertSame([$definition], $registry->all());
+        self::assertSame(1, $loads);
+    }
+
     /**
      * Management route family vychazi jen z enumove navigation group
      */
@@ -69,6 +89,31 @@ final class AdminModuleRegistryTest extends TestCase
         self::assertSame('admin.system.module.index', $routes->managementRouteName('users', 'index'));
         self::assertSame('admin.cms.module.edit', $routes->managementRouteName('news', 'edit'));
         self::assertSame('admin.settings.module.ajax.entity', $routes->managementRouteName('settings', 'ajax.entity'));
+    }
+
+    /**
+     * Unknown segments miss normally, while database failures retain their identity
+     */
+    public function testRoutingDoesNotHideContributionFailures(): void
+    {
+        $failure = new \Lemonade\Framework\Database\Exception\DatabaseException('Catalog unavailable');
+        $loader = new AdminModuleContributionLoader();
+        $loader->defer(static function () use ($failure): void {
+            throw $failure;
+        });
+        $registry = new AdminModuleRegistry(new AdminNavigationGroupRegistry(), $loader);
+        $router = new \Lemonade\Framework\Routing\Router();
+        (new \Lemonade\Admin\Routing\AdminModuleRouteRegistrar($registry))->registerRoutes($router);
+        try {
+            $router->match(new \Nyholm\Psr7\ServerRequest('GET', '/content/type-news'));
+            self::fail('Bootstrap failure was hidden');
+        } catch (\Lemonade\Framework\Database\Exception\DatabaseException $actual) {
+            self::assertSame($failure, $actual);
+        }
+        $emptyRouter = new \Lemonade\Framework\Routing\Router();
+        (new \Lemonade\Admin\Routing\AdminModuleRouteRegistrar($this->adminRegistry()))->registerRoutes($emptyRouter);
+        $this->expectException(\Lemonade\Framework\Routing\Exception\RouteNotFoundException::class);
+        $emptyRouter->match(new \Nyholm\Psr7\ServerRequest('GET', '/content/unknown'));
     }
 
     private function definition(string $code, string $segment, AdminNavigationGroup $group = AdminNavigationGroup::System): AdminModuleDefinitionInterface

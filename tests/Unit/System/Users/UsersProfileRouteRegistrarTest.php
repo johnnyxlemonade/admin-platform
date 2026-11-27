@@ -66,10 +66,10 @@ final class UsersProfileRouteRegistrarTest extends TestCase
      */
     private function modules(): \Lemonade\Admin\Module\AdminModuleRegistry
     {
-        $registry = (new \ReflectionClass(\Lemonade\Admin\Module\AdminModuleRegistry::class))->newInstanceWithoutConstructor();
-        (new \ReflectionProperty(\Lemonade\Admin\Module\AdminModuleRegistry::class, 'definitions'))->setValue($registry, [
-            'system.users' => new UsersModuleDefinition(),
-        ]);
+        $registry = new \Lemonade\Admin\Module\AdminModuleRegistry(
+            new \Lemonade\Admin\Navigation\AdminNavigationGroupRegistry(),
+        );
+        $registry->register(new UsersModuleDefinition());
 
         return $registry;
     }

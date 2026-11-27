@@ -12,10 +12,10 @@ use Lemonade\Admin\Editor\Lock\EditorLockManager;
 use Lemonade\Admin\Http\AdminErrorCode;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
+use Lemonade\Admin\Module\Exception\AdminModuleNotFoundException;
 use Lemonade\Admin\Module\ModuleProviderResolver;
 use Lemonade\Admin\Page\ModulePageRegistry;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
-use RuntimeException;
 
 /**
  * Overuje a spousti registrovane admin akce modulu
@@ -43,7 +43,7 @@ final readonly class ModuleActionDispatcher
     {
         try {
             $module = $this->routes->resolve($segment);
-        } catch (RuntimeException) {
+        } catch (AdminModuleNotFoundException) {
             throw new ModuleActionException(
                 HttpStatusCode::NOT_FOUND,
                 AdminErrorCode::NOT_FOUND,

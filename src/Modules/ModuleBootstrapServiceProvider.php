@@ -151,7 +151,7 @@ final class ModuleBootstrapServiceProvider implements DefinitionServiceProviderI
     private function registerModuleFileCapabilities(ContainerInterface $container): void
     {
         $usages = $container->get(AdminFileUsageRegistry::class);
-        foreach ($container->get(AdminModuleRegistry::class)->all() as $definition) {
+        foreach ($container->get(AdminModuleRegistry::class)->registeredWithoutLoading() as $definition) {
             if (!$definition instanceof AdminModuleFileCapabilitiesInterface) {
                 continue;
             }

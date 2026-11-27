@@ -14,6 +14,7 @@ use Lemonade\Admin\Http\AdminAuthorizationResponseHandler;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
+use Lemonade\Admin\Module\Exception\AdminModuleNotFoundException;
 use Lemonade\Admin\Module\ModuleProviderResolver;
 use Lemonade\Admin\Page\ModulePage;
 use Lemonade\Framework\Core\Http\RequestData;
@@ -101,7 +102,7 @@ final readonly class EditorModalController
     {
         try {
             $definition = $this->routes->resolve($module);
-        } catch (\RuntimeException) {
+        } catch (AdminModuleNotFoundException) {
             return [null, '', false];
         }
 

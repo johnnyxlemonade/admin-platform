@@ -38,7 +38,7 @@ final readonly class AdminPageRenderer
      *
      * @param array<string, mixed> $data
      */
-    public function render(string $view, array $data = [], int $status = 200): ResponseInterface
+    public function render(string $view, array $data = [], int $status = 200, bool $withNavigation = true): ResponseInterface
     {
         $currentUser = $this->currentUser->currentUser();
         $avatarInitials = AdminAvatarInitials::resolve($currentUser);
@@ -49,7 +49,7 @@ final readonly class AdminPageRenderer
         $pageData = [
             'activeAdminModule' => null,
             ...$data,
-            'navigation' => $this->navigation->items(),
+            'navigation' => $withNavigation ? $this->navigation->items() : [],
             'currentUser' => $currentUser,
             'isRootUser' => $currentUser !== null && $this->authorization->isRoot($currentUser),
             'avatar' => $avatar,

@@ -14,6 +14,7 @@ use Lemonade\Admin\Module\AdminModuleMetadata;
 use Lemonade\Admin\Module\AdminModuleRegistry;
 use Lemonade\Admin\Module\AdminNavigationGroup;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
+use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
 use Lemonade\Admin\Notification\Routing\NotificationRouteRegistrar;
 use Lemonade\Admin\Routing\AdminModuleRouteRegistrar;
 use Lemonade\Admin\Routing\AdminRoutePrefixRegistrar;
@@ -117,7 +118,7 @@ final class AdminRoutingConfigurationTest extends TestCase
      */
     private function modules(): AdminModuleRegistry
     {
-        $registry = (new \ReflectionClass(AdminModuleRegistry::class))->newInstanceWithoutConstructor();
+        $registry = new AdminModuleRegistry(new AdminNavigationGroupRegistry());
         $definitions = [
             new \Lemonade\Admin\System\Audit\AuditModuleDefinition(),
             new \Lemonade\Admin\System\Languages\LanguagesModuleDefinition(),
@@ -128,8 +129,9 @@ final class AdminRoutingConfigurationTest extends TestCase
             new \Lemonade\Admin\System\Users\UsersModuleDefinition(),
             $this->cmsNewsDefinition(),
         ];
-        $property = new \ReflectionProperty(AdminModuleRegistry::class, 'definitions');
-        $property->setValue($registry, array_combine(array_map(static fn($definition): string => $definition->code(), $definitions), $definitions));
+        foreach ($definitions as $definition) {
+            $registry->register($definition);
+        }
 
         return $registry;
     }

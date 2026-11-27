@@ -12,6 +12,7 @@ use Lemonade\Admin\Http\AdminErrorCode;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
+use Lemonade\Admin\Module\Exception\AdminModuleNotFoundException;
 use Lemonade\Admin\Module\ModuleProviderResolver;
 use Lemonade\Framework\Core\Http\RequestData;
 use Lemonade\Framework\Http\HttpStatus as HttpStatusCode;
@@ -45,7 +46,7 @@ final readonly class DataGridController
     {
         try {
             $definition = $this->routes->resolve($module);
-        } catch (\RuntimeException) {
+        } catch (AdminModuleNotFoundException) {
             return $this->notFound(AdminErrorCode::MODULE_NOT_FOUND, 'Module not found.');
         }
         $moduleCode = $definition->code();

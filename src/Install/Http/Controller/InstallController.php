@@ -157,7 +157,7 @@ final readonly class InstallController
                 ...$data,
                 'title' => $this->translator->get('admin.account.system_upgrade'),
                 'workflowCompletedUrl' => $this->router->url('admin.dashboard'),
-            ], $status);
+            ], $status, withNavigation: false);
         }
 
         return $this->pages->render('admin-install::install', $data, $status);

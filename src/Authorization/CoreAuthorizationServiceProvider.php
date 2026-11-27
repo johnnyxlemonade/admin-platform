@@ -24,7 +24,6 @@ final readonly class CoreAuthorizationServiceProvider implements ServiceProvider
     {
         $container->scoped(AuthorizationService::class, AuthorizationService::class);
         $container->alias(AuthorizationResolverInterface::class, AuthorizationService::class);
-        $container->singleton(PermissionCatalogRegistry::class, PermissionCatalogRegistry::class);
     }
 
     /**

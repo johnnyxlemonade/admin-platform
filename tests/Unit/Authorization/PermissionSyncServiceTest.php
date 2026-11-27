@@ -7,6 +7,7 @@ namespace Lemonade\Admin\Tests\Unit\Authorization;
 use Lemonade\Admin\Authorization\PermissionCatalogRegistry;
 use Lemonade\Admin\Authorization\PermissionDefinition;
 use Lemonade\Admin\Authorization\PermissionSyncService;
+use Lemonade\Admin\Module\AdminModuleContributionLoader;
 use Lemonade\Framework\Database\Connection\ConnectionInterface;
 use Lemonade\Framework\Database\Database;
 use Lemonade\Framework\Database\DatabaseDriverInterface;
@@ -23,7 +24,7 @@ final class PermissionSyncServiceTest extends TestCase
             new PermissionDefinition('system.modules.view', 'system.modules', 'modules.permissions.view'),
         );
 
-        (new PermissionSyncService($catalog, $this->database($state)))->sync();
+        (new PermissionSyncService($catalog, $this->database($state), new AdminModuleContributionLoader()))->sync();
 
         self::assertSame([], $state->administratorPermissions());
         $permissionCodes = array_keys($state->permissions);
@@ -40,7 +41,7 @@ final class PermissionSyncServiceTest extends TestCase
             new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'),
             new PermissionDefinition('system.media.view', 'system.media', 'media.permissions.view'),
         );
-        $service = new PermissionSyncService($catalog, $this->database($state));
+        $service = new PermissionSyncService($catalog, $this->database($state), new AdminModuleContributionLoader());
 
         $service->sync();
 
@@ -60,7 +61,7 @@ final class PermissionSyncServiceTest extends TestCase
         ], ['system.media.legacy', 'system.users.view']);
         $catalog = $this->catalog(new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'));
 
-        $report = (new PermissionSyncService($catalog, $this->database($state)))->sync();
+        $report = (new PermissionSyncService($catalog, $this->database($state), new AdminModuleContributionLoader()))->sync();
 
         self::assertSame(['system.media.legacy'], $report->stale());
         self::assertSame(['system.media.legacy', 'system.users.view'], $state->administratorPermissions());
@@ -72,9 +73,39 @@ final class PermissionSyncServiceTest extends TestCase
         $state = new PermissionSyncState();
         $catalog = $this->catalog(new PermissionDefinition('system.users.view', 'system.users', 'users.permissions.view'));
 
-        (new PermissionSyncService($catalog, $this->database($state)))->sync();
+        (new PermissionSyncService($catalog, $this->database($state), new AdminModuleContributionLoader()))->sync();
 
         self::assertSame('users.permissions.view', $state->permissions['system.users.view']['name_key']);
+    }
+
+    /**
+     * Full synchronization includes definitions supplied by deferred modules
+     */
+    public function testFullSyncLoadsDeferredPermissions(): void
+    {
+        $state = new PermissionSyncState();
+        $catalog = new PermissionCatalogRegistry();
+        $loader = new AdminModuleContributionLoader();
+        $loader->defer(static function () use ($catalog): void {
+            $catalog->register(new PermissionDefinition('cms.type_1.view', 'cms.type_1', 'records.permissions.view'));
+        });
+        (new PermissionSyncService($catalog, $this->database($state), $loader))->sync();
+        self::assertArrayHasKey('cms.type_1.view', $state->permissions);
+    }
+
+    /**
+     * A new type projects only its own definitions without loading the global catalog
+     */
+    public function testTargetedSyncDoesNotLoadDeferredContributions(): void
+    {
+        $state = new PermissionSyncState();
+        $loader = new AdminModuleContributionLoader();
+        $loader->defer(static function (): void {
+            self::fail('Targeted projection loaded all modules');
+        });
+        $service = new PermissionSyncService(new PermissionCatalogRegistry(), $this->database($state), $loader);
+        $service->syncDefinitions([new PermissionDefinition('cms.type_1.view', 'cms.type_1', 'records.permissions.view')]);
+        self::assertSame(['cms.type_1.view'], array_keys($state->permissions));
     }
 
     private function catalog(PermissionDefinition ...$definitions): PermissionCatalogRegistry

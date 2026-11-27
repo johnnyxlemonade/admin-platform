@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lemonade\Admin\Authorization;
 
+use Lemonade\Admin\Module\AdminModuleContributionLoader;
 use Lemonade\Framework\Database\Database;
 
 /**
@@ -14,6 +15,7 @@ final readonly class PermissionSyncService
     public function __construct(
         private PermissionCatalogRegistry $catalog,
         private Database $database,
+        private AdminModuleContributionLoader $moduleContributions,
     ) {}
 
     /**
@@ -21,6 +23,8 @@ final readonly class PermissionSyncService
      */
     public function sync(): PermissionSyncReport
     {
+        $this->moduleContributions->load();
+
         return $this->syncDefinitions($this->catalog->all(), true);
     }
 

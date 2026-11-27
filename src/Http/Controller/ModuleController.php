@@ -18,6 +18,7 @@ use Lemonade\Admin\Identity\LocalActorRequiredException;
 use Lemonade\Admin\Localization\AdminUiLocale;
 use Lemonade\Admin\Module\AdminModuleAccessPolicy;
 use Lemonade\Admin\Module\AdminModuleRouteResolver;
+use Lemonade\Admin\Module\Exception\AdminModuleNotFoundException;
 use Lemonade\Admin\Module\ModuleProviderResolver;
 use Lemonade\Admin\Page\ModulePage;
 use Lemonade\Admin\Presentation\AdminPageRenderer;
@@ -282,7 +283,7 @@ final readonly class ModuleController
         $locale = $this->locale->activate(null, (string) (new RequestData($request))->cookie('lemonade_locale', ''));
         try {
             $definition = $this->routes->resolve($segment);
-        } catch (\RuntimeException) {
+        } catch (AdminModuleNotFoundException) {
             return [null, $locale, false];
         }
 
@@ -299,7 +300,7 @@ final readonly class ModuleController
                 $this->routes->managementRouteName($segment, 'index'),
                 ['module' => $segment],
             );
-        } catch (\RuntimeException) {
+        } catch (AdminModuleNotFoundException) {
             return $this->urls->route('admin.dashboard');
         }
     }

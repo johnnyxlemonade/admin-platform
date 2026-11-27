@@ -48,7 +48,6 @@ final readonly class AdminEditorServiceProvider implements ServiceProviderInterf
      */
     public function register(ContainerBuilderInterface $container): void
     {
-        $container->singleton(EditorRegistry::class, EditorRegistry::class);
         $container->scoped(EditorDispatcher::class, EditorDispatcher::class);
         $container->scoped(AdminEditorFieldRenderer::class, static fn(ContainerInterface $container): AdminEditorFieldRenderer => new AdminEditorFieldRenderer(
             helpers: $container->get(ViewHelpers::class),

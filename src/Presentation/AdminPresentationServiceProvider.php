@@ -50,7 +50,6 @@ final readonly class AdminPresentationServiceProvider implements ServiceProvider
      */
     public function register(ContainerBuilderInterface $container): void
     {
-        $container->singleton(AdminFileUsageRegistry::class, AdminFileUsageRegistry::class);
         $container->transient(ImageAssetResolverInterface::class, AdminFileImageAssetResolver::class);
         $container->scoped(AdminPageRenderer::class, AdminPageRenderer::class);
         $container->scoped(AdminResponseFactory::class, AdminResponseFactory::class);

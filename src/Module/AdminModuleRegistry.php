@@ -7,8 +7,8 @@ namespace Lemonade\Admin\Module;
 use InvalidArgumentException;
 use Lemonade\Admin\Authorization\PermissionSection;
 use Lemonade\Admin\Module\Contract\AdminModuleDefinitionInterface;
+use Lemonade\Admin\Module\Exception\AdminModuleNotFoundException;
 use Lemonade\Admin\Navigation\AdminNavigationGroupRegistry;
-use RuntimeException;
 
 /**
  * Uchovava registrovane administracni moduly a jejich URL segmenty
@@ -21,10 +21,28 @@ final class AdminModuleRegistry
     /** @var array<string, string> */
     private array $routeSegments = [];
 
+    private AdminModuleContributionLoader $contributions;
+
     /**
      * Nastavuje zavislosti potrebne pro praci s administracnimi moduly
      */
-    public function __construct(private readonly AdminNavigationGroupRegistry $navigationGroups) {}
+    public function __construct(
+        private readonly AdminNavigationGroupRegistry $navigationGroups,
+        ?AdminModuleContributionLoader $contributions = null,
+    ) {
+        $this->contributions = $contributions ?? new AdminModuleContributionLoader();
+    }
+
+    /**
+     * Copies static definitions and attaches the current scope's deferred contributions
+     */
+    public function withContributions(AdminModuleContributionLoader $contributions): self
+    {
+        $copy = clone $this;
+        $copy->contributions = $contributions;
+
+        return $copy;
+    }
 
     /**
      * Registruje modul a overuje jedinecnost jeho kodu a segmentu
@@ -54,20 +72,22 @@ final class AdminModuleRegistry
     }
 
     /**
-     * Rozhoduje, zda je modul zaregistrovan
+     * Loads deferred contributions and checks whether the module exists
      */
     public function has(string $moduleCode): bool
     {
+        $this->contributions->load();
+
         return isset($this->definitions[$moduleCode]);
     }
 
     /**
-     * Vraci definici zaregistrovaneho modulu
+     * Loads deferred contributions and returns the module definition
      */
     public function definition(string $moduleCode): AdminModuleDefinitionInterface
     {
         if (!$this->has($moduleCode)) {
-            throw new RuntimeException(sprintf('Admin module "%s" is not registered.', $moduleCode));
+            throw new AdminModuleNotFoundException(sprintf('Admin module "%s" is not registered.', $moduleCode));
         }
 
         return $this->definitions[$moduleCode];
@@ -89,22 +109,36 @@ final class AdminModuleRegistry
     }
 
     /**
-     * Vraci kod modulu pro zaregistrovany URL segment
+     * Loads deferred contributions and resolves a route segment
      */
     public function moduleCodeByRouteSegment(string $segment): string
     {
+        $this->contributions->load();
+
         if (!isset($this->routeSegments[$segment])) {
-            throw new RuntimeException(sprintf('Module route segment "%s" is not registered.', $segment));
+            throw new AdminModuleNotFoundException(sprintf('Module route segment "%s" is not registered.', $segment));
         }
 
         return $this->routeSegments[$segment];
     }
 
     /**
-     * Vraci vsechny zaregistrovane definice modulu
+     * Loads deferred contributions and returns every module definition
      * @return list<AdminModuleDefinitionInterface>
      */
     public function all(): array
+    {
+        $this->contributions->load();
+
+        return array_values($this->definitions);
+    }
+
+    /**
+     * Returns the currently registered modules, including any already materialized deferred contributions
+     *
+     * @return list<AdminModuleDefinitionInterface>
+     */
+    public function registeredWithoutLoading(): array
     {
         return array_values($this->definitions);
     }
